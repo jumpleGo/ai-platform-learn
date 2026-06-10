@@ -5,9 +5,10 @@ import type { Partner } from '@/lib/types';
 
 export const getPartnerBySlug = unstable_cache(
   async (slug: string): Promise<Partner | null> => {
-    const snap = await adminDb.collection('partners')
-      .where('slug', '==', slug).where('active', '==', true).limit(1).get();
-    const d = snap.docs[0];
+    // один equality-фильтр (single-field index), активность проверяем в памяти —
+    // чтобы запрос не требовал составного индекса Firestore
+    const snap = await adminDb.collection('partners').where('slug', '==', slug).limit(5).get();
+    const d = snap.docs.find((doc) => doc.data().active === true);
     return d ? { id: d.id, ...(d.data() as Omit<Partner, 'id'>) } : null;
   },
   ['partner-by-slug'],

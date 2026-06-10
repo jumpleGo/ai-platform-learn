@@ -7,15 +7,17 @@ export type CourseWithLessons = Course & { lessons: Lesson[] };
 
 export const getPublishedCoursesWithLessons = unstable_cache(
   async (): Promise<CourseWithLessons[]> => {
-    const snap = await adminDb.collection('courses')
-      .where('published', '==', true).orderBy('order').get();
-    return Promise.all(snap.docs.map(async (d) => {
+    // только equality-фильтр (single-field index), сортировка по order — в памяти:
+    // так запрос не требует составного индекса Firestore
+    const snap = await adminDb.collection('courses').where('published', '==', true).get();
+    const courses = await Promise.all(snap.docs.map(async (d) => {
       const lessons = await d.ref.collection('lessons').orderBy('order').get();
       return {
         id: d.id, ...(d.data() as Omit<Course, 'id'>),
         lessons: lessons.docs.map((l) => ({ id: l.id, courseId: d.id, ...(l.data() as Omit<Lesson, 'id' | 'courseId'>) })),
       };
     }));
+    return courses.sort((a, b) => a.order - b.order);
   },
   ['catalog'],
   { tags: ['catalog'], revalidate: 300 },

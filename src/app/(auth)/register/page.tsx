@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { clientAuth } from '@/lib/firebase/client';
 import { Button } from '@/components/ui/button';
@@ -17,16 +16,15 @@ import {
 } from '../session-client';
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
-  async function finishRegister() {
-    router.push('/');
-    router.refresh();
+  function finishRegister() {
+    // полный переход: гарантированно подхватывает только что выставленную session-cookie
+    window.location.assign('/');
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -38,7 +36,7 @@ export default function RegisterPage() {
       const idToken = await cred.user.getIdToken();
       await exchangeIdTokenForSession(idToken);
       await ensureUserProfile(idToken, name);
-      await finishRegister();
+      finishRegister();
     } catch (err) {
       setError(authErrorMessage(err));
       setPending(false);
@@ -50,7 +48,7 @@ export default function RegisterPage() {
     setPending(true);
     try {
       await signInWithGoogleAndSession();
-      await finishRegister();
+      finishRegister();
     } catch (err) {
       setError(authErrorMessage(err));
       setPending(false);
