@@ -27,10 +27,18 @@ if (!email) {
 
 const app = getApps()[0] ?? createApp();
 
-const auth = getAuth(app);
-const db = getFirestore(app);
-const user = await auth.getUserByEmail(email);
-await auth.setCustomUserClaims(user.uid, { role: 'admin' });
-await db.doc(`users/${user.uid}`).set({ role: 'admin' }, { merge: true });
-console.log(`admin: ${email} (${user.uid})`);
-console.log('Роль попадёт в session cookie только после повторного входа пользователя.');
+async function main() {
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const user = await auth.getUserByEmail(email);
+  await auth.setCustomUserClaims(user.uid, { role: 'admin' });
+  await db.doc(`users/${user.uid}`).set({ role: 'admin' }, { merge: true });
+  console.log(`admin: ${email} (${user.uid})`);
+  console.log('Роль попадёт в session cookie только после повторного входа пользователя.');
+}
+
+// tsx исполняет .ts как CJS — top-level await недоступен
+main().then(() => process.exit(0)).catch((e) => {
+  console.error(e);
+  process.exit(1);
+});
