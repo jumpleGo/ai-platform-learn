@@ -18,7 +18,7 @@ export function LessonCard({ lesson, locked }: { lesson: Lesson; locked: boolean
         <p className="line-clamp-2 text-sm font-medium">{lesson.title}</p>
         {lesson.durationSec !== null && (
           <p className="text-xs text-muted-foreground">
-            {Math.round(lesson.durationSec / 60)} мин
+            {Math.max(1, Math.round(lesson.durationSec / 60))} мин
           </p>
         )}
       </div>

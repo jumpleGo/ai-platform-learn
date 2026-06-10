@@ -9,6 +9,10 @@ export function isLocked(
 ): boolean {
   const paid = lesson.access === 'paid' || course.access === 'paid';
   if (!paid) return false;
-  const active = !!sub && sub.status === 'active' && (sub.expiresAt === null || sub.expiresAt > now);
+  const active =
+    !!sub &&
+    sub.status === 'active' &&
+    sub.startsAt <= now &&
+    (sub.expiresAt === null || sub.expiresAt > now);
   return !active;
 }

@@ -25,4 +25,7 @@ describe('isLocked', () => {
   it('подписка со статусом expired не открывает', () => {
     expect(isLocked({ access: 'paid' }, { access: 'free' }, sub({ status: 'expired' }), 1000)).toBe(true);
   });
+  it('подписка из будущего не открывает', () => {
+    expect(isLocked({ access: 'paid' }, { access: 'free' }, sub({ startsAt: 2000 }), 1000)).toBe(true);
+  });
 });
