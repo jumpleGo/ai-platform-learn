@@ -32,6 +32,12 @@ function parseLessonFields(formData: FormData) {
   };
 }
 
+// max(order) + 1, чтобы после удаления документов не появлялись дубли order
+async function nextOrder(collectionPath: string) {
+  const last = await adminDb.collection(collectionPath).orderBy('order', 'desc').limit(1).get();
+  return (last.docs[0]?.data().order ?? -1) + 1;
+}
+
 function refreshCourses(courseId?: string) {
   invalidateCatalog();
   revalidatePath('/admin/courses');
@@ -42,12 +48,11 @@ export async function createCourse(formData: FormData) {
   await requireAdmin();
   const title = String(formData.get('title') ?? '').trim();
   if (!title) throw new Error('title required');
-  const count = await adminDb.collection('courses').count().get();
   const ref = await adminDb.collection('courses').add({
     title,
     description: String(formData.get('description') ?? '').trim(),
     access: parseAccess(formData.get('access')),
-    order: count.data().count,
+    order: await nextOrder('courses'),
     published: false,
     coverUrl: null,
   });
@@ -82,9 +87,8 @@ export async function createLesson(courseId: string, formData: FormData) {
   await requireAdmin();
   assertId(courseId, 'courseId');
   const fields = parseLessonFields(formData);
-  const lessons = adminDb.collection(`courses/${courseId}/lessons`);
-  const count = await lessons.count().get();
-  await lessons.add({ ...fields, order: count.data().count });
+  const lessonsPath = `courses/${courseId}/lessons`;
+  await adminDb.collection(lessonsPath).add({ ...fields, order: await nextOrder(lessonsPath) });
   refreshCourses(courseId);
 }
 

@@ -34,6 +34,8 @@ function LessonFields({ idPrefix, lesson }: { idPrefix: string; lesson?: Lesson 
           id={`${idPrefix}-video`}
           name="videoEmbedUrl"
           required
+          pattern="https://.*"
+          title="Ссылка должна начинаться с https://"
           placeholder="https://..."
           defaultValue={lesson?.videoEmbedUrl}
         />
