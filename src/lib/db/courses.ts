@@ -24,6 +24,8 @@ export const getPublishedCoursesWithLessons = unstable_cache(
 export async function getLesson(courseId: string, lessonId: string): Promise<{ course: Course; lesson: Lesson } | null> {
   const courseSnap = await adminDb.doc(`courses/${courseId}`).get();
   if (!courseSnap.exists) return null;
+  // черновик не доступен по прямому URL — страница отдаст notFound
+  if (!(courseSnap.data() as { published?: boolean }).published) return null;
   const lessonSnap = await adminDb.doc(`courses/${courseId}/lessons/${lessonId}`).get();
   if (!lessonSnap.exists) return null;
   return {

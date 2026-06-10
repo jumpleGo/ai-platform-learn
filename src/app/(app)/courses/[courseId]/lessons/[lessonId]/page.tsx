@@ -30,7 +30,7 @@ export default async function LessonPage({ params }: {
   ]);
 
   const now = Date.now();
-  const locked = isLocked(lesson, course, sub, now);
+  const locked = isLocked(lesson, sub, now);
   const courseLessons = courses.find((c) => c.id === courseId)?.lessons ?? [];
 
   return (
@@ -89,7 +89,7 @@ export default async function LessonPage({ params }: {
                   {completedIds.has(l.id) && (
                     <Check className="size-4 shrink-0 text-primary" aria-hidden />
                   )}
-                  {isLocked(l, course, sub, now) && (
+                  {isLocked(l, sub, now) && (
                     <Lock className="size-3.5 shrink-0" aria-hidden />
                   )}
                 </Link>

@@ -15,7 +15,10 @@ export function proxy(req: NextRequest) {
     res.cookies.set('utm', JSON.stringify(utm), { maxAge: 60 * 60 * 24 * 30, path: '/' });
   }
   const ref = searchParams.get('ref');
-  if (ref) res.cookies.set('partner', ref, { maxAge: 60 * 60 * 24 * 30, path: '/' });
+  // мусорный ref не пишем в cookie — тот же guard, что в /r/[slug]
+  if (ref && /^[a-z0-9-]{1,64}$/.test(ref)) {
+    res.cookies.set('partner', ref, { maxAge: 60 * 60 * 24 * 30, path: '/' });
+  }
   return res;
 }
 

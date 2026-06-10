@@ -3,6 +3,7 @@ import { getSubscription } from '@/lib/db/subscriptions';
 import { getSession } from '@/lib/session';
 import { isLocked } from '@/lib/access';
 import { CourseCarousel } from '@/components/course-carousel';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default async function HomePage() {
   const session = await getSession();
@@ -18,12 +19,26 @@ export default async function HomePage() {
           key={course.id}
           course={course}
           lessons={course.lessons}
-          lockedIds={course.lessons.filter((l) => isLocked(l, course, sub, now)).map((l) => l.id)}
+          lockedIds={course.lessons.filter((l) => isLocked(l, sub, now)).map((l) => l.id)}
         />
       ))}
       {courses.length === 0 && (
         <p className="text-muted-foreground">Курсы скоро появятся.</p>
       )}
+      {/* якорь для paywall-баннера (/#subscribe) */}
+      <section id="subscribe">
+        <Card>
+          <CardHeader>
+            <CardTitle>Подписка</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              Подписка открывает все платные уроки. Онлайн-оплата скоро появится —
+              а пока подписку выдаёт администратор.
+            </p>
+          </CardContent>
+        </Card>
+      </section>
     </div>
   );
 }

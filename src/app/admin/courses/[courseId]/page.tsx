@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { Lesson } from '@/lib/types';
+import type { Access, Lesson } from '@/lib/types';
 import { getCourseWithLessons } from '@/lib/db/admin-courses';
 import {
   createLesson, deleteCourse, deleteLesson, moveLesson, updateCourse, updateLesson,
@@ -17,7 +17,11 @@ const selectClass =
   'h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30';
 
 // Общие поля формы урока (создание и редактирование)
-function LessonFields({ idPrefix, lesson }: { idPrefix: string; lesson?: Lesson }) {
+function LessonFields({ idPrefix, lesson, courseAccess }: {
+  idPrefix: string;
+  lesson?: Lesson;
+  courseAccess: Access;
+}) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-1.5">
@@ -61,7 +65,7 @@ function LessonFields({ idPrefix, lesson }: { idPrefix: string; lesson?: Lesson 
             id={`${idPrefix}-access`}
             name="access"
             className={selectClass}
-            defaultValue={lesson?.access ?? 'free'}
+            defaultValue={lesson?.access ?? courseAccess}
           >
             <option value="free">Бесплатный</option>
             <option value="paid">По подписке</option>
@@ -106,7 +110,7 @@ export default async function AdminCoursePage({
             </div>
             <div className="flex flex-wrap items-end gap-4">
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="course-access">Доступ</Label>
+                <Label htmlFor="course-access">Доступ (по умолчанию для новых уроков)</Label>
                 <select id="course-access" name="access" className={selectClass} defaultValue={course.access}>
                   <option value="free">Бесплатный</option>
                   <option value="paid">По подписке</option>
@@ -168,7 +172,7 @@ export default async function AdminCoursePage({
                 action={updateLesson.bind(null, courseId, lesson.id)}
                 className="mt-3 flex flex-col gap-3"
               >
-                <LessonFields idPrefix={`lesson-${lesson.id}`} lesson={lesson} />
+                <LessonFields idPrefix={`lesson-${lesson.id}`} lesson={lesson} courseAccess={course.access} />
                 <Button type="submit" className="self-start">Сохранить</Button>
               </form>
             </details>
@@ -182,7 +186,7 @@ export default async function AdminCoursePage({
         </CardHeader>
         <CardContent>
           <form action={createLesson.bind(null, courseId)} className="flex flex-col gap-3">
-            <LessonFields idPrefix="new-lesson" />
+            <LessonFields idPrefix="new-lesson" courseAccess={course.access} />
             <Button type="submit" className="self-start">Добавить урок</Button>
           </form>
         </CardContent>
