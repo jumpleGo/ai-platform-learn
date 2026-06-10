@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      allow read: if request.auth.uid == uid;
+      allow write: if false; // только admin SDK
+      match /progress/{lessonId} {
+        allow read, write: if request.auth.uid == uid;
+      }
+    }
+    match /courses/{courseId} {
+      allow read: if request.auth != null && resource.data.published == true;
+      allow write: if false;
+      match /lessons/{lessonId} {
+        allow read: if request.auth != null;
+        allow write: if false;
+      }
+    }
+    match /subscriptions/{uid} {
+      allow read: if request.auth.uid == uid;
+      allow write: if false;
+    }
+    match /partners/{id} {
+      allow read: if true; // брендинг нужен до логина
+      allow write: if false;
+    }
+  }
+}
