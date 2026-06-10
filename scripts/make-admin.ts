@@ -19,13 +19,13 @@ function createApp(): App {
   });
 }
 
-const app = getApps()[0] ?? createApp();
-
 const email = process.argv[2];
 if (!email) {
   console.error('Использование: npx tsx scripts/make-admin.ts <email>');
   process.exit(1);
 }
+
+const app = getApps()[0] ?? createApp();
 
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -33,3 +33,4 @@ const user = await auth.getUserByEmail(email);
 await auth.setCustomUserClaims(user.uid, { role: 'admin' });
 await db.doc(`users/${user.uid}`).set({ role: 'admin' }, { merge: true });
 console.log(`admin: ${email} (${user.uid})`);
+console.log('Роль попадёт в session cookie только после повторного входа пользователя.');
