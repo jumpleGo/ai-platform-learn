@@ -35,12 +35,15 @@ export default async function LessonPage({ params }: {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_18rem]">
+      {/* key — иначе React реюзает компонент при навигации между уроками и событие не уходит */}
       <TrackOnMount
+        key={`opened:${courseId}:${lessonId}`}
         event={EVENTS.lessonOpened}
         props={{ courseId, lessonId, locked }}
       />
       {locked && (
         <TrackOnMount
+          key={`paywall:${courseId}:${lessonId}`}
           event={EVENTS.paywallViewed}
           props={{ courseId, lessonId }}
         />

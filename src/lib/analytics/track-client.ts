@@ -1,3 +1,4 @@
+'use client';
 import posthog from 'posthog-js';
 
 // Отправляет событие, если posthog инициализирован; иначе no-op
