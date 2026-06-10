@@ -2,6 +2,8 @@
 import { cookies } from 'next/headers';
 import { adminAuth, adminDb } from '@/lib/firebase/admin';
 import { resolveAttribution } from '@/lib/attribution';
+import { EVENTS } from '@/lib/analytics/events';
+import { trackServer } from '@/lib/analytics/posthog-server';
 
 // Создаёт профиль пользователя по проверенному idToken; идемпотентна —
 // если профиль уже существует, ничего не делает
@@ -23,5 +25,9 @@ export async function ensureUserProfile(idToken: string, displayName?: string) {
     partnerId,
     utm,
     createdAt: Date.now(),
+  });
+  await trackServer(decoded.uid, EVENTS.signupCompleted, {
+    partnerId,
+    utm_source: utm?.utm_source ?? null,
   });
 }

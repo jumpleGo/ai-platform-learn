@@ -2,6 +2,8 @@
 import { revalidatePath } from 'next/cache';
 import { expireSubscription, grantSubscription } from '@/lib/db/subscriptions';
 import { requireAdmin } from '@/lib/require-admin';
+import { EVENTS } from '@/lib/analytics/events';
+import { trackServer } from '@/lib/analytics/posthog-server';
 
 function assertUid(uid: string) {
   if (!/^[\w-]+$/.test(uid)) throw new Error('invalid uid');
@@ -24,6 +26,7 @@ export async function grantSubscriptionAction(uid: string, formData: FormData) {
     expiresAt,
     grantedBy: session.uid,
   });
+  await trackServer(uid, EVENTS.subscriptionActivated, { plan, source: 'manual' });
   revalidatePath('/admin/users');
 }
 

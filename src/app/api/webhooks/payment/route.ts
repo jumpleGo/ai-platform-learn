@@ -1,4 +1,6 @@
 import { grantSubscription } from '@/lib/db/subscriptions';
+import { EVENTS } from '@/lib/analytics/events';
+import { trackServer } from '@/lib/analytics/posthog-server';
 
 // Generic-endpoint: адаптер конкретной платёжки (ЮKassa/Stripe/...) добавится отдельно
 export async function POST(req: Request) {
@@ -30,5 +32,6 @@ export async function POST(req: Request) {
     expiresAt: Date.now() + periodDays * 86_400_000,
     grantedBy: null,
   });
+  await trackServer(uid, EVENTS.subscriptionActivated, { plan, source: 'payment' });
   return Response.json({ ok: true });
 }

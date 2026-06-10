@@ -4,6 +4,8 @@ import { Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { completeLesson } from '@/app/(app)/courses/[courseId]/lessons/[lessonId]/actions';
+import { track } from '@/lib/analytics/track-client';
+import { EVENTS } from '@/lib/analytics/events';
 
 export function CompleteLessonButton({ courseId, lessonId, completed }: {
   courseId: string;
@@ -28,6 +30,7 @@ export function CompleteLessonButton({ courseId, lessonId, completed }: {
         startTransition(async () => {
           try {
             await completeLesson(courseId, lessonId);
+            track(EVENTS.lessonCompleted, { courseId, lessonId });
           } catch {
             toast.error('Не удалось сохранить прогресс');
           }

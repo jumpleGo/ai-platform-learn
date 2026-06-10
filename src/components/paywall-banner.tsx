@@ -1,6 +1,5 @@
-import Link from 'next/link';
 import { Lock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { SubscribeButton } from '@/components/subscribe-button';
 
 // Информационный баннер — просмотр не блокируется (требование продукта)
 export function PaywallBanner() {
@@ -13,7 +12,7 @@ export function PaywallBanner() {
           Просмотр не ограничен, но мы будем рады, если вы поддержите проект подпиской.
         </p>
       </div>
-      <Button render={<Link href="/#subscribe" />}>Оформить подписку</Button>
+      <SubscribeButton place="paywall" />
     </div>
   );
 }

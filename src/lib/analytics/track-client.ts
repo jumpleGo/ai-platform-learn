@@ -1,0 +1,11 @@
+import posthog from 'posthog-js';
+
+// Отправляет событие, если posthog инициализирован; иначе no-op
+export function track(event: string, props?: Record<string, unknown>) {
+  if (posthog.__loaded) posthog.capture(event, props);
+}
+
+// Привязывает события к пользователю
+export function identify(uid: string, props?: Record<string, unknown>) {
+  if (posthog.__loaded) posthog.identify(uid, props);
+}

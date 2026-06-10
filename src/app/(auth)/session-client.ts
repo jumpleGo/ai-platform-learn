@@ -1,5 +1,6 @@
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { clientAuth } from '@/lib/firebase/client';
+import { identify } from '@/lib/analytics/track-client';
 import { ensureUserProfile } from './actions';
 
 // Обменивает idToken пользователя на httpOnly session cookie
@@ -10,6 +11,8 @@ export async function exchangeIdTokenForSession(idToken: string) {
     body: JSON.stringify({ idToken }),
   });
   if (!res.ok) throw new Error('Не удалось создать сессию');
+  const uid = clientAuth.currentUser?.uid;
+  if (uid) identify(uid);
 }
 
 // Общий обработчик входа через Google: popup → сессия → профиль

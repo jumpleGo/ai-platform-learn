@@ -9,6 +9,8 @@ import { isLocked } from '@/lib/access';
 import { VideoEmbed } from '@/components/video-embed';
 import { PaywallBanner } from '@/components/paywall-banner';
 import { CompleteLessonButton } from '@/components/complete-lesson-button';
+import { TrackOnMount } from '@/components/track-on-mount';
+import { EVENTS } from '@/lib/analytics/events';
 
 export default async function LessonPage({ params }: {
   params: Promise<{ courseId: string; lessonId: string }>;
@@ -33,6 +35,16 @@ export default async function LessonPage({ params }: {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_18rem]">
+      <TrackOnMount
+        event={EVENTS.lessonOpened}
+        props={{ courseId, lessonId, locked }}
+      />
+      {locked && (
+        <TrackOnMount
+          event={EVENTS.paywallViewed}
+          props={{ courseId, lessonId }}
+        />
+      )}
       <div className="space-y-6">
         <Link
           href="/"
