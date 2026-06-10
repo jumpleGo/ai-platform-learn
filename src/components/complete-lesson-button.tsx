@@ -1,10 +1,15 @@
 'use client';
 import { useTransition } from 'react';
 import { Check } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { completeLesson } from '@/app/(app)/courses/[courseId]/lessons/[lessonId]/actions';
 
-export function CompleteLessonButton({ lessonId, completed }: { lessonId: string; completed: boolean }) {
+export function CompleteLessonButton({ courseId, lessonId, completed }: {
+  courseId: string;
+  lessonId: string;
+  completed: boolean;
+}) {
   const [pending, startTransition] = useTransition();
 
   if (completed) {
@@ -19,7 +24,15 @@ export function CompleteLessonButton({ lessonId, completed }: { lessonId: string
   return (
     <Button
       disabled={pending}
-      onClick={() => startTransition(() => completeLesson(lessonId))}
+      onClick={() =>
+        startTransition(async () => {
+          try {
+            await completeLesson(courseId, lessonId);
+          } catch {
+            toast.error('Не удалось сохранить прогресс');
+          }
+        })
+      }
     >
       Урок пройден
     </Button>

@@ -7,7 +7,7 @@ export function VideoEmbed({ url, title }: { url: string; title: string }) {
         src={toEmbedUrl(url)}
         title={title}
         className="size-full"
-        loading="lazy"
+        referrerPolicy="strict-origin-when-cross-origin"
         allowFullScreen
         allow="autoplay; encrypted-media; picture-in-picture"
       />

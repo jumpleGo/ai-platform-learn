@@ -14,17 +14,17 @@ export default async function LessonPage({ params }: {
   params: Promise<{ courseId: string; lessonId: string }>;
 }) {
   const { courseId, lessonId } = await params;
-  const [data, session] = await Promise.all([
+  const [data, session, courses] = await Promise.all([
     getLesson(courseId, lessonId),
     getSession(),
+    getPublishedCoursesWithLessons(),
   ]);
   if (!data) notFound();
   const { course, lesson } = data;
 
-  const [sub, completedIds, courses] = await Promise.all([
+  const [sub, completedIds] = await Promise.all([
     session ? getSubscription(session.uid) : null,
     session ? getCompletedLessonIds(session.uid) : new Set<string>(),
-    getPublishedCoursesWithLessons(),
   ]);
 
   const now = Date.now();
@@ -47,7 +47,11 @@ export default async function LessonPage({ params }: {
         {lesson.description && (
           <p className="text-muted-foreground">{lesson.description}</p>
         )}
-        <CompleteLessonButton lessonId={lesson.id} completed={completedIds.has(lesson.id)} />
+        <CompleteLessonButton
+          courseId={courseId}
+          lessonId={lesson.id}
+          completed={completedIds.has(lesson.id)}
+        />
       </div>
 
       <aside className="space-y-3">

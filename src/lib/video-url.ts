@@ -10,6 +10,9 @@ export function toEmbedUrl(url: string): string {
     return url;
   }
 
+  // Только https — режем javascript:, data: и прочие опасные схемы
+  if (parsed.protocol !== 'https:') return 'about:blank';
+
   if (YOUTUBE_HOSTS.has(parsed.hostname)) {
     if (parsed.pathname === '/watch') {
       const id = parsed.searchParams.get('v');

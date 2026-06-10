@@ -25,4 +25,7 @@ describe('toEmbedUrl', () => {
   it('кривой URL — без изменений', () => {
     expect(toEmbedUrl('not-a-url')).toBe('not-a-url');
   });
+  it('не-https схема -> about:blank', () => {
+    expect(toEmbedUrl('javascript:alert(1)')).toBe('about:blank');
+  });
 });
