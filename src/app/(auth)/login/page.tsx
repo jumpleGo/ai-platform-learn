@@ -3,19 +3,18 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  GoogleAuthProvider,
-  getAdditionalUserInfo,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-} from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { clientAuth } from '@/lib/firebase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { createUserProfile } from '../actions';
-import { exchangeIdTokenForSession } from '../session-client';
+import { ensureUserProfile } from '../actions';
+import {
+  authErrorMessage,
+  exchangeIdTokenForSession,
+  signInWithGoogleAndSession,
+} from '../session-client';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -35,10 +34,12 @@ export default function LoginPage() {
     setPending(true);
     try {
       const cred = await signInWithEmailAndPassword(clientAuth, email, password);
-      await exchangeIdTokenForSession(cred.user);
+      const idToken = await cred.user.getIdToken();
+      await exchangeIdTokenForSession(idToken);
+      await ensureUserProfile(idToken);
       await finishLogin();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Не удалось войти');
+      setError(authErrorMessage(err));
       setPending(false);
     }
   }
@@ -47,18 +48,10 @@ export default function LoginPage() {
     setError(null);
     setPending(true);
     try {
-      const cred = await signInWithPopup(clientAuth, new GoogleAuthProvider());
-      await exchangeIdTokenForSession(cred.user);
-      if (getAdditionalUserInfo(cred)?.isNewUser) {
-        await createUserProfile(
-          cred.user.uid,
-          cred.user.email ?? '',
-          cred.user.displayName ?? '',
-        );
-      }
+      await signInWithGoogleAndSession();
       await finishLogin();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Не удалось войти');
+      setError(authErrorMessage(err));
       setPending(false);
     }
   }
