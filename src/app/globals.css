@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+  --font-heading: var(--font-source-serif);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,73 +48,75 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Тёплая палитра в духе Anthropic: крем-фон, чернильный текст, терракотовый акцент Claude */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --background: oklch(0.9785 0.005 95);
+  --foreground: oklch(0.27 0.012 60);
+  --card: oklch(0.998 0.002 95);
+  --card-foreground: oklch(0.27 0.012 60);
+  --popover: oklch(0.998 0.002 95);
+  --popover-foreground: oklch(0.27 0.012 60);
+  --primary: oklch(0.555 0.125 38);
+  --primary-foreground: oklch(0.985 0.005 90);
+  --secondary: oklch(0.945 0.01 90);
+  --secondary-foreground: oklch(0.32 0.012 60);
+  --muted: oklch(0.95 0.008 90);
+  --muted-foreground: oklch(0.5 0.014 60);
+  --accent: oklch(0.934 0.026 48);
+  --accent-foreground: oklch(0.42 0.1 40);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --border: oklch(0.893 0.012 80);
+  --input: oklch(0.893 0.012 80);
+  --ring: oklch(0.667 0.118 39.4);
+  --chart-1: oklch(0.667 0.118 39.4);
+  --chart-2: oklch(0.74 0.1 80);
+  --chart-3: oklch(0.62 0.07 150);
+  --chart-4: oklch(0.6 0.08 250);
+  --chart-5: oklch(0.45 0.04 50);
+  --radius: 0.75rem;
+  --sidebar: oklch(0.963 0.007 92);
+  --sidebar-foreground: oklch(0.27 0.012 60);
+  --sidebar-primary: oklch(0.555 0.125 38);
+  --sidebar-primary-foreground: oklch(0.985 0.005 90);
+  --sidebar-accent: oklch(0.925 0.014 85);
+  --sidebar-accent-foreground: oklch(0.32 0.012 60);
+  --sidebar-border: oklch(0.893 0.012 80);
+  --sidebar-ring: oklch(0.667 0.118 39.4);
 }
 
+/* Тёмная тема — тёплый графит как в Claude, без холодных серых */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: oklch(0.225 0.006 80);
+  --foreground: oklch(0.93 0.008 90);
+  --card: oklch(0.268 0.007 80);
+  --card-foreground: oklch(0.93 0.008 90);
+  --popover: oklch(0.268 0.007 80);
+  --popover-foreground: oklch(0.93 0.008 90);
+  --primary: oklch(0.7 0.125 40);
+  --primary-foreground: oklch(0.215 0.012 50);
+  --secondary: oklch(0.315 0.008 80);
+  --secondary-foreground: oklch(0.93 0.008 90);
+  --muted: oklch(0.305 0.008 80);
+  --muted-foreground: oklch(0.7 0.012 80);
+  --accent: oklch(0.335 0.028 48);
+  --accent-foreground: oklch(0.88 0.05 48);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
+  --border: oklch(1 0 0 / 11%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --ring: oklch(0.7 0.125 40);
+  --chart-1: oklch(0.7 0.125 40);
+  --chart-2: oklch(0.78 0.1 80);
+  --chart-3: oklch(0.68 0.07 150);
+  --chart-4: oklch(0.66 0.08 250);
+  --chart-5: oklch(0.6 0.04 50);
+  --sidebar: oklch(0.247 0.006 80);
+  --sidebar-foreground: oklch(0.93 0.008 90);
+  --sidebar-primary: oklch(0.7 0.125 40);
+  --sidebar-primary-foreground: oklch(0.215 0.012 50);
+  --sidebar-accent: oklch(0.315 0.012 70);
+  --sidebar-accent-foreground: oklch(0.93 0.008 90);
+  --sidebar-border: oklch(1 0 0 / 11%);
+  --sidebar-ring: oklch(0.7 0.125 40);
 }
 
 @layer base {
@@ -126,5 +128,90 @@
   }
   html {
     @apply font-sans;
+  }
+  ::selection {
+    background: oklch(0.667 0.118 39.4 / 30%);
+  }
+}
+
+/* Появление блоков снизу с каскадом через --rise-delay; уважает reduced-motion */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility animate-rise {
+  animation: rise-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--rise-delay, 0s);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* Появление чуть крупнее и с лёгким масштабом — для карточек в карусели */
+@keyframes float-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@utility animate-float {
+  animation: float-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--rise-delay, 0s);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* Мягкое тёплое свечение под хиро-блоками */
+@utility bg-hero-glow {
+  background:
+    radial-gradient(56rem 18rem at 18% -8%, oklch(0.78 0.1 45 / 14%), transparent 64%),
+    radial-gradient(40rem 14rem at 85% -10%, oklch(0.8 0.07 80 / 10%), transparent 60%);
+}
+
+/* Бесконечная лента ролей. Спейсинг — через margin элементов, поэтому
+   сдвиг ровно на половину трека (две копии списка) делает цикл бесшовным. */
+@keyframes roles-roll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@utility animate-roles {
+  width: max-content;
+  animation: roles-roll 45s linear infinite;
+
+  /* без анимации — статичный перенос по строкам, все роли видны */
+  @media (prefers-reduced-motion: reduce) {
+    width: 100%;
+    flex-wrap: wrap;
+    animation: none;
+  }
+}
+
+/* Прячем скроллбар у каруселей, оставляя нативную прокрутку и снап */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
   }
 }

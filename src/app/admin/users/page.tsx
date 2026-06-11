@@ -35,7 +35,7 @@ export default async function AdminUsersPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Пользователи</h1>
+      <h1 className="font-heading text-2xl font-semibold tracking-tight">Пользователи</h1>
 
       <form method="GET" className="flex items-center gap-2">
         <Input name="q" defaultValue={q ?? ''} placeholder="email@example.com" className="w-72" />

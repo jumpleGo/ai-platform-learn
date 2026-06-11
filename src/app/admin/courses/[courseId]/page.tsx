@@ -88,7 +88,7 @@ export default async function AdminCoursePage({
   return (
     <div className="flex max-w-2xl flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">{course.title}</h1>
+        <h1 className="font-heading text-2xl font-semibold tracking-tight">{course.title}</h1>
         <Link href="/admin/courses" className="text-sm text-muted-foreground hover:underline">
           ← Все курсы
         </Link>

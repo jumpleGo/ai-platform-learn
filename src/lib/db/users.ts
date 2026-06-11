@@ -9,7 +9,9 @@ export async function listUsers(search?: string): Promise<AdminUserRow[]> {
   let query = adminDb.collection('users').orderBy('createdAt', 'desc').limit(50);
   if (search) query = adminDb.collection('users').where('email', '==', search).limit(50) as typeof query;
   const snap = await query.get();
-  const subs = await Promise.all(snap.docs.map((d) => adminDb.doc(`subscriptions/${d.id}`).get()));
+  if (snap.empty) return [];
+  // getAll — один batch-RPC вместо 50 параллельных get
+  const subs = await adminDb.getAll(...snap.docs.map((d) => adminDb.doc(`subscriptions/${d.id}`)));
   return snap.docs.map((d, i) => ({
     uid: d.id,
     ...(d.data() as UserDoc),

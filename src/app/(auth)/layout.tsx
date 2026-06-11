@@ -1,11 +1,28 @@
+import { Suspense } from 'react';
+import { SquareTerminal } from 'lucide-react';
 import { PartnerBar } from '@/components/partner-bar';
+import { AuthBackground } from '@/components/auth-background';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div>
-      <PartnerBar />
-      <div className="flex min-h-svh items-center justify-center p-4">
-        {children}
+    <div className="flex min-h-svh flex-col">
+      <Suspense fallback={null}>
+        <PartnerBar />
+      </Suspense>
+      <div className="bg-hero-glow relative flex flex-1 flex-col items-center justify-center gap-8 overflow-hidden p-4">
+        <AuthBackground />
+        <div className="relative z-10 flex items-center gap-2.5 font-mono text-lg font-semibold tracking-tight animate-rise">
+          <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+            <SquareTerminal className="size-5" aria-hidden />
+          </span>
+          ai-learn
+        </div>
+        <div className="animate-rise relative z-10 w-full max-w-sm" style={{ '--rise-delay': '0.06s' } as React.CSSProperties}>
+          {children}
+        </div>
+        <p className="animate-rise relative z-10 font-mono text-xs text-muted-foreground" style={{ '--rise-delay': '0.12s' } as React.CSSProperties}>
+          $ обучение ИИ-разработке с Claude Code
+        </p>
       </div>
     </div>
   );

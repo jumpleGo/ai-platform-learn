@@ -1,22 +1,30 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Source_Serif_4 } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { NavigationProgress } from "@/components/navigation-progress";
 import { PostHogProvider } from "@/lib/analytics/posthog-client";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// Inter и JetBrains Mono поддерживают кириллицу (Geist — нет, русский текст падал в системный шрифт)
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin", "cyrillic"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const sourceSerif = Source_Serif_4({
+  variable: "--font-source-serif",
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "600", "700"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin", "cyrillic"],
 });
 
 export const metadata: Metadata = {
-  title: "Платформа уроков",
-  description: "Видео-курсы и уроки",
+  title: "ai-learn — курсы по Claude Code",
+  description: "Видеокурсы по ИИ-разработке: Claude Code, агенты и вайб-кодинг",
 };
 
 export default function RootLayout({
@@ -27,9 +35,10 @@ export default function RootLayout({
   return (
     <html
       lang="ru"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${sourceSerif.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <NavigationProgress />
         <PostHogProvider>{children}</PostHogProvider>
         <Toaster />
       </body>
