@@ -49,6 +49,10 @@ export default function LoginPage() {
 
   async function handleGoogle() {
     setError(null);
+    if (!consented) {
+      setError('Пожалуйста, подтвердите согласие на обработку данных и использование cookie');
+      return;
+    }
     setPending(true);
     try {
       await signInWithGoogleAndSession();
@@ -120,7 +124,7 @@ export default function LoginPage() {
           или
           <span className="h-px flex-1 bg-border" />
         </div>
-        <Button variant="outline" disabled={pending || !consented} onClick={handleGoogle} className="h-11 rounded-xl">
+        <Button variant="outline" disabled={pending} onClick={handleGoogle} className="h-11 rounded-xl">
           Войти через Google
         </Button>
         <p className="text-center text-sm text-muted-foreground">
