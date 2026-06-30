@@ -115,7 +115,7 @@ export function parseBlocks(md: string): Block[] {
     }
 
     // # / ## / ### заголовок (одиночный # приравниваем к ##)
-    const h = line.match(/^(#{1,3})\s+(.+)$/);
+    const h = line.match(/^(#{1,6})\s+(.+)$/);
     if (h) { blocks.push({ t: 'heading', level: h[1].length >= 3 ? 3 : 2, text: h[2].trim() }); i++; continue; }
 
     // > выноска (склеиваем подряд идущие)
@@ -166,7 +166,7 @@ export function parseBlocks(md: string): Block[] {
       i < lines.length &&
       lines[i].trim() !== '' &&
       !lines[i].trim().startsWith('```') &&
-      !/^(#{1,3})\s+/.test(lines[i]) &&
+      !/^(#{1,6})\s+/.test(lines[i]) &&
       !/^>\s?/.test(lines[i]) &&
       !/^\s*[-*]\s+/.test(lines[i]) &&
       !/^\s*\d+\.\s+/.test(lines[i]) &&
