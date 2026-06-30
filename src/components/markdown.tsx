@@ -127,6 +127,33 @@ export function Markdown({ source, className }: { source: string; className?: st
                 <code>{b.text}</code>
               </pre>
             );
+          case 'table':
+            return (
+              <div key={i} className="mt-4 overflow-x-auto first:mt-0">
+                <table className="w-full border-collapse text-sm">
+                  <thead>
+                    <tr>
+                      {b.headers.map((h, j) => (
+                        <th key={j} className="border-b border-border px-3 py-2 text-left font-semibold text-foreground">
+                          <Inlines tokens={parseInline(h)} />
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {b.rows.map((row, j) => (
+                      <tr key={j} className="border-b border-border/50 last:border-0">
+                        {row.map((cell, k) => (
+                          <td key={k} className="px-3 py-2 text-muted-foreground">
+                            <Inlines tokens={parseInline(cell)} />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
         }
       })}
     </div>

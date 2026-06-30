@@ -15,7 +15,8 @@ export type Block =
   | { t: 'ul'; items: string[] }
   | { t: 'ol'; items: string[] }
   | { t: 'callout'; text: string }
-  | { t: 'code'; text: string };
+  | { t: 'code'; text: string }
+  | { t: 'table'; headers: string[]; rows: string[][] };
 
 // --- горячие клавиши ---------------------------------------------------------
 
@@ -141,6 +142,24 @@ export function parseBlocks(md: string): Block[] {
       continue;
     }
 
+    // таблица GFM: строки с |
+    if (/^\s*\|/.test(line)) {
+      const tableLines: string[] = [];
+      while (i < lines.length && /^\s*\|/.test(lines[i])) { tableLines.push(lines[i]); i++; }
+      const parseRow = (r: string) =>
+        r.split('|').slice(1, -1).map((c) => c.trim());
+      const isSep = (r: string) => /^\s*\|[\s|:-]+\|\s*$/.test(r);
+      if (tableLines.length >= 2 && isSep(tableLines[1])) {
+        const headers = parseRow(tableLines[0]);
+        const rows = tableLines.slice(2).map(parseRow);
+        blocks.push({ t: 'table', headers, rows });
+      } else {
+        // не таблица — сваливаем в параграф
+        blocks.push({ t: 'p', text: tableLines.join(' ').trim() });
+      }
+      continue;
+    }
+
     // абзац — до пустой строки или начала другого блока
     const buf: string[] = [];
     while (
@@ -150,7 +169,8 @@ export function parseBlocks(md: string): Block[] {
       !/^(#{1,3})\s+/.test(lines[i]) &&
       !/^>\s?/.test(lines[i]) &&
       !/^\s*[-*]\s+/.test(lines[i]) &&
-      !/^\s*\d+\.\s+/.test(lines[i])
+      !/^\s*\d+\.\s+/.test(lines[i]) &&
+      !/^\s*\|/.test(lines[i])
     ) { buf.push(lines[i]); i++; }
     flushPara(buf);
   }
