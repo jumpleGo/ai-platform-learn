@@ -22,9 +22,37 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin", "cyrillic"],
 });
 
+const SITE_TITLE = "Claude Code с нуля — собери свою команду ИИ-агентов";
+const SITE_DESCRIPTION =
+  "Курс по Claude Code для тех, кто не программист. Без кода и терминала: учишься ставить задачи словами и собираешь команду ИИ-агентов, которые работают за тебя.";
+
 export const metadata: Metadata = {
-  title: "ai-learn — курсы по Claude Code",
-  description: "Видеокурсы по ИИ-разработке: Claude Code, агенты и вайб-кодинг",
+  metadataBase: new URL("https://gelato.su"),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  icons: { icon: "/favicon.svg", apple: "/favicon.svg" },
+  openGraph: {
+    type: "website",
+    siteName: "Claude Code с нуля",
+    locale: "ru_RU",
+    url: "https://gelato.su",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "Курс по Claude Code с нуля, пиксельный клодик",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ["/og.png"],
+  },
 };
 
 export default function RootLayout({

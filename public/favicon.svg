@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
+  <rect width="32" height="32" rx="7" fill="#1a1a17"/>
+  <!-- пиксельный клодик: коралловая голова -->
+  <g fill="#d97757">
+    <rect x="7"  y="6"  width="18" height="4"/>
+    <rect x="6"  y="10" width="20" height="12"/>
+    <rect x="7"  y="22" width="4"  height="4"/>
+    <rect x="14" y="22" width="4"  height="4"/>
+    <rect x="21" y="22" width="4"  height="4"/>
+  </g>
+  <!-- глаза-шевроны -->
+  <g fill="#1a1a17">
+    <rect x="10" y="13" width="2" height="2"/>
+    <rect x="12" y="15" width="2" height="2"/>
+    <rect x="10" y="17" width="2" height="2"/>
+    <rect x="20" y="13" width="2" height="2"/>
+    <rect x="18" y="15" width="2" height="2"/>
+    <rect x="20" y="17" width="2" height="2"/>
+  </g>
+</svg>
