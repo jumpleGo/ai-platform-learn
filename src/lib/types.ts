@@ -29,6 +29,12 @@ export interface Lesson {
   durationSec: number | null;
   order: number;
   access: Access;
+  // Markdown-материалы урока (конспект, ссылки, горячие клавиши); рендерятся компонентом Markdown
+  materials: string;
+  // Накопленное число просмотров — растёт при открытии урока
+  views: number;
+  // Своя загруженная обложка-превью; null — берём кадр из видео
+  previewImageUrl: string | null;
 }
 
 export interface Partner {
@@ -47,4 +53,19 @@ export interface Subscription {
   startsAt: number;
   expiresAt: number | null;
   grantedBy: string | null;
+  // Курсы, к которым открыт доступ. null — доступ ко всем курсам (полная подписка)
+  courseIds: string[] | null;
+}
+
+// Доступ, выданный на email до регистрации пользователя. Применяется при регистрации
+// (claimPendingGrant). periodDays === null — бессрочно; срок отсчитывается от момента активации.
+export interface PendingGrant {
+  email: string;
+  plan: string;
+  periodDays: number | null;
+  partnerId: string | null;
+  // Курсы доступа; null — все курсы (см. Subscription.courseIds)
+  courseIds: string[] | null;
+  grantedBy: string;
+  createdAt: number;
 }

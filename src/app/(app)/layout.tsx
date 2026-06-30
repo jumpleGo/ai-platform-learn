@@ -2,12 +2,14 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { SquareTerminal } from 'lucide-react';
 import { getSession } from '@/lib/session';
+import { getRegisteredUsersCount } from '@/lib/db/stats';
 import { LogoutButton } from '@/components/logout-button';
 import { PartnerBar } from '@/components/partner-bar';
+import { PresenceBar } from '@/components/presence-bar';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  // главная доступна гостям; защищённые страницы (уроки) редиректят сами
-  const session = await getSession();
+  // главная и страницы уроков доступны гостям; платный контент отдаётся заблокированным
+  const [session, registered] = await Promise.all([getSession(), getRegisteredUsersCount()]);
   return (
     <div className="flex min-h-svh flex-col overflow-x-clip">
       {/* Suspense — полоса партнёра стримится и не блокирует переходы */}
@@ -29,6 +31,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </span>
           </Link>
           <div className="flex items-center gap-3">
+            <PresenceBar registered={registered} />
             {session ? (
               <>
                 <span className="hidden text-sm text-muted-foreground sm:inline">{session.email}</span>

@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { LessonCard } from './lesson-card';
+import { LessonCard, type LessonCardData } from './lesson-card';
 import { plural } from '@/lib/utils';
-import type { Course, Lesson } from '@/lib/types';
 
 export function CourseCarousel({ course, lessons, lockedIds }: {
-  course: Course; lessons: Lesson[]; lockedIds: string[];
+  // только нужные поля курса — полный объект (с уроками) в клиент не уходит
+  course: { title: string; description: string };
+  lessons: LessonCardData[];
+  lockedIds: string[];
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [atStart, setAtStart] = useState(true);

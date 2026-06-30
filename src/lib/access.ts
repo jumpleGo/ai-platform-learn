@@ -3,7 +3,7 @@ import type { Access, Subscription } from '@/lib/types';
 
 // Доступ определяется на уровне урока; access курса — значение по умолчанию для новых уроков в админке
 export function isLocked(
-  lesson: { access: Access },
+  lesson: { access: Access; courseId?: string },
   sub: Subscription | null,
   now: number,
 ): boolean {
@@ -14,5 +14,8 @@ export function isLocked(
     sub.status === 'active' &&
     sub.startsAt <= now &&
     (sub.expiresAt === null || sub.expiresAt > now);
-  return !active;
+  if (!active) return true;
+  // Ограниченная подписка: courseIds — массив конкретных курсов; null/отсутствует — все курсы
+  if (Array.isArray(sub!.courseIds) && !sub!.courseIds.includes(lesson.courseId ?? '')) return true;
+  return false;
 }

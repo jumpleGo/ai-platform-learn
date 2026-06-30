@@ -30,3 +30,64 @@ export function toEmbedUrl(url: string): string {
 
   return url;
 }
+
+// Достаёт id ролика из любого формата YouTube-ссылки (watch / youtu.be / shorts / embed).
+// null — если это не YouTube (тогда превью-карточка покажет запасной вид)
+export function youtubeId(url: string): string | null {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return null;
+  }
+  if (parsed.protocol !== 'https:') return null;
+
+  if (parsed.hostname === 'youtu.be') {
+    return parsed.pathname.split('/').filter(Boolean)[0] ?? null;
+  }
+  if (YOUTUBE_HOSTS.has(parsed.hostname) || parsed.hostname === 'www.youtube-nocookie.com') {
+    if (parsed.pathname === '/watch') return parsed.searchParams.get('v');
+    const m = parsed.pathname.match(/^\/(?:embed|shorts)\/([^/]+)/);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+// Ссылка для основного плеера: максимально чистый YouTube — без аннотаций,
+// со скрытым брендингом и минимумом рекомендаций (rel=0 — только тот же канал).
+export function playerEmbedUrl(url: string): string {
+  const base = toEmbedUrl(url);
+  let parsed: URL;
+  try {
+    parsed = new URL(base);
+  } catch {
+    return base;
+  }
+  if (!parsed.hostname.includes('youtube')) return base;
+  parsed.searchParams.set('rel', '0');
+  parsed.searchParams.set('modestbranding', '1');
+  parsed.searchParams.set('iv_load_policy', '3'); // без аннотаций
+  parsed.searchParams.set('playsinline', '1');
+  parsed.searchParams.set('color', 'white');
+  return parsed.toString();
+}
+
+// Превью-кадр ролика. hqdefault есть всегда (в отличие от maxresdefault)
+export function youtubeThumb(id: string): string {
+  return `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+}
+
+// Тихий зацикленный автоплей для ховер-превью карточки
+export function youtubePreviewSrc(id: string): string {
+  const p = new URLSearchParams({
+    autoplay: '1',
+    mute: '1',
+    controls: '0',
+    loop: '1',
+    playlist: id,
+    playsinline: '1',
+    modestbranding: '1',
+    rel: '0',
+  });
+  return `https://www.youtube-nocookie.com/embed/${id}?${p.toString()}`;
+}

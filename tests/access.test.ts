@@ -3,7 +3,7 @@ import { isLocked } from '@/lib/access';
 import type { Subscription } from '@/lib/types';
 
 const sub = (over: Partial<Subscription> = {}): Subscription => ({
-  status: 'active', plan: 'base', source: 'manual', startsAt: 0, expiresAt: null, grantedBy: null, ...over,
+  status: 'active', plan: 'base', source: 'manual', startsAt: 0, expiresAt: null, grantedBy: null, courseIds: null, ...over,
 });
 
 describe('isLocked', () => {
@@ -24,5 +24,14 @@ describe('isLocked', () => {
   });
   it('подписка из будущего не открывает', () => {
     expect(isLocked({ access: 'paid' }, sub({ startsAt: 2000 }), 1000)).toBe(true);
+  });
+  it('подписка на конкретный курс открывает урок этого курса', () => {
+    expect(isLocked({ access: 'paid', courseId: 'c1' }, sub({ courseIds: ['c1'] }), 1000)).toBe(false);
+  });
+  it('подписка на конкретный курс не открывает урок другого курса', () => {
+    expect(isLocked({ access: 'paid', courseId: 'c2' }, sub({ courseIds: ['c1'] }), 1000)).toBe(true);
+  });
+  it('подписка на все курсы (courseIds=null) открывает любой курс', () => {
+    expect(isLocked({ access: 'paid', courseId: 'c2' }, sub({ courseIds: null }), 1000)).toBe(false);
   });
 });

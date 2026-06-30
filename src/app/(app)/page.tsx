@@ -1,11 +1,11 @@
-import { Sparkles } from 'lucide-react';
 import { getPublishedCoursesWithLessons } from '@/lib/db/courses';
 import { getSubscription } from '@/lib/db/subscriptions';
 import { getSession } from '@/lib/session';
 import { isLocked } from '@/lib/access';
+import { youtubeId } from '@/lib/video-url';
 import { plural } from '@/lib/utils';
 import { CourseCarousel } from '@/components/course-carousel';
-import { SubscribeButton } from '@/components/subscribe-button';
+// SubscribeButton временно не используется — блок подписки скрыт
 
 const AUDIENCE = [
   'СММ-щикам',
@@ -63,20 +63,34 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {courses.map((course, i) => (
-        <div key={course.id} className="animate-rise" style={{ '--rise-delay': `${0.08 * (i + 1)}s` } as React.CSSProperties}>
-          <CourseCarousel
-            course={course}
-            lessons={course.lessons}
-            lockedIds={course.lessons.filter((l) => isLocked(l, sub, now)).map((l) => l.id)}
-          />
-        </div>
-      ))}
+      {courses.map((course, i) => {
+        // санитизация: в клиентскую карусель уходят только безопасные поля,
+        // без videoEmbedUrl/materials; id ролика — лишь для доступных уроков
+        const lockedIds = course.lessons.filter((l) => isLocked(l, sub, now)).map((l) => l.id);
+        const cards = course.lessons.map((l) => ({
+          id: l.id,
+          courseId: l.courseId,
+          title: l.title,
+          durationSec: l.durationSec,
+          views: l.views ?? 0,
+          previewImageUrl: l.previewImageUrl,
+          videoId: lockedIds.includes(l.id) ? null : youtubeId(l.videoEmbedUrl),
+        }));
+        return (
+          <div key={course.id} className="animate-rise" style={{ '--rise-delay': `${0.08 * (i + 1)}s` } as React.CSSProperties}>
+            <CourseCarousel
+              course={{ title: course.title, description: course.description }}
+              lessons={cards}
+              lockedIds={lockedIds}
+            />
+          </div>
+        );
+      })}
       {courses.length === 0 && (
         <p className="text-muted-foreground">Курсы скоро появятся.</p>
       )}
 
-      {/* якорь для paywall-баннера (/#subscribe) */}
+      {/* Блок подписки временно скрыт
       <section id="subscribe" className="animate-rise scroll-mt-24" style={{ '--rise-delay': '0.2s' } as React.CSSProperties}>
         <div className="relative overflow-hidden rounded-3xl border border-accent-foreground/15 bg-accent px-6 py-10 sm:px-12 sm:py-12">
           <div className="bg-hero-glow pointer-events-none absolute -inset-x-10 -bottom-20 h-56 rotate-180 opacity-70" aria-hidden />
@@ -98,6 +112,7 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+      */}
     </div>
   );
 }

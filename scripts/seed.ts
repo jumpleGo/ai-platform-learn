@@ -29,6 +29,19 @@ const VIDEO_URLS = [
   'https://www.youtube.com/shorts/dQw4w9WgXcQ',
 ];
 
+// Демо-материалы: показывают заголовки, списки, ссылки, выноску и горячие клавиши
+const SAMPLE_MATERIALS = `## Что разберём
+- Главная идея урока с **акцентом** на практике
+- Полезная ссылка: [документация Claude Code](https://docs.claude.com/claude-code)
+- Запуск команды — нажмите Cmd+Enter, отмена — Esc
+
+## Шаги
+1. Откройте проект и панель Claude Code
+2. Напишите задачу простыми словами
+3. Примите изменения через \`Ctrl+Shift+Enter\`
+
+> Совет: держите задачи маленькими — так модель ошибается реже.`;
+
 type CourseSeed = {
   id: string;
   data: Omit<Course, 'id'>;
@@ -87,6 +100,9 @@ async function main() {
         durationSec: 300,
         order: i,
         access: course.lessonAccess(i),
+        materials: SAMPLE_MATERIALS,
+        views: 120 + i * 37 + course.data.order * 210,
+        previewImageUrl: null,
       };
       await courseRef.collection('lessons').doc(`lesson-${i + 1}`).set(lesson);
     }

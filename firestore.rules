@@ -26,5 +26,8 @@ service cloud.firestore {
       allow read: if true; // брендинг нужен до логина
       allow write: if false;
     }
+    match /grants/{email} {
+      allow read, write: if false; // только admin SDK
+    }
   }
 }

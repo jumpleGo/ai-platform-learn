@@ -4,6 +4,13 @@ import type { Subscription, UserDoc } from '@/lib/types';
 
 export type AdminUserRow = UserDoc & { uid: string; subscription: Subscription | null };
 
+// Поиск пользователя по точному email (для выдачи доступа по почте)
+export async function findUserByEmail(email: string): Promise<{ uid: string } & UserDoc | null> {
+  const snap = await adminDb.collection('users').where('email', '==', email).limit(1).get();
+  const d = snap.docs[0];
+  return d ? { uid: d.id, ...(d.data() as UserDoc) } : null;
+}
+
 export async function listUsers(search?: string): Promise<AdminUserRow[]> {
   // поиск по точному email (Firestore не умеет contains); без поиска — последние 50 по createdAt
   let query = adminDb.collection('users').orderBy('createdAt', 'desc').limit(50);
