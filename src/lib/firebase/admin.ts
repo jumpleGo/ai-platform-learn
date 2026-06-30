@@ -2,6 +2,7 @@ import 'server-only';
 import { initializeApp, getApps, cert, type App } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
+import { getStorage } from 'firebase-admin/storage';
 
 function createApp(): App {
   if (process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === '1') {
@@ -21,3 +22,9 @@ const app = getApps()[0] ?? createApp();
 
 export const adminAuth = getAuth(app);
 export const adminDb = getFirestore(app);
+export const adminStorage = getStorage(app);
+
+// Бакет для загрузок: явный из env или дефолтный для проекта
+export const storageBucketName =
+  process.env.FIREBASE_STORAGE_BUCKET ??
+  `${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}.firebasestorage.app`;

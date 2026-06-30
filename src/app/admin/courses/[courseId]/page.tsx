@@ -12,9 +12,16 @@ import {
   createLesson, deleteCourse, deleteLesson, moveLesson, updateCourse, updateLesson,
 } from '../actions';
 import { ConfirmSubmitButton } from '../confirm-submit-button';
+import { MaterialsEditor } from '../materials-editor';
 
 const selectClass =
   'h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30';
+
+// Ключ перемонтирует форму после сохранения, чтобы uncontrolled-поля
+// переинициализировались с новыми значениями (иначе Base UI ругается на смену defaultValue)
+function valuesKey(values: Array<string | number | boolean | null>) {
+  return values.join('␟');
+}
 
 // Общие поля формы урока (создание и редактирование)
 function LessonFields({ idPrefix, lesson, courseAccess }: {
@@ -56,8 +63,10 @@ function LessonFields({ idPrefix, lesson, courseAccess }: {
             type="number"
             min={0}
             className="w-32"
+            placeholder="авто"
             defaultValue={lesson?.durationSec ?? ''}
           />
+          <p className="text-xs text-muted-foreground">Пусто — возьмём из видео</p>
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={`${idPrefix}-access`}>Доступ</Label>
@@ -72,6 +81,33 @@ function LessonFields({ idPrefix, lesson, courseAccess }: {
           </select>
         </div>
       </div>
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor={`${idPrefix}-preview`}>Превью-обложка</Label>
+        {lesson?.previewImageUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={lesson.previewImageUrl}
+            alt="Текущее превью"
+            className="aspect-video w-48 rounded-lg border border-border object-cover"
+          />
+        )}
+        <input
+          id={`${idPrefix}-preview`}
+          type="file"
+          name="previewImage"
+          accept="image/png,image/jpeg,image/webp,image/avif,image/gif"
+          className="text-sm file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium hover:file:bg-muted"
+        />
+        {lesson?.previewImageUrl && (
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <input type="checkbox" name="removePreview" /> Удалить превью
+          </label>
+        )}
+        <p className="text-xs text-muted-foreground">
+          PNG/JPEG/WebP до 5 МБ. Пусто — на карточке будет кадр из видео.
+        </p>
+      </div>
+      <MaterialsEditor idPrefix={idPrefix} defaultValue={lesson?.materials ?? ''} />
     </div>
   );
 }
@@ -88,7 +124,7 @@ export default async function AdminCoursePage({
   return (
     <div className="flex max-w-2xl flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">{course.title}</h1>
+        <h1 className="font-heading text-2xl font-semibold tracking-tight">{course.title}</h1>
         <Link href="/admin/courses" className="text-sm text-muted-foreground hover:underline">
           ← Все курсы
         </Link>
@@ -99,7 +135,11 @@ export default async function AdminCoursePage({
           <CardTitle>Курс</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <form action={updateCourse.bind(null, courseId)} className="flex flex-col gap-3">
+          <form
+            key={valuesKey([course.title, course.description, course.access, course.published])}
+            action={updateCourse.bind(null, courseId)}
+            className="flex flex-col gap-3"
+          >
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="course-title">Название</Label>
               <Input id="course-title" name="title" required defaultValue={course.title} />
@@ -169,6 +209,10 @@ export default async function AdminCoursePage({
                 Редактировать
               </summary>
               <form
+                key={valuesKey([
+                  lesson.title, lesson.description, lesson.videoEmbedUrl,
+                  lesson.durationSec, lesson.access, lesson.materials, lesson.previewImageUrl,
+                ])}
                 action={updateLesson.bind(null, courseId, lesson.id)}
                 className="mt-3 flex flex-col gap-3"
               >

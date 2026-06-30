@@ -68,10 +68,11 @@ function PartnerFields({ idPrefix, partner }: { idPrefix: string; partner?: Part
 }
 
 export default async function AdminPartnersPage() {
-  const [partners, counts] = await Promise.all([listPartners(), countUsersByPartner()]);
+  const partners = await listPartners();
+  const counts = await countUsersByPartner(partners);
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Партнёры</h1>
+      <h1 className="font-heading text-2xl font-semibold tracking-tight">Партнёры</h1>
 
       <Card>
         <CardHeader>

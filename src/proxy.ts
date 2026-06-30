@@ -4,7 +4,9 @@ const PUBLIC = ['/login', '/register', '/r/', '/api/'];
 
 export function proxy(req: NextRequest) {
   const { pathname, searchParams } = req.nextUrl;
-  const res = PUBLIC.some((p) => pathname.startsWith(p)) || req.cookies.has('session')
+  // главная ('/') открыта гостям — точное совпадение, чтобы не распахнуть весь сайт через startsWith
+  const isPublic = pathname === '/' || PUBLIC.some((p) => pathname.startsWith(p));
+  const res = isPublic || req.cookies.has('session')
     ? NextResponse.next()
     : NextResponse.redirect(new URL('/login', req.url));
 

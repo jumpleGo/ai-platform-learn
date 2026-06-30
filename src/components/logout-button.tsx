@@ -1,12 +1,10 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { clientAuth } from '@/lib/firebase/client';
 import { resetAnalytics } from '@/lib/analytics/track-client';
 
 export function LogoutButton() {
-  const router = useRouter();
   return (
     <Button
       variant="ghost"
@@ -16,8 +14,9 @@ export function LogoutButton() {
         // гасим клиентскую сессию Firebase и аналитику, чтобы следующий пользователь не унаследовал их
         await clientAuth.signOut();
         resetAnalytics();
-        router.push('/login');
-        router.refresh();
+        // полный переход вместо router.push+refresh: страница рвётся целиком, поэтому
+        // префетченные защищённые ссылки не штормят редиректами на /login (RSC payload errors)
+        window.location.assign('/login');
       }}
     >
       Выйти

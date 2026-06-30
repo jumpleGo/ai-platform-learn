@@ -31,6 +31,7 @@ export async function POST(req: Request) {
     startsAt: Date.now(),
     expiresAt: Date.now() + periodDays * 86_400_000,
     grantedBy: null,
+    courseIds: null, // оплата открывает все курсы
   });
   await trackServer(uid, EVENTS.subscriptionActivated, { plan, source: 'payment' });
   return Response.json({ ok: true });

@@ -31,9 +31,9 @@ export async function deletePartner(id: string) {
   await adminDb.doc(`partners/${id}`).delete();
 }
 
-// Атрибуция пишет в profile.partnerId slug из cookie, поэтому считаем юзеров по slug
-export async function countUsersByPartner(): Promise<Map<string, number>> {
-  const partners = await listPartners();
+// Атрибуция пишет в profile.partnerId slug из cookie, поэтому считаем юзеров по slug.
+// Список принимаем параметром — страница уже загрузила его, не дублируем запрос
+export async function countUsersByPartner(partners: Partner[]): Promise<Map<string, number>> {
   const entries = await Promise.all(partners.map(async (p) => {
     const agg = await adminDb.collection('users').where('partnerId', '==', p.slug).count().get();
     return [p.slug, agg.data().count] as const;

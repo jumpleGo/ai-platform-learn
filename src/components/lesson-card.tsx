@@ -1,26 +1,51 @@
 import Link from 'next/link';
+import { Eye } from 'lucide-react';
 import { LockBadge } from './lock-badge';
-import type { Lesson } from '@/lib/types';
+import { LessonPreview } from './lesson-preview';
+import { formatCount } from '@/lib/utils';
 
-export function LessonCard({ lesson, locked }: { lesson: Lesson; locked: boolean }) {
+// Безопасный набор полей для карточки: без videoEmbedUrl и materials.
+// videoId задаётся только для доступных уроков; для заблокированных — null
+// (тогда нет кадра из видео и ховер-превью, id ролика не раскрывается).
+export type LessonCardData = {
+  id: string;
+  courseId: string;
+  title: string;
+  durationSec: number | null;
+  views: number;
+  previewImageUrl: string | null;
+  videoId: string | null;
+};
+
+export function LessonCard({ lesson, index, locked }: { lesson: LessonCardData; index: number; locked: boolean }) {
+  const num = String(index + 1).padStart(2, '0');
+  const views = lesson.views ?? 0;
   return (
     <Link
       href={`/courses/${lesson.courseId}/lessons/${lesson.id}`}
-      className="w-56 shrink-0 snap-start space-y-2"
+      className="group animate-float w-60 shrink-0 snap-start space-y-2.5"
+      // лёгкий каскад появления карточек (ограничиваем, чтобы дальние не висели прозрачными)
+      style={{ '--rise-delay': `${Math.min(index, 6) * 0.05}s` } as React.CSSProperties}
     >
-      <div className="relative flex aspect-video items-center justify-center rounded-lg bg-muted">
-        <span className="text-3xl font-semibold text-muted-foreground">
-          {lesson.title.charAt(0)}
-        </span>
+      <div className="relative aspect-video overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-200 group-hover:border-primary/40 group-hover:shadow-md">
+        <LessonPreview id={lesson.videoId} num={num} title={lesson.title} previewUrl={lesson.previewImageUrl} />
         {locked && <LockBadge />}
       </div>
-      <div>
-        <p className="line-clamp-2 text-sm font-medium">{lesson.title}</p>
-        {lesson.durationSec !== null && (
-          <p className="text-xs text-muted-foreground">
-            {Math.max(1, Math.round(lesson.durationSec / 60))} мин
-          </p>
-        )}
+      <div className="space-y-0.5 px-0.5">
+        <p className="line-clamp-2 text-sm font-medium transition-colors duration-200 group-hover:text-primary">
+          {lesson.title}
+        </p>
+        <div className="flex items-center gap-2.5 font-mono text-xs text-muted-foreground">
+          {lesson.durationSec !== null && (
+            <span>{Math.max(1, Math.round(lesson.durationSec / 60))} мин</span>
+          )}
+          {views > 0 && (
+            <span className="inline-flex items-center gap-1">
+              <Eye className="size-3" aria-hidden />
+              {formatCount(views)}
+            </span>
+          )}
+        </div>
       </div>
     </Link>
   );

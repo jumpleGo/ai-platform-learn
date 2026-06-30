@@ -4,6 +4,9 @@ import { redirect } from 'next/navigation';
 import { adminDb } from '@/lib/firebase/admin';
 import { invalidateCatalog } from '@/lib/db/courses';
 import { requireAdmin } from '@/lib/require-admin';
+import { uploadPreview } from '@/lib/storage';
+import { fetchVideoDuration } from '@/lib/video-meta';
+import { formatMaterials } from '@/lib/ai';
 import type { Access } from '@/lib/types';
 
 function assertId(id: string, name: string) {
@@ -29,7 +32,22 @@ function parseLessonFields(formData: FormData) {
     videoEmbedUrl,
     durationSec: durationRaw === '' || !Number.isFinite(durationNum) ? null : durationNum,
     access: parseAccess(formData.get('access')),
+    materials: String(formData.get('materials') ?? '').trim(),
   };
+}
+
+// Разбирает превью из формы: удаление, новый файл или без изменений.
+// Возвращает поле для записи ({} — не трогать существующее значение).
+async function resolvePreview(
+  formData: FormData,
+  courseId: string,
+): Promise<{ previewImageUrl?: string | null }> {
+  if (formData.get('removePreview') === 'on') return { previewImageUrl: null };
+  const file = formData.get('previewImage');
+  if (file instanceof File && file.size > 0) {
+    return { previewImageUrl: await uploadPreview(file, courseId) };
+  }
+  return {};
 }
 
 // max(order) + 1, чтобы после удаления документов не появлялись дубли order
@@ -87,8 +105,16 @@ export async function createLesson(courseId: string, formData: FormData) {
   await requireAdmin();
   assertId(courseId, 'courseId');
   const fields = parseLessonFields(formData);
+  // длительность не указали — пробуем взять из видео
+  if (fields.durationSec === null) fields.durationSec = await fetchVideoDuration(fields.videoEmbedUrl);
+  const preview = await resolvePreview(formData, courseId);
   const lessonsPath = `courses/${courseId}/lessons`;
-  await adminDb.collection(lessonsPath).add({ ...fields, order: await nextOrder(lessonsPath) });
+  await adminDb.collection(lessonsPath).add({
+    ...fields,
+    views: 0,
+    previewImageUrl: preview.previewImageUrl ?? null,
+    order: await nextOrder(lessonsPath),
+  });
   refreshCourses(courseId);
 }
 
@@ -96,7 +122,10 @@ export async function updateLesson(courseId: string, lessonId: string, formData:
   await requireAdmin();
   assertId(courseId, 'courseId');
   assertId(lessonId, 'lessonId');
-  await adminDb.doc(`courses/${courseId}/lessons/${lessonId}`).update(parseLessonFields(formData));
+  const fields = parseLessonFields(formData);
+  if (fields.durationSec === null) fields.durationSec = await fetchVideoDuration(fields.videoEmbedUrl);
+  const preview = await resolvePreview(formData, courseId);
+  await adminDb.doc(`courses/${courseId}/lessons/${lessonId}`).update({ ...fields, ...preview });
   refreshCourses(courseId);
 }
 
@@ -139,4 +168,11 @@ export async function moveLesson(courseId: string, lessonId: string, direction: 
   assertId(lessonId, 'lessonId');
   await swapOrderWithNeighbor(`courses/${courseId}/lessons`, lessonId, direction);
   refreshCourses(courseId);
+}
+
+// Оформляет черновой конспект в красивый markdown через ИИ. Возвращает результат клиенту
+// (редактор подставляет его в поле «Материалы»), в базу ничего не пишет.
+export async function formatMaterialsAction(raw: string): Promise<string> {
+  await requireAdmin();
+  return formatMaterials(raw);
 }
