@@ -9,7 +9,7 @@ import { isLocked } from '@/lib/access';
 import { materialsPreview } from '@/lib/markdown';
 import { plural } from '@/lib/utils';
 import { VideoEmbed } from '@/components/video-embed';
-import { PaywallBanner } from '@/components/paywall-banner';
+// PaywallBanner временно не используется — блок подписки скрыт
 import { CompleteLessonButton } from '@/components/complete-lesson-button';
 import { TrackOnMount } from '@/components/track-on-mount';
 import { RecordView } from '@/components/record-view';
@@ -77,7 +77,7 @@ export default async function LessonPage({ params }: {
             </span>
           )}
         </div>
-        {locked && <PaywallBanner />}
+        {/* {locked && <PaywallBanner />} — блок подписки временно скрыт */}
         <div className="overflow-hidden rounded-2xl border border-border shadow-md">
           {locked ? (
             <LockedVideo previewUrl={lesson.previewImageUrl} title={lesson.title} />
