@@ -58,6 +58,7 @@ function youtubePlayerHtml(videoId: string, title: string, poster: string | null
        display:flex;align-items:center;justify-content:center;transition:transform .15s,background .15s}
   #poster:hover .play{transform:scale(1.06);background:rgba(0,0,0,.7)}
   #poster .play svg{width:30px;height:30px;fill:#fff;margin-left:3px}
+  #poster.entering .play{opacity:0;transition:opacity .2s}
 </style>
 </head>
 <body>
@@ -70,6 +71,7 @@ function youtubePlayerHtml(videoId: string, title: string, poster: string | null
     <span id="time">0:00 / 0:00</span>
     <button id="mute" aria-label="Звук"></button>
     <input id="vol" type="range" min="0" max="100" step="1" value="100" aria-label="Громкость">
+    <button id="cc" aria-label="Субтитры"></button>
     <button id="fs" aria-label="Полный экран"></button>
   </div>
   <div id="poster">
@@ -84,22 +86,26 @@ function youtubePlayerHtml(videoId: string, title: string, poster: string | null
     pause:'<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>',
     vol:'<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13 3a4 4 0 0 0-2-3.5v7A4 4 0 0 0 16 12z"/></svg>',
     mute:'<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm18 0-1.5-1.5L17 10l-2.5-2.5L13 9l2.5 2.5L13 14l1.5 1.5L17 13l2.5 2.5L21 14l-2.5-2.5z"/></svg>',
+    cc:'<svg viewBox="0 0 24 24"><path d="M19 4H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8.5 10.7c-1.65 0-2.9-1.15-2.9-2.7s1.25-2.7 2.9-2.7c.83 0 1.55.32 2.05.85l-.9.85c-.3-.3-.68-.5-1.15-.5-.9 0-1.55.65-1.55 1.5s.65 1.5 1.55 1.5c.47 0 .85-.2 1.15-.5l.9.85c-.5.53-1.22.85-2.05.85zm7.2 0c-1.65 0-2.9-1.15-2.9-2.7s1.25-2.7 2.9-2.7c.83 0 1.55.32 2.05.85l-.9.85c-.3-.3-.68-.5-1.15-.5-.9 0-1.55.65-1.55 1.5s.65 1.5 1.55 1.5c.47 0 .85-.2 1.15-.5l.9.85c-.5.53-1.22.85-2.05.85z"/></svg>',
     fs:'<svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>'
   };
   var stage=document.getElementById('stage'), shield=document.getElementById('shield'),
       poster=document.getElementById('poster'), bar=document.getElementById('bar'),
       playBtn=document.getElementById('play'), muteBtn=document.getElementById('mute'),
-      fsBtn=document.getElementById('fs'), seek=document.getElementById('seek'),
+      ccBtn=document.getElementById('cc'), fsBtn=document.getElementById('fs'),
+      seek=document.getElementById('seek'),
       vol=document.getElementById('vol'), timeEl=document.getElementById('time');
   if(POSTER) poster.style.backgroundImage='url('+JSON.stringify(POSTER)+')';
   playBtn.innerHTML=ICON.play; muteBtn.innerHTML=ICON.vol; fsBtn.innerHTML=ICON.fs;
+  ccBtn.innerHTML=ICON.cc; ccBtn.style.opacity='.55';
 
-  var player, ready=false, dragging=false, hideTimer, ticker;
+  var player, ready=false, dragging=false, hideTimer, ticker, ccOn=false, fakeFs=false;
   function fmt(s){s=Math.max(0,Math.floor(s||0));var m=Math.floor(s/60);var ss=s%60;return m+':'+(ss<10?'0':'')+ss;}
 
   window.onYouTubeIframeAPIReady=function(){
     player=new YT.Player('yt',{videoId:VIDEO_ID,
-      playerVars:{controls:0,modestbranding:1,rel:0,iv_load_policy:3,playsinline:1,disablekb:1,fs:0,
+      // cc_load_policy:0 — субтитры выключены по умолчанию, включаются кнопкой CC
+      playerVars:{controls:0,modestbranding:1,rel:0,iv_load_policy:3,cc_load_policy:0,playsinline:1,disablekb:1,fs:0,
         origin:location.origin},
       events:{onReady:function(){ready=true;},onStateChange:onState}});
   };
@@ -118,8 +124,15 @@ function youtubePlayerHtml(videoId: string, title: string, poster: string | null
   function toggle(){if(!ready)return;var s=player.getPlayerState();
     if(s===YT.PlayerState.PLAYING)player.pauseVideo();else player.playVideo();}
 
-  // первый запуск — с постера (жест пользователя, можно со звуком)
-  poster.addEventListener('click',function(){if(!ready)return;poster.style.display='none';player.playVideo();});
+  // первый запуск — с постера (жест пользователя, можно со звуком). Постер убираем не сразу,
+  // а с задержкой — первые секунды YouTube поверх видео показывает свой заголовок и канал,
+  // так постер их перекрывает, пока эта плашка не исчезнет
+  poster.addEventListener('click',function(){
+    if(!ready)return;
+    poster.classList.add('entering');
+    player.playVideo();
+    setTimeout(function(){poster.style.display='none';},1800);
+  });
   shield.addEventListener('click',toggle);
   shield.addEventListener('dblclick',toggleFs);
   // глушим контекстное меню на всём документе — никакого «копировать URL видео»
@@ -137,10 +150,27 @@ function youtubePlayerHtml(videoId: string, title: string, poster: string | null
     if(!ready)return;var v=Number(vol.value);player.setVolume(v);
     if(v===0){player.mute();muteBtn.innerHTML=ICON.mute;}else{player.unMute();muteBtn.innerHTML=ICON.vol;}});
 
+  // на мобилке (в первую очередь iOS Safari) requestFullscreen на div внутри вложенного
+  // iframe часто молча реджектится — тогда просим родительскую страницу растянуть сам
+  // iframe на весь экран через CSS (см. video-embed.tsx)
+  function setFakeFs(on){
+    fakeFs=on;
+    parent.postMessage({source:'lessonPlayer',fullscreen:on},location.origin);
+  }
   function toggleFs(){
-    if(document.fullscreenElement)document.exitFullscreen();
-    else if(stage.requestFullscreen)stage.requestFullscreen();}
+    if(fakeFs){setFakeFs(false);return;}
+    if(document.fullscreenElement){document.exitFullscreen();return;}
+    if(stage.requestFullscreen)stage.requestFullscreen().catch(function(){setFakeFs(true);});
+    else setFakeFs(true);
+  }
   fsBtn.addEventListener('click',toggleFs);
+
+  ccBtn.addEventListener('click',function(){
+    if(!ready)return;
+    ccOn=!ccOn;
+    if(ccOn)player.loadModule('captions');else player.unloadModule('captions');
+    ccBtn.style.opacity=ccOn?'1':'.55';
+  });
 
   // авто-скрытие панели при движении мыши
   function autoHide(){clearTimeout(hideTimer);hideTimer=setTimeout(function(){stage.classList.remove('show');},2500);}
