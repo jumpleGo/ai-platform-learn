@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
-    "emulators": "firebase emulators:start --project demo-platform"
+    "emulators": "firebase emulators:start --project demo-platform",
+    "deploy": "git push origin main && gcloud compute ssh instance-20260629-154904 --zone=us-east1-b --project=project-60c23922-f4e8-4760-988 --command='~/deploy.sh'"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
