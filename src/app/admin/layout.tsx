@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ArrowLeft, SquareTerminal } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import { GelatoLogo } from '@/components/gelato-logo';
 import { getSession } from '@/lib/session';
 import { AdminNav } from './admin-nav';
 
@@ -12,10 +13,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="flex min-h-screen bg-sidebar">
       <aside className="sticky top-0 flex h-screen w-60 flex-col border-r border-sidebar-border px-4 py-6">
         <Link href="/admin" className="mb-8 flex items-center gap-2.5 px-2 font-mono text-[15px] font-semibold tracking-tight">
-          <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
-            <SquareTerminal className="size-4" aria-hidden />
-          </span>
-          ai-learn
+          <GelatoLogo className="size-7" />
+          GELATO
           <span className="rounded-full border border-sidebar-border bg-sidebar-accent px-2 py-0.5 font-sans text-[11px] font-medium text-muted-foreground">
             admin
           </span>

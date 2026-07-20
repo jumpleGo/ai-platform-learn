@@ -5,6 +5,7 @@ import { isLocked } from '@/lib/access';
 import { youtubeId } from '@/lib/video-url';
 import { plural } from '@/lib/utils';
 import { CourseCarousel } from '@/components/course-carousel';
+import { DoodleScatter, DoodleWord } from '@/components/doodle-decor';
 // SubscribeButton временно не используется — блок подписки скрыт
 
 const AUDIENCE = [
@@ -33,6 +34,21 @@ export default async function HomePage() {
     <div className="space-y-16 sm:space-y-24">
       <section className="animate-rise relative space-y-5 pt-4 sm:pt-8">
         <div className="bg-hero-glow pointer-events-none absolute inset-x-0 -top-24 h-80" aria-hidden />
+        <DoodleScatter
+          glyph="starburst"
+          color="oklch(0.78 0.16 85)"
+          className="top-0 right-1 h-7 w-7 -rotate-6 opacity-80 sm:h-9 sm:w-9 sm:right-2"
+        />
+        <DoodleScatter
+          glyph="sparkleheart"
+          color="oklch(0.68 0.19 12)"
+          className="top-10 right-9 h-9 w-10 rotate-6 opacity-70 sm:top-14 sm:right-16 sm:h-11 sm:w-12"
+        />
+        <DoodleScatter
+          glyph="cone"
+          color="oklch(0.7 0.14 240)"
+          className="top-20 right-0 h-8 w-7 -rotate-3 opacity-55 sm:top-24 sm:right-2 sm:h-10 sm:w-9"
+        />
         <p className="relative font-mono text-sm text-primary">
           $ claude · {courses.length} {plural(courses.length, ['курс', 'курса', 'курсов'])} · {totalLessons}{' '}
           {plural(totalLessons, ['урок', 'урока', 'уроков'])}
@@ -77,7 +93,14 @@ export default async function HomePage() {
           videoId: lockedIds.includes(l.id) ? null : youtubeId(l.videoEmbedUrl),
         }));
         return (
-          <div key={course.id} className="animate-rise" style={{ '--rise-delay': `${0.08 * (i + 1)}s` } as React.CSSProperties}>
+          <div key={course.id} className="animate-rise relative" style={{ '--rise-delay': `${0.08 * (i + 1)}s` } as React.CSSProperties}>
+            {i === 0 && (
+              <DoodleWord
+                text="начни сейчас"
+                color="oklch(0.68 0.19 12)"
+                className="z-10 -top-3 left-0 text-lg -rotate-6 opacity-80 sm:-top-5 sm:text-xl"
+              />
+            )}
             <CourseCarousel
               course={{ title: course.title, description: course.description }}
               lessons={cards}

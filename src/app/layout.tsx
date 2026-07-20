@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Source_Serif_4 } from "next/font/google";
+import { Inter, JetBrains_Mono, Source_Serif_4, Underdog } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { NavigationProgress } from "@/components/navigation-progress";
 import { PostHogProvider } from "@/lib/analytics/posthog-client";
@@ -20,6 +20,13 @@ const sourceSerif = Source_Serif_4({
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin", "cyrillic"],
+});
+
+// Жирный «граффити-пузырь» для doodle-надписей (поддерживает кириллицу)
+const underdog = Underdog({
+  variable: "--font-underdog",
+  subsets: ["latin", "cyrillic"],
+  weight: "400",
 });
 
 const SITE_TITLE = "Claude Code с нуля — собери свою команду ИИ-агентов";
@@ -63,7 +70,7 @@ export default function RootLayout({
   return (
     <html
       lang="ru"
-      className={`${inter.variable} ${sourceSerif.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${sourceSerif.variable} ${jetbrainsMono.variable} ${underdog.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <NavigationProgress />
