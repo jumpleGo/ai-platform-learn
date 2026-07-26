@@ -1,16 +1,62 @@
 import { describe, it, expect } from 'vitest';
-import { parseInline, parseBlocks, materialsPreview } from '@/lib/markdown';
+import { parseInline, parseBlocks, materialsTeaser } from '@/lib/markdown';
 
-describe('materialsPreview', () => {
-  it('отдаёт только первые 1-2 непустые строки', () => {
-    const md = 'Первая строка\n\nВторая строка\n\nТретья строка\nЧетвёртая';
-    expect(materialsPreview(md)).toBe('Первая строка\nВторая строка');
+describe('materialsTeaser', () => {
+  const md = [
+    '## Установка Claude Code',
+    '',
+    '### Шаг 1: Открыть терминал',
+    'Запустите терминал.',
+    '',
+    '### Шаг 2: Выполнить команду',
+    '```',
+    'curl -fsSL https://claude.ai/install.sh | bash',
+    '```',
+    '',
+    '## Модели Claude Code',
+    '',
+    '| Модель | Характеристика |',
+    '|---|---|',
+    '| Opus | Умная |',
+    '',
+    '## Домашнее задание',
+    '1. Установить',
+    '2. Запустить',
+  ].join('\n');
+
+  it('берёт крупные разделы, когда их достаточно', () => {
+    expect(materialsTeaser(md).topics).toEqual([
+      'Установка Claude Code',
+      'Модели Claude Code',
+      'Домашнее задание',
+    ]);
   });
-  it('пропускает пустые строки в начале', () => {
-    expect(materialsPreview('\n\n# Заголовок\nтекст', 1)).toBe('# Заголовок');
+  it('описывает состав материалов', () => {
+    expect(materialsTeaser(md).facts).toEqual(['1 пример кода', '2 шага по порядку', 'таблица']);
   });
-  it('короткий текст не падает', () => {
-    expect(materialsPreview('одна строка')).toBe('одна строка');
+  it('спускается к подзаголовкам, когда крупных разделов мало', () => {
+    const short = '## Один раздел\n\n### Первый шаг\n\n### Второй шаг';
+    expect(materialsTeaser(short).topics).toEqual(['Один раздел', 'Первый шаг', 'Второй шаг']);
+  });
+  it('снимает разметку с заголовков', () => {
+    expect(materialsTeaser('## **Жирный** и `код`').topics).toEqual(['Жирный и код']);
+  });
+  it('считает лишние разделы', () => {
+    const many = ['## A', '## B', '## C', '## D'].join('\n\n');
+    const teaser = materialsTeaser(many, 2);
+    expect(teaser.topics).toEqual(['A', 'B']);
+    expect(teaser.more).toBe(2);
+  });
+  it('без заголовков отдаёт начало первого абзаца', () => {
+    const teaser = materialsTeaser('Короткий текст без заголовков.');
+    expect(teaser.topics).toEqual([]);
+    expect(teaser.intro).toBe('Короткий текст без заголовков.');
+  });
+  it('обрезает длинный абзац по границе слова', () => {
+    const long = 'слово '.repeat(60).trim();
+    const intro = materialsTeaser(long).intro!;
+    expect(intro.endsWith('…')).toBe(true);
+    expect(intro.length).toBeLessThanOrEqual(181);
   });
 });
 

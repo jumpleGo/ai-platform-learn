@@ -1,11 +1,12 @@
 import { getPublishedCoursesWithLessons } from '@/lib/db/courses';
 import { getSubscription } from '@/lib/db/subscriptions';
 import { getSession } from '@/lib/session';
-import { isLocked } from '@/lib/access';
+import { isLocked, isSubscriptionActive } from '@/lib/access';
 import { youtubeId } from '@/lib/video-url';
 import { plural } from '@/lib/utils';
 import { CourseCarousel } from '@/components/course-carousel';
 import { DoodleScatter, DoodleWord } from '@/components/doodle-decor';
+import { PromoBanner, PromoStrip } from '@/components/promo-banner';
 // SubscribeButton временно не используется — блок подписки скрыт
 
 const AUDIENCE = [
@@ -30,6 +31,8 @@ export default async function HomePage() {
   ]);
   const now = Date.now();
   const totalLessons = courses.reduce((n, c) => n + c.lessons.length, 0);
+  // маркетинговые баннеры — всем, у кого нет действующей подписки (включая гостей)
+  const promo = !isSubscriptionActive(sub, now);
   return (
     <div className="space-y-16 sm:space-y-24">
       <section className="animate-rise relative space-y-5 pt-4 sm:pt-8">
@@ -79,6 +82,8 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {promo && <PromoStrip />}
+
       {courses.map((course, i) => {
         // санитизация: в клиентскую карусель уходят только безопасные поля,
         // без videoEmbedUrl/materials; id ролика — лишь для доступных уроков
@@ -112,6 +117,8 @@ export default async function HomePage() {
       {courses.length === 0 && (
         <p className="text-muted-foreground">Курсы скоро появятся.</p>
       )}
+
+      {promo && <PromoBanner />}
 
       {/* Блок подписки временно скрыт
       <section id="subscribe" className="animate-rise scroll-mt-24" style={{ '--rise-delay': '0.2s' } as React.CSSProperties}>

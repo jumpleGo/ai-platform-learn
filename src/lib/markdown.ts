@@ -1,5 +1,6 @@
 // Лёгкий markdown без зависимостей — ровно под материалы урока.
 // Чистые функции (без server-only) — рендерит компонент Markdown, тестируются отдельно.
+import { plural } from '@/lib/utils';
 
 export type Inline =
   | { t: 'text'; v: string }
@@ -81,11 +82,56 @@ export function parseInline(text: string): Inline[] {
   return out;
 }
 
-// Короткая выжимка материалов для заблокированного урока — первые непустые строки.
-// Возвращается обрезанный markdown, поэтому клиенту уходит только тизер, а не полный текст.
-export function materialsPreview(md: string, maxLines = 2): string {
-  const lines = md.replace(/\r\n?/g, '\n').split('\n').map((l) => l.trim()).filter(Boolean);
-  return lines.slice(0, maxLines).join('\n');
+// Оглавление материалов для закрытого урока: о чём пойдёт речь — заголовки разделов
+// и состав материалов. Сам текст разделов клиенту не уходит.
+export type MaterialsTeaser = {
+  topics: string[];
+  // Сколько разделов не поместилось в список
+  more: number;
+  // Что внутри: примеры кода, таблицы, шаги, ссылки
+  facts: string[];
+  // Запасной тизер, когда заголовков в материалах нет — начало первого абзаца
+  intro: string | null;
+};
+
+// Разметка внутри строки нам в тизере не нужна — собираем чистый текст
+function plainText(text: string): string {
+  return parseInline(text)
+    .map((tok) => (tok.t === 'kbd' ? tok.keys.join('+') : tok.t === 'link' ? tok.label : tok.v))
+    .join('')
+    .trim();
+}
+
+export function materialsTeaser(md: string, maxTopics = 6): MaterialsTeaser {
+  const blocks = parseBlocks(md);
+  const headings = blocks.filter((b) => b.t === 'heading');
+  // Крупных разделов достаточно — показываем только их, иначе спускаемся к подзаголовкам
+  const sections = headings.filter((h) => h.level === 2);
+  const all = (sections.length >= 3 ? sections : headings).map((h) => plainText(h.text)).filter(Boolean);
+
+  const codeCount = blocks.filter((b) => b.t === 'code').length;
+  const tableCount = blocks.filter((b) => b.t === 'table').length;
+  const stepCount = blocks.reduce((n, b) => (b.t === 'ol' ? n + b.items.length : n), 0);
+  const linkCount = [...md.matchAll(/\[[^\]]+\]\((https?:\/\/[^)]+)\)/g)].length;
+
+  const facts: string[] = [];
+  if (codeCount) facts.push(`${codeCount} ${plural(codeCount, ['пример кода', 'примера кода', 'примеров кода'])}`);
+  if (stepCount) facts.push(`${stepCount} ${plural(stepCount, ['шаг', 'шага', 'шагов'])} по порядку`);
+  if (tableCount) facts.push(plural(tableCount, ['таблица', 'таблицы', 'таблиц']));
+  if (linkCount) facts.push(`${linkCount} ${plural(linkCount, ['ссылка', 'ссылки', 'ссылок'])}`);
+
+  const firstPara = blocks.find((b) => b.t === 'p');
+  const intro = all.length === 0 && firstPara ? truncate(plainText(firstPara.text), 180) : null;
+
+  return { topics: all.slice(0, maxTopics), more: Math.max(0, all.length - maxTopics), facts, intro };
+}
+
+// Обрезка по границе слова с многоточием
+function truncate(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const space = cut.lastIndexOf(' ');
+  return `${(space > max * 0.6 ? cut.slice(0, space) : cut).replace(/[.,;:—-]+$/, '')}…`;
 }
 
 // --- блоки -------------------------------------------------------------------

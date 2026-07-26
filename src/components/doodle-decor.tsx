@@ -139,13 +139,54 @@ function DoodleToonFace({ className }: DoodleProps) {
   );
 }
 
+// Кривая стрелка от руки — указывает на кнопку/оффер, как пометка маркером на плакате
+function DoodleArrow({ className }: DoodleProps) {
+  return (
+    <svg viewBox="0 0 60 34" fill="none" className={className} aria-hidden>
+      <path
+        d="M3 5C17 1.5 36 5 49 20.5"
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      />
+      <path
+        d="M50.5 22.5L38.5 21M50.5 22.5L47 10.5"
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+// Двойной росчерк-подчёркивание: как будто подчеркнули фразу маркером в два прохода
+function DoodleScribble({ className }: DoodleProps) {
+  return (
+    <svg viewBox="0 0 120 14" fill="none" className={className} preserveAspectRatio="none" aria-hidden>
+      <path
+        d="M3 6.5C24 2.5 52 3.5 78 5.5C92 6.6 104 7.2 117 4.5"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+      <path
+        d="M9 11.5C29 8 56 8.8 80 10C90 10.6 99 10.8 109 9.5"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        opacity="0.65"
+      />
+    </svg>
+  );
+}
+
 // Один разбросанный акцент: свой глиф, позиция, поворот и цвет маркера задаются снаружи.
 export function DoodleScatter({
   glyph,
   className,
   color,
 }: {
-  glyph: 'icecream' | 'cone' | 'mandala' | 'paisley' | 'sparkleheart' | 'starburst' | 'toonface';
+  glyph: 'icecream' | 'cone' | 'mandala' | 'paisley' | 'sparkleheart' | 'starburst' | 'toonface' | 'arrow' | 'scribble';
   className: string;
   color?: string;
 }) {
@@ -157,6 +198,8 @@ export function DoodleScatter({
     sparkleheart: DoodleSparkleHeart,
     starburst: DoodleStarburst,
     toonface: DoodleToonFace,
+    arrow: DoodleArrow,
+    scribble: DoodleScribble,
   }[glyph];
   return (
     <div className={`pointer-events-none absolute select-none ${className}`} style={{ color }} aria-hidden>

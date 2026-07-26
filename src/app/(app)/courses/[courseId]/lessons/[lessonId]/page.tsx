@@ -6,14 +6,16 @@ import { getSubscription } from '@/lib/db/subscriptions';
 import { getCompletedLessonIds } from '@/lib/db/progress';
 import { getSession } from '@/lib/session';
 import { isLocked } from '@/lib/access';
-import { materialsPreview } from '@/lib/markdown';
+import { materialsTeaser } from '@/lib/markdown';
 import { plural } from '@/lib/utils';
 import { VideoEmbed } from '@/components/video-embed';
-// PaywallBanner временно не используется — блок подписки скрыт
+// Оффер закрытого урока — маркетинговый баннер на внешний лендинг
+import { PromoLessonBanner } from '@/components/promo-banner';
 import { CompleteLessonButton } from '@/components/complete-lesson-button';
 import { TrackOnMount } from '@/components/track-on-mount';
 import { RecordView } from '@/components/record-view';
 import { Markdown } from '@/components/markdown';
+import { MaterialsTeaser } from '@/components/materials-teaser';
 import { WatchingNow } from '@/components/watching-now';
 import { DoodleScatter } from '@/components/doodle-decor';
 import { EVENTS } from '@/lib/analytics/events';
@@ -36,10 +38,9 @@ export default async function LessonPage({ params }: {
   const now = Date.now();
   const locked = isLocked(lesson, sub, now);
   // Чувствительные поля не уходят клиенту без доступа: ссылку на видео клиент не получает вовсе
-  // (плеер грузится через прокси-роут), полные материалы заменяем короткой выжимкой (1-2 строки)
-  const materials = lesson.materials
-    ? (locked ? materialsPreview(lesson.materials) : lesson.materials)
-    : '';
+  // (плеер грузится через прокси-роут), вместо полных материалов — оглавление разделов
+  const materials = locked ? '' : lesson.materials;
+  const teaser = locked && lesson.materials ? materialsTeaser(lesson.materials) : null;
   const views = lesson.views ?? 0;
 
   return (
@@ -98,7 +99,6 @@ export default async function LessonPage({ params }: {
             </span>
           )}
         </div>
-        {/* {locked && <PaywallBanner />} — блок подписки временно скрыт */}
         <div className="overflow-hidden rounded-2xl border border-border shadow-md">
           {locked ? (
             <LockedVideo previewUrl={lesson.previewImageUrl} title={lesson.title} />
@@ -106,13 +106,14 @@ export default async function LessonPage({ params }: {
             <VideoEmbed courseId={courseId} lessonId={lessonId} title={lesson.title} />
           )}
         </div>
+        {locked && <PromoLessonBanner />}
         {lesson.description && (
           <p className="max-w-2xl leading-relaxed text-muted-foreground">{lesson.description}</p>
         )}
-        {materials && (
+        {(materials || teaser) && (
           <div className="max-w-2xl rounded-2xl border border-border bg-card/40 p-5 sm:p-6">
             <p className="mb-3 font-mono text-xs tracking-wide text-muted-foreground uppercase">Материалы урока</p>
-            <Markdown source={materials} />
+            {teaser ? <MaterialsTeaser teaser={teaser} /> : <Markdown source={materials} />}
             {locked && (
               <p className="mt-4 text-sm text-muted-foreground">
                 Полные материалы откроются после оформления подписки.
