@@ -1,0 +1,267 @@
+<!-- Лендинг предзаписи курса про качество кода. Вставляется в поле testLandingHtml
+     в админке курса. Без <script> — innerHTML его не исполнит, поэтому только HTML+CSS.
+     ЕДИНСТВЕННОЕ, ЧТО НУЖНО ЗАМЕНИТЬ: https://t.me/gelato_su в двух ссылках ниже. -->
+<style>
+.ql {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+  text-wrap: pretty;
+}
+.ql h1, .ql h2 { text-wrap: balance; }
+
+/* спокойное появление снизу — как animate-rise на остальном сайте */
+@keyframes ql-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ql-rise {
+  animation: ql-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--d, 0s);
+}
+@media (prefers-reduced-motion: reduce) { .ql-rise { animation: none; } }
+
+.ql-eyebrow {
+  margin: 0;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+.ql h1 {
+  margin: 0.9rem 0 0;
+  max-width: 22ch;
+  font-family: var(--font-source-serif), serif;
+  font-size: clamp(1.85rem, 6vw, 2.4rem);
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.ql-lead {
+  margin: 1.1rem 0 0;
+  max-width: 34rem;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+}
+
+/* сдержанная плашка скидки: только тонкая рамка и акцентный цвет темы */
+.ql-badge {
+  display: flex;
+  width: fit-content;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin-top: 1.75rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid color-mix(in oklab, var(--primary) 28%, transparent);
+  border-radius: 999px;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+.ql-badge b {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--primary);
+}
+
+.ql-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.75rem;
+  height: 2.75rem;
+  padding: 0 1.4rem;
+  border-radius: 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--primary-foreground);
+  background: var(--primary);
+  transition: opacity 0.2s;
+}
+.ql-cta:hover { opacity: 0.9; }
+.ql-cta-ghost {
+  color: var(--foreground);
+  background: transparent;
+  border: 1px solid var(--border);
+  transition: border-color 0.2s;
+}
+.ql-cta-ghost:hover { opacity: 1; border-color: color-mix(in oklab, var(--primary) 45%, transparent); }
+.ql-note {
+  margin: 0.9rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+
+.ql-h2 {
+  margin: 0 0 1.5rem;
+  font-family: var(--font-source-serif), serif;
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+/* боли — простой список с волосяными линиями, без цветных меток */
+.ql-pains { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--border); }
+.ql-pain {
+  padding: 0.95rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--muted-foreground);
+}
+
+/* программа */
+.ql-steps { margin: 0; padding: 0; list-style: none; counter-reset: ql; border-top: 1px solid var(--border); }
+.ql-step {
+  counter-increment: ql;
+  display: grid;
+  grid-template-columns: 2.25rem 1fr;
+  gap: 0.75rem;
+  align-items: baseline;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+.ql-step::before {
+  content: counter(ql, decimal-leading-zero);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+.ql-step > div { min-width: 0; }
+.ql-step b { font-weight: 600; }
+.ql-step span { color: var(--muted-foreground); }
+.ql-stack {
+  margin: 1.5rem 0 0;
+  max-width: 34rem;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+}
+
+/* кому подойдёт */
+.ql-who { display: grid; gap: 1.75rem; }
+@media (min-width: 34rem) { .ql-who { grid-template-columns: 1fr 1fr; gap: 2.5rem; } }
+.ql-who-col p {
+  margin: 0 0 0.85rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}
+.ql-who-col ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.7rem; }
+.ql-who-col li { font-size: 0.9rem; line-height: 1.6; }
+
+/* финальный оффер */
+.ql-offer {
+  padding: 2.25rem 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  background: var(--accent);
+}
+@media (min-width: 34rem) { .ql-offer { padding: 2.75rem 2.5rem; } }
+.ql-offer h2 {
+  margin: 0.75rem 0 0;
+  max-width: 26ch;
+  font-family: var(--font-source-serif), serif;
+  font-size: clamp(1.375rem, 4.5vw, 1.75rem);
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.ql-offer .ql-offer-text {
+  margin: 0.9rem 0 0;
+  max-width: 32rem;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+}
+</style>
+
+<div class="ql">
+  <!-- ХИРО -->
+  <section class="ql-rise">
+    <p class="ql-eyebrow">$ курс 2 · Claude Code</p>
+    <h1>Как заставить ИИ следить за качеством вашего кода</h1>
+    <p class="ql-lead">
+      Типизация, тесты, статанализ и правила проекта. Настраиваете один раз — дальше
+      ИИ сам проверяет себя перед тем, как сказать «готово».
+    </p>
+    <div class="ql-badge"><b>−30%</b> тем, кто оставит контакт до старта</div>
+    <a class="ql-cta ql-cta-ghost" href="https://t.me/gelato_su" target="_blank" rel="noopener noreferrer">
+      Оставить свой телеграм
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7V16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </section>
+
+  <!-- БОЛИ -->
+  <section class="ql-rise" style="--d: 0.06s">
+    <h2 class="ql-h2">Работает, пока не работает</h2>
+    <ul class="ql-pains">
+      <li class="ql-pain">ИИ правит одну функцию — и тихо ломает соседнюю. Узнаёте об этом от пользователей.</li>
+      <li class="ql-pain">Страшно отдавать проект на рефакторинг: нет гарантий, что старое не отвалится.</li>
+      <li class="ql-pain">Каждый раз ИИ ведёт себя по-разному — у проекта нет закреплённых правил.</li>
+      <li class="ql-pain">Нет ощущения продакшена: всё держится на честном слове и ручной проверке.</li>
+    </ul>
+  </section>
+
+  <!-- ПРОГРАММА -->
+  <section class="ql-rise" style="--d: 0.12s">
+    <h2 class="ql-h2">Что внутри</h2>
+    <ol class="ql-steps">
+      <li class="ql-step"><div><b>Почему вайб-код ломается на масштабе</b> <span>— и что именно теряет ИИ без страховок</span></div></li>
+      <li class="ql-step"><div><b>Типизация</b> <span>— ошибки ловятся до запуска, а не в проде</span></div></li>
+      <li class="ql-step"><div><b>Линтер и статанализ</b> <span>— единый стиль и мёртвый код без ручных правок</span></div></li>
+      <li class="ql-step"><div><b>Тесты</b> <span>— страховка, с которой не страшно просить рефакторинг</span></div></li>
+      <li class="ql-step"><div><b>Правила в CLAUDE.md</b> <span>— ИИ сам гоняет проверки перед тем, как отчитаться</span></div></li>
+      <li class="ql-step"><div><b>CI/CD</b> <span>— сломанный код физически не доезжает до прода</span></div></li>
+      <li class="ql-step"><div><b>Практикум</b> <span>— берём реальный «грязный» проект и проходим весь путь</span></div></li>
+      <li class="ql-step"><div><b>Агент-ревьюер</b> <span>— проверяет код до мержа, вместо вас</span></div></li>
+    </ol>
+    <p class="ql-stack">
+      Стек — веб-приложение. Всё идёт через «что попросить у ИИ», а не через ручное
+      программирование: настраиваете один раз и живёте с этим дальше.
+    </p>
+  </section>
+
+  <!-- КОМУ -->
+  <section class="ql-rise" style="--d: 0.18s">
+    <h2 class="ql-h2">Кому это надо</h2>
+    <div class="ql-who">
+      <div class="ql-who-col">
+        <p>подойдёт</p>
+        <ul>
+          <li>Вайбкодерам с растущим проектом: уже есть пользователи, и трогать код страшно</li>
+          <li>Тем, кто знает про тесты в теории, но ни разу их не настраивал</li>
+        </ul>
+      </div>
+      <div class="ql-who-col">
+        <p>не подойдёт</p>
+        <ul>
+          <li>Новичкам без первого курса — нет базовой гигиены работы с ИИ</li>
+          <li>Тем, кто ищет классический CS-курс с ручным программированием</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ОФФЕР -->
+  <section class="ql-rise ql-offer" style="--d: 0.24s">
+    <p class="ql-eyebrow">$ предзапись</p>
+    <h2>Скидка 30% тем, кто оставит контакт заранее</h2>
+    <p class="ql-offer-text">
+      Курс ещё готовится. Напишите нам в телеграм — закрепим за вами скидку 30%
+      и сообщим лично, как только откроется доступ.
+    </p>
+    <a class="ql-cta" href="https://t.me/gelato_su" target="_blank" rel="noopener noreferrer">
+      Оставить свой телеграм
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7V16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <p class="ql-note">Ответим лично, без рассылок.</p>
+  </section>
+</div>
