@@ -103,14 +103,14 @@ export function CourseCarousel({ course, lessons, lockedIds }: {
             />
           ))}
         </div>
-        {/* боковые градиенты-подсказки, что лента продолжается */}
+        {/* боковые градиенты-подсказки, что лента продолжается (только от sm — на мобилке мешают) */}
         <div
           aria-hidden
-          className={`pointer-events-none absolute inset-y-0 -left-1 w-10 bg-gradient-to-r from-background to-transparent transition-opacity duration-300 ${atStart ? 'opacity-0' : 'opacity-100'}`}
+          className={`pointer-events-none absolute inset-y-0 -left-1 hidden w-10 bg-gradient-to-r from-background to-transparent transition-opacity duration-300 sm:block ${atStart ? 'opacity-0' : 'opacity-100'}`}
         />
         <div
           aria-hidden
-          className={`pointer-events-none absolute inset-y-0 -right-1 w-10 bg-gradient-to-l from-background to-transparent transition-opacity duration-300 ${atEnd ? 'opacity-0' : 'opacity-100'}`}
+          className={`pointer-events-none absolute inset-y-0 -right-1 hidden w-10 bg-gradient-to-l from-background to-transparent transition-opacity duration-300 sm:block ${atEnd ? 'opacity-0' : 'opacity-100'}`}
         />
       </div>
     </section>
