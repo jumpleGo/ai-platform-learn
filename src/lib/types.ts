@@ -18,6 +18,20 @@ export interface Course {
   order: number;
   published: boolean;
   access: Access;
+  // Курс-пустышка без реального доступа (маркетинговый эксперимент на спрос)
+  isTest: boolean;
+  // Текст тоста при клике по уроку тестового курса; пусто — используется дефолт
+  testToastMessage: string | null;
+  // Сырой HTML лендинга предзаписи (/waitlist/[courseId]); вставляется как есть
+  testLandingHtml: string | null;
+  // Показать тег рядом с названием курса на витрине
+  showBadge: boolean;
+  // Текст тега; пусто — тег не рендерится, даже если showBadge=true
+  badgeText: string | null;
+  // Подсветка фона полки курса на 100% ширины экрана
+  highlightBackground: boolean;
+  // Счётчик кликов по тестовому курсу
+  clickCount: number;
 }
 
 export interface Lesson {

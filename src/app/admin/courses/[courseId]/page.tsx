@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import type { Access, Lesson } from '@/lib/types';
 import { getCourseWithLessons } from '@/lib/db/admin-courses';
 import {
@@ -136,7 +137,11 @@ export default async function AdminCoursePage({
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <form
-            key={valuesKey([course.title, course.description, course.access, course.published])}
+            key={valuesKey([
+              course.title, course.description, course.access, course.published,
+              course.isTest, course.testToastMessage, course.testLandingHtml,
+              course.showBadge, course.badgeText, course.highlightBackground,
+            ])}
             action={updateCourse.bind(null, courseId)}
             className="flex flex-col gap-3"
           >
@@ -160,8 +165,56 @@ export default async function AdminCoursePage({
                 <input type="checkbox" name="published" defaultChecked={course.published} />
                 Опубликован
               </label>
-              <Button type="submit">Сохранить</Button>
             </div>
+
+            <div className="flex flex-col gap-2 rounded-lg border border-dashed p-3">
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input type="checkbox" name="isTest" defaultChecked={course.isTest} />
+                Тестовый курс (без реального доступа)
+              </label>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="course-test-toast">Текст тоста при клике</Label>
+                <Input
+                  id="course-test-toast"
+                  name="testToastMessage"
+                  placeholder="Курс скоро откроется"
+                  defaultValue={course.testToastMessage ?? ''}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="course-test-html">HTML лендинга предзаписи</Label>
+                <Textarea
+                  id="course-test-html"
+                  name="testLandingHtml"
+                  rows={6}
+                  placeholder="Вставьте готовый HTML — покажется на /waitlist/&lt;id курса&gt;"
+                  defaultValue={course.testLandingHtml ?? ''}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2 rounded-lg border border-dashed p-3">
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input type="checkbox" name="showBadge" defaultChecked={course.showBadge} />
+                Показать тег рядом с названием
+              </label>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="course-badge-text">Текст тега</Label>
+                <Input
+                  id="course-badge-text"
+                  name="badgeText"
+                  placeholder="Например: новинка"
+                  defaultValue={course.badgeText ?? ''}
+                />
+              </div>
+            </div>
+
+            <label className="flex h-8 items-center gap-2 text-sm">
+              <input type="checkbox" name="highlightBackground" defaultChecked={course.highlightBackground} />
+              Подсветить фон полки на весь экран
+            </label>
+
+            <Button type="submit" className="self-start">Сохранить</Button>
           </form>
           <form action={deleteCourse.bind(null, courseId)}>
             <ConfirmSubmitButton variant="destructive" message="Удалить курс вместе с уроками?">

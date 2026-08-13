@@ -73,6 +73,13 @@ export async function createCourse(formData: FormData) {
     order: await nextOrder('courses'),
     published: false,
     coverUrl: null,
+    isTest: false,
+    testToastMessage: null,
+    testLandingHtml: null,
+    showBadge: false,
+    badgeText: null,
+    highlightBackground: false,
+    clickCount: 0,
   });
   refreshCourses();
   redirect(`/admin/courses/${ref.id}`);
@@ -83,11 +90,20 @@ export async function updateCourse(courseId: string, formData: FormData) {
   assertId(courseId, 'courseId');
   const title = String(formData.get('title') ?? '').trim();
   if (!title) throw new Error('title required');
+  const testToastMessage = String(formData.get('testToastMessage') ?? '').trim();
+  const testLandingHtml = String(formData.get('testLandingHtml') ?? '').trim();
+  const badgeText = String(formData.get('badgeText') ?? '').trim();
   await adminDb.doc(`courses/${courseId}`).update({
     title,
     description: String(formData.get('description') ?? '').trim(),
     access: parseAccess(formData.get('access')),
     published: formData.get('published') === 'on',
+    isTest: formData.get('isTest') === 'on',
+    testToastMessage: testToastMessage || null,
+    testLandingHtml: testLandingHtml || null,
+    showBadge: formData.get('showBadge') === 'on',
+    badgeText: badgeText || null,
+    highlightBackground: formData.get('highlightBackground') === 'on',
   });
   refreshCourses(courseId);
 }

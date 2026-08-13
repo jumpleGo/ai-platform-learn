@@ -36,6 +36,16 @@ export async function getLesson(courseId: string, lessonId: string): Promise<{ c
   };
 }
 
+// Курс-пустышка для лендинга предзаписи /waitlist/[courseId]. Без кэша — это редко
+// посещаемый маркетинговый роут, свежесть важнее.
+export async function getTestCourse(courseId: string): Promise<Course | null> {
+  const doc = await adminDb.doc(`courses/${courseId}`).get();
+  if (!doc.exists) return null;
+  const course = { id: doc.id, ...(doc.data() as Omit<Course, 'id'>) };
+  if (!course.isTest) return null;
+  return course;
+}
+
 export function invalidateCatalog() {
   // в Next 16 revalidateTag требует профиль; 'max' = пометить устаревшим, отдавая старое до фоновой ревалидации (SWR)
   revalidateTag('catalog', 'max');

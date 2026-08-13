@@ -53,6 +53,7 @@ export default async function AdminCoursesPage() {
             <TableHead>Статус</TableHead>
             <TableHead>Доступ</TableHead>
             <TableHead>Уроки</TableHead>
+            <TableHead>Клики</TableHead>
             <TableHead>Действия</TableHead>
           </TableRow>
         </TableHeader>
@@ -65,9 +66,12 @@ export default async function AdminCoursesPage() {
                 </Link>
               </TableCell>
               <TableCell>
-                <Badge variant={course.published ? 'default' : 'secondary'}>
-                  {course.published ? 'Опубликован' : 'Черновик'}
-                </Badge>
+                <div className="flex flex-wrap gap-1">
+                  <Badge variant={course.published ? 'default' : 'secondary'}>
+                    {course.published ? 'Опубликован' : 'Черновик'}
+                  </Badge>
+                  {course.isTest && <Badge variant="destructive">Тест</Badge>}
+                </div>
               </TableCell>
               <TableCell>
                 <Badge variant="outline">
@@ -75,6 +79,7 @@ export default async function AdminCoursesPage() {
                 </Badge>
               </TableCell>
               <TableCell>{course.lessonCount}</TableCell>
+              <TableCell>{course.isTest ? (course.clickCount ?? 0) : '—'}</TableCell>
               <TableCell>
                 <div className="flex items-center gap-1">
                   <form action={moveCourse.bind(null, course.id, 'up')}>
@@ -96,7 +101,7 @@ export default async function AdminCoursesPage() {
           ))}
           {courses.length === 0 && (
             <TableRow>
-              <TableCell colSpan={5} className="text-muted-foreground">
+              <TableCell colSpan={6} className="text-muted-foreground">
                 Курсов пока нет
               </TableCell>
             </TableRow>

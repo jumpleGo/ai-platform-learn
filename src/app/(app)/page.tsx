@@ -107,7 +107,15 @@ export default async function HomePage() {
               />
             )}
             <CourseCarousel
-              course={{ title: course.title, description: course.description }}
+              course={{
+                title: course.title,
+                description: course.description,
+                isTest: course.isTest ?? false,
+                testToastMessage: course.testToastMessage ?? null,
+                showBadge: course.showBadge ?? false,
+                badgeText: course.badgeText ?? null,
+                highlightBackground: course.highlightBackground ?? false,
+              }}
               lessons={cards}
               lockedIds={lockedIds}
             />
