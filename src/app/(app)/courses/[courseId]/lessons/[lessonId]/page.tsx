@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Eye, Lock } from 'lucide-react';
+import { ArrowLeft, Clapperboard, Eye, Lock } from 'lucide-react';
 import { getLesson } from '@/lib/db/courses';
 import { getSubscription } from '@/lib/db/subscriptions';
 import { getCompletedLessonIds } from '@/lib/db/progress';
@@ -102,8 +102,10 @@ export default async function LessonPage({ params }: {
         <div className="overflow-hidden rounded-2xl border border-border shadow-md">
           {locked ? (
             <LockedVideo previewUrl={lesson.previewImageUrl} title={lesson.title} />
-          ) : (
+          ) : lesson.videoEmbedUrl ? (
             <VideoEmbed courseId={courseId} lessonId={lessonId} title={lesson.title} />
+          ) : (
+            <MissingVideo />
           )}
         </div>
         {locked && <PromoLessonBanner />}
@@ -130,6 +132,18 @@ export default async function LessonPage({ params }: {
         )}
       </div>
     </>
+  );
+}
+
+// У урока тестового курса ссылки на видео может не быть — вместо плеера заглушка
+function MissingVideo() {
+  return (
+    <div className="flex aspect-video w-full flex-col items-center justify-center gap-3 bg-secondary text-center">
+      <span className="flex size-12 items-center justify-center rounded-full bg-primary/15">
+        <Clapperboard className="size-5 text-primary" aria-hidden />
+      </span>
+      <p className="px-6 text-sm font-medium text-foreground/90">Видео скоро появится</p>
+    </div>
   );
 }
 

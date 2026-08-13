@@ -204,6 +204,8 @@ export async function GET(
   }
 
   const { lesson } = data;
+  // у урока тестового курса видео может не быть — плееру нечего отдавать
+  if (!lesson.videoEmbedUrl) return new Response('Not found', { status: 404 });
   const id = youtubeId(lesson.videoEmbedUrl);
   if (id) {
     return new Response(youtubePlayerHtml(id, lesson.title, lesson.previewImageUrl), { headers: HEADERS });

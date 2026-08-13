@@ -17,13 +17,19 @@ function parseAccess(value: FormDataEntryValue | null): Access {
   return value === 'paid' ? 'paid' : 'free';
 }
 
+// У тестового курса уроки витринные — видео к ним может не быть вовсе
+async function isTestCourse(courseId: string) {
+  const snap = await adminDb.doc(`courses/${courseId}`).get();
+  return snap.get('isTest') === true;
+}
+
 // Общие поля урока для create/update с одинаковой валидацией
-function parseLessonFields(formData: FormData) {
+function parseLessonFields(formData: FormData, videoRequired: boolean) {
   const title = String(formData.get('title') ?? '').trim();
   if (!title) throw new Error('title required');
   const videoEmbedUrl = String(formData.get('videoEmbedUrl') ?? '').trim();
-  if (!videoEmbedUrl) throw new Error('videoEmbedUrl required');
-  if (!videoEmbedUrl.startsWith('https://')) throw new Error('videoEmbedUrl must be https');
+  if (!videoEmbedUrl && videoRequired) throw new Error('videoEmbedUrl required');
+  if (videoEmbedUrl && !videoEmbedUrl.startsWith('https://')) throw new Error('videoEmbedUrl must be https');
   const durationRaw = String(formData.get('durationSec') ?? '').trim();
   const durationNum = Number(durationRaw);
   return {
@@ -120,7 +126,7 @@ export async function deleteCourse(courseId: string) {
 export async function createLesson(courseId: string, formData: FormData) {
   await requireAdmin();
   assertId(courseId, 'courseId');
-  const fields = parseLessonFields(formData);
+  const fields = parseLessonFields(formData, !(await isTestCourse(courseId)));
   // длительность не указали — пробуем взять из видео
   if (fields.durationSec === null) fields.durationSec = await fetchVideoDuration(fields.videoEmbedUrl);
   const preview = await resolvePreview(formData, courseId);
@@ -138,7 +144,7 @@ export async function updateLesson(courseId: string, lessonId: string, formData:
   await requireAdmin();
   assertId(courseId, 'courseId');
   assertId(lessonId, 'lessonId');
-  const fields = parseLessonFields(formData);
+  const fields = parseLessonFields(formData, !(await isTestCourse(courseId)));
   if (fields.durationSec === null) fields.durationSec = await fetchVideoDuration(fields.videoEmbedUrl);
   const preview = await resolvePreview(formData, courseId);
   await adminDb.doc(`courses/${courseId}/lessons/${lessonId}`).update({ ...fields, ...preview });

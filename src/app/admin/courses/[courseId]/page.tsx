@@ -25,10 +25,11 @@ function valuesKey(values: Array<string | number | boolean | null>) {
 }
 
 // Общие поля формы урока (создание и редактирование)
-function LessonFields({ idPrefix, lesson, courseAccess }: {
+function LessonFields({ idPrefix, lesson, courseAccess, courseIsTest }: {
   idPrefix: string;
   lesson?: Lesson;
   courseAccess: Access;
+  courseIsTest: boolean;
 }) {
   return (
     <div className="flex flex-col gap-3">
@@ -41,11 +42,13 @@ function LessonFields({ idPrefix, lesson, courseAccess }: {
         <Input id={`${idPrefix}-description`} name="description" defaultValue={lesson?.description} />
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor={`${idPrefix}-video`}>Ссылка на видео</Label>
+        <Label htmlFor={`${idPrefix}-video`}>
+          Ссылка на видео{courseIsTest && <span className="text-muted-foreground"> — необязательно</span>}
+        </Label>
         <Input
           id={`${idPrefix}-video`}
           name="videoEmbedUrl"
-          required
+          required={!courseIsTest}
           pattern="https://.*"
           title="Ссылка должна начинаться с https://"
           placeholder="https://..."
@@ -53,6 +56,7 @@ function LessonFields({ idPrefix, lesson, courseAccess }: {
         />
         <p className="text-xs text-muted-foreground">
           Ссылка на YouTube (любой формат) или embed-ссылка видеохостинга
+          {courseIsTest && '. У тестового курса можно оставить пустым — урок будет без видео'}
         </p>
       </div>
       <div className="flex flex-wrap items-end gap-3">
@@ -269,7 +273,12 @@ export default async function AdminCoursePage({
                 action={updateLesson.bind(null, courseId, lesson.id)}
                 className="mt-3 flex flex-col gap-3"
               >
-                <LessonFields idPrefix={`lesson-${lesson.id}`} lesson={lesson} courseAccess={course.access} />
+                <LessonFields
+                  idPrefix={`lesson-${lesson.id}`}
+                  lesson={lesson}
+                  courseAccess={course.access}
+                  courseIsTest={course.isTest}
+                />
                 <Button type="submit" className="self-start">Сохранить</Button>
               </form>
             </details>
@@ -283,7 +292,7 @@ export default async function AdminCoursePage({
         </CardHeader>
         <CardContent>
           <form action={createLesson.bind(null, courseId)} className="flex flex-col gap-3">
-            <LessonFields idPrefix="new-lesson" courseAccess={course.access} />
+            <LessonFields idPrefix="new-lesson" courseAccess={course.access} courseIsTest={course.isTest} />
             <Button type="submit" className="self-start">Добавить урок</Button>
           </form>
         </CardContent>
