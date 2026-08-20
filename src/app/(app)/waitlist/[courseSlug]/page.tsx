@@ -1,16 +1,19 @@
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { ArrowUpRight } from 'lucide-react';
 import { getTestCourse } from '@/lib/db/courses';
 import { DoodleScatter, DoodleWord } from '@/components/doodle-decor';
+import { courseKey, waitlistPath } from '@/lib/slug';
 
 const PROMO_URL = 'https://start.gelato.su';
 
 export default async function WaitlistPage({ params }: {
-  params: Promise<{ courseId: string }>;
+  params: Promise<{ courseSlug: string }>;
 }) {
-  const { courseId } = await params;
-  const course = await getTestCourse(courseId);
+  const { courseSlug } = await params;
+  const course = await getTestCourse(courseSlug);
   if (!course) notFound();
+  // пришли по старому адресу с id — уводим на человекочитаемый
+  if (courseSlug !== courseKey(course)) permanentRedirect(waitlistPath(courseKey(course)));
 
   // Владелец сайта сам вставляет готовый HTML в админке — доверенный контент, не пользовательский ввод
   if (course.testLandingHtml) {

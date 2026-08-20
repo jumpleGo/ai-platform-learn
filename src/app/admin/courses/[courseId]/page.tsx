@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import type { Access, Lesson } from '@/lib/types';
 import { getCourseWithLessons } from '@/lib/db/admin-courses';
+import { courseKey, lessonPath, waitlistPath } from '@/lib/slug';
 import {
   createLesson, deleteCourse, deleteLesson, moveLesson, updateCourse, updateLesson,
 } from '../actions';
@@ -126,13 +127,23 @@ export default async function AdminCoursePage({
   const course = await getCourseWithLessons(courseId);
   if (!course) notFound();
 
+  // адрес курса на сайте: у тестового это лендинг предзаписи, у обычного — первый урок
+  const publicPath = course.isTest
+    ? waitlistPath(courseKey(course))
+    : lessonPath(courseKey(course), 1);
+
   return (
     <div className="flex max-w-2xl flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="font-heading text-2xl font-semibold tracking-tight">{course.title}</h1>
-        <Link href="/admin/courses" className="text-sm text-muted-foreground hover:underline">
-          ← Все курсы
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href={publicPath} className="text-sm text-muted-foreground hover:underline">
+            Открыть на сайте ↗
+          </Link>
+          <Link href="/admin/courses" className="text-sm text-muted-foreground hover:underline">
+            ← Все курсы
+          </Link>
+        </div>
       </div>
 
       <Card>
@@ -142,7 +153,7 @@ export default async function AdminCoursePage({
         <CardContent className="flex flex-col gap-4">
           <form
             key={valuesKey([
-              course.title, course.description, course.access, course.published,
+              course.title, course.slug, course.description, course.access, course.published,
               course.isTest, course.testToastMessage, course.testLandingHtml,
               course.showBadge, course.badgeText, course.highlightBackground,
             ])}
@@ -152,6 +163,21 @@ export default async function AdminCoursePage({
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="course-title">Название</Label>
               <Input id="course-title" name="title" required defaultValue={course.title} />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="course-slug">Адрес курса</Label>
+              <Input
+                id="course-slug"
+                name="slug"
+                pattern="[a-z0-9][a-z0-9-]*"
+                title="Латиница в нижнем регистре, цифры и дефис"
+                placeholder="osnovy-claude-code"
+                defaultValue={course.slug ?? ''}
+              />
+              <p className="text-xs text-muted-foreground">
+                Латиница, цифры и дефис. Пусто — соберём из названия транслитом.
+                Сейчас: <code>{publicPath}</code>
+              </p>
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="course-description">Описание</Label>
@@ -191,7 +217,7 @@ export default async function AdminCoursePage({
                   id="course-test-html"
                   name="testLandingHtml"
                   rows={6}
-                  placeholder="Вставьте готовый HTML — покажется на /waitlist/&lt;id курса&gt;"
+                  placeholder={`Вставьте готовый HTML — покажется на ${waitlistPath(courseKey(course))}`}
                   defaultValue={course.testLandingHtml ?? ''}
                 />
               </div>
@@ -233,9 +259,11 @@ export default async function AdminCoursePage({
         {course.lessons.length === 0 && (
           <p className="text-sm text-muted-foreground">Уроков пока нет</p>
         )}
-        {course.lessons.map((lesson) => (
+        {course.lessons.map((lesson, i) => (
           <div key={lesson.id} className="rounded-lg border p-4">
             <div className="flex flex-wrap items-center gap-2">
+              {/* номер = сегмент URL урока */}
+              <span className="font-mono text-xs text-muted-foreground">{i + 1}</span>
               <span className="font-medium">{lesson.title}</span>
               <Badge variant="outline">
                 {lesson.access === 'paid' ? 'По подписке' : 'Бесплатный'}

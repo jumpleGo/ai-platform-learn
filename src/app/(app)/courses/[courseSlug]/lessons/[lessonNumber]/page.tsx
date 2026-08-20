@@ -1,13 +1,14 @@
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Clapperboard, Eye, Lock } from 'lucide-react';
-import { getLesson } from '@/lib/db/courses';
+import { resolveLesson } from '@/lib/db/courses';
 import { getSubscription } from '@/lib/db/subscriptions';
 import { getCompletedLessonIds } from '@/lib/db/progress';
 import { getSession } from '@/lib/session';
 import { isLocked } from '@/lib/access';
 import { materialsTeaser } from '@/lib/markdown';
 import { plural } from '@/lib/utils';
+import { courseKey, lessonPath } from '@/lib/slug';
 import { VideoEmbed } from '@/components/video-embed';
 // Оффер закрытого урока — маркетинговый баннер на внешний лендинг
 import { PromoLessonBanner } from '@/components/promo-banner';
@@ -22,18 +23,24 @@ import { EVENTS } from '@/lib/analytics/events';
 import { recordViewAction } from './actions';
 
 export default async function LessonPage({ params }: {
-  params: Promise<{ courseId: string; lessonId: string }>;
+  params: Promise<{ courseSlug: string; lessonNumber: string }>;
 }) {
-  const { courseId, lessonId } = await params;
+  const { courseSlug, lessonNumber } = await params;
   // страница урока открыта и гостям; платный урок без доступа отдаётся заблокированным (только превью)
   const session = await getSession();
   const [data, sub, completedIds] = await Promise.all([
-    getLesson(courseId, lessonId),
+    resolveLesson(courseSlug, lessonNumber),
     session ? getSubscription(session.uid) : null,
     session ? getCompletedLessonIds(session.uid) : new Set<string>(),
   ]);
   if (!data) notFound();
-  const { course, lesson } = data;
+  const { course, lesson, number } = data;
+  // пришли по старому адресу с хешами — уводим на человекочитаемый
+  const path = lessonPath(courseKey(course), number);
+  if (courseSlug !== courseKey(course) || lessonNumber !== String(number)) permanentRedirect(path);
+  // id документов нужны для аналитики, прогресса и прокси-плеера — они не участвуют в URL страницы
+  const courseId = course.id;
+  const lessonId = lesson.id;
 
   const now = Date.now();
   const locked = isLocked(lesson, sub, now);
@@ -127,6 +134,7 @@ export default async function LessonPage({ params }: {
           <CompleteLessonButton
             courseId={courseId}
             lessonId={lesson.id}
+            path={path}
             completed={completedIds.has(lesson.id)}
           />
         )}

@@ -11,12 +11,12 @@ export async function recordViewAction(courseId: string, lessonId: string) {
   await recordLessonView(courseId, lessonId);
 }
 
-export async function completeLesson(courseId: string, lessonId: string) {
-  // Валидация id — защищаемся от мусора в пути ревалидации и Firestore
-  if (!/^[\w-]+$/.test(courseId)) throw new Error('invalid courseId');
+export async function completeLesson(lessonId: string, path: string) {
+  // Валидация входа — защищаемся от мусора в Firestore и в пути ревалидации
   if (!/^[\w-]+$/.test(lessonId)) throw new Error('invalid lessonId');
+  if (!/^\/courses\/[\w-]+\/lessons\/[1-9][0-9]{0,3}$/.test(path)) throw new Error('invalid path');
   const session = await getSession();
   if (!session) throw new Error('unauthorized');
   await markLessonCompleted(session.uid, lessonId);
-  revalidatePath(`/courses/${courseId}/lessons/${lessonId}`);
+  revalidatePath(path);
 }

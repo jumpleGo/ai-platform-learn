@@ -6,11 +6,23 @@ import { invalidateCatalog } from '@/lib/db/courses';
 import { requireAdmin } from '@/lib/require-admin';
 import { uploadPreview } from '@/lib/storage';
 import { fetchVideoDuration } from '@/lib/video-meta';
+import { slugify } from '@/lib/slug';
 import { formatMaterials } from '@/lib/ai';
 import type { Access } from '@/lib/types';
 
 function assertId(id: string, name: string) {
   if (!/^[\w-]+$/.test(id)) throw new Error(`invalid ${name}`);
+}
+
+// Уникальный slug курса: если такой уже занят другим курсом — добавляем суффикс -2, -3, …
+async function uniqueSlug(base: string, exceptCourseId?: string): Promise<string> {
+  const root = slugify(base) || 'kurs';
+  for (let i = 1; i <= 50; i++) {
+    const candidate = i === 1 ? root : `${root}-${i}`;
+    const snap = await adminDb.collection('courses').where('slug', '==', candidate).get();
+    if (snap.docs.every((d) => d.id === exceptCourseId)) return candidate;
+  }
+  throw new Error('slug занят');
 }
 
 function parseAccess(value: FormDataEntryValue | null): Access {
@@ -74,6 +86,7 @@ export async function createCourse(formData: FormData) {
   if (!title) throw new Error('title required');
   const ref = await adminDb.collection('courses').add({
     title,
+    slug: await uniqueSlug(String(formData.get('slug') ?? '').trim() || title),
     description: String(formData.get('description') ?? '').trim(),
     access: parseAccess(formData.get('access')),
     order: await nextOrder('courses'),
@@ -99,8 +112,11 @@ export async function updateCourse(courseId: string, formData: FormData) {
   const testToastMessage = String(formData.get('testToastMessage') ?? '').trim();
   const testLandingHtml = String(formData.get('testLandingHtml') ?? '').trim();
   const badgeText = String(formData.get('badgeText') ?? '').trim();
+  // slug пустой — пересобираем из названия
+  const slug = await uniqueSlug(String(formData.get('slug') ?? '').trim() || title, courseId);
   await adminDb.doc(`courses/${courseId}`).update({
     title,
+    slug,
     description: String(formData.get('description') ?? '').trim(),
     access: parseAccess(formData.get('access')),
     published: formData.get('published') === 'on',

@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/table';
 import { listAllCourses } from '@/lib/db/admin-courses';
 import { createCourse, moveCourse } from './actions';
+import { courseKey } from '@/lib/slug';
 
 const selectClass =
   'h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30';
@@ -29,6 +30,17 @@ export default async function AdminCoursesPage() {
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="new-course-title">Название</Label>
               <Input id="new-course-title" name="title" required className="w-64" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="new-course-slug">Адрес (необязательно)</Label>
+              <Input
+                id="new-course-slug"
+                name="slug"
+                className="w-52"
+                pattern="[a-z0-9][a-z0-9-]*"
+                title="Латиница в нижнем регистре, цифры и дефис"
+                placeholder="из названия"
+              />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="new-course-description">Описание</Label>
@@ -64,6 +76,7 @@ export default async function AdminCoursesPage() {
                 <Link href={`/admin/courses/${course.id}`} className="font-medium hover:underline">
                   {course.title}
                 </Link>
+                <div className="font-mono text-xs text-muted-foreground">/{courseKey(course)}</div>
               </TableCell>
               <TableCell>
                 <div className="flex flex-wrap gap-1">

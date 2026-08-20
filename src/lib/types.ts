@@ -12,6 +12,8 @@ export interface UserDoc {
 
 export interface Course {
   id: string;
+  // Человекочитаемый идентификатор для URL: /courses/<slug>, /waitlist/<slug>
+  slug: string;
   title: string;
   description: string;
   coverUrl: string | null;
@@ -22,7 +24,7 @@ export interface Course {
   isTest: boolean;
   // Текст тоста при клике по уроку тестового курса; пусто — используется дефолт
   testToastMessage: string | null;
-  // Сырой HTML лендинга предзаписи (/waitlist/[courseId]); вставляется как есть
+  // Сырой HTML лендинга предзаписи (/waitlist/[courseSlug]); вставляется как есть
   testLandingHtml: string | null;
   // Показать тег рядом с названием курса на витрине
   showBadge: boolean;

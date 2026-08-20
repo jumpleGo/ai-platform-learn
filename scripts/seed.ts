@@ -53,6 +53,7 @@ const COURSES: CourseSeed[] = [
   {
     id: 'course-basics',
     data: {
+      slug: 'osnovy-platformy',
       title: 'Основы платформы',
       description: 'Вводный курс для знакомства с платформой. Разберём интерфейс, навигацию и базовые сценарии работы.',
       coverUrl: null,
@@ -78,6 +79,7 @@ const COURSES: CourseSeed[] = [
   {
     id: 'course-advanced',
     data: {
+      slug: 'prodvinutyy-kurs',
       title: 'Продвинутый курс',
       description: 'Углублённый курс для тех, кто освоил основы. Продвинутые техники, разбор реальных кейсов и практика.',
       coverUrl: null,

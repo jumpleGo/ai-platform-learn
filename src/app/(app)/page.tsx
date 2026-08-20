@@ -4,6 +4,7 @@ import { getSession } from '@/lib/session';
 import { isLocked, isSubscriptionActive } from '@/lib/access';
 import { youtubeId } from '@/lib/video-url';
 import { plural } from '@/lib/utils';
+import { courseKey } from '@/lib/slug';
 import { CourseCarousel } from '@/components/course-carousel';
 import { DoodleScatter, DoodleWord } from '@/components/doodle-decor';
 import { PromoBanner, PromoStrip } from '@/components/promo-banner';
@@ -91,6 +92,7 @@ export default async function HomePage() {
         const cards = course.lessons.map((l) => ({
           id: l.id,
           courseId: l.courseId,
+          courseKey: courseKey(course),
           title: l.title,
           durationSec: l.durationSec,
           views: l.views ?? 0,

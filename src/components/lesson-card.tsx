@@ -5,6 +5,7 @@ import { LockBadge } from './lock-badge';
 import { LessonPreview } from './lesson-preview';
 import { formatCount } from '@/lib/utils';
 import { trackTestCourseClick } from '@/app/(app)/actions';
+import { lessonPath, waitlistPath } from '@/lib/slug';
 
 // Безопасный набор полей для карточки: без videoEmbedUrl и materials.
 // videoId задаётся только для доступных уроков; для заблокированных — null
@@ -12,6 +13,8 @@ import { trackTestCourseClick } from '@/app/(app)/actions';
 export type LessonCardData = {
   id: string;
   courseId: string;
+  // Ключ курса для URL (slug, у старых курсов — id)
+  courseKey: string;
   title: string;
   durationSec: number | null;
   views: number;
@@ -31,7 +34,7 @@ export function LessonCard({ lesson, index, locked, isTest, testToastMessage }: 
   const views = lesson.views ?? 0;
   return (
     <Link
-      href={isTest ? `/waitlist/${lesson.courseId}` : `/courses/${lesson.courseId}/lessons/${lesson.id}`}
+      href={isTest ? waitlistPath(lesson.courseKey) : lessonPath(lesson.courseKey, index + 1)}
       onClick={isTest ? () => {
         toast(testToastMessage || 'Курс скоро откроется');
         void trackTestCourseClick(lesson.courseId);
