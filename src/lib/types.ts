@@ -51,6 +51,15 @@ export interface Lesson {
   views: number;
   // Своя загруженная обложка-превью; null — берём кадр из видео
   previewImageUrl: string | null;
+  // Фокус-режим: убирают обвязку страницы, чтобы с урока некуда было уйти
+  hideHeader: boolean;
+  hideFooter: boolean;
+  hideBackLink: boolean;
+  hideLessonsNav: boolean;
+  // Сырой HTML маркетингового баннера в зоне материалов урока; вставляется как есть
+  marketingHtml: string | null;
+  // Сырой HTML сопутствующих блоков в самом низу урока — уводят дальше по воронке
+  relatedHtml: string | null;
 }
 
 export interface Partner {

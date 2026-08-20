@@ -34,7 +34,7 @@ export default async function CourseLayout({ children, params }: {
   const completedCount = items.filter((i) => i.completed).length;
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[1fr_19rem]">
+    <div data-course-grid className="grid gap-10 lg:grid-cols-[1fr_19rem]">
       <div className="min-w-0">{children}</div>
       <CourseLessonsNav courseKey={course ? courseKey(course) : courseSlug} items={items} completedCount={completedCount} />
     </div>

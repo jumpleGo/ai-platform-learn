@@ -8,6 +8,7 @@ import { getSession } from '@/lib/session';
 import { isLocked } from '@/lib/access';
 import { materialsTeaser } from '@/lib/markdown';
 import { plural } from '@/lib/utils';
+import type { Lesson } from '@/lib/types';
 import { courseKey, lessonPath } from '@/lib/slug';
 import { VideoEmbed } from '@/components/video-embed';
 // Оффер закрытого урока — маркетинговый баннер на внешний лендинг
@@ -66,6 +67,7 @@ export default async function LessonPage({ params }: {
         />
       )}
       <RecordView key={`view:${courseId}:${lessonId}`} action={recordViewAction.bind(null, courseId, lessonId)} />
+      <LessonChrome lesson={lesson} />
       <div className="animate-rise relative space-y-6">
         <DoodleScatter
           glyph="starburst"
@@ -87,13 +89,15 @@ export default async function LessonPage({ params }: {
           color="oklch(0.7 0.14 240)"
           className="bottom-2 left-2 h-7 w-7 rotate-3 opacity-45 sm:h-9 sm:w-9"
         />
-        <Link
-          href="/"
-          className="group inline-flex items-center gap-1.5 font-mono text-sm text-muted-foreground transition-colors hover:text-primary"
-        >
-          <ArrowLeft className="size-4 transition-transform duration-200 group-hover:-translate-x-0.5" aria-hidden />
-          {course.title}
-        </Link>
+        {!lesson.hideBackLink && (
+          <Link
+            href="/"
+            className="group inline-flex items-center gap-1.5 font-mono text-sm text-muted-foreground transition-colors hover:text-primary"
+          >
+            <ArrowLeft className="size-4 transition-transform duration-200 group-hover:-translate-x-0.5" aria-hidden />
+            {course.title}
+          </Link>
+        )}
         <h1 className="font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl/[1.15]">
           {lesson.title}
         </h1>
@@ -130,6 +134,7 @@ export default async function LessonPage({ params }: {
             )}
           </div>
         )}
+        {lesson.marketingHtml && <RawHtml html={lesson.marketingHtml} />}
         {session && !locked && (
           <CompleteLessonButton
             courseId={courseId}
@@ -138,9 +143,28 @@ export default async function LessonPage({ params }: {
             completed={completedIds.has(lesson.id)}
           />
         )}
+        {lesson.relatedHtml && <RawHtml html={lesson.relatedHtml} />}
       </div>
     </>
   );
+}
+
+// Фокус-режим урока: правила глобальные, но живут только пока смонтирована страница этого
+// урока — при переходе на другой урок React снимает <style> и обвязка возвращается.
+// precedence не ставим намеренно: иначе React поднял бы стиль в <head> и закешировал.
+function LessonChrome({ lesson }: { lesson: Lesson }) {
+  const css = [
+    lesson.hideHeader && '[data-app-header],[data-app-partner-bar]{display:none}',
+    lesson.hideFooter && '[data-app-footer]{display:none}',
+    lesson.hideLessonsNav && '[data-lessons-nav]{display:none}[data-course-grid]{grid-template-columns:1fr}',
+  ].filter(Boolean).join('');
+  if (!css) return null;
+  return <style>{css}</style>;
+}
+
+// Готовый HTML из админки — доверенный контент владельца сайта, не пользовательский ввод
+function RawHtml({ html }: { html: string }) {
+  return <div dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
 // У урока тестового курса ссылки на видео может не быть — вместо плеера заглушка

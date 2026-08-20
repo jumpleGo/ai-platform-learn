@@ -16,7 +16,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <Suspense fallback={null}>
         <PartnerBar />
       </Suspense>
-      <header className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-md">
+      <header data-app-header className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link
             href="/"
@@ -55,7 +55,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </div>
       </header>
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6">{children}</main>
-      <footer className="border-t border-border/70 py-6">
+      <footer data-app-footer className="border-t border-border/70 py-6">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 text-xs text-muted-foreground sm:px-6">
           <span className="font-mono">GELATO</span>
           <span>Обучение ИИ-разработке с Claude Code</span>

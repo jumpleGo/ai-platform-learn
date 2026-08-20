@@ -119,6 +119,12 @@ async function main() {
         materials: SAMPLE_MATERIALS,
         views: 120 + i * 37 + course.data.order * 210,
         previewImageUrl: null,
+        hideHeader: false,
+        hideFooter: false,
+        hideBackLink: false,
+        hideLessonsNav: false,
+        marketingHtml: null,
+        relatedHtml: null,
       };
       await courseRef.collection('lessons').doc(`lesson-${i + 1}`).set(lesson);
     }

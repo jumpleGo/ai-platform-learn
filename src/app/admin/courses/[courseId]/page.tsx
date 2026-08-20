@@ -114,6 +114,59 @@ function LessonFields({ idPrefix, lesson, courseAccess, courseIsTest }: {
         </p>
       </div>
       <MaterialsEditor idPrefix={idPrefix} defaultValue={lesson?.materials ?? ''} />
+
+      <div className="flex flex-col gap-2 rounded-lg border border-dashed p-3">
+        <p className="text-sm font-medium">Страница урока</p>
+        <p className="text-xs text-muted-foreground">
+          Галочки убирают навигацию: со страницы урока некуда уйти, остаётся только видео.
+        </p>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="hideHeader" defaultChecked={lesson?.hideHeader} />
+          Скрыть шапку сайта
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="hideBackLink" defaultChecked={lesson?.hideBackLink} />
+          Скрыть ссылку назад к курсу
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="hideLessonsNav" defaultChecked={lesson?.hideLessonsNav} />
+          Скрыть меню уроков курса
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="hideFooter" defaultChecked={lesson?.hideFooter} />
+          Скрыть подвал
+        </label>
+      </div>
+
+      <div className="flex flex-col gap-3 rounded-lg border border-dashed p-3">
+        <p className="text-sm font-medium">Маркетинговые блоки</p>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor={`${idPrefix}-marketing`}>Баннер под уроком (HTML)</Label>
+          <Textarea
+            id={`${idPrefix}-marketing`}
+            name="marketingHtml"
+            rows={5}
+            placeholder="Вставьте готовый HTML — покажется в блоке материалов, под видео"
+            defaultValue={lesson?.marketingHtml ?? ''}
+          />
+          <p className="text-xs text-muted-foreground">
+            Показывается на месте материалов урока. Пусто — блока нет.
+          </p>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor={`${idPrefix}-related`}>Сопутствующие блоки (HTML)</Label>
+          <Textarea
+            id={`${idPrefix}-related`}
+            name="relatedHtml"
+            rows={5}
+            placeholder="Вставьте готовый HTML — покажется в самом низу урока"
+            defaultValue={lesson?.relatedHtml ?? ''}
+          />
+          <p className="text-xs text-muted-foreground">
+            Самый низ страницы урока — сюда ставят ссылки на другой сайт или следующий шаг.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -297,6 +350,8 @@ export default async function AdminCoursePage({
                 key={valuesKey([
                   lesson.title, lesson.description, lesson.videoEmbedUrl,
                   lesson.durationSec, lesson.access, lesson.materials, lesson.previewImageUrl,
+                  lesson.hideHeader, lesson.hideFooter, lesson.hideBackLink, lesson.hideLessonsNav,
+                  lesson.marketingHtml, lesson.relatedHtml,
                 ])}
                 action={updateLesson.bind(null, courseId, lesson.id)}
                 className="mt-3 flex flex-col gap-3"

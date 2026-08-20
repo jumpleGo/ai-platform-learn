@@ -44,6 +44,8 @@ function parseLessonFields(formData: FormData, videoRequired: boolean) {
   if (videoEmbedUrl && !videoEmbedUrl.startsWith('https://')) throw new Error('videoEmbedUrl must be https');
   const durationRaw = String(formData.get('durationSec') ?? '').trim();
   const durationNum = Number(durationRaw);
+  const marketingHtml = String(formData.get('marketingHtml') ?? '').trim();
+  const relatedHtml = String(formData.get('relatedHtml') ?? '').trim();
   return {
     title,
     description: String(formData.get('description') ?? '').trim(),
@@ -51,6 +53,12 @@ function parseLessonFields(formData: FormData, videoRequired: boolean) {
     durationSec: durationRaw === '' || !Number.isFinite(durationNum) ? null : durationNum,
     access: parseAccess(formData.get('access')),
     materials: String(formData.get('materials') ?? '').trim(),
+    hideHeader: formData.get('hideHeader') === 'on',
+    hideFooter: formData.get('hideFooter') === 'on',
+    hideBackLink: formData.get('hideBackLink') === 'on',
+    hideLessonsNav: formData.get('hideLessonsNav') === 'on',
+    marketingHtml: marketingHtml || null,
+    relatedHtml: relatedHtml || null,
   };
 }
 

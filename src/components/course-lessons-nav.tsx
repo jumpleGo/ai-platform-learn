@@ -17,6 +17,7 @@ export function CourseLessonsNav({ courseKey, items, completedCount }: {
   const total = items.length;
   return (
     <aside
+      data-lessons-nav
       className="animate-rise space-y-4 lg:sticky lg:top-20 lg:self-start"
       style={{ '--rise-delay': '0.08s' } as React.CSSProperties}
     >
