@@ -82,7 +82,7 @@ export default async function LessonPage({ params }: {
         <DoodleScatter
           glyph="sparkleheart"
           color="oklch(0.68 0.19 12)"
-          className="top-0 left-0 h-7 w-8 -rotate-6 opacity-55 sm:h-9 sm:w-10"
+          className="-top-7 -left-1 h-7 w-8 -rotate-6 opacity-55 sm:-top-9 sm:h-9 sm:w-10"
         />
         <DoodleScatter
           glyph="paisley"
