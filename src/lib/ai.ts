@@ -1,4 +1,5 @@
 import 'server-only';
+import { isShortcut } from '@/lib/markdown';
 
 // Описывает наш markdown-диалект (см. lib/markdown.ts), чтобы модель выдавала
 // ровно то, что мы умеем рендерить.
@@ -22,24 +23,27 @@ const SYSTEM = `Ты — редактор учебных материалов. �
 - пиши кратко и по делу;
 - верни ТОЛЬКО markdown, без преамбул, пояснений и markdown-ограждения вокруг всего ответа.`;
 
-// Оформляет черновой конспект в красивый markdown через OpenRouter (OpenAI-совместимый API).
+// Провайдер — любой OpenAI-совместимый API, задаётся через env (по умолчанию Kimi / Moonshot).
+const BASE_URL = process.env.AI_BASE_URL || 'https://api.moonshot.ai/v1';
+const MODEL = process.env.AI_MODEL || 'kimi-k2.7-code-highspeed';
+
+// Оформляет черновой конспект в красивый markdown.
 export async function formatMaterials(raw: string): Promise<string> {
   const text = raw.trim();
   if (!text) throw new Error('Сначала вставьте конспект');
 
-  const key = process.env.OPENROUTER_API_KEY;
-  if (!key) throw new Error('Не задан OPENROUTER_API_KEY');
-  const model = process.env.OPENROUTER_MODEL || 'anthropic/claude-haiku-4.5';
+  const key = process.env.AI_API_KEY;
+  if (!key) throw new Error('Не задан AI_API_KEY');
 
-  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  const res = await fetch(`${BASE_URL}/chat/completions`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${key}`,
       'Content-Type': 'application/json',
     },
+    // temperature не шлём: модели kimi-k2 принимают только значение 1 и отвечают 400 на любое другое
     body: JSON.stringify({
-      model,
-      temperature: 0.3,
+      model: MODEL,
       messages: [
         { role: 'system', content: SYSTEM },
         { role: 'user', content: text },
@@ -49,11 +53,14 @@ export async function formatMaterials(raw: string): Promise<string> {
 
   if (!res.ok) {
     const detail = await res.text().catch(() => '');
-    throw new Error(`OpenRouter ${res.status}: ${detail.slice(0, 200)}`);
+    throw new Error(`AI ${res.status}: ${detail.slice(0, 200)}`);
   }
   const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
   const out = data.choices?.[0]?.message?.content?.trim();
   if (!out) throw new Error('Пустой ответ модели');
   // снимаем возможное ограждение ```markdown ... ``` вокруг всего ответа
-  return out.replace(/^```(?:markdown)?\n?/i, '').replace(/\n?```$/, '').trim();
+  const md = out.replace(/^```(?:markdown)?\n?/i, '').replace(/\n?```$/, '').trim();
+  // модель нет-нет да и завернёт сочетание клавиш в **жирный** — так оно отрендерится
+  // текстом вместо kbd-плашки, поэтому разворачиваем обратно
+  return md.replace(/\*\*([^*\n]+)\*\*/g, (whole, inner: string) => (isShortcut(inner) ? inner : whole));
 }

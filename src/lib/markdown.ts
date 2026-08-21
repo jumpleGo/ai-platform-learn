@@ -27,7 +27,7 @@ const KEY =
 // Комбинация: минимум два «ключа» через +. Модификатор обязателен — отсекает «1+1», «a+b»
 const COMBO = new RegExp(`${KEY}(?:\\s*\\+\\s*${KEY})+`, 'g');
 
-function isShortcut(text: string): boolean {
+export function isShortcut(text: string): boolean {
   const keys = text.split('+').map((k) => k.trim());
   return keys.length >= 2 && keys.some((k) => MODIFIERS.test(k));
 }
