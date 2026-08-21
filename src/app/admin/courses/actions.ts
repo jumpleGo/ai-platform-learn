@@ -8,7 +8,9 @@ import { uploadPreview } from '@/lib/storage';
 import { fetchVideoDuration } from '@/lib/video-meta';
 import { slugify } from '@/lib/slug';
 import { formatMaterials } from '@/lib/ai';
-import type { Access } from '@/lib/types';
+import { resetLessonBannerStats } from '@/lib/db/banner-stats';
+import { DEFAULT_WEIGHT, VARIANT_IDS } from '@/lib/banners';
+import type { Access, LessonBanner } from '@/lib/types';
 
 function assertId(id: string, name: string) {
   if (!/^[\w-]+$/.test(id)) throw new Error(`invalid ${name}`);
@@ -35,6 +37,21 @@ async function isTestCourse(courseId: string) {
   return snap.get('isTest') === true;
 }
 
+// Варианты маркетингового блока из формы: 4 фиксированных слота A–D, пустой html
+// означает «варианта нет». Вес пустой — DEFAULT_WEIGHT, 0 — вариант выключен.
+function parseVariants(formData: FormData, prefix: 'materials' | 'related'): LessonBanner[] {
+  return VARIANT_IDS.map((id) => {
+    const html = String(formData.get(`${prefix}_${id}_html`) ?? '').trim();
+    const name = String(formData.get(`${prefix}_${id}_name`) ?? '').trim();
+    const weightRaw = String(formData.get(`${prefix}_${id}_weight`) ?? '').trim();
+    const weightNum = Number(weightRaw);
+    const weight = weightRaw === '' || !Number.isFinite(weightNum)
+      ? DEFAULT_WEIGHT
+      : Math.min(1000, Math.max(0, Math.round(weightNum)));
+    return { id, name: name || `Вариант ${id.toUpperCase()}`, html, weight };
+  }).filter((v) => v.html !== '');
+}
+
 // Общие поля урока для create/update с одинаковой валидацией
 function parseLessonFields(formData: FormData, videoRequired: boolean) {
   const title = String(formData.get('title') ?? '').trim();
@@ -44,8 +61,6 @@ function parseLessonFields(formData: FormData, videoRequired: boolean) {
   if (videoEmbedUrl && !videoEmbedUrl.startsWith('https://')) throw new Error('videoEmbedUrl must be https');
   const durationRaw = String(formData.get('durationSec') ?? '').trim();
   const durationNum = Number(durationRaw);
-  const marketingHtml = String(formData.get('marketingHtml') ?? '').trim();
-  const relatedHtml = String(formData.get('relatedHtml') ?? '').trim();
   return {
     title,
     description: String(formData.get('description') ?? '').trim(),
@@ -57,8 +72,11 @@ function parseLessonFields(formData: FormData, videoRequired: boolean) {
     hideFooter: formData.get('hideFooter') === 'on',
     hideBackLink: formData.get('hideBackLink') === 'on',
     hideLessonsNav: formData.get('hideLessonsNav') === 'on',
-    marketingHtml: marketingHtml || null,
-    relatedHtml: relatedHtml || null,
+    marketingVariants: parseVariants(formData, 'materials'),
+    relatedVariants: parseVariants(formData, 'related'),
+    // старые одиночные поля больше не используются — гасим, чтобы не читались как вариант A
+    marketingHtml: null,
+    relatedHtml: null,
   };
 }
 
@@ -181,6 +199,16 @@ export async function deleteLesson(courseId: string, lessonId: string) {
   assertId(lessonId, 'lessonId');
   await adminDb.doc(`courses/${courseId}/lessons/${lessonId}`).delete();
   refreshCourses(courseId);
+}
+
+// Обнуляет счётчики A/B-теста баннеров урока — после замены баннеров старые
+// показы смешивались бы с новыми
+export async function resetBannerStats(courseId: string, lessonId: string) {
+  await requireAdmin();
+  assertId(courseId, 'courseId');
+  assertId(lessonId, 'lessonId');
+  await resetLessonBannerStats(courseId, lessonId);
+  revalidatePath(`/admin/courses/${courseId}`);
 }
 
 // Меняет местами поле order документа с соседом по отсортированному списку

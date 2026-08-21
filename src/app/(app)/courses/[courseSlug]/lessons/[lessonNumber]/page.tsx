@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 import { notFound, permanentRedirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Clapperboard, Eye, Lock } from 'lucide-react';
@@ -10,6 +11,7 @@ import { materialsTeaser } from '@/lib/markdown';
 import { plural } from '@/lib/utils';
 import type { Lesson } from '@/lib/types';
 import { courseKey, lessonPath } from '@/lib/slug';
+import { pickVariant, slotVariants, variantSeed } from '@/lib/banners';
 import { VideoEmbed } from '@/components/video-embed';
 // Оффер закрытого урока — маркетинговый баннер на внешний лендинг
 import { PromoLessonBanner } from '@/components/promo-banner';
@@ -20,6 +22,7 @@ import { Markdown } from '@/components/markdown';
 import { MaterialsTeaser } from '@/components/materials-teaser';
 import { WatchingNow } from '@/components/watching-now';
 import { DoodleScatter } from '@/components/doodle-decor';
+import { BannerSlotView } from '@/components/banner-slot';
 import { EVENTS } from '@/lib/analytics/events';
 import { recordViewAction } from './actions';
 
@@ -50,6 +53,14 @@ export default async function LessonPage({ params }: {
   const materials = locked ? '' : lesson.materials;
   const teaser = locked && lesson.materials ? materialsTeaser(lesson.materials) : null;
   const views = lesson.views ?? 0;
+  // Вариант маркетингового блока залипает за посетителем: id из cookie (её ставит proxy),
+  // выбор — по весам в админке. Показы и клики считает BannerSlotView.
+  const visitorId = (await cookies()).get('vid')?.value ?? 'anon';
+  const banners = (['materials', 'related'] as const).map((slot) => ({
+    slot,
+    variant: pickVariant(slotVariants(lesson, slot), variantSeed(visitorId, lessonId, slot)),
+  }));
+  const [materialsBanner, relatedBanner] = banners;
 
   return (
     <>
@@ -134,7 +145,16 @@ export default async function LessonPage({ params }: {
             )}
           </div>
         )}
-        {lesson.marketingHtml && <RawHtml html={lesson.marketingHtml} />}
+        {materialsBanner.variant && (
+          <BannerSlotView
+            key={`materials:${lessonId}:${materialsBanner.variant.id}`}
+            courseId={courseId}
+            lessonId={lessonId}
+            slot="materials"
+            variantId={materialsBanner.variant.id}
+            html={materialsBanner.variant.html}
+          />
+        )}
         {session && !locked && (
           <CompleteLessonButton
             courseId={courseId}
@@ -143,7 +163,16 @@ export default async function LessonPage({ params }: {
             completed={completedIds.has(lesson.id)}
           />
         )}
-        {lesson.relatedHtml && <RawHtml html={lesson.relatedHtml} />}
+        {relatedBanner.variant && (
+          <BannerSlotView
+            key={`related:${lessonId}:${relatedBanner.variant.id}`}
+            courseId={courseId}
+            lessonId={lessonId}
+            slot="related"
+            variantId={relatedBanner.variant.id}
+            html={relatedBanner.variant.html}
+          />
+        )}
       </div>
     </>
   );
@@ -162,10 +191,6 @@ function LessonChrome({ lesson }: { lesson: Lesson }) {
   return <style>{css}</style>;
 }
 
-// Готовый HTML из админки — доверенный контент владельца сайта, не пользовательский ввод
-function RawHtml({ html }: { html: string }) {
-  return <div dangerouslySetInnerHTML={{ __html: html }} />;
-}
 
 // У урока тестового курса ссылки на видео может не быть — вместо плеера заглушка
 function MissingVideo() {

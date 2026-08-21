@@ -123,6 +123,8 @@ async function main() {
         hideFooter: false,
         hideBackLink: false,
         hideLessonsNav: false,
+        marketingVariants: [],
+        relatedVariants: [],
         marketingHtml: null,
         relatedHtml: null,
       };

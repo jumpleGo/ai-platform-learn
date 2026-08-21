@@ -1,0 +1,222 @@
+<!-- Баннер покупки курса «Вайбкодим с инженерским подходом».
+     Вставляется в поле «Баннер под уроком (HTML)» или «Сопутствующие блоки (HTML)»
+     в админке урока. Без <script> — innerHTML его не исполнит, только HTML+CSS.
+     Цвета и шрифты берутся из токенов темы сайта, поэтому баннер сам подстраивается
+     под светлую и тёмную тему. Ссылка одна: https://start.gelato.education -->
+<style>
+.vc {
+  position: relative;
+  margin: 0.75rem 0 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  color: var(--foreground);
+  text-wrap: pretty;
+  container-type: inline-size;
+}
+.vc *, .vc *::before, .vc *::after { box-sizing: border-box; }
+
+/* появление снизу — как animate-rise на остальном сайте */
+@keyframes vc-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+.vc-in { animation: vc-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: var(--d, 0s); }
+@media (prefers-reduced-motion: reduce) { .vc-in { animation: none; } }
+
+.vc-card {
+  position: relative;
+  overflow: hidden;
+  padding: 1.7rem 1.3rem 1.5rem;
+  border: 1.5px dashed color-mix(in oklab, var(--primary) 34%, transparent);
+  border-radius: 1.5rem;
+  background: var(--accent);
+}
+@container (min-width: 40rem) { .vc-card { padding: 2rem 2.25rem 1.9rem; } }
+
+/* тёплое свечение снизу — тот же приём, что bg-hero-glow на главной */
+.vc-glow {
+  pointer-events: none;
+  position: absolute;
+  inset: auto -4rem -7rem -4rem;
+  height: 17rem;
+  background:
+    radial-gradient(38rem 12rem at 22% 100%, oklch(0.78 0.1 45 / 20%), transparent 65%),
+    radial-gradient(28rem 10rem at 92% 100%, oklch(0.8 0.07 80 / 16%), transparent 60%);
+}
+.vc-star {
+  pointer-events: none;
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  width: 2.1rem;
+  height: 2.1rem;
+  color: oklch(0.78 0.16 85);
+  opacity: 0.75;
+  transform: rotate(12deg);
+}
+@container (min-width: 40rem) {
+  .vc-star { top: 1.2rem; right: 1.5rem; width: 2.7rem; height: 2.7rem; }
+}
+
+/* маркерная «новинка» на верхнем крае карточки — как дудл-слова на сайте */
+.vc-mark {
+  position: absolute;
+  z-index: 2;
+  top: -0.9rem;
+  left: 1.3rem;
+  font-family: var(--font-underdog), var(--font-source-serif), serif;
+  font-size: 1.15rem;
+  line-height: 1;
+  color: oklch(0.68 0.19 12);
+  transform: rotate(-6deg);
+}
+@container (min-width: 40rem) { .vc-mark { top: -1.05rem; left: 2rem; font-size: 1.35rem; } }
+
+.vc-body { position: relative; }
+.vc-eyebrow {
+  margin: 0;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.78rem;
+  color: var(--accent-foreground);
+}
+.vc-title {
+  margin: 0.5rem 0 0;
+  max-width: 24ch;
+  font-family: var(--font-source-serif), serif;
+  font-size: clamp(1.4rem, 4.6vw, 1.95rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.vc-lead {
+  margin: 0.8rem 0 0;
+  max-width: 44ch;
+  font-size: 0.98rem;
+  line-height: 1.65;
+  color: var(--muted-foreground);
+}
+
+/* кому подходит — две плитки, читаются за пару секунд */
+.vc-fits { display: grid; gap: 0.6rem; margin: 1.2rem 0 0; padding: 0; list-style: none; }
+@container (min-width: 34rem) { .vc-fits { grid-template-columns: 1fr 1fr; gap: 0.7rem; } }
+.vc-fit {
+  display: flex;
+  gap: 0.7rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: color-mix(in oklab, var(--card) 80%, transparent);
+}
+.vc-fit svg { flex: none; width: 1.15rem; height: 1.15rem; margin-top: 0.1rem; color: var(--primary); }
+.vc-fit b { display: block; font-size: 0.9rem; font-weight: 600; }
+.vc-fit span {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+
+.vc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.15rem;
+  margin-top: 1.5rem;
+}
+.vc-cta-wrap { position: relative; display: inline-block; }
+.vc-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.875rem;
+  padding: 0 1.5rem;
+  border-radius: 0.85rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  box-shadow: 0 1px 2px oklch(0 0 0 / 8%);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.vc-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px color-mix(in oklab, var(--primary) 28%, transparent);
+}
+.vc-cta:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .vc-cta:hover { transform: none; } }
+/* маркерный росчерк под кнопкой */
+.vc-scribble {
+  pointer-events: none;
+  position: absolute;
+  left: 0.4rem;
+  bottom: -0.5rem;
+  width: calc(100% - 0.8rem);
+  height: 0.55rem;
+  color: oklch(0.78 0.16 85);
+  opacity: 0.9;
+}
+.vc-host {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.78rem;
+  color: var(--muted-foreground);
+}
+</style>
+
+<aside class="vc vc-in" aria-label="Курс «Вайбкодим с инженерским подходом»">
+  <span class="vc-mark" aria-hidden="true">новинка</span>
+  <div class="vc-card">
+    <div class="vc-glow" aria-hidden="true"></div>
+    <svg class="vc-star" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+      <path d="M20 2L23 15.5L34 7.5L25.5 18L38 20.5L25 22.5L33 34L21.5 26L19 38L16.5 25.5L5.5 33L14 22L2 19.5L14.5 17.5L6 6.5L17 15Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+    </svg>
+
+    <div class="vc-body">
+      <p class="vc-eyebrow">$ новый курс</p>
+      <h2 class="vc-title">Вайбкодим с инженерским подходом</h2>
+      <p class="vc-lead">
+        Не просто просить ИИ писать код, а вести проект: архитектура, границы модулей,
+        ревью решений — чтобы на второй сотне файлов ничего не развалилось.
+      </p>
+
+      <ul class="vc-fits">
+        <li class="vc-fit vc-in" style="--d: 0.08s">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+            <path d="M15.6 8.4L13.3 13.3L8.4 15.6L10.7 10.7L15.6 8.4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+          </svg>
+          <div>
+            <b>Вайбкодерам</b>
+            <span>которые хотят работать с проектами и принимать правильные архитектурные решения</span>
+          </div>
+        </li>
+        <li class="vc-fit vc-in" style="--d: 0.16s">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 4.5V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="2"/>
+            <circle cx="18" cy="6" r="3" stroke="currentColor" stroke-width="2"/>
+            <path d="M18 9C18 14 14 18 9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <div>
+            <b>Программистам</b>
+            <span>которые хотят внедрить ИИ в большую кодовую базу</span>
+          </div>
+        </li>
+      </ul>
+
+      <div class="vc-actions">
+        <span class="vc-cta-wrap">
+          <a class="vc-cta" href="https://start.gelato.education" target="_blank" rel="noopener noreferrer" data-cta="Забрать курс">
+            Забрать курс
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7V16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <svg class="vc-scribble" viewBox="0 0 120 14" fill="none" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M3 6.5C24 2.5 52 3.5 78 5.5C92 6.6 104 7.2 117 4.5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <path d="M9 11.5C29 8 56 8.8 80 10C90 10.6 99 10.8 109 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </span>
+      </div>
+    </div>
+  </div>
+</aside>

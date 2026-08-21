@@ -56,10 +56,25 @@ export interface Lesson {
   hideFooter: boolean;
   hideBackLink: boolean;
   hideLessonsNav: boolean;
-  // Сырой HTML маркетингового баннера в зоне материалов урока; вставляется как есть
+  // Варианты маркетингового баннера в зоне материалов урока (A/B-тест)
+  marketingVariants: LessonBanner[];
+  // Варианты сопутствующих блоков в самом низу урока — уводят дальше по воронке
+  relatedVariants: LessonBanner[];
+  // Устаревшие одиночные поля HTML: читаем у уроков, которые ещё не пересохраняли
+  // после появления вариантов. При сохранении из админки затираются в null.
   marketingHtml: string | null;
-  // Сырой HTML сопутствующих блоков в самом низу урока — уводят дальше по воронке
   relatedHtml: string | null;
+}
+
+// Вариант маркетингового блока урока. Показы делятся пропорционально weight,
+// назначение залипает за посетителем — см. lib/banners.
+export interface LessonBanner {
+  // 'a' | 'b' | 'c' | 'd' — фиксированный набор, он же ключ счётчиков
+  id: string;
+  name: string;
+  html: string;
+  // Доля показов. 0 — вариант выключен
+  weight: number;
 }
 
 export interface Partner {

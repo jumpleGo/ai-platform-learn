@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronDown, ChevronUp } from 'lucide-react';
@@ -9,9 +10,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import type { Access, Lesson } from '@/lib/types';
 import { getCourseWithLessons } from '@/lib/db/admin-courses';
+import { getLessonBannerStats, type BannerStat } from '@/lib/db/banner-stats';
+import {
+  BANNER_SLOTS, SLOT_TITLES, VARIANT_IDS, slotVariants, variantLabel, type BannerSlot,
+} from '@/lib/banners';
 import { courseKey, lessonPath, waitlistPath } from '@/lib/slug';
 import {
-  createLesson, deleteCourse, deleteLesson, moveLesson, updateCourse, updateLesson,
+  createLesson, deleteCourse, deleteLesson, moveLesson, resetBannerStats, updateCourse,
+  updateLesson,
 } from '../actions';
 import { ConfirmSubmitButton } from '../confirm-submit-button';
 import { MaterialsEditor } from '../materials-editor';
@@ -23,6 +29,160 @@ const selectClass =
 // переинициализировались с новыми значениями (иначе Base UI ругается на смену defaultValue)
 function valuesKey(values: Array<string | number | boolean | null>) {
   return values.join('␟');
+}
+
+// Редактор одного слота маркетинговых блоков: 4 фиксированных варианта A–D.
+// Пустой html — варианта нет; вес 0 — вариант выключен.
+function VariantsEditor({ idPrefix, slot, lesson }: {
+  idPrefix: string;
+  slot: BannerSlot;
+  lesson?: Lesson;
+}) {
+  const variants = lesson ? slotVariants(lesson, slot) : [];
+  return (
+    <details className="rounded-lg border border-dashed p-3" open={variants.length > 1}>
+      <summary className="cursor-pointer text-sm font-medium">
+        {SLOT_TITLES[slot]} — HTML{variants.length > 0 && ` · вариантов: ${variants.length}`}
+      </summary>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Готовый HTML вставляется как есть. Показы делятся по весам между заполненными
+        вариантами, вес 0 — вариант выключен, все нули — блок не показывается.
+        Одному посетителю всегда достаётся один и тот же вариант.
+        Имя кнопки в статистике можно задать атрибутом <code>data-cta</code> у ссылки.
+      </p>
+      <div className="mt-3 flex flex-col gap-3">
+        {VARIANT_IDS.map((id) => {
+          const variant = variants.find((v) => v.id === id);
+          return (
+            <div key={id} className="flex flex-col gap-1.5 rounded-lg border p-2.5">
+              <div className="flex items-center gap-2">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-secondary font-mono text-xs font-medium">
+                  {variantLabel(id)}
+                </span>
+                <Input
+                  name={`${slot}_${id}_name`}
+                  aria-label={`Название варианта ${variantLabel(id)}`}
+                  placeholder="Название варианта"
+                  className="h-8 flex-1"
+                  defaultValue={variant?.name ?? ''}
+                />
+                <Input
+                  name={`${slot}_${id}_weight`}
+                  aria-label={`Вес варианта ${variantLabel(id)}`}
+                  type="number"
+                  min={0}
+                  max={1000}
+                  placeholder="вес 100"
+                  className="h-8 w-24"
+                  defaultValue={variant ? String(variant.weight) : ''}
+                />
+              </div>
+              <Textarea
+                id={`${idPrefix}-${slot}-${id}`}
+                name={`${slot}_${id}_html`}
+                aria-label={`HTML варианта ${variantLabel(id)}`}
+                rows={4}
+                placeholder="HTML варианта — пусто, значит варианта нет"
+                defaultValue={variant?.html ?? ''}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </details>
+  );
+}
+
+// Статистика A/B-теста по уроку: показы, клики, CTR и разбивка по ссылкам
+function BannerStats({ courseId, lesson, stats }: {
+  courseId: string;
+  lesson: Lesson;
+  stats: BannerStat[];
+}) {
+  const total = stats.reduce((sum, s) => sum + s.shown + s.clicks, 0);
+  return (
+    <details className="mt-2">
+      <summary className="cursor-pointer text-sm text-muted-foreground">
+        Статистика баннеров{total > 0 ? '' : ' — пока пусто'}
+      </summary>
+      <div className="mt-3 flex flex-col gap-4">
+        {BANNER_SLOTS.map((slot) => {
+          const variants = slotVariants(lesson, slot);
+          const slotStats = stats.filter((s) => s.slot === slot);
+          // вариант могли удалить из админки, а его счётчики остались — показываем и их
+          const ids = [...new Set([...variants.map((v) => v.id), ...slotStats.map((s) => s.variantId)])];
+          if (ids.length === 0) return null;
+          return (
+            <div key={slot} className="flex flex-col gap-2">
+              <p className="font-mono text-xs tracking-wide text-muted-foreground uppercase">
+                {SLOT_TITLES[slot]}
+              </p>
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="text-left text-xs text-muted-foreground">
+                    <th className="border-b py-1.5 pr-2 font-medium">Вариант</th>
+                    <th className="border-b py-1.5 pr-2 font-medium">Вес</th>
+                    <th className="border-b py-1.5 pr-2 font-medium">Показы</th>
+                    <th className="border-b py-1.5 pr-2 font-medium">Клики</th>
+                    <th className="border-b py-1.5 font-medium">CTR</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ids.map((id) => {
+                    const variant = variants.find((v) => v.id === id);
+                    const stat = slotStats.find((s) => s.variantId === id);
+                    const shown = stat?.shown ?? 0;
+                    const clicks = stat?.clicks ?? 0;
+                    const links = Object.values(stat?.links ?? {}).sort((a, b) => b.clicks - a.clicks);
+                    return (
+                      <Fragment key={id}>
+                        <tr>
+                          <td className="border-b py-1.5 pr-2">
+                            <span className="font-mono text-xs">{variantLabel(id)}</span>
+                            <span className="ml-2">{variant?.name ?? 'вариант удалён'}</span>
+                          </td>
+                          <td className="border-b py-1.5 pr-2 tabular-nums text-muted-foreground">
+                            {variant ? variant.weight : '—'}
+                          </td>
+                          <td className="border-b py-1.5 pr-2 tabular-nums">{shown}</td>
+                          <td className="border-b py-1.5 pr-2 tabular-nums">{clicks}</td>
+                          <td className="border-b py-1.5 tabular-nums font-medium">
+                            {shown > 0 ? `${((clicks / shown) * 100).toFixed(1)}%` : '—'}
+                          </td>
+                        </tr>
+                        {links.length > 0 && (
+                          <tr>
+                            <td colSpan={5} className="border-b py-1.5 pl-6">
+                              <ul className="flex flex-col gap-1">
+                                {links.map((link) => (
+                                  <li key={link.href} className="flex flex-wrap items-baseline gap-x-2 text-xs text-muted-foreground">
+                                    <span className="tabular-nums font-medium text-foreground">{link.clicks}</span>
+                                    <span>{link.label || 'без текста'}</span>
+                                    <span className="font-mono break-all">{link.href}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          );
+        })}
+        {total > 0 && (
+          <form action={resetBannerStats.bind(null, courseId, lesson.id)}>
+            <ConfirmSubmitButton variant="outline" size="sm" message="Обнулить счётчики баннеров этого урока?">
+              Сбросить статистику
+            </ConfirmSubmitButton>
+          </form>
+        )}
+      </div>
+    </details>
+  );
 }
 
 // Общие поля формы урока (создание и редактирование)
@@ -138,35 +298,9 @@ function LessonFields({ idPrefix, lesson, courseAccess, courseIsTest }: {
         </label>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-lg border border-dashed p-3">
-        <p className="text-sm font-medium">Маркетинговые блоки</p>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor={`${idPrefix}-marketing`}>Баннер под уроком (HTML)</Label>
-          <Textarea
-            id={`${idPrefix}-marketing`}
-            name="marketingHtml"
-            rows={5}
-            placeholder="Вставьте готовый HTML — покажется в блоке материалов, под видео"
-            defaultValue={lesson?.marketingHtml ?? ''}
-          />
-          <p className="text-xs text-muted-foreground">
-            Показывается на месте материалов урока. Пусто — блока нет.
-          </p>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor={`${idPrefix}-related`}>Сопутствующие блоки (HTML)</Label>
-          <Textarea
-            id={`${idPrefix}-related`}
-            name="relatedHtml"
-            rows={5}
-            placeholder="Вставьте готовый HTML — покажется в самом низу урока"
-            defaultValue={lesson?.relatedHtml ?? ''}
-          />
-          <p className="text-xs text-muted-foreground">
-            Самый низ страницы урока — сюда ставят ссылки на другой сайт или следующий шаг.
-          </p>
-        </div>
-      </div>
+      {BANNER_SLOTS.map((slot) => (
+        <VariantsEditor key={slot} idPrefix={idPrefix} slot={slot} lesson={lesson} />
+      ))}
     </div>
   );
 }
@@ -179,6 +313,12 @@ export default async function AdminCoursePage({
   const { courseId } = await params;
   const course = await getCourseWithLessons(courseId);
   if (!course) notFound();
+  // счётчики A/B-теста по каждому уроку курса — админка всегда показывает свежие
+  const bannerStats = new Map(
+    await Promise.all(course.lessons.map(async (l) =>
+      [l.id, await getLessonBannerStats(courseId, l.id)] as const,
+    )),
+  );
 
   // адрес курса на сайте: у тестового это лендинг предзаписи, у обычного — первый урок
   const publicPath = course.isTest
@@ -351,6 +491,8 @@ export default async function AdminCoursePage({
                   lesson.title, lesson.description, lesson.videoEmbedUrl,
                   lesson.durationSec, lesson.access, lesson.materials, lesson.previewImageUrl,
                   lesson.hideHeader, lesson.hideFooter, lesson.hideBackLink, lesson.hideLessonsNav,
+                  JSON.stringify(lesson.marketingVariants ?? null),
+                  JSON.stringify(lesson.relatedVariants ?? null),
                   lesson.marketingHtml, lesson.relatedHtml,
                 ])}
                 action={updateLesson.bind(null, courseId, lesson.id)}
@@ -365,6 +507,7 @@ export default async function AdminCoursePage({
                 <Button type="submit" className="self-start">Сохранить</Button>
               </form>
             </details>
+            <BannerStats courseId={courseId} lesson={lesson} stats={bannerStats.get(lesson.id) ?? []} />
           </div>
         ))}
       </section>
