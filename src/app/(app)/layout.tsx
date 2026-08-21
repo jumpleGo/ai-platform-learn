@@ -18,15 +18,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </Suspense>
       <header data-app-header className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <Link
-            href="/"
-            className="flex items-end gap-2.5 font-mono text-[15px] font-semibold tracking-tight"
-          >
-            <GelatoLogo className="size-7" />
-              <span>GELATO</span>
-            <span className="hidden rounded-full border border-border bg-secondary px-2 py-0.5 font-sans text-[11px] font-medium text-muted-foreground sm:inline">
-              Claude Code
-            </span>
+          <Link href="/" className="flex items-center gap-2.5">
+            <GelatoLogo className="h-6 sm:h-7" />
           </Link>
           <div className="flex items-center gap-3">
             <PresenceBar registered={registered} />

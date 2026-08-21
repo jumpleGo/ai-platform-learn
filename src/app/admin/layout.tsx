@@ -12,10 +12,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="flex min-h-screen bg-sidebar">
       <aside className="sticky top-0 flex h-screen w-60 flex-col border-r border-sidebar-border px-4 py-6">
-        <Link href="/admin" className="mb-8 flex items-center gap-2.5 px-2 font-mono text-[15px] font-semibold tracking-tight">
-          <GelatoLogo className="size-7" />
-          GELATO
-          <span className="rounded-full border border-sidebar-border bg-sidebar-accent px-2 py-0.5 font-sans text-[11px] font-medium text-muted-foreground">
+        <Link href="/admin" className="mb-8 flex items-center gap-2.5 px-2">
+          <GelatoLogo className="h-6" />
+          <span className="rounded-full border border-sidebar-border bg-sidebar-accent px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
             admin
           </span>
         </Link>

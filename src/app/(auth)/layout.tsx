@@ -36,9 +36,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           color="oklch(0.68 0.14 250)"
           className="top-1/3 right-2 h-8 w-7 rotate-3 opacity-45 sm:right-6 sm:h-10 sm:w-9"
         />
-        <div className="relative z-10 flex items-end gap-2.5 font-mono text-lg font-semibold tracking-tight animate-rise">
-          <GelatoLogo className="size-9" />
-          GELATO
+        <div className="animate-rise relative z-10 flex items-center">
+          <GelatoLogo className="h-10 sm:h-12" />
         </div>
         <div className="animate-rise relative z-10 w-full max-w-sm" style={{ '--rise-delay': '0.06s' } as React.CSSProperties}>
           {children}
