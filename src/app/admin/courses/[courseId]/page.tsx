@@ -21,6 +21,7 @@ import {
 } from '../actions';
 import { ConfirmSubmitButton } from '../confirm-submit-button';
 import { MaterialsEditor } from '../materials-editor';
+import { VariantPreview } from '../variant-preview';
 
 const selectClass =
   'h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30';
@@ -33,10 +34,12 @@ function valuesKey(values: Array<string | number | boolean | null>) {
 
 // Редактор одного слота маркетинговых блоков: 4 фиксированных варианта A–D.
 // Пустой html — варианта нет; вес 0 — вариант выключен.
-function VariantsEditor({ idPrefix, slot, lesson }: {
+function VariantsEditor({ idPrefix, slot, lesson, lessonPublicPath }: {
   idPrefix: string;
   slot: BannerSlot;
   lesson?: Lesson;
+  // адрес урока на сайте — есть только у сохранённого урока
+  lessonPublicPath?: string;
 }) {
   const variants = lesson ? slotVariants(lesson, slot) : [];
   return (
@@ -85,6 +88,18 @@ function VariantsEditor({ idPrefix, slot, lesson }: {
                 placeholder="HTML варианта — пусто, значит варианта нет"
                 defaultValue={variant?.html ?? ''}
               />
+              <div className="flex flex-wrap items-center gap-3">
+                <VariantPreview textareaId={`${idPrefix}-${slot}-${id}`} />
+                {variant && lessonPublicPath && (
+                  <Link
+                    href={`${lessonPublicPath}?banner=${slot}:${id}`}
+                    target="_blank"
+                    className="text-xs text-muted-foreground hover:underline"
+                  >
+                    Открыть урок с этим вариантом ↗
+                  </Link>
+                )}
+              </div>
             </div>
           );
         })}
@@ -186,11 +201,12 @@ function BannerStats({ courseId, lesson, stats }: {
 }
 
 // Общие поля формы урока (создание и редактирование)
-function LessonFields({ idPrefix, lesson, courseAccess, courseIsTest }: {
+function LessonFields({ idPrefix, lesson, courseAccess, courseIsTest, lessonPublicPath }: {
   idPrefix: string;
   lesson?: Lesson;
   courseAccess: Access;
   courseIsTest: boolean;
+  lessonPublicPath?: string;
 }) {
   return (
     <div className="flex flex-col gap-3">
@@ -299,7 +315,13 @@ function LessonFields({ idPrefix, lesson, courseAccess, courseIsTest }: {
       </div>
 
       {BANNER_SLOTS.map((slot) => (
-        <VariantsEditor key={slot} idPrefix={idPrefix} slot={slot} lesson={lesson} />
+        <VariantsEditor
+          key={slot}
+          idPrefix={idPrefix}
+          slot={slot}
+          lesson={lesson}
+          lessonPublicPath={lessonPublicPath}
+        />
       ))}
     </div>
   );
@@ -503,6 +525,7 @@ export default async function AdminCoursePage({
                   lesson={lesson}
                   courseAccess={course.access}
                   courseIsTest={course.isTest}
+                  lessonPublicPath={lessonPath(courseKey(course), i + 1)}
                 />
                 <Button type="submit" className="self-start">Сохранить</Button>
               </form>

@@ -11,7 +11,7 @@ import { materialsTeaser } from '@/lib/markdown';
 import { plural } from '@/lib/utils';
 import type { Lesson } from '@/lib/types';
 import { courseKey, lessonPath } from '@/lib/slug';
-import { pickVariant, slotVariants, variantSeed } from '@/lib/banners';
+import { isBannerSlot, pickVariant, slotVariants, variantSeed } from '@/lib/banners';
 import { VideoEmbed } from '@/components/video-embed';
 // Оффер закрытого урока — маркетинговый баннер на внешний лендинг
 import { PromoLessonBanner } from '@/components/promo-banner';
@@ -26,10 +26,13 @@ import { BannerSlotView } from '@/components/banner-slot';
 import { EVENTS } from '@/lib/analytics/events';
 import { recordViewAction } from './actions';
 
-export default async function LessonPage({ params }: {
+export default async function LessonPage({ params, searchParams }: {
   params: Promise<{ courseSlug: string; lessonNumber: string }>;
+  searchParams: Promise<{ banner?: string }>;
 }) {
   const { courseSlug, lessonNumber } = await params;
+  // ?banner=materials:b — открыть урок с конкретным вариантом (предпросмотр из админки)
+  const [forcedSlot, forcedVariant] = ((await searchParams).banner ?? '').split(':');
   // страница урока открыта и гостям; платный урок без доступа отдаётся заблокированным (только превью)
   const session = await getSession();
   const [data, sub, completedIds] = await Promise.all([
@@ -56,10 +59,18 @@ export default async function LessonPage({ params }: {
   // Вариант маркетингового блока залипает за посетителем: id из cookie (её ставит proxy),
   // выбор — по весам в админке. Показы и клики считает BannerSlotView.
   const visitorId = (await cookies()).get('vid')?.value ?? 'anon';
-  const banners = (['materials', 'related'] as const).map((slot) => ({
-    slot,
-    variant: pickVariant(slotVariants(lesson, slot), variantSeed(visitorId, lessonId, slot)),
-  }));
+  const banners = (['materials', 'related'] as const).map((slot) => {
+    const variants = slotVariants(lesson, slot);
+    // принудительный вариант показываем как есть и не считаем в статистике
+    const forced = isBannerSlot(forcedSlot) && forcedSlot === slot
+      ? variants.find((v) => v.id === forcedVariant)
+      : undefined;
+    return {
+      slot,
+      preview: Boolean(forced),
+      variant: forced ?? pickVariant(variants, variantSeed(visitorId, lessonId, slot)),
+    };
+  });
   const [materialsBanner, relatedBanner] = banners;
 
   return (
@@ -153,6 +164,7 @@ export default async function LessonPage({ params }: {
             slot="materials"
             variantId={materialsBanner.variant.id}
             html={materialsBanner.variant.html}
+            preview={materialsBanner.preview}
           />
         )}
         {session && !locked && (
@@ -171,6 +183,7 @@ export default async function LessonPage({ params }: {
             slot="related"
             variantId={relatedBanner.variant.id}
             html={relatedBanner.variant.html}
+            preview={relatedBanner.preview}
           />
         )}
       </div>
