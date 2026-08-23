@@ -226,3 +226,48 @@
     display: none;
   }
 }
+
+/* Стикер «Бесплатно»: выскакивает при появлении и ловит блик раз в несколько секунд */
+@keyframes tag-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@utility animate-tag-pop {
+  animation: tag-pop 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--rise-delay, 0.2s);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes tag-shine {
+  0%,
+  55% {
+    transform: translateX(-140%);
+  }
+  85%,
+  100% {
+    transform: translateX(360%);
+  }
+}
+
+@utility animate-tag-shine {
+  animation: tag-shine 4.5s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    opacity: 0;
+  }
+}

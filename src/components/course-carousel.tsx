@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { LessonCard, type LessonCardData } from './lesson-card';
-import { Badge } from '@/components/ui/badge';
+import { CourseBadge } from './course-badge';
 import { plural } from '@/lib/utils';
 
 export function CourseCarousel({ course, lessons, lockedIds }: {
@@ -64,12 +64,16 @@ export function CourseCarousel({ course, lessons, lockedIds }: {
       )}
       <div className="relative flex items-end justify-between gap-4">
         <div className="min-w-0 space-y-1.5">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="font-heading text-2xl font-semibold tracking-tight">{course.title}</h2>
+          {/* тег идёт инлайном сразу за названием — на узких экранах не уезжает отдельным блоком */}
+          <h2 className="font-heading text-2xl font-semibold tracking-tight">
+            {course.title}
             {course.showBadge && course.badgeText && (
-              <Badge variant="default">{course.badgeText}</Badge>
+              <>
+                {'\u00A0'}
+                <CourseBadge text={course.badgeText} />
+              </>
             )}
-          </div>
+          </h2>
           {course.description && (
             <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">{course.description}</p>
           )}

@@ -7,7 +7,7 @@ import { plural } from '@/lib/utils';
 import { courseKey } from '@/lib/slug';
 import { CourseCarousel } from '@/components/course-carousel';
 import { DoodleScatter, DoodleWord } from '@/components/doodle-decor';
-import { PromoBanner, PromoStrip } from '@/components/promo-banner';
+import { PromoBanner } from '@/components/promo-banner';
 // SubscribeButton временно не используется — блок подписки скрыт
 
 const AUDIENCE = [
@@ -82,8 +82,6 @@ export default async function HomePage() {
           <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-background to-transparent motion-reduce:hidden" aria-hidden />
         </div>
       </section>
-
-      {promo && <PromoStrip />}
 
       {courses.map((course, i) => {
         // санитизация: в клиентскую карусель уходят только безопасные поля,

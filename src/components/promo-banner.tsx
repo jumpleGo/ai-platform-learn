@@ -39,33 +39,6 @@ function PromoCta({
   );
 }
 
-// Тонкая полоса-тизер: первое касание на главной, не перекрывает контент
-export function PromoStrip() {
-  return (
-    <div className="animate-rise relative flex flex-col items-start gap-3 rounded-2xl border-2 border-dashed border-primary/25 bg-accent/60 px-4 py-3 sm:flex-row sm:items-center sm:gap-4 sm:px-5">
-      <DoodleScatter
-        glyph="cone"
-        color="oklch(0.72 0.17 350)"
-        className="top-1/2 left-3.5 h-7 w-6 -translate-y-1/2 -rotate-12 opacity-90"
-      />
-      <p className="w-full min-w-0 flex-1 pl-10 text-sm leading-relaxed text-accent-foreground">
-        <span className="font-marker text-base">Подписка</span>{' '}
-        открывает все платные уроки и&nbsp;материалы — оформить можно на&nbsp;{PROMO_HOST}
-      </p>
-      <a
-        href={PROMO_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={() => track(EVENTS.subscribeClicked, { place: 'promo_strip' })}
-        className="inline-flex h-10 w-full shrink-0 items-center justify-center gap-1 rounded-lg border border-primary/30 bg-background/70 px-3.5 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground sm:h-9 sm:w-auto"
-      >
-        Открыть доступ
-        <ArrowUpRight className="size-3.5" aria-hidden />
-      </a>
-    </div>
-  );
-}
-
 // Крупный баннер в конце главной — основной оффер со всеми граффити-акцентами
 export function PromoBanner() {
   return (
