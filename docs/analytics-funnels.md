@@ -31,7 +31,7 @@
 
 Рекомендуемая воронка бесплатного урока: `lesson_view` → `video_start` →
 `video_90` → `lesson_cta_click`. Разбивка — по `lesson_id`, `source`, `campaign`
-и `device`. Переход на `vibe.gelato.education` получает эти значения в query,
+и `device`. Переход на `/waitlist/vibecoding` получает эти значения в query,
 включая фиксированные `source=free_lesson` и `lesson_id`.
 
 Дополнительно posthog-js автоматически шлёт `$pageview` (включено через

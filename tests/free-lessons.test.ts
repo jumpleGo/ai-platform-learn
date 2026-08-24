@@ -27,7 +27,7 @@ describe('buildProgramUrl', () => {
   it('ведёт на программу и всегда маркирует урок как источник', () => {
     const lesson = getFreeLessonContent('claude-code', 2)!;
     const url = new URL(buildProgramUrl(lesson));
-    expect(url.origin).toBe(PROGRAM_URL);
+    expect(`${url.origin}${url.pathname}`).toBe(PROGRAM_URL);
     expect(Object.fromEntries(url.searchParams)).toMatchObject({
       source: 'free_lesson',
       medium: 'lesson',
