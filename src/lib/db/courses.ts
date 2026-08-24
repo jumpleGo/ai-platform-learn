@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 import { unstable_cache, revalidateTag } from 'next/cache';
 import { adminDb } from '@/lib/firebase/admin';
 import type { Course, Lesson } from '@/lib/types';
@@ -39,11 +40,16 @@ export type ResolvedLesson = {
   lesson: Lesson;
   // Порядковый номер урока в курсе (1, 2, 3…) — он же сегмент URL
   number: number;
+  // Дата создания записи на платформе — используется как дата публикации в structured data.
+  publishedAt: string;
 };
 
 // Урок по ключу курса и ключу урока из URL. Ключ урока — номер (1, 2, …) или,
 // для старых ссылок, id документа.
-export async function resolveLesson(courseKeyParam: string, lessonKeyParam: string): Promise<ResolvedLesson | null> {
+export const resolveLesson = cache(async function resolveLesson(
+  courseKeyParam: string,
+  lessonKeyParam: string,
+): Promise<ResolvedLesson | null> {
   const course = await findCourse(courseKeyParam);
   if (!course) return null;
   // черновик не доступен по прямому URL — страница отдаст notFound
@@ -61,8 +67,9 @@ export async function resolveLesson(courseKeyParam: string, lessonKeyParam: stri
     course,
     lesson: { id: doc.id, courseId: course.id, ...(doc.data() as Omit<Lesson, 'id' | 'courseId'>) },
     number: index + 1,
+    publishedAt: doc.createTime.toDate().toISOString(),
   };
-}
+});
 
 export async function getLesson(courseId: string, lessonId: string): Promise<{ course: Course; lesson: Lesson } | null> {
   const courseSnap = await adminDb.doc(`courses/${courseId}`).get();

@@ -1,15 +1,19 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import { EVENTS } from '@/lib/analytics/events';
+import { track } from '@/lib/analytics/track-client';
 
 // iframe указывает на наш прокси-роут, а не на YouTube — id ролика не попадает
 // ни в исходник страницы, ни в RSC-пейлоад. Контекстное меню по обёртке отключено.
-export function VideoEmbed({ courseId, lessonId, title }: {
+export function VideoEmbed({ courseId, lessonId, title, analyticsLessonId }: {
   courseId: string;
   lessonId: string;
   title: string;
+  analyticsLessonId?: string;
 }) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
+  const tracked = useRef(new Set<string>());
 
   useEffect(() => {
     // псевдо-fullscreen: плеер внутри iframe просит растянуть сам iframe на весь экран —
@@ -18,11 +22,32 @@ export function VideoEmbed({ courseId, lessonId, title }: {
       if (e.origin !== window.location.origin) return;
       if (e.source !== iframeRef.current?.contentWindow) return;
       if (e.data?.source !== 'lessonPlayer') return;
-      setFullscreen(Boolean(e.data.fullscreen));
+      if (e.data.type === 'fullscreen') {
+        setFullscreen(Boolean(e.data.fullscreen));
+        return;
+      }
+      if (!analyticsLessonId || e.data.type !== 'analytics') return;
+      const event = String(e.data.event ?? '');
+      if (tracked.current.has(event)) return;
+      const eventNames: Record<string, string> = {
+        video_start: EVENTS.videoStarted,
+        video_25: EVENTS.video25,
+        video_50: EVENTS.video50,
+        video_75: EVENTS.video75,
+        video_90: EVENTS.video90,
+        video_complete: EVENTS.videoCompleted,
+      };
+      const name = eventNames[event];
+      if (!name) return;
+      tracked.current.add(event);
+      track(name, {
+        lesson_id: analyticsLessonId,
+        ...(typeof e.data.progress === 'number' ? { progress: e.data.progress } : {}),
+      });
     }
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
-  }, []);
+  }, [analyticsLessonId]);
 
   useEffect(() => {
     document.body.style.overflow = fullscreen ? 'hidden' : '';
@@ -46,6 +71,7 @@ export function VideoEmbed({ courseId, lessonId, title }: {
         title={title}
         className="size-full"
         referrerPolicy="strict-origin-when-cross-origin"
+        loading="lazy"
         allowFullScreen
         allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
       />

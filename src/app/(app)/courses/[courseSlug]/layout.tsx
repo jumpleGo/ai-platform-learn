@@ -32,11 +32,17 @@ export default async function CourseLayout({ children, params }: {
     completed: completedIds.has(l.id),
   }));
   const completedCount = items.filter((i) => i.completed).length;
+  // Открытые уроки claude-code — самостоятельные входы в воронку. Гостю не отдаём
+  // каталог даже в HTML, чтобы он не конкурировал с CTA и внутренними SEO-ссылками.
+  // Авторизованный ученик сохраняет обычную учебную навигацию.
+  const hideGuestCatalog = !session && course != null && courseKey(course) === 'claude-code';
 
   return (
-    <div data-course-grid className="grid gap-10 lg:grid-cols-[1fr_19rem]">
+    <div data-course-grid className={`grid gap-10 ${hideGuestCatalog ? '' : 'lg:grid-cols-[1fr_19rem]'}`}>
       <div className="min-w-0">{children}</div>
-      <CourseLessonsNav courseKey={course ? courseKey(course) : courseSlug} items={items} completedCount={completedCount} />
+      {!hideGuestCatalog && (
+        <CourseLessonsNav courseKey={course ? courseKey(course) : courseSlug} items={items} completedCount={completedCount} />
+      )}
     </div>
   );
 }

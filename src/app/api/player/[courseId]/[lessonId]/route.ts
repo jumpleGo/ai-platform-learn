@@ -52,6 +52,7 @@ function youtubePlayerHtml(videoId: string, title: string, poster: string | null
   input[type=range]::-moz-range-thumb{width:13px;height:13px;border:0;border-radius:50%;background:#fff}
   #seek{flex:1}
   #vol{width:74px}
+  #speed{min-width:38px;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
   #poster{position:absolute;inset:0;z-index:4;background:#000 center/cover no-repeat;
        display:flex;align-items:center;justify-content:center;cursor:pointer}
   #poster .play{width:72px;height:72px;border-radius:50%;background:rgba(0,0,0,.55);
@@ -59,6 +60,7 @@ function youtubePlayerHtml(videoId: string, title: string, poster: string | null
   #poster:hover .play{transform:scale(1.06);background:rgba(0,0,0,.7)}
   #poster .play svg{width:30px;height:30px;fill:#fff;margin-left:3px}
   #poster.entering .play{opacity:0;transition:opacity .2s}
+  @media(max-width:480px){#bar{gap:6px;padding:8px}#vol{display:none}#seek{min-width:40px}#time{font-size:11px}}
 </style>
 </head>
 <body>
@@ -71,6 +73,7 @@ function youtubePlayerHtml(videoId: string, title: string, poster: string | null
     <span id="time">0:00 / 0:00</span>
     <button id="mute" aria-label="Звук"></button>
     <input id="vol" type="range" min="0" max="100" step="1" value="100" aria-label="Громкость">
+    <button id="speed" aria-label="Скорость воспроизведения">1×</button>
     <button id="cc" aria-label="Субтитры"></button>
     <button id="fs" aria-label="Полный экран"></button>
   </div>
@@ -92,15 +95,19 @@ function youtubePlayerHtml(videoId: string, title: string, poster: string | null
   var stage=document.getElementById('stage'), shield=document.getElementById('shield'),
       poster=document.getElementById('poster'), bar=document.getElementById('bar'),
       playBtn=document.getElementById('play'), muteBtn=document.getElementById('mute'),
-      ccBtn=document.getElementById('cc'), fsBtn=document.getElementById('fs'),
+      speedBtn=document.getElementById('speed'), ccBtn=document.getElementById('cc'), fsBtn=document.getElementById('fs'),
       seek=document.getElementById('seek'),
       vol=document.getElementById('vol'), timeEl=document.getElementById('time');
   if(POSTER) poster.style.backgroundImage='url('+JSON.stringify(POSTER)+')';
   playBtn.innerHTML=ICON.play; muteBtn.innerHTML=ICON.vol; fsBtn.innerHTML=ICON.fs;
   ccBtn.innerHTML=ICON.cc; ccBtn.style.opacity='.55';
 
-  var player, ready=false, dragging=false, hideTimer, ticker, ccOn=false, fakeFs=false;
+  var player, ready=false, dragging=false, hideTimer, ticker, ccOn=false, fakeFs=false,
+      started=false, completed=false, milestones={}, speeds=[1,1.25,1.5,2], speedIndex=0;
   function fmt(s){s=Math.max(0,Math.floor(s||0));var m=Math.floor(s/60);var ss=s%60;return m+':'+(ss<10?'0':'')+ss;}
+  function analytics(event,progress){
+    parent.postMessage({source:'lessonPlayer',type:'analytics',event:event,progress:progress},location.origin);
+  }
 
   window.onYouTubeIframeAPIReady=function(){
     player=new YT.Player('yt',{videoId:VIDEO_ID,
@@ -110,7 +117,15 @@ function youtubePlayerHtml(videoId: string, title: string, poster: string | null
       events:{onReady:function(){ready=true;},onStateChange:onState}});
   };
   function onState(e){
-    if(e.data===YT.PlayerState.PLAYING){playBtn.innerHTML=ICON.pause;stage.classList.remove('paused');startTicker();autoHide();}
+    if(e.data===YT.PlayerState.PLAYING){
+      if(!started){started=true;analytics('video_start');}
+      playBtn.innerHTML=ICON.pause;stage.classList.remove('paused');startTicker();autoHide();
+    }
+    else if(e.data===YT.PlayerState.ENDED){
+      [25,50,75,90].forEach(function(mark){if(!milestones[mark]){milestones[mark]=true;analytics('video_'+mark,mark);}});
+      if(!completed){completed=true;analytics('video_complete',100);}
+      playBtn.innerHTML=ICON.play;stage.classList.add('paused');stopTicker();
+    }
     else{playBtn.innerHTML=ICON.play;stage.classList.add('paused');stopTicker();}
   }
   function startTicker(){stopTicker();ticker=setInterval(tick,250);}
@@ -119,6 +134,12 @@ function youtubePlayerHtml(videoId: string, title: string, poster: string | null
     if(!ready||dragging)return;
     var d=player.getDuration()||0,c=player.getCurrentTime()||0;
     if(d){seek.value=String(c/d*100);}
+    if(d){
+      var percent=c/d*100;
+      [25,50,75,90].forEach(function(mark){
+        if(percent>=mark&&!milestones[mark]){milestones[mark]=true;analytics('video_'+mark,mark);}
+      });
+    }
     timeEl.textContent=fmt(c)+' / '+fmt(d);
   }
   function toggle(){if(!ready)return;var s=player.getPlayerState();
@@ -150,12 +171,21 @@ function youtubePlayerHtml(videoId: string, title: string, poster: string | null
     if(!ready)return;var v=Number(vol.value);player.setVolume(v);
     if(v===0){player.mute();muteBtn.innerHTML=ICON.mute;}else{player.unMute();muteBtn.innerHTML=ICON.vol;}});
 
+  speedBtn.addEventListener('click',function(){
+    if(!ready)return;
+    speedIndex=(speedIndex+1)%speeds.length;
+    var rate=speeds[speedIndex];
+    player.setPlaybackRate(rate);
+    speedBtn.textContent=String(rate).replace('.',',')+'×';
+    speedBtn.setAttribute('aria-label','Скорость воспроизведения '+rate);
+  });
+
   // на мобилке (в первую очередь iOS Safari) requestFullscreen на div внутри вложенного
   // iframe часто молча реджектится — тогда просим родительскую страницу растянуть сам
   // iframe на весь экран через CSS (см. video-embed.tsx)
   function setFakeFs(on){
     fakeFs=on;
-    parent.postMessage({source:'lessonPlayer',fullscreen:on},location.origin);
+    parent.postMessage({source:'lessonPlayer',type:'fullscreen',fullscreen:on},location.origin);
   }
   function toggleFs(){
     if(fakeFs){setFakeFs(false);return;}

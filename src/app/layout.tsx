@@ -34,7 +34,7 @@ const SITE_DESCRIPTION =
   "Курс по Claude Code для тех, кто не программист. Без кода и терминала: учишься ставить задачи словами и собираешь команду ИИ-агентов, которые работают за тебя.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://gelato.su"),
+  metadataBase: new URL("https://gelato.education"),
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
   icons: { icon: "/favicon.svg", apple: "/favicon.svg" },
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "Claude Code с нуля",
     locale: "ru_RU",
-    url: "https://gelato.su",
+    url: "https://gelato.education",
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     images: [

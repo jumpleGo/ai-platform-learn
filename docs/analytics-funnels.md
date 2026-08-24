@@ -7,7 +7,7 @@
 
 ## События
 
-Все 6 событий из `src/lib/analytics/events.ts`:
+Основные события платформы из `src/lib/analytics/events.ts`:
 
 | Событие | Props | Откуда отправляется |
 |---|---|---|
@@ -17,6 +17,22 @@
 | `paywall_viewed` | `courseId`, `lessonId` | Клиент: второй `<TrackOnMount>` на той же странице урока — рендерится только когда урок залочен (показан пейволл). |
 | `subscribe_clicked` | `place` | Клиент: `src/components/subscribe-button.tsx` — клик по «Оформить подписку». Кнопка используется в `src/components/paywall-banner.tsx` с `place="paywall"`. |
 | `subscription_activated` | `plan`, `source` | Сервер: два места — `src/app/admin/users/actions.ts` → `grantSubscriptionAction` (`source: 'manual'`, выдача админом) и `src/app/api/webhooks/payment/route.ts` (`source: 'payment'`, вебхук платёжки). |
+
+События воронки открытых уроков `/courses/claude-code/lessons/1–4`:
+
+| Событие | Props | Когда отправляется |
+|---|---|---|
+| `lesson_view` | `lesson_id`, `source`, `campaign`, `device`, `courseId`, `lessonDocumentId` | Один раз при открытии страницы бесплатного урока. Заменяет `lesson_opened` только на этих четырёх страницах, поэтому дубля нет. |
+| `video_start` | `lesson_id` | При первом фактическом запуске видео. |
+| `video_25`, `video_50`, `video_75`, `video_90` | `lesson_id`, `progress` | При первом достижении каждой отметки за открытие страницы. |
+| `video_complete` | `lesson_id`, `progress: 100` | При первом завершении видео. |
+| `lesson_cta_click` | `lesson_id`, `cta_position`, `destination` | Клик по основному CTA; `cta_position` равен `primary` или `bottom`. |
+| `telegram_click` | `lesson_id`, `cta_position` | Клик по вторичной ссылке на Telegram. |
+
+Рекомендуемая воронка бесплатного урока: `lesson_view` → `video_start` →
+`video_90` → `lesson_cta_click`. Разбивка — по `lesson_id`, `source`, `campaign`
+и `device`. Переход на `vibe.gelato.education` получает эти значения в query,
+включая фиксированные `source=free_lesson` и `lesson_id`.
 
 Дополнительно posthog-js автоматически шлёт `$pageview` (включено через
 `defaults: '2025-05-24'` в `src/lib/analytics/posthog-client.tsx`), в том числе
