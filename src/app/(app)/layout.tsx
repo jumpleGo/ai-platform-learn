@@ -19,7 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <header data-app-header className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link href="/" className="flex items-center gap-2.5">
-            <GelatoLogo className="h-6 sm:h-7" />
+            <GelatoLogo className="h-9 sm:h-11" />
           </Link>
           <div className="flex items-center gap-3">
             <PresenceBar registered={registered} />

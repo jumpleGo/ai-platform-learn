@@ -187,6 +187,12 @@ function youtubePlayerHtml(videoId: string, title: string, poster: string | null
     fakeFs=on;
     parent.postMessage({source:'lessonPlayer',type:'fullscreen',fullscreen:on},location.origin);
   }
+  // родительская страница гасит псевдо-фуллскрин (например, после «назад») — принимаем
+  // это молча, без обратного postMessage, чтобы не зациклиться
+  window.addEventListener('message',function(e){
+    if(e.origin!==location.origin)return;
+    if(e.data&&e.data.source==='lessonHost'&&e.data.type==='exitFullscreen')fakeFs=false;
+  });
   function toggleFs(){
     if(fakeFs){setFakeFs(false);return;}
     if(document.fullscreenElement){document.exitFullscreen();return;}

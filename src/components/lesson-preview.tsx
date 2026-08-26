@@ -1,44 +1,19 @@
-'use client';
-
-import { useEffect, useRef, useState } from 'react';
 import { Play } from 'lucide-react';
-import { youtubePreviewSrc, youtubeThumb } from '@/lib/video-url';
+import { youtubeThumb } from '@/lib/video-url';
 
-// Превью урока: своя обложка либо кадр из ролика + тихий автоплей при наведении
-// (только YouTube, на устройствах с мышью). Если показывать нечего — «терминальный» вид.
+// Превью урока: своя обложка либо кадр из ролика. При наведении ролик не запускается —
+// только лёгкий зум обложки и кнопка play. Если показывать нечего — «терминальный» вид.
 export function LessonPreview({
   id,
   num,
-  title,
   previewUrl,
 }: {
   id: string | null;
   num: string;
-  title: string;
   previewUrl?: string | null;
 }) {
-  const [canPreview, setCanPreview] = useState(false);
-  const [playing, setPlaying] = useState(false);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    setCanPreview(fine && !reduce);
-  }, []);
-
   const thumb = previewUrl || (id ? youtubeThumb(id) : null);
   const isYtThumb = !previewUrl && !!id; // кадр YouTube 4:3 — подрезаем масштабом
-  const canPlay = canPreview && !!id; // ховер-превью только для YouTube
-
-  function enter() {
-    if (!canPlay) return;
-    timer.current = setTimeout(() => setPlaying(true), 320); // не грузим при быстром проведении мышью
-  }
-  function leave() {
-    if (timer.current) clearTimeout(timer.current);
-    setPlaying(false);
-  }
 
   if (!thumb) {
     // Запасной вид — окно терминала (тематика Claude Code)
@@ -68,7 +43,7 @@ export function LessonPreview({
   }
 
   return (
-    <div className="absolute inset-0 bg-black" onMouseEnter={enter} onMouseLeave={leave}>
+    <div className="absolute inset-0 bg-black">
       <img
         src={thumb}
         alt=""
@@ -77,23 +52,10 @@ export function LessonPreview({
           isYtThumb ? 'scale-[1.35] group-hover:scale-[1.4]' : 'group-hover:scale-105'
         }`}
       />
-      {playing && id && (
-        <iframe
-          src={youtubePreviewSrc(id)}
-          title={title}
-          tabIndex={-1}
-          aria-hidden
-          // pointer-events-none — клики уходят в карточку-ссылку, не в плеер
-          className="animate-fade pointer-events-none absolute inset-0 size-full scale-[1.35]"
-          allow="autoplay; encrypted-media"
-        />
-      )}
-      {/* затемнение снизу + кнопка play до старта превью */}
+      {/* затемнение снизу + кнопка play */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" aria-hidden />
       <span
-        className={`pointer-events-none absolute bottom-2 right-2 flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-all duration-200 ${
-          playing ? 'opacity-0' : 'opacity-0 group-hover:opacity-100 motion-reduce:opacity-100'
-        }`}
+        className="pointer-events-none absolute right-2 bottom-2 flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 shadow-sm transition-all duration-200 group-hover:opacity-100 motion-reduce:opacity-100"
         aria-hidden
       >
         <Play className="size-4 fill-current" />

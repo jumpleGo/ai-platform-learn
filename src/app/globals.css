@@ -7,10 +7,14 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-jetbrains-mono);
-  --font-heading: var(--font-source-serif);
-  --font-marker: var(--font-underdog);
+  /* Две гарнитуры: Manrope — весь обычный текст и теги, BIPs — маркерные надписи.
+     font-mono/font-heading оставлены как роли, но ведут на ту же Manrope. */
+  --font-sans: var(--font-manrope);
+  --font-mono: var(--font-manrope);
+  /* разрядка сохраняет «терминальный» ритм строк, где раньше стоял моноширинный */
+  --font-mono--letter-spacing: 0.045em;
+  --font-heading: var(--font-manrope);
+  --font-marker: var(--font-bips);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,75 +53,89 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Тёплая палитра в духе Anthropic: крем-фон, чернильный текст, терракотовый акцент Claude */
-:root {
-  --background: oklch(0.9785 0.005 95);
-  --foreground: oklch(0.27 0.012 60);
-  --card: oklch(0.998 0.002 95);
-  --card-foreground: oklch(0.27 0.012 60);
-  --popover: oklch(0.998 0.002 95);
-  --popover-foreground: oklch(0.27 0.012 60);
-  --primary: oklch(0.555 0.125 38);
-  --primary-foreground: oklch(0.985 0.005 90);
-  --secondary: oklch(0.945 0.01 90);
-  --secondary-foreground: oklch(0.32 0.012 60);
-  --muted: oklch(0.95 0.008 90);
-  --muted-foreground: oklch(0.5 0.014 60);
-  --accent: oklch(0.934 0.026 48);
-  --accent-foreground: oklch(0.42 0.1 40);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.893 0.012 80);
-  --input: oklch(0.893 0.012 80);
-  --ring: oklch(0.667 0.118 39.4);
-  --chart-1: oklch(0.667 0.118 39.4);
-  --chart-2: oklch(0.74 0.1 80);
-  --chart-3: oklch(0.62 0.07 150);
-  --chart-4: oklch(0.6 0.08 250);
-  --chart-5: oklch(0.45 0.04 50);
-  --radius: 0.75rem;
-  --sidebar: oklch(0.963 0.007 92);
-  --sidebar-foreground: oklch(0.27 0.012 60);
-  --sidebar-primary: oklch(0.555 0.125 38);
-  --sidebar-primary-foreground: oklch(0.985 0.005 90);
-  --sidebar-accent: oklch(0.925 0.014 85);
-  --sidebar-accent-foreground: oklch(0.32 0.012 60);
-  --sidebar-border: oklch(0.893 0.012 80);
-  --sidebar-ring: oklch(0.667 0.118 39.4);
+/* Палитра бренда GELATO. Базовые: крем #fdfcee, графит #2c2c2c, тёмно-синий #102647.
+   Акцентные: голубой #bacce9, красный #c32b24, жёлтый #f4e194, зелёный #55956b.
+   Синий совпадает с вордмарком, поэтому он же — primary. */
+@theme inline {
+  --color-brand-cream: oklch(0.9881 0.0184 103.4);
+  --color-brand-charcoal: oklch(0.2931 0 0);
+  --color-brand-navy: oklch(0.2705 0.0677 258.4);
+  --color-brand-sky: oklch(0.841 0.0452 259.9);
+  --color-brand-red: oklch(0.535 0.1893 28.3);
+  --color-brand-yellow: oklch(0.9081 0.0987 96);
+  --color-brand-green: oklch(0.6149 0.0923 154);
+  /* затемнённый зелёный для тегов — кремовый текст на нём проходит по контрасту */
+  --color-brand-forest: oklch(0.5 0.095 154);
 }
 
-/* Тёмная тема — тёплый графит как в Claude, без холодных серых */
+:root {
+  --background: oklch(0.9881 0.0184 103.4);
+  --foreground: oklch(0.2931 0 0);
+  --card: oklch(0.9985 0.008 103.4);
+  --card-foreground: oklch(0.2931 0 0);
+  --popover: oklch(0.9985 0.008 103.4);
+  --popover-foreground: oklch(0.2931 0 0);
+  --primary: oklch(0.2705 0.0677 258.4);
+  --primary-foreground: oklch(0.9881 0.0184 103.4);
+  --secondary: oklch(0.9555 0.021 103.4);
+  --secondary-foreground: oklch(0.2931 0 0);
+  --muted: oklch(0.962 0.019 103.4);
+  --muted-foreground: oklch(0.505 0 0);
+  --accent: oklch(0.885 0.041 259.9);
+  --accent-foreground: oklch(0.2931 0 0);
+  --destructive: oklch(0.535 0.1893 28.3);
+  --border: oklch(0.903 0.017 103.4);
+  --input: oklch(0.903 0.017 103.4);
+  --ring: oklch(0.416 0.098 258.4);
+  --chart-1: oklch(0.416 0.098 258.4);
+  --chart-2: oklch(0.535 0.1893 28.3);
+  --chart-3: oklch(0.6149 0.0923 154);
+  --chart-4: oklch(0.82 0.12 92);
+  --chart-5: oklch(0.841 0.0452 259.9);
+  --radius: 0.75rem;
+  --sidebar: oklch(0.972 0.02 103.4);
+  --sidebar-foreground: oklch(0.2931 0 0);
+  --sidebar-primary: oklch(0.2705 0.0677 258.4);
+  --sidebar-primary-foreground: oklch(0.9881 0.0184 103.4);
+  --sidebar-accent: oklch(0.925 0.031 259.9);
+  --sidebar-accent-foreground: oklch(0.2931 0 0);
+  --sidebar-border: oklch(0.903 0.017 103.4);
+  --sidebar-ring: oklch(0.416 0.098 258.4);
+}
+
+/* Тёмная тема — на тёмно-синей базе палитры, активный цвет уходит в голубой */
 .dark {
-  --background: oklch(0.225 0.006 80);
-  --foreground: oklch(0.93 0.008 90);
-  --card: oklch(0.268 0.007 80);
-  --card-foreground: oklch(0.93 0.008 90);
-  --popover: oklch(0.268 0.007 80);
-  --popover-foreground: oklch(0.93 0.008 90);
-  --primary: oklch(0.7 0.125 40);
-  --primary-foreground: oklch(0.215 0.012 50);
-  --secondary: oklch(0.315 0.008 80);
-  --secondary-foreground: oklch(0.93 0.008 90);
-  --muted: oklch(0.305 0.008 80);
-  --muted-foreground: oklch(0.7 0.012 80);
-  --accent: oklch(0.335 0.028 48);
-  --accent-foreground: oklch(0.88 0.05 48);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 11%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.7 0.125 40);
-  --chart-1: oklch(0.7 0.125 40);
-  --chart-2: oklch(0.78 0.1 80);
-  --chart-3: oklch(0.68 0.07 150);
-  --chart-4: oklch(0.66 0.08 250);
-  --chart-5: oklch(0.6 0.04 50);
-  --sidebar: oklch(0.247 0.006 80);
-  --sidebar-foreground: oklch(0.93 0.008 90);
-  --sidebar-primary: oklch(0.7 0.125 40);
-  --sidebar-primary-foreground: oklch(0.215 0.012 50);
-  --sidebar-accent: oklch(0.315 0.012 70);
-  --sidebar-accent-foreground: oklch(0.93 0.008 90);
-  --sidebar-border: oklch(1 0 0 / 11%);
-  --sidebar-ring: oklch(0.7 0.125 40);
+  --background: oklch(0.205 0.048 258.4);
+  --foreground: oklch(0.945 0.015 103.4);
+  --card: oklch(0.2705 0.0677 258.4);
+  --card-foreground: oklch(0.945 0.015 103.4);
+  --popover: oklch(0.2705 0.0677 258.4);
+  --popover-foreground: oklch(0.945 0.015 103.4);
+  --primary: oklch(0.841 0.0452 259.9);
+  --primary-foreground: oklch(0.2 0.05 258.4);
+  --secondary: oklch(0.328 0.055 258.4);
+  --secondary-foreground: oklch(0.945 0.015 103.4);
+  --muted: oklch(0.312 0.05 258.4);
+  --muted-foreground: oklch(0.735 0.01 103.4);
+  --accent: oklch(0.36 0.062 258.4);
+  --accent-foreground: oklch(0.945 0.015 103.4);
+  --destructive: oklch(0.645 0.176 28.3);
+  --border: oklch(0.841 0.045 259.9 / 16%);
+  --input: oklch(0.841 0.045 259.9 / 22%);
+  --ring: oklch(0.72 0.06 259);
+  --chart-1: oklch(0.841 0.0452 259.9);
+  --chart-2: oklch(0.645 0.176 28.3);
+  --chart-3: oklch(0.7 0.095 154);
+  --chart-4: oklch(0.9081 0.0987 96);
+  --chart-5: oklch(0.6 0.08 259);
+  --sidebar: oklch(0.235 0.052 258.4);
+  --sidebar-foreground: oklch(0.945 0.015 103.4);
+  --sidebar-primary: oklch(0.841 0.0452 259.9);
+  --sidebar-primary-foreground: oklch(0.2 0.05 258.4);
+  --sidebar-accent: oklch(0.328 0.055 258.4);
+  --sidebar-accent-foreground: oklch(0.945 0.015 103.4);
+  --sidebar-border: oklch(0.841 0.045 259.9 / 16%);
+  --sidebar-ring: oklch(0.72 0.06 259);
 }
 
 @layer base {
@@ -131,7 +149,7 @@
     @apply font-sans;
   }
   ::selection {
-    background: oklch(0.667 0.118 39.4 / 30%);
+    background: oklch(0.841 0.0452 259.9 / 55%);
   }
 }
 
@@ -177,21 +195,11 @@
   }
 }
 
-/* Плавное проявление ховер-превью видео */
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@utility animate-fade {
-  animation: fade-in 0.4s ease both;
-}
-
-/* Мягкое тёплое свечение под хиро-блоками */
+/* Мягкое свечение под хиро-блоками: голубой слева, жёлтый справа */
 @utility bg-hero-glow {
   background:
-    radial-gradient(56rem 18rem at 18% -8%, oklch(0.78 0.1 45 / 14%), transparent 64%),
-    radial-gradient(40rem 14rem at 85% -10%, oklch(0.8 0.07 80 / 10%), transparent 60%);
+    radial-gradient(56rem 18rem at 18% -8%, oklch(0.841 0.0452 259.9 / 42%), transparent 64%),
+    radial-gradient(40rem 14rem at 85% -10%, oklch(0.9081 0.0987 96 / 32%), transparent 60%);
 }
 
 /* Бесконечная лента ролей. Спейсинг — через margin элементов, поэтому

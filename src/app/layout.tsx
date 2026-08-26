@@ -1,32 +1,26 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Source_Serif_4, Underdog } from "next/font/google";
+import { Manrope } from "next/font/google";
+import localFont from "next/font/local";
 import { Toaster } from "@/components/ui/sonner";
 import { NavigationProgress } from "@/components/navigation-progress";
 import { PostHogProvider } from "@/lib/analytics/posthog-client";
 import "./globals.css";
 
-// Inter и JetBrains Mono поддерживают кириллицу (Geist — нет, русский текст падал в системный шрифт)
-const inter = Inter({
-  variable: "--font-inter",
+// Вся типографика на двух гарнитурах, обе с кириллицей.
+// Manrope — весь обычный текст: абзацы, заголовки, интерфейс.
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin", "cyrillic"],
 });
 
-const sourceSerif = Source_Serif_4({
-  variable: "--font-source-serif",
-  subsets: ["latin", "cyrillic"],
-  weight: ["400", "600", "700"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin", "cyrillic"],
-});
-
-// Жирный «граффити-пузырь» для doodle-надписей (поддерживает кириллицу)
-const underdog = Underdog({
-  variable: "--font-underdog",
-  subsets: ["latin", "cyrillic"],
+// BIPs — акцентный: теги-бейджи и маркерные надписи. Начертание одно (400),
+// поэтому классы font-bold/font-extrabold на нём не используем.
+const bips = localFont({
+  src: "./fonts/BIPs.ttf",
+  variable: "--font-bips",
   weight: "400",
+  style: "normal",
+  display: "swap",
 });
 
 const SITE_TITLE = "Claude Code с нуля — собери свою команду ИИ-агентов";
@@ -70,7 +64,7 @@ export default function RootLayout({
   return (
     <html
       lang="ru"
-      className={`${inter.variable} ${sourceSerif.variable} ${jetbrainsMono.variable} ${underdog.variable} h-full antialiased`}
+      className={`${manrope.variable} ${bips.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <NavigationProgress />

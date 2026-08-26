@@ -6,7 +6,7 @@ import { youtubeId } from '@/lib/video-url';
 import { plural } from '@/lib/utils';
 import { courseKey } from '@/lib/slug';
 import { CourseCarousel } from '@/components/course-carousel';
-import { DoodleScatter, DoodleWord } from '@/components/doodle-decor';
+import { DoodleWord } from '@/components/doodle-decor';
 import { PromoBanner } from '@/components/promo-banner';
 // SubscribeButton временно не используется — блок подписки скрыт
 
@@ -37,22 +37,6 @@ export default async function HomePage() {
   return (
     <div className="space-y-16 sm:space-y-24">
       <section className="animate-rise relative space-y-5 pt-4 sm:pt-8">
-        <div className="bg-hero-glow pointer-events-none absolute inset-x-0 -top-24 h-80" aria-hidden />
-        <DoodleScatter
-          glyph="starburst"
-          color="oklch(0.78 0.16 85)"
-          className="top-0 right-1 h-7 w-7 -rotate-6 opacity-80 sm:h-9 sm:w-9 sm:right-2"
-        />
-        <DoodleScatter
-          glyph="sparkleheart"
-          color="oklch(0.68 0.19 12)"
-          className="top-10 right-9 h-9 w-10 rotate-6 opacity-70 sm:top-14 sm:right-16 sm:h-11 sm:w-12"
-        />
-        <DoodleScatter
-          glyph="cone"
-          color="oklch(0.7 0.14 240)"
-          className="top-20 right-0 h-8 w-7 -rotate-3 opacity-55 sm:top-24 sm:right-2 sm:h-10 sm:w-9"
-        />
         <p className="relative font-mono text-sm text-primary">
           $ claude · {courses.length} {plural(courses.length, ['курс', 'курса', 'курсов'])} · {totalLessons}{' '}
           {plural(totalLessons, ['урок', 'урока', 'уроков'])}
@@ -102,8 +86,8 @@ export default async function HomePage() {
             {i === 0 && (
               <DoodleWord
                 text="начни сейчас"
-                color="oklch(0.68 0.19 12)"
-                className="z-10 -top-3 left-0 text-lg -rotate-6 opacity-80 sm:-top-5 sm:text-xl"
+                color="oklch(0.535 0.1893 28.3)"
+                className="z-10 -top-3 left-0 text-lg -rotate-6 sm:-top-5 sm:text-xl"
               />
             )}
             <CourseCarousel

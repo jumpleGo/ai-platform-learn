@@ -44,7 +44,7 @@ export function LessonCard({ lesson, index, locked, isTest, testToastMessage }: 
       style={{ '--rise-delay': `${Math.min(index, 6) * 0.05}s` } as React.CSSProperties}
     >
       <div className="relative aspect-video overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-200 group-hover:border-primary/40 group-hover:shadow-md">
-        <LessonPreview id={lesson.videoId} num={num} title={lesson.title} previewUrl={lesson.previewImageUrl} />
+        <LessonPreview id={lesson.videoId} num={num} previewUrl={lesson.previewImageUrl} />
         {locked && <LockBadge />}
       </div>
       <div className="space-y-0.5 px-0.5">

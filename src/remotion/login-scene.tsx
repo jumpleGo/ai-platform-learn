@@ -74,7 +74,7 @@ function Glyph({ i, total }: { i: number; total: number }) {
         fontFamily: 'var(--font-jetbrains-mono), monospace',
         fontSize: size,
         fontWeight: 500,
-        color: 'oklch(0.5 0.12 42)',
+        color: 'oklch(0.416 0.098 258.4)',
         opacity,
         whiteSpace: 'nowrap',
       }}
@@ -88,10 +88,10 @@ export function LoginScene() {
   const glyphCount = 14;
   return (
     <AbsoluteFill style={{ overflow: 'hidden' }}>
-      <Orb color="oklch(0.7 0.14 42)" size={760} baseX={22} baseY={26} ax={6} ay={5} kx={1} ky={1} phase={0} opacity={0.55} />
-      <Orb color="oklch(0.8 0.11 82)" size={680} baseX={82} baseY={20} ax={5} ay={6} kx={1} ky={1} phase={2.1} opacity={0.42} />
-      <Orb color="oklch(0.72 0.1 28)" size={620} baseX={70} baseY={86} ax={7} ay={5} kx={1} ky={1} phase={4.0} opacity={0.4} />
-      <Orb color="oklch(0.78 0.09 70)" size={520} baseX={14} baseY={82} ax={5} ay={6} kx={1} ky={1} phase={1.0} opacity={0.32} />
+      <Orb color="oklch(0.841 0.0452 259.9)" size={760} baseX={22} baseY={26} ax={6} ay={5} kx={1} ky={1} phase={0} opacity={0.55} />
+      <Orb color="oklch(0.9081 0.0987 96)" size={680} baseX={82} baseY={20} ax={5} ay={6} kx={1} ky={1} phase={2.1} opacity={0.42} />
+      <Orb color="oklch(0.68 0.14 28.3)" size={620} baseX={70} baseY={86} ax={7} ay={5} kx={1} ky={1} phase={4.0} opacity={0.4} />
+      <Orb color="oklch(0.72 0.09 154)" size={520} baseX={14} baseY={82} ax={5} ay={6} kx={1} ky={1} phase={1.0} opacity={0.32} />
       {Array.from({ length: glyphCount }, (_, i) => (
         <Glyph key={i} i={i} total={glyphCount} />
       ))}

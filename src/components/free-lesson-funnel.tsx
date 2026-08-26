@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Check, ChevronDown } from 'lucide-react';
 import { Markdown } from '@/components/markdown';
 import { FreeLessonCta, FreeLessonTelegramLink } from '@/components/free-lesson-cta';
@@ -45,12 +46,21 @@ export function FreeLessonAfterVideo({ content, materials, ctaHref }: {
         </details>
       )}
 
-      <section className="relative overflow-hidden rounded-3xl border border-primary/20 bg-accent px-5 py-9 sm:px-9 sm:py-11">
-        <div className="bg-hero-glow pointer-events-none absolute inset-0" aria-hidden />
+      {/* фон — бумажная текстура; цвет под ней виден, пока картинка грузится */}
+      <section className="relative overflow-hidden rounded-3xl border border-primary/20 bg-[#fcecd0] bg-[url(/banner-lesson-paper.webp)] bg-cover bg-center px-5 py-9 sm:px-9 sm:py-11">
+        {/* такса в правом нижнем углу; края растворены в текстуру прямо в файле */}
+        <Image
+          src="/banner-lesson-dachshund.webp"
+          alt=""
+          width={660}
+          height={809}
+          aria-hidden
+          className="pointer-events-none absolute right-0 bottom-0 hidden w-[200px] select-none sm:block lg:w-[260px]"
+        />
         <div className="relative max-w-2xl">
-          <p className="font-mono text-sm font-medium tracking-wide text-accent-foreground uppercase">Это один элемент системы</p>
+          <p className="font-mono text-sm font-medium tracking-wide text-brand-charcoal/70 uppercase">Это один элемент системы</p>
           <h2 className="mt-3 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">{content.bridgeTitle}</h2>
-          <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">{content.bridgeText}</p>
+          <p className="mt-4 text-base leading-relaxed text-brand-charcoal/75 sm:text-lg">{content.bridgeText}</p>
           <div className="mt-7 flex flex-col items-start gap-3">
             <FreeLessonCta href={ctaHref} label={content.ctaLabel} lessonId={content.lessonId} position="primary" />
             <FreeLessonTelegramLink href={TELEGRAM_URL} lessonId={content.lessonId} position="primary" />

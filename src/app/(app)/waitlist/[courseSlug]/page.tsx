@@ -1,7 +1,7 @@
 import { notFound, permanentRedirect } from 'next/navigation';
 import { ArrowUpRight } from 'lucide-react';
 import { getTestCourse } from '@/lib/db/courses';
-import { DoodleScatter, DoodleWord } from '@/components/doodle-decor';
+import { DoodleWord } from '@/components/doodle-decor';
 import { courseKey, waitlistPath } from '@/lib/slug';
 
 const PROMO_URL = 'https://start.gelato.su';
@@ -29,22 +29,16 @@ export default async function WaitlistPage({ params }: {
     <section className="animate-rise relative mx-auto max-w-xl" style={{ '--rise-delay': '0.08s' } as React.CSSProperties}>
       <DoodleWord
         text="скоро"
-        color="oklch(0.68 0.19 12)"
+        color="oklch(0.535 0.1893 28.3)"
         className="z-10 -top-4 left-4 text-xl -rotate-6 sm:-top-6 sm:text-2xl"
       />
-      <div className="relative overflow-hidden rounded-3xl border-2 border-dashed border-primary/30 bg-accent px-6 py-10 sm:px-12 sm:py-12">
-        <div className="bg-hero-glow pointer-events-none absolute -inset-x-10 -bottom-20 h-56 rotate-180 opacity-70" aria-hidden />
-        <DoodleScatter
-          glyph="starburst"
-          color="oklch(0.78 0.16 85)"
-          className="top-4 right-8 h-8 w-8 -rotate-12 opacity-80"
-        />
+      <div className="relative overflow-hidden rounded-3xl border-2 border-dashed border-primary/30 bg-brand-yellow px-6 py-10 sm:px-12 sm:py-12">
         <div className="relative space-y-4">
-          <p className="font-mono text-sm text-accent-foreground">$ предзапись</p>
+          <p className="font-mono text-sm text-brand-charcoal/70">$ предзапись</p>
           <h1 className="font-heading text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
             {course.title}
           </h1>
-          <p className="leading-relaxed text-muted-foreground text-pretty">
+          <p className="leading-relaxed text-brand-charcoal/75 text-pretty">
             Курс скоро откроется. Оставьте заявку, чтобы попасть в число первых — вам напишут,
             как только появится доступ.
           </p>

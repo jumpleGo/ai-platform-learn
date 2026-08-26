@@ -13,9 +13,9 @@ export function PresenceBar({ registered }: { registered: number }) {
     >
       <span className="relative flex size-2">
         {n !== 0 && (
-          <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500/70" />
+          <span className="absolute inline-flex size-full animate-ping rounded-full bg-brand-green/70" />
         )}
-        <span className={`relative inline-flex size-2 rounded-full ${n === 0 ? 'bg-muted-foreground/50' : 'bg-emerald-500'}`} />
+        <span className={`relative inline-flex size-2 rounded-full ${n === 0 ? 'bg-muted-foreground/50' : 'bg-brand-green'}`} />
       </span>
       <span className="tabular-nums text-foreground/80">{n ?? '·'}</span>
       <span className="hidden sm:inline">

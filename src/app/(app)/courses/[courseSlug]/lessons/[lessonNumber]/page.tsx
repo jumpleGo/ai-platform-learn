@@ -22,7 +22,6 @@ import { RecordView } from '@/components/record-view';
 import { Markdown } from '@/components/markdown';
 import { MaterialsTeaser } from '@/components/materials-teaser';
 import { WatchingNow } from '@/components/watching-now';
-import { DoodleScatter } from '@/components/doodle-decor';
 import { BannerSlotView } from '@/components/banner-slot';
 import { FreeLessonAnalytics } from '@/components/free-lesson-analytics';
 import { FreeLessonAfterVideo, FreeLessonMarker } from '@/components/free-lesson-funnel';
@@ -239,30 +238,6 @@ export default async function LessonPage({ params, searchParams }: {
         funnelMode={Boolean(freeLesson)}
       />
       <div className="animate-rise relative space-y-6">
-        {!freeLesson && (
-          <>
-            <DoodleScatter
-              glyph="starburst"
-              color="oklch(0.78 0.16 85)"
-              className="top-0 right-1 h-7 w-7 -rotate-6 opacity-80 sm:h-9 sm:w-9 sm:right-2"
-            />
-            <DoodleScatter
-              glyph="mandala"
-              color="oklch(0.7 0.16 160)"
-              className="top-9 right-9 h-8 w-8 rotate-3 opacity-60 sm:top-16 sm:right-16 sm:h-10 sm:w-10"
-            />
-            <DoodleScatter
-              glyph="sparkleheart"
-              color="oklch(0.68 0.19 12)"
-              className="-top-7 -left-1 h-7 w-8 -rotate-6 opacity-55 sm:-top-9 sm:h-9 sm:w-10"
-            />
-            <DoodleScatter
-              glyph="paisley"
-              color="oklch(0.7 0.14 240)"
-              className="bottom-2 left-2 h-7 w-7 rotate-3 opacity-45 sm:h-9 sm:w-9"
-            />
-          </>
-        )}
         {freeLesson ? <FreeLessonMarker /> : !lesson.hideBackLink && (
           <Link
             href="/"

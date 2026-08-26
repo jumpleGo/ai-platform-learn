@@ -56,6 +56,25 @@ export function VideoEmbed({ courseId, lessonId, title, analyticsLessonId }: {
     };
   }, [fullscreen]);
 
+  // Псевдо-фуллскрин не должен оживать при переходах по истории: на «назад»/«вперёд»
+  // и на восстановлении страницы гасим его и говорим плееру сбросить свой fakeFs,
+  // иначе состояния родителя и плеера разъезжаются и кнопка начинает работать наоборот.
+  useEffect(() => {
+    function exitFullscreen() {
+      setFullscreen(false);
+      iframeRef.current?.contentWindow?.postMessage(
+        { source: 'lessonHost', type: 'exitFullscreen' },
+        window.location.origin,
+      );
+    }
+    window.addEventListener('popstate', exitFullscreen);
+    window.addEventListener('pageshow', exitFullscreen);
+    return () => {
+      window.removeEventListener('popstate', exitFullscreen);
+      window.removeEventListener('pageshow', exitFullscreen);
+    };
+  }, []);
+
   return (
     <div
       className={

@@ -56,10 +56,12 @@ export function CourseCarousel({ course, lessons, lockedIds }: {
 
   return (
     <section className="relative space-y-5">
+      {/* Выделенная полка: ровная зелёная подложка во всю ширину окна.
+          Края растворяются маской сверху и снизу, поэтому рамки и углы не видны. */}
       {course.highlightBackground && (
         <div
           aria-hidden
-          className="bg-hero-glow pointer-events-none absolute inset-y-0 -top-6 -bottom-6 left-1/2 w-screen -translate-x-1/2 rounded-3xl bg-accent/70"
+          className="pointer-events-none absolute -top-10 -bottom-10 left-1/2 w-screen -translate-x-1/2 bg-brand-green/10 [mask-image:linear-gradient(to_bottom,transparent_0%,black_18%,black_82%,transparent_100%)]"
         />
       )}
       <div className="relative flex items-end justify-between gap-4">

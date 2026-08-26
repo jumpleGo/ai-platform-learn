@@ -6,8 +6,8 @@ export function GelatoLogo({ className = 'h-7' }: { className?: string }) {
     <Image
       src="/logo.webp"
       alt="GELATO"
-      width={574}
-      height={154}
+      width={538}
+      height={232}
       priority
       className={`w-auto select-none ${className}`}
     />
