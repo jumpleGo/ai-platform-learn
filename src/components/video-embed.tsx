@@ -15,6 +15,20 @@ export function VideoEmbed({ courseId, lessonId, title, analyticsLessonId }: {
   const [fullscreen, setFullscreen] = useState(false);
   const tracked = useRef(new Set<string>());
 
+  // Уходя с урока, App Router оставляет DOM старой страницы скрытым снимком, и узел
+  // iframe переживает размонтирование компонента. Живой вложенный контекст YouTube
+  // при этом продолжает владеть записями в истории, и «назад» отматывает фрейм вместо
+  // страницы — вместо возврата открывается ютуб. Поэтому на размонтировании гасим
+  // фрейм руками: about:blank сбрасывает его историю, remove() убирает сам контекст.
+  useEffect(() => {
+    const frame = iframeRef.current;
+    return () => {
+      if (!frame) return;
+      frame.setAttribute('src', 'about:blank');
+      frame.remove();
+    };
+  }, []);
+
   useEffect(() => {
     // псевдо-fullscreen: плеер внутри iframe просит растянуть сам iframe на весь экран —
     // нативный requestFullscreen на div во вложенном iframe на мобилке часто не работает
