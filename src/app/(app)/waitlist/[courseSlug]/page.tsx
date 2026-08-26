@@ -4,7 +4,7 @@ import { getTestCourse } from '@/lib/db/courses';
 import { DoodleWord } from '@/components/doodle-decor';
 import { courseKey, waitlistPath } from '@/lib/slug';
 
-const PROMO_URL = 'https://start.gelato.su';
+const PROMO_URL = 'https://vibe.gelato.education';
 
 export default async function WaitlistPage({ params }: {
   params: Promise<{ courseSlug: string }>;

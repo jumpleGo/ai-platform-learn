@@ -66,6 +66,15 @@
   --color-brand-green: oklch(0.6149 0.0923 154);
   /* затемнённый зелёный для тегов — кремовый текст на нём проходит по контрасту */
   --color-brand-forest: oklch(0.5 0.095 154);
+  /* цвета платка таксы с баннера урока, взяты пипеткой с самой картинки */
+  --color-scarf-yellow: #fed453;
+  --color-scarf-green: #33823c;
+  /* цвета гуся с баннера главной, тоже пипеткой: рубашка, звёзды, клюв-акцент */
+  --color-goose-green: #1c8d6b;
+  --color-goose-yellow: #fdfc44;
+  /* тот же жёлтый, но приглушённый — на кнопке кислотный звенел */
+  --color-goose-yellow-muted: #f4ea7d;
+  --color-goose-red: #fb6334;
 }
 
 :root {
@@ -144,6 +153,9 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Manrope переменный, поэтому берём промежуточный вес: обычный текст чуть плотнее
+       дефолтных 400, но ещё не medium — иначе заголовки перестают выделяться */
+    font-weight: 450;
   }
   html {
     @apply font-sans;
@@ -277,5 +289,61 @@
   @media (prefers-reduced-motion: reduce) {
     animation: none;
     opacity: 0;
+  }
+}
+
+/* Тельняшка таксы с баннера урока: синие полосы по тёплому белому.
+   Рамка — отдельный слой в border-box, бумага и подложка живут в padding-box,
+   поэтому полоски видны только по краю и не мешают тексту, пока грузится текстура. */
+@utility banner-marine-frame {
+  border: 3px solid transparent;
+  background-image:
+    url(/banner-lesson-paper.webp),
+    linear-gradient(#fcecd0, #fcecd0),
+    repeating-linear-gradient(45deg, #5e77b2 0 8px, #f7f0f1 8px 16px);
+  background-clip: padding-box, padding-box, border-box;
+  background-origin: padding-box, padding-box, border-box;
+  background-position: center, center, center;
+  background-size: cover, auto, auto;
+  background-repeat: no-repeat, repeat, repeat;
+}
+
+/* Рубашка гуся с баннера главной — тот же приём, что у тельняшки: зелёные полосы
+   по тёплому белому в border-box, бумага и подложка в padding-box. */
+@utility banner-goose-frame {
+  border: 3px solid transparent;
+  background-image:
+    url(/banner-home-paper.webp),
+    linear-gradient(#fcecd0, #fcecd0),
+    repeating-linear-gradient(45deg, var(--color-goose-green) 0 8px, #f7f0f1 8px 16px);
+  background-clip: padding-box, padding-box, border-box;
+  background-origin: padding-box, padding-box, border-box;
+  background-position: center, center, center;
+  background-size: cover, auto, auto;
+  background-repeat: no-repeat, repeat, repeat;
+}
+
+/* Кнопка в цветах гуся: жёлтая заливка звёзд, тень цветом клюва — он тут акцент */
+@utility btn-goose {
+  background-color: var(--color-goose-yellow-muted);
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/* Кнопка в цветах платка таксы: жёлтая заливка, зелёная тень уступом.
+   Тень плотная, без размытия — как заливка цветом, а не подсветка. */
+@utility btn-scarf {
+  background-color: var(--color-scarf-yellow);
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
   }
 }

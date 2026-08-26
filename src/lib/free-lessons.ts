@@ -1,6 +1,6 @@
 export const SITE_URL = 'https://gelato.education';
 // Временная точка перехода до готовности основного продажного лендинга.
-export const PROGRAM_URL = 'https://gelato.education/waitlist/vibecoding';
+export const PROGRAM_URL = 'https://vibe.gelato.education';
 export const TELEGRAM_URL = 'https://t.me/gelato_ai';
 
 export type FreeLessonFaq = {

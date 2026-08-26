@@ -46,8 +46,8 @@ export function FreeLessonAfterVideo({ content, materials, ctaHref }: {
         </details>
       )}
 
-      {/* фон — бумажная текстура; цвет под ней виден, пока картинка грузится */}
-      <section className="relative overflow-hidden rounded-3xl border border-primary/20 bg-[#fcecd0] bg-[url(/banner-lesson-paper.webp)] bg-cover bg-center px-5 py-9 sm:px-9 sm:py-11">
+      {/* фон — бумажная текстура, по краю рамка-тельняшка как на майке таксы */}
+      <section className="banner-marine-frame relative overflow-hidden rounded-3xl px-5 pt-9 pb-40 sm:px-9 sm:py-11">
         {/* такса в правом нижнем углу; края растворены в текстуру прямо в файле */}
         <Image
           src="/banner-lesson-dachshund.webp"
@@ -55,13 +55,12 @@ export function FreeLessonAfterVideo({ content, materials, ctaHref }: {
           width={660}
           height={809}
           aria-hidden
-          className="pointer-events-none absolute right-0 bottom-0 hidden w-[200px] select-none sm:block lg:w-[260px]"
+          className="pointer-events-none absolute right-0 bottom-0 w-[120px] select-none sm:w-[200px] lg:w-[260px]"
         />
         <div className="relative max-w-2xl">
-          <p className="font-mono text-sm font-medium tracking-wide text-brand-charcoal/70 uppercase">Это один элемент системы</p>
-          <h2 className="mt-3 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">{content.bridgeTitle}</h2>
-          <p className="mt-4 text-base leading-relaxed text-brand-charcoal/75 sm:text-lg">{content.bridgeText}</p>
-          <div className="mt-7 flex flex-col items-start gap-3">
+          <h2 className="font-heading text-[1.75rem] leading-[1.03] font-extrabold tracking-[-0.022em] text-balance text-brand-navy sm:text-[2.5rem]">{content.bridgeTitle}</h2>
+          <p className="mt-4 max-w-xl text-base leading-snug font-medium text-pretty text-brand-charcoal/80 sm:text-lg">{content.bridgeText}</p>
+          <div className="mt-6 flex flex-col items-start gap-3">
             <FreeLessonCta href={ctaHref} label={content.ctaLabel} lessonId={content.lessonId} position="primary" />
             <FreeLessonTelegramLink href={TELEGRAM_URL} lessonId={content.lessonId} position="primary" />
           </div>

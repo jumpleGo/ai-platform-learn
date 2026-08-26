@@ -25,7 +25,7 @@ export function FreeLessonCta({
         cta_position: position,
         destination: new URL(href).hostname,
       })}
-      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-center text-sm font-semibold text-primary-foreground shadow-sm transition-transform hover:-translate-y-0.5 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 ${className}`}
+      className={`btn-scarf inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border-2 border-brand-navy px-5 py-3 text-center text-sm font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-scarf-green)] hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-scarf-green)] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand-navy/40 ${className}`}
     >
       {label}
       <ArrowRight className="size-4 shrink-0" aria-hidden />
