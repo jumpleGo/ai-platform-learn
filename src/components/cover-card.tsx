@@ -31,6 +31,8 @@ export type CoverCardProps = {
   ratio?: 'video' | 'square' | 'wide';
   // Чистая обложка без надписей: превью урока говорит само за себя, подпись есть под ним
   bareCover?: boolean;
+  // Своя короткая надпись поверх чистой обложки — приходит из админки урока
+  coverCaption?: string | null;
   meta?: string | null;
 };
 
@@ -44,11 +46,14 @@ export function CoverCard({
   index = 0,
   ratio = 'square',
   bareCover = false,
+  coverCaption,
   meta,
 }: CoverCardProps) {
   const tone = TONES[index % TONES.length];
-  // на пустой плашке надпись оставляем всегда — иначе карточка выглядит недогруженной
-  const coverText = !bareCover || !imageUrl;
+  // Что лежит поверх обложки: у обучений — название карточки, у уроков с чистым превью —
+  // только своя надпись из админки. На пустой плашке надпись оставляем всегда, иначе
+  // карточка выглядит недогруженной
+  const coverTitle = bareCover ? coverCaption?.trim() || (imageUrl ? '' : title) : title;
   return (
     <Link
       href={href}
@@ -69,7 +74,7 @@ export function CoverCard({
               className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
             {/* под надписью картинка уходит в бумагу — название читается, а обложка не темнеет */}
-            {!bareCover && (
+            {coverTitle && (
               <span
                 className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-brand-cream via-brand-cream/85 to-transparent"
                 aria-hidden
@@ -83,7 +88,7 @@ export function CoverCard({
             aria-hidden
           />
         )}
-        {coverText && (
+        {coverTitle && (
           <div
             className={`relative flex size-full flex-col justify-between p-5 ${
               // на картинке текст тёмный с кремовым ореолом: читается без затемнения обложки
@@ -98,7 +103,9 @@ export function CoverCard({
                 {plainText(kicker)}
               </p>
             )}
-            <p className="font-marker text-2xl leading-[1.05] text-balance sm:text-[1.75rem]">{plainText(title)}</p>
+            <p className="font-marker text-2xl leading-[1.05] text-balance sm:text-[1.75rem]">
+              {plainText(coverTitle)}
+            </p>
           </div>
         )}
         {badge && (

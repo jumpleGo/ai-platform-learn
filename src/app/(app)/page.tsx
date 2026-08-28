@@ -313,6 +313,7 @@ export default async function HomePage() {
                   badge="Бесплатно"
                   ratio="video"
                   bareCover
+                  coverCaption={lesson.coverCaption}
                   index={i + 2}
                 />
               </li>

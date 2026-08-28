@@ -304,6 +304,20 @@ function LessonFields({ idPrefix, lesson, courseAccess, courseIsTest, lessonPubl
           PNG/JPEG/WebP до 5 МБ. Пусто — на карточке будет кадр из видео.
         </p>
       </div>
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor={`${idPrefix}-cover-caption`}>Надпись на обложке</Label>
+        <Input
+          id={`${idPrefix}-cover-caption`}
+          name="coverCaption"
+          maxLength={60}
+          placeholder="Например: Куда уходят токены"
+          defaultValue={lesson?.coverCaption ?? ''}
+        />
+        <p className="text-xs text-muted-foreground">
+          Ложится маркерным шрифтом в&nbsp;низ обложки на&nbsp;витрине бесплатных материалов&nbsp;— как
+          название на&nbsp;карточках обучений. Пусто&nbsp;— обложка остаётся чистой. Коротко, 3–5 слов.
+        </p>
+      </div>
       <MaterialsEditor idPrefix={idPrefix} defaultValue={lesson?.materials ?? ''} />
 
       <div className="flex flex-col gap-2 rounded-lg border border-dashed p-3">
@@ -528,7 +542,7 @@ export default async function AdminCoursePage({
                 key={valuesKey([
                   lesson.title, lesson.description, lesson.videoEmbedUrl,
                   lesson.durationSec, lesson.access, lesson.published, lesson.materials,
-                  lesson.previewImageUrl,
+                  lesson.previewImageUrl, lesson.coverCaption,
                   lesson.hideHeader, lesson.hideFooter, lesson.hideBackLink, lesson.hideLessonsNav,
                   JSON.stringify(lesson.marketingVariants ?? null),
                   JSON.stringify(lesson.relatedVariants ?? null),

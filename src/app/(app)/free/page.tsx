@@ -59,6 +59,7 @@ export default async function FreePage() {
                   badge="Бесплатно"
                   ratio="video"
                   bareCover
+                  coverCaption={lesson.coverCaption}
                   meta={
                     lesson.durationSec
                       ? `${Math.max(1, Math.round(lesson.durationSec / 60))} мин · ${lesson.courseTitle}`

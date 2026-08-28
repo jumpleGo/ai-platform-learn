@@ -54,6 +54,8 @@ export interface Lesson {
   views: number;
   // Своя загруженная обложка-превью; null — берём кадр из видео
   previewImageUrl: string | null;
+  // Короткая надпись поверх обложки на витрине бесплатных материалов; null — обложка чистая
+  coverCaption: string | null;
   // Фокус-режим: убирают обвязку страницы, чтобы с урока некуда было уйти
   hideHeader: boolean;
   hideFooter: boolean;

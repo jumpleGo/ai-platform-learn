@@ -120,6 +120,7 @@ async function main() {
         materials: SAMPLE_MATERIALS,
         views: 120 + i * 37 + course.data.order * 210,
         previewImageUrl: null,
+        coverCaption: null,
         hideHeader: false,
         hideFooter: false,
         hideBackLink: false,

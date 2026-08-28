@@ -16,6 +16,8 @@ export type FreeLessonCard = {
   title: string;
   description: string;
   previewImageUrl: string | null;
+  // Надпись поверх обложки — задаётся в админке урока
+  coverCaption: string | null;
   durationSec: number | null;
   views: number;
 };
@@ -40,6 +42,7 @@ export function freeLessonCards(courses: readonly CourseWithLessons[]): FreeLess
           title: nbsp(funnel?.h1 ?? lesson.title),
           description: nbsp(funnel?.lead ?? lesson.description),
           previewImageUrl: lesson.previewImageUrl,
+          coverCaption: lesson.coverCaption ? nbsp(lesson.coverCaption) : null,
           durationSec: lesson.durationSec,
           views: lesson.views ?? 0,
         };

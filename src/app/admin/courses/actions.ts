@@ -61,6 +61,7 @@ function parseLessonFields(formData: FormData, videoRequired: boolean) {
   if (videoEmbedUrl && !videoEmbedUrl.startsWith('https://')) throw new Error('videoEmbedUrl must be https');
   const durationRaw = String(formData.get('durationSec') ?? '').trim();
   const durationNum = Number(durationRaw);
+  const coverCaption = String(formData.get('coverCaption') ?? '').trim();
   return {
     title,
     description: String(formData.get('description') ?? '').trim(),
@@ -69,6 +70,7 @@ function parseLessonFields(formData: FormData, videoRequired: boolean) {
     access: parseAccess(formData.get('access')),
     published: formData.get('published') === 'on',
     materials: String(formData.get('materials') ?? '').trim(),
+    coverCaption: coverCaption || null,
     hideHeader: formData.get('hideHeader') === 'on',
     hideFooter: formData.get('hideFooter') === 'on',
     hideBackLink: formData.get('hideBackLink') === 'on',
