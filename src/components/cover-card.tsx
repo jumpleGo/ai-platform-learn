@@ -103,7 +103,8 @@ export function CoverCard({
                 {plainText(kicker)}
               </p>
             )}
-            <p className="font-marker text-2xl leading-[1.05] text-balance sm:text-[1.75rem]">
+            {/* mt-auto держит надпись внизу и без верхней метки */}
+            <p className="mt-auto font-marker text-2xl leading-[1.05] text-balance sm:text-[1.75rem]">
               {plainText(coverTitle)}
             </p>
           </div>

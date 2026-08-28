@@ -307,7 +307,6 @@ export default async function HomePage() {
                 <CoverCard
                   href={lessonPath(lesson.courseKey, lesson.number)}
                   title={lesson.title}
-                  kicker={`Урок ${String(lesson.number).padStart(2, '0')}`}
                   note={lesson.description}
                   imageUrl={lesson.previewImageUrl}
                   badge="Бесплатно"
