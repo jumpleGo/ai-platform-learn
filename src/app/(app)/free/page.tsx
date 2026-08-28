@@ -78,13 +78,12 @@ export default async function FreePage() {
         <div className="rounded-3xl border border-border bg-secondary/50 px-6 py-9 sm:px-10 sm:py-11">
           <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-6">
             <div className="max-w-xl space-y-3">
-              <p className="font-mono text-sm text-primary">$ дальше</p>
+              <p className="font-mono text-sm text-primary">Мы ждем тебя!</p>
               <h2 className="font-heading text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
-                Отдельные приёмы помогают один раз. Система — каждый день
+                Мы поможем не только изучить, но и проверим ваш результат.
               </h2>
               <p className="leading-relaxed text-muted-foreground text-pretty">
-                В&nbsp;обучениях мы собираем из&nbsp;этих кусочков рабочий процесс: правила проекта,
-                проверки, своих агентов и&nbsp;деплой.
+                В обучениях мы собираем из этих кусочков рабочий процесс: правила проекта, проверки, своих агентов и деплой. Каждый этап будет скурпулезно проверен.
               </p>
             </div>
             <div className="flex flex-col gap-2.5">

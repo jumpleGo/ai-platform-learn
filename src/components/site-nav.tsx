@@ -5,8 +5,8 @@ import { useEffect, useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { isNavActive, navItems } from '@/lib/site';
 
-// Пункт шапки. Активный подчёркиваем линией цвета бренда, а не сменой фона —
-// шапка полупрозрачная, заливка на ней читается как артефакт.
+// Пункт шапки. Активный выделяем только начертанием и цветом текста — шапка
+// полупрозрачная, любые линии и заливки на ней читаются как артефакт.
 function NavLink({ href, label, onNavigate }: { href: string; label: string; onNavigate?: () => void }) {
   const pathname = usePathname();
   const active = isNavActive(href, pathname);
@@ -15,14 +15,11 @@ function NavLink({ href, label, onNavigate }: { href: string; label: string; onN
       href={href}
       onClick={onNavigate}
       aria-current={active ? 'page' : undefined}
-      className={`relative py-1 text-sm whitespace-nowrap transition-colors ${
+      className={`py-1 text-sm whitespace-nowrap transition-colors ${
         active ? 'font-semibold text-foreground' : 'font-medium text-muted-foreground hover:text-foreground'
       }`}
     >
       {label}
-      {active && (
-        <span className="absolute -bottom-0.5 left-0 h-[2px] w-full rounded-full bg-brand-red" aria-hidden />
-      )}
     </Link>
   );
 }

@@ -23,13 +23,13 @@ export default async function CoursesPage() {
     <div className="space-y-16 sm:space-y-20">
       <section className="animate-rise space-y-5 pt-4 sm:pt-8">
         <p className="font-mono text-sm text-primary">
-          $ обучения · {trainings.length} {plural(trainings.length, ['программа', 'программы', 'программ'])}
+          обучения · {trainings.length} {plural(trainings.length, ['программа', 'программы', 'программ'])}
         </p>
         <h1 className="max-w-2xl font-heading text-4xl font-semibold tracking-tight text-balance sm:text-5xl/[1.1]">
           Наши обучения
         </h1>
         <p className="max-w-xl text-lg leading-relaxed text-muted-foreground text-pretty">
-          Каждая программа — про одну задачу целиком: от первого касания до полноценного результата.
+          Актуальные программы на сегодняшний день. Каждая, включает в себя домашки, разборы и максимальную отдачу нашего преподавателя.
         </p>
       </section>
 
@@ -40,7 +40,7 @@ export default async function CoursesPage() {
           <SectionHead
             eyebrow="программы"
             title="Все обучения"
-            note="Внутри каждой страницы — для кого, что настроите, формат и стоимость."
+            note="Кликните, чтобы узнать - для кого, что настроите, формат и стоимость."
           />
           <ul className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
             {trainings.map((course, i) => {

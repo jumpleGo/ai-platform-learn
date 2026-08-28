@@ -39,7 +39,9 @@ export function LessonCard({ lesson, index, locked, isTest, testToastMessage }: 
       href={isTest ? waitlistPath(lesson.courseKey) : lessonPath(lesson.courseKey, lesson.number)}
       onClick={isTest ? () => {
         toast(testToastMessage || 'Курс скоро откроется');
-        void trackTestCourseClick(lesson.courseId);
+        // аналитика не должна ронять клик: устаревший id экшена после пересборки/деплоя
+        // даёт unhandled rejection и всплывает ошибкой в UI
+        void trackTestCourseClick(lesson.courseId).catch(() => {});
       } : undefined}
       className="group animate-float w-60 shrink-0 snap-start space-y-2.5"
       // лёгкий каскад появления карточек (ограничиваем, чтобы дальние не висели прозрачными)

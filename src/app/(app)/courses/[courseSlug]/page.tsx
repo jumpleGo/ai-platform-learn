@@ -162,7 +162,7 @@ export default async function CourseLandingPage({ params }: {
             <SectionHead
               eyebrow="боли"
               title="Что обычно идёт не так"
-              note="Если узнали хотя бы два пункта — программа про вас."
+              note="Самые популярные проблемы начинашек."
             />
             <ul className="mt-7 grid grid-cols-1 gap-x-8 gap-y-3.5 sm:grid-cols-2">
               {landing.pains.map((pain) => (
@@ -232,7 +232,7 @@ export default async function CourseLandingPage({ params }: {
         </section>
       )}
 
-      {/* Кому подойдёт и кому нет */}
+      {/* Кому подойдёт */}
       {landing.audience.length > 0 && (
         <section className="animate-rise space-y-6">
           <SectionHead
@@ -253,19 +253,6 @@ export default async function CourseLandingPage({ params }: {
               </li>
             ))}
           </ul>
-          {landing.notFor.length > 0 && (
-            <div className="rounded-2xl border border-border bg-secondary/50 p-5 sm:p-6">
-              <p className="font-mono text-xs tracking-wide text-muted-foreground uppercase">Не подойдёт</p>
-              <ul className="mt-3 space-y-2">
-                {landing.notFor.map((item) => (
-                  <li key={item} className="flex gap-3 text-sm leading-relaxed text-muted-foreground text-pretty">
-                    <Minus className="mt-1 size-3.5 shrink-0 text-brand-red" aria-hidden />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </section>
       )}
 
@@ -275,7 +262,7 @@ export default async function CourseLandingPage({ params }: {
           <SectionHead
             eyebrow="почему мы"
             title="Чем это отличается от курса на большой платформе"
-            note="Там программу пишут методисты по шаблону и обновляют раз в год.\nЗдесь — практик, который переписывает урок, когда меняется инструмент."
+            note="Там пишут методисты по шаблону и обновляют раз в год. Здесь — практик, который переписывает урок, когда меняется инструмент."
             action={{ href: '/faq', label: 'Все возражения' }}
           />
           <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -318,7 +305,7 @@ export default async function CourseLandingPage({ params }: {
         />
         <div className="grid grid-cols-1 gap-8 rounded-3xl border border-border bg-secondary/50 px-6 py-9 sm:px-10 sm:py-11 lg:grid-cols-[1.1fr_1fr]">
           <div className="space-y-4">
-            <p className="font-mono text-sm text-primary">$ {cont ? 'ваш доступ' : 'стоимость'}</p>
+            <p className="font-mono text-sm text-primary">$ {cont ? 'ваш доступ' : ''}</p>
             <h2 className="font-heading text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
               {cont ? 'Доступ открыт' : landing.price.value}
             </h2>
@@ -368,7 +355,7 @@ export default async function CourseLandingPage({ params }: {
         <Link href="/faq" className="font-medium text-primary underline underline-offset-4 hover:text-foreground">
           Посмотрите вопрос-ответ
         </Link>{' '}
-        — там разобраны возражения, оплата и&nbsp;возврат. Или{' '}
+        — там разобраны вопросы, оплата и возврат. Или{' '}
         <Link href="/free" className="font-medium text-primary underline underline-offset-4 hover:text-foreground">
           начните с&nbsp;бесплатных уроков
         </Link>

@@ -58,7 +58,7 @@ export function FreeLessonAfterVideo({ content, materials, ctaHref }: {
           className="pointer-events-none absolute right-0 bottom-0 w-[120px] select-none sm:w-[200px] lg:w-[260px]"
         />
         <div className="relative max-w-2xl">
-          <h2 className="font-heading text-[1.75rem] leading-[1.03] font-extrabold tracking-[-0.022em] text-balance text-brand-navy sm:text-[2.5rem]">{content.bridgeTitle}</h2>
+          <h2 className="font-heading text-[1.75rem] leading-[1.03] font-extrabold tracking-[-0.022em] text-balance text-brand-navy sm:text-[2.5rem] whitespace-pre-line">{content.bridgeTitle}</h2>
           <p className="mt-4 max-w-xl text-base leading-snug font-medium text-pretty text-brand-charcoal/80 sm:text-lg">{content.bridgeText}</p>
           <div className="mt-6 flex flex-col items-start gap-3">
             <FreeLessonCta href={ctaHref} label={content.ctaLabel} lessonId={content.lessonId} position="primary" />
