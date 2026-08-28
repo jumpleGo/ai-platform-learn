@@ -38,7 +38,7 @@ export default async function CourseLayout({ children, params }: {
   const hideGuestCatalog = !session && course != null && courseKey(course) === 'claude-code';
 
   return (
-    <div data-course-grid className={`grid gap-10 ${hideGuestCatalog ? '' : 'lg:grid-cols-[1fr_19rem]'}`}>
+    <div data-course-grid className={`grid grid-cols-1 gap-10 ${hideGuestCatalog ? '' : 'lg:grid-cols-[1fr_19rem]'}`}>
       <div className="min-w-0">{children}</div>
       {!hideGuestCatalog && (
         <CourseLessonsNav courseKey={course ? courseKey(course) : courseSlug} items={items} completedCount={completedCount} />

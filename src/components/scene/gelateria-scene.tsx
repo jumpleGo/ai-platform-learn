@@ -97,6 +97,7 @@ export function GelateriaScene() {
   // читаются как единый проезд камеры, а не как рывки колеса мыши.
   useEffect(() => {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (localStorage.noLenis === '1') return; // ВРЕМЕННО: отладка лага скролла
     const lenis = new Lenis({ duration: 1.1, wheelMultiplier: 0.9, touchMultiplier: 1.6 });
     let raf = requestAnimationFrame(function tick(time) {
       lenis.raf(time);

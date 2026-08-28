@@ -192,7 +192,7 @@ export default async function HomePage() {
           title="Маленькая школа ИИ"
           note="Долой учебные проекты! Наша цель обучить вас на вашем же проекте."
         />
-        <ul className="grid gap-4 sm:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {ABOUT.map((item, i) => (
             <li
               key={item.title}
@@ -219,7 +219,7 @@ export default async function HomePage() {
             title="Скорее всего, вы уже пробовали"
             note="И упёрлись не в интеллект модели, а в отсутствие процесса."
           />
-          <ul className="mt-7 grid gap-x-8 gap-y-3.5 sm:grid-cols-2">
+          <ul className="mt-7 grid grid-cols-1 gap-x-8 gap-y-3.5 sm:grid-cols-2">
             {PAINS.map((pain) => (
               <li key={pain} className="flex gap-3 text-[15px] leading-snug text-pretty">
                 <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-brand-navy/12 text-brand-navy">
@@ -269,7 +269,7 @@ export default async function HomePage() {
             note="Три направления. Не уверены, какое ваше — на витрине есть тест на четыре вопроса."
             action={{ href: '/courses', label: 'Все обучения' }}
           />
-          <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {trainings.slice(0, 3).map((course, i) => {
               const key = courseKey(course);
               const landing = getCourseLanding(key);
@@ -301,7 +301,7 @@ export default async function HomePage() {
             note="Настоящие уроки. Посмотрите, как мы объясняем, прежде чем платить."
             action={{ href: '/free', label: 'Все материалы' }}
           />
-          <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {freeLessons.slice(0, 3).map((lesson, i) => (
               <li key={lesson.key}>
                 <CoverCard

@@ -164,7 +164,7 @@ export default async function CourseLandingPage({ params }: {
               title="Что обычно идёт не так"
               note="Если узнали хотя бы два пункта — программа про вас."
             />
-            <ul className="mt-7 grid gap-x-8 gap-y-3.5 sm:grid-cols-2">
+            <ul className="mt-7 grid grid-cols-1 gap-x-8 gap-y-3.5 sm:grid-cols-2">
               {landing.pains.map((pain) => (
                 <li key={pain} className="flex gap-3 text-[15px] leading-snug text-pretty">
                   <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-brand-navy/12 text-brand-navy">
@@ -186,7 +186,7 @@ export default async function CourseLandingPage({ params }: {
             title="Что будет на выходе"
             note="Конкретные вещи, которые останутся в вашем проекте."
           />
-          <ul className="grid gap-4 sm:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {landing.results.map((item, i) => (
               <li
                 key={item.title}
@@ -240,7 +240,7 @@ export default async function CourseLandingPage({ params }: {
             title="Кому подойдёт"
             note="Хотя бы один пункт про вас — обучение зайдёт."
           />
-          <ul className="grid gap-4 sm:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {landing.audience.map((item) => (
               <li key={item.title} className="flex gap-3.5 rounded-2xl border border-border bg-card/60 p-5">
                 <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-green/15 text-brand-forest">
@@ -278,7 +278,7 @@ export default async function CourseLandingPage({ params }: {
             note="Там программу пишут методисты по шаблону и обновляют раз в год.\nЗдесь — практик, который переписывает урок, когда меняется инструмент."
             action={{ href: '/faq', label: 'Все возражения' }}
           />
-          <ul className="grid gap-4 sm:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {landing.why.map((item) => (
               <li key={item.title} className="rounded-2xl border border-border bg-card/60 p-5 sm:p-6">
                 <p className="font-heading text-lg font-semibold tracking-tight">{item.title}</p>
@@ -293,7 +293,7 @@ export default async function CourseLandingPage({ params }: {
       {landing.format.length > 0 && (
         <section className="animate-rise space-y-6">
           <SectionHead eyebrow="формат" title="Как проходит обучение" />
-          <ul className="grid gap-4 sm:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {landing.format.map((item, i) => (
               <li
                 key={item.title}
@@ -316,7 +316,7 @@ export default async function CourseLandingPage({ params }: {
           color="oklch(0.2705 0.0677 258.4)"
           className="z-10 -top-4 left-5 text-lg -rotate-6 sm:-top-5 sm:left-9 sm:text-xl"
         />
-        <div className="grid gap-8 rounded-3xl border border-border bg-secondary/50 px-6 py-9 sm:px-10 sm:py-11 lg:grid-cols-[1.1fr_1fr]">
+        <div className="grid grid-cols-1 gap-8 rounded-3xl border border-border bg-secondary/50 px-6 py-9 sm:px-10 sm:py-11 lg:grid-cols-[1.1fr_1fr]">
           <div className="space-y-4">
             <p className="font-mono text-sm text-primary">$ {cont ? 'ваш доступ' : 'стоимость'}</p>
             <h2 className="font-heading text-2xl font-semibold tracking-tight text-balance sm:text-3xl">

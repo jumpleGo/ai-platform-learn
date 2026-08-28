@@ -8,7 +8,7 @@ export function SiteFooter() {
   const year = new Date().getFullYear();
   return (
     <footer data-app-footer className="mt-20 border-t border-border/70 bg-secondary/40">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
         <div className="space-y-3">
           <Link href="/" className="inline-flex">
             <GelatoLogo className="h-9 sm:h-11" />

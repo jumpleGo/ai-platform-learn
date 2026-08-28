@@ -12,8 +12,8 @@ export default function HomeLoading() {
       {[0, 1].map((section) => (
         <div key={section} className="space-y-5">
           <div className="flex items-end justify-between gap-4">
-            <div className="space-y-2">
-              <Skeleton className="h-7 w-56" />
+            <div className="min-w-0 space-y-2">
+              <Skeleton className="h-7 w-56 max-w-full" />
               <Skeleton className="h-4 w-80 max-w-full" />
             </div>
             <Skeleton className="h-8 w-16 shrink-0" />

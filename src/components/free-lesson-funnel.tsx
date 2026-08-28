@@ -24,7 +24,7 @@ export function FreeLessonAfterVideo({ content, materials, ctaHref }: {
         <h2 id="lesson-results" className="mt-2 max-w-2xl font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
           Что вы поймёте после просмотра
         </h2>
-        <ul className="mt-6 grid gap-3 sm:grid-cols-3">
+        <ul className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {content.outcomes.map((outcome) => (
             <li key={outcome} className="flex min-h-32 flex-col justify-between gap-5 rounded-2xl bg-secondary p-5 text-base font-medium leading-relaxed sm:min-h-40">
               <span>{outcome}</span>

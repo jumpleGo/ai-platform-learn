@@ -75,7 +75,7 @@ export default function FaqPage() {
       ))}
 
       {/* Осталось что-то — пишите. Отдельно вынесен запрос на внедрение и сотрудничество */}
-      <section className="animate-rise grid gap-5 lg:grid-cols-[1.15fr_1fr]">
+      <section className="animate-rise grid grid-cols-1 gap-5 lg:grid-cols-[1.15fr_1fr]">
         <div className="rounded-3xl border-2 border-dashed border-primary/30 bg-brand-yellow px-6 py-8 sm:px-9 sm:py-10">
           <p className="font-mono text-sm text-brand-charcoal/70">остались вопросы</p>
           <h2 className="mt-2 max-w-md font-heading text-2xl font-semibold tracking-tight text-balance sm:text-3xl">

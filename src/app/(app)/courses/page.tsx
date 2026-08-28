@@ -42,7 +42,7 @@ export default async function CoursesPage() {
             title="Все обучения"
             note="Внутри каждой страницы — для кого, что настроите, формат и стоимость."
           />
-          <ul className="grid gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
             {trainings.map((course, i) => {
               const key = courseKey(course);
               const landing = getCourseLanding(key);
