@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isLocked } from '@/lib/access';
+import { hasCourseAccess, isLocked } from '@/lib/access';
 import type { Subscription } from '@/lib/types';
 
 const sub = (over: Partial<Subscription> = {}): Subscription => ({
@@ -33,5 +33,21 @@ describe('isLocked', () => {
   });
   it('подписка на все курсы (courseIds=null) открывает любой курс', () => {
     expect(isLocked({ access: 'paid', courseId: 'c2' }, sub({ courseIds: null }), 1000)).toBe(false);
+  });
+});
+
+describe('hasCourseAccess', () => {
+  it('без подписки доступа нет', () => {
+    expect(hasCourseAccess('c1', null, 1000)).toBe(false);
+  });
+  it('полная подписка открывает любой курс', () => {
+    expect(hasCourseAccess('c1', sub({ courseIds: null }), 1000)).toBe(true);
+  });
+  it('подписка на конкретный курс открывает только его', () => {
+    expect(hasCourseAccess('c1', sub({ courseIds: ['c1'] }), 1000)).toBe(true);
+    expect(hasCourseAccess('c2', sub({ courseIds: ['c1'] }), 1000)).toBe(false);
+  });
+  it('истёкшая подписка не открывает курс', () => {
+    expect(hasCourseAccess('c1', sub({ expiresAt: 500 }), 1000)).toBe(false);
   });
 });

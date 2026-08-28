@@ -45,6 +45,9 @@ export interface Lesson {
   durationSec: number | null;
   order: number;
   access: Access;
+  // Снятый с публикации урок не показывается нигде и отдаёт 404 по прямой ссылке.
+  // У старых уроков поля нет — undefined читается как опубликованный
+  published: boolean;
   // Markdown-материалы урока (конспект, ссылки, горячие клавиши); рендерятся компонентом Markdown
   materials: string;
   // Накопленное число просмотров — растёт при открытии урока

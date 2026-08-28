@@ -67,6 +67,13 @@ function Inlines({ tokens }: { tokens: Inline[] }) {
 }
 
 // Рендер markdown-материалов урока
+// Строка контента с простой разметкой внутри: **жирный**, *курсив*, `код`,
+// ссылки. Нужна там, где текст из lib рендерится как обычный текст абзаца —
+// сам по себе он разметку не разбирает.
+export function RichText({ text }: { text: string }) {
+  return <Inlines tokens={parseInline(text)} />;
+}
+
 export function Markdown({ source, className }: { source: string; className?: string }) {
   const blocks = parseBlocks(source);
   if (blocks.length === 0) return null;

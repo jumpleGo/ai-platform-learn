@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import type { Access, Lesson } from '@/lib/types';
 import { getCourseWithLessons } from '@/lib/db/admin-courses';
+import { isLessonPublished } from '@/lib/access';
 import { getLessonBannerStats, type BannerStat } from '@/lib/db/banner-stats';
 import {
   BANNER_SLOTS, SLOT_TITLES, VARIANT_IDS, slotVariants, variantLabel, type BannerSlot,
@@ -262,6 +263,20 @@ function LessonFields({ idPrefix, lesson, courseAccess, courseIsTest, lessonPubl
             <option value="paid">По подписке</option>
           </select>
         </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="flex h-8 items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="published"
+              defaultChecked={lesson ? isLessonPublished(lesson) : true}
+            />
+            Опубликован
+          </label>
+          <p className="text-xs text-muted-foreground">
+            Снимите&nbsp;— урок пропадёт с&nbsp;витрин, из&nbsp;меню курса и&nbsp;карты сайта,
+            а&nbsp;прямая ссылка отдаст 404. Номера остальных уроков не&nbsp;сдвинутся.
+          </p>
+        </div>
       </div>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor={`${idPrefix}-preview`}>Превью-обложка</Label>
@@ -483,6 +498,7 @@ export default async function AdminCoursePage({
               <Badge variant="outline">
                 {lesson.access === 'paid' ? 'По подписке' : 'Бесплатный'}
               </Badge>
+              {!isLessonPublished(lesson) && <Badge variant="destructive">Скрыт</Badge>}
               <span className="text-sm text-muted-foreground">
                 {lesson.durationSec != null ? `${lesson.durationSec} сек` : 'без длительности'}
               </span>
@@ -511,7 +527,8 @@ export default async function AdminCoursePage({
               <form
                 key={valuesKey([
                   lesson.title, lesson.description, lesson.videoEmbedUrl,
-                  lesson.durationSec, lesson.access, lesson.materials, lesson.previewImageUrl,
+                  lesson.durationSec, lesson.access, lesson.published, lesson.materials,
+                  lesson.previewImageUrl,
                   lesson.hideHeader, lesson.hideFooter, lesson.hideBackLink, lesson.hideLessonsNav,
                   JSON.stringify(lesson.marketingVariants ?? null),
                   JSON.stringify(lesson.relatedVariants ?? null),

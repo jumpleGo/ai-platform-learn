@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { LessonCard, type LessonCardData } from './lesson-card';
 import { CourseBadge } from './course-badge';
 import { plural } from '@/lib/utils';
+import { plainText } from '@/lib/markdown';
 
 export function CourseCarousel({ course, lessons, lockedIds }: {
   // только нужные поля курса — полный объект (с уроками) в клиент не уходит
@@ -77,7 +78,7 @@ export function CourseCarousel({ course, lessons, lockedIds }: {
             )}
           </h2>
           {course.description && (
-            <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">{course.description}</p>
+            <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">{plainText(course.description)}</p>
           )}
         </div>
         <div className="flex shrink-0 items-center gap-3 pb-1">

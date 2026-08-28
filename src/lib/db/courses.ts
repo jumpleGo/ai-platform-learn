@@ -4,8 +4,13 @@ import { unstable_cache, revalidateTag } from 'next/cache';
 import { adminDb } from '@/lib/firebase/admin';
 import type { Course, Lesson } from '@/lib/types';
 import { parseLessonNumber } from '@/lib/slug';
+import { isLessonPublished } from '@/lib/access';
 
-export type CourseWithLessons = Course & { lessons: Lesson[] };
+// Номер урока — его позиция в полном списке курса, он же сегмент URL. Считается
+// до отсева снятых с публикации: скрытие урока не сдвигает адреса соседних
+export type NumberedLesson = Lesson & { number: number };
+
+export type CourseWithLessons = Course & { lessons: NumberedLesson[] };
 
 export const getPublishedCoursesWithLessons = unstable_cache(
   async (): Promise<CourseWithLessons[]> => {
@@ -16,7 +21,9 @@ export const getPublishedCoursesWithLessons = unstable_cache(
       const lessons = await d.ref.collection('lessons').orderBy('order').get();
       return {
         id: d.id, ...(d.data() as Omit<Course, 'id'>),
-        lessons: lessons.docs.map((l) => ({ id: l.id, courseId: d.id, ...(l.data() as Omit<Lesson, 'id' | 'courseId'>) })),
+        lessons: lessons.docs
+          .map((l, i) => ({ id: l.id, courseId: d.id, ...(l.data() as Omit<Lesson, 'id' | 'courseId'>), number: i + 1 }))
+          .filter(isLessonPublished),
       };
     }));
     return courses.sort((a, b) => a.order - b.order);
@@ -62,10 +69,13 @@ export const resolveLesson = cache(async function resolveLesson(
     : snap.docs.findIndex((d) => d.id === lessonKeyParam);
   const doc = index >= 0 ? snap.docs[index] : undefined;
   if (!doc) return null;
+  const lesson = { id: doc.id, courseId: course.id, ...(doc.data() as Omit<Lesson, 'id' | 'courseId'>) };
+  // снятый с публикации урок недоступен и по прямой ссылке — страница отдаст notFound
+  if (!isLessonPublished(lesson)) return null;
 
   return {
     course,
-    lesson: { id: doc.id, courseId: course.id, ...(doc.data() as Omit<Lesson, 'id' | 'courseId'>) },
+    lesson,
     number: index + 1,
     publishedAt: doc.createTime.toDate().toISOString(),
   };
@@ -77,6 +87,7 @@ export async function getLesson(courseId: string, lessonId: string): Promise<{ c
   if (!(courseSnap.data() as { published?: boolean }).published) return null;
   const lessonSnap = await adminDb.doc(`courses/${courseId}/lessons/${lessonId}`).get();
   if (!lessonSnap.exists) return null;
+  if (!isLessonPublished(lessonSnap.data() as Lesson)) return null;
   return {
     course: { id: courseSnap.id, ...(courseSnap.data() as Omit<Course, 'id'>) },
     lesson: { id: lessonSnap.id, courseId, ...(lessonSnap.data() as Omit<Lesson, 'id' | 'courseId'>) },

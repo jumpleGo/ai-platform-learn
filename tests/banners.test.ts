@@ -9,7 +9,7 @@ function variant(id: string, weight: number, html = `<b>${id}</b>`): LessonBanne
 function lesson(fields: Partial<Lesson>): Lesson {
   return {
     id: 'l1', courseId: 'c1', title: 'Урок', description: '', videoEmbedUrl: '',
-    durationSec: null, order: 0, access: 'free', materials: '', views: 0,
+    durationSec: null, order: 0, access: 'free', published: true, materials: '', views: 0,
     previewImageUrl: null, hideHeader: false, hideFooter: false, hideBackLink: false,
     hideLessonsNav: false, marketingVariants: [], relatedVariants: [],
     marketingHtml: null, relatedHtml: null, ...fields,

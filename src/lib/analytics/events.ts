@@ -15,4 +15,7 @@ export const EVENTS = {
   videoCompleted: 'video_complete',            // props: lesson_id
   lessonCtaClicked: 'lesson_cta_click',        // props: lesson_id, cta_position, destination
   telegramClicked: 'telegram_click',           // props: lesson_id, cta_position
+  quizStarted: 'quiz_started',                 // props: place
+  quizCompleted: 'quiz_completed',             // props: result_slug
+  homeViewed: 'home_view',                     // props: variant (A/B главной)
 } as const;

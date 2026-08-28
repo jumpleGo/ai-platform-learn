@@ -4,6 +4,8 @@ import localFont from "next/font/local";
 import { Toaster } from "@/components/ui/sonner";
 import { NavigationProgress } from "@/components/navigation-progress";
 import { PostHogProvider } from "@/lib/analytics/posthog-client";
+import { InlineTextEditor } from "@/components/dev/inline-text-editor";
+import { YandexMetrika } from "@/components/yandex-metrika";
 import "./globals.css";
 
 // Вся типографика на двух гарнитурах, обе с кириллицей.
@@ -70,6 +72,8 @@ export default function RootLayout({
         <NavigationProgress />
         <PostHogProvider>{children}</PostHogProvider>
         <Toaster />
+        {process.env.NODE_ENV === "development" ? <InlineTextEditor /> : null}
+        {process.env.NODE_ENV === "production" ? <YandexMetrika /> : null}
       </body>
     </html>
   );

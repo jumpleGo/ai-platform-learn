@@ -15,6 +15,8 @@ export type LessonCardData = {
   courseId: string;
   // Ключ курса для URL (slug, у старых курсов — id)
   courseKey: string;
+  // Номер урока в курсе — сегмент URL и подпись на обложке
+  number: number;
   title: string;
   durationSec: number | null;
   views: number;
@@ -30,11 +32,11 @@ export function LessonCard({ lesson, index, locked, isTest, testToastMessage }: 
   isTest?: boolean;
   testToastMessage?: string | null;
 }) {
-  const num = String(index + 1).padStart(2, '0');
+  const num = String(lesson.number).padStart(2, '0');
   const views = lesson.views ?? 0;
   return (
     <Link
-      href={isTest ? waitlistPath(lesson.courseKey) : lessonPath(lesson.courseKey, index + 1)}
+      href={isTest ? waitlistPath(lesson.courseKey) : lessonPath(lesson.courseKey, lesson.number)}
       onClick={isTest ? () => {
         toast(testToastMessage || 'Курс скоро откроется');
         void trackTestCourseClick(lesson.courseId);

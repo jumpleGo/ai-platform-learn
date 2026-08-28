@@ -1,0 +1,935 @@
+/* Нарисованная главная. Полотно — картинка 1600×7006, всё живое лежит поверх
+   абсолютными процентами от него. Размеры шрифтов и спрайтов заданы в cqw
+   (доля ширины полотна), поэтому композиция одинакова на любом экране, а у
+   текста есть нижний предел читаемости. */
+
+.scene {
+  --ink: #20232a;
+  --navy: #102647;
+  --cream: #fdfcee;
+  --red: #c32b24;
+  background: #f3e4c8;
+  overflow-x: clip;
+}
+
+.scene-stage {
+  container-type: inline-size;
+  position: relative;
+  width: 100%;
+  max-width: 1920px;
+  margin-inline: auto;
+  aspect-ratio: 1600 / 7006;
+  isolation: isolate;
+}
+
+/* На узком экране полотно во всю ширину даёт слишком мелкие «поля» рисунка:
+   текст перестаёт влезать в пустую стену и наезжает на героев. Поэтому на
+   мобильном подъезжаем ближе — полотно шире экрана, края уходят в обрез,
+   а композиция и подписи остаются читаемыми. */
+@media (max-width: 700px) {
+  .scene-stage {
+    /* Мобильная версия — отдельная крупная раскадровка, а не уменьшенный
+       десктоп: ключевые персонажи занимают больше экрана, края работают
+       как кинематографический кроп. */
+    --mobile-canvas: 152vw;
+    width: var(--mobile-canvas);
+    max-width: none;
+    margin-left: calc(50% - var(--mobile-canvas) / 2);
+  }
+}
+
+/* ── полотно ─────────────────────────────────────────────────────────────── */
+
+.scene-slice {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  /* высота задаётся инлайном в процентах — куски стыкуются без волосяной щели */
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* ── текстовые станции ───────────────────────────────────────────────────── */
+
+.scene-copy {
+  position: absolute;
+  --l: 6%;
+  --r: 6%;
+  --t: 0%;
+  left: var(--l);
+  right: var(--r);
+  top: var(--t);
+  color: var(--ink);
+  /* Плашки под текстом нет: вместо неё кремовое свечение по контуру букв.
+     На стене его не видно, на брусчатке и песке оно вытягивает контраст,
+     не пряча рисунок под мутным прямоугольником. */
+  text-shadow: 0 0 0.55cqw var(--cream), 0 0 1.4cqw var(--cream),
+    0 0 3cqw rgba(253, 252, 238, 0.85);
+}
+
+/* На брусчатке свечения по буквам не хватает — рисунок слишком дробный.
+   Там текст ложится на бумажную плашку в духе баннеров бренда. */
+.scene-copy[data-plate] {
+  padding: 2.2cqw 2.6cqw;
+  border-radius: 1.4cqw;
+  border: 0.13cqw dashed rgba(16, 38, 71, 0.26);
+  background: rgba(253, 252, 238, 0.94);
+  box-shadow: 0 0.6cqw 1.8cqw rgba(90, 58, 22, 0.18);
+  text-shadow: none;
+}
+
+/* Компактные карточки вокруг таксы: оставляем больше воздуха иллюстрации. */
+.scene-project,
+.scene-pains-copy,
+.scene-side-note {
+  padding: 1.35cqw 1.55cqw;
+  border-radius: 1cqw;
+}
+
+.scene-project .scene-title,
+.scene-pains-copy .scene-title {
+  font-size: clamp(1.2rem, 2.35cqw, 2.55rem);
+}
+
+.scene-project .scene-note,
+.scene-pains-copy .scene-pains,
+.scene-pains-copy .scene-kicker,
+.scene-side-note .scene-card-note {
+  font-size: clamp(0.74rem, 1.05cqw, 1.1rem);
+}
+
+.scene-side-note .scene-card-title {
+  font-size: clamp(0.9rem, 1.5cqw, 1.55rem);
+}
+
+.scene-eyebrow {
+  font-family: var(--font-bips), var(--font-manrope), sans-serif;
+  font-size: clamp(0.85rem, 1.5cqw, 1.6rem);
+  color: var(--red);
+  letter-spacing: 0.02em;
+}
+
+.scene-title {
+  margin-top: 0.35em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.06;
+  text-wrap: balance;
+  font-size: clamp(1.5rem, 3.3cqw, 3.5rem);
+}
+
+.scene-note {
+  /* переносы строк в контенте осмысленные: JSX схлопывает исходные */
+  white-space: pre-line;
+  margin-top: 0.7em;
+  line-height: 1.45;
+  text-wrap: pretty;
+  color: #3b3a33;
+  font-size: clamp(0.82rem, 1.35cqw, 1.4rem);
+}
+
+.scene-cards {
+  display: grid;
+  gap: clamp(1rem, 2.4cqw, 2.6rem);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.scene-card-title {
+  /* переносы строк в контенте осмысленные: JSX схлопывает исходные */
+  white-space: pre-line;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  font-size: clamp(1rem, 1.85cqw, 1.9rem);
+}
+
+.scene-card-note {
+  /* переносы строк в контенте осмысленные: JSX схлопывает исходные */
+  white-space: pre-line;
+  margin-top: 0.45em;
+  line-height: 1.45;
+  text-wrap: pretty;
+  color: #3f3e36;
+  font-size: clamp(0.78rem, 1.25cqw, 1.3rem);
+}
+
+.scene-pains {
+  margin-top: 1em;
+  display: grid;
+  gap: 0.55em;
+  font-size: clamp(0.8rem, 1.3cqw, 1.35rem);
+  line-height: 1.4;
+}
+
+.scene-pains li {
+  display: flex;
+  gap: 0.6em;
+  text-wrap: pretty;
+}
+
+.scene-pains li::before {
+  content: '—';
+  color: var(--red);
+  flex: none;
+}
+
+.scene-kicker {
+  margin-top: 1.1em;
+  font-family: var(--font-bips), var(--font-manrope), sans-serif;
+  font-size: clamp(0.8rem, 1.35cqw, 1.4rem);
+  color: var(--navy);
+}
+
+/* ── финал на горах ──────────────────────────────────────────────────────── */
+
+.scene-mountain-shade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(8, 18, 20, 0),
+    rgba(8, 18, 20, 0.24) 24%,
+    rgba(8, 18, 20, 0.3) 58%,
+    rgba(8, 18, 20, 0.12) 86%,
+    rgba(8, 18, 20, 0)
+  );
+  pointer-events: none;
+}
+
+.scene-mountain-shade[data-reveal] {
+  opacity: 0;
+  transform: none;
+  transition: opacity 1.1s ease;
+}
+
+.scene-mountain-shade[data-reveal][data-in] {
+  opacity: 1;
+}
+
+.scene-finale {
+  position: absolute;
+  left: 16%;
+  right: 16%;
+  text-align: center;
+  color: var(--cream);
+  text-shadow: none;
+}
+
+.scene-finale .scene-title,
+.scene-finale .scene-note {
+  color: var(--cream);
+}
+
+.scene-finale .scene-eyebrow {
+  color: #f4e194;
+}
+
+.scene-actions {
+  margin-top: clamp(1rem, 2.2cqw, 2.4rem);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(0.5rem, 1.1cqw, 1.2rem);
+  font-size: clamp(0.8rem, 1.25cqw, 1.3rem);
+}
+
+.scene-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.72em 1.5em;
+  border-radius: 999px;
+  font-weight: 500;
+  border: 1.5px solid transparent;
+  text-shadow: none;
+  transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.scene-btn--solid {
+  background: var(--cream);
+  color: var(--navy);
+}
+
+.scene-btn--ghost {
+  border-color: rgba(253, 252, 238, 0.5);
+  color: var(--cream);
+}
+
+.scene-btn:hover {
+  transform: translateY(-0.15em);
+}
+
+.scene-btn--ghost:hover {
+  border-color: var(--cream);
+  background: rgba(253, 252, 238, 0.12);
+}
+
+/* ── вывеска-наклейка на маркизе ─────────────────────────────────────────── */
+
+.scene-sign {
+  position: absolute;
+  --fold-l: 0px;
+  --fold-r: 0px;
+  /* Наклейка приклеена с наклоном: верхний край отходит от маркизы, поэтому
+     она сразу читается как наклейка, а не как впечатанная надпись.
+     Центрирование держим здесь же: рядом с transform свойство translate
+     теряется при сборке стилей. */
+  transform: translate(-50%, -50%) perspective(60cqw) rotateX(15deg) rotate(-1.6deg)
+    translateY(-0.5cqw);
+  transform-origin: 50% 12%;
+  cursor: pointer;
+  /* Тень висит на обёртке, а не на картинке: её ничего не обрезает, поэтому
+     drop-shadow идёт по альфе логотипа и повторяет неровный ободок наклейки.
+     Три слоя: контактный, основной и мягкий рассеянный. */
+  filter: drop-shadow(0 0.1cqw 0.08cqw rgba(52, 26, 10, 0.4))
+    drop-shadow(0 0.42cqw 0.4cqw rgba(60, 30, 12, 0.3))
+    drop-shadow(0 1cqw 1.3cqw rgba(40, 20, 8, 0.18));
+  /* Оба сгиба живут независимо и анимируются оба сразу: когда курсор
+     переходит на другую половину, прежний край успевает мягко разогнуться. */
+  transition: --fold-l 0.5s cubic-bezier(0.3, 0.8, 0.3, 1),
+    --fold-r 0.5s cubic-bezier(0.3, 0.8, 0.3, 1);
+}
+
+@property --fold-l {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --fold-r {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+.scene-sign-face {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Слева срезан уголок, справа — вертикальная полоса: там силуэт не доходит до
+   угла рамки, и срез угла ничего бы не дал. Оба выреза в одном clip-path,
+   иначе на переходе один из них щёлкал бы. Тень живёт на .scene-sign, иначе
+   clip-path срубил бы ей края. */
+.scene-sign-face {
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--fold-r)) 0,
+    calc(100% - var(--fold-r)) 100%,
+    var(--fold-l) 100%,
+    0 calc(100% - var(--fold-l))
+  );
+}
+
+/* Отогнутый клочок — зеркальное отражение наклейки относительно линии сгиба */
+.scene-sign-curl {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mask: url('/logo.webp') 0 0 / 100% 100% no-repeat;
+  -webkit-mask: url('/logo.webp') 0 0 / 100% 100% no-repeat;
+}
+
+.scene-sign-curl--left {
+  background: linear-gradient(45deg, #cdbc98 0%, #efe6cd 45%, #fffdf4 100%);
+  clip-path: polygon(0 calc(100% - var(--fold-l)), var(--fold-l) 100%, 0 100%);
+  transform-origin: calc(var(--fold-l) / 2) calc(100% - var(--fold-l) / 2);
+  transform: rotate(45deg) scaleY(-1) rotate(-45deg);
+}
+
+.scene-sign-curl--right {
+  background: linear-gradient(90deg, #fffdf4 0%, #efe6cd 45%, #cdbc98 100%);
+  clip-path: inset(0 0 0 calc(100% - var(--fold-r)));
+  transform-origin: calc(100% - var(--fold-r)) 50%;
+  transform: scaleX(-1);
+}
+
+.scene-sign[data-fold-corner='left']:hover,
+.scene-sign[data-fold-corner='left']:focus-visible {
+  --fold-l: 3.6cqw;
+}
+
+.scene-sign[data-fold-corner='left']:active {
+  --fold-l: 4.6cqw;
+}
+
+/* Правый загиб идёт по всей высоте, поэтому он мельче углового: иначе
+   отогнутый клочок съедает последние буквы. */
+.scene-sign[data-fold-corner='right']:hover,
+.scene-sign[data-fold-corner='right']:focus-visible {
+  --fold-r: 1.9cqw;
+}
+
+.scene-sign[data-fold-corner='right']:active {
+  --fold-r: 2.6cqw;
+}
+
+/* ── наклейка-штамп ──────────────────────────────────────────────────────── */
+
+.scene-stamp {
+  position: absolute;
+  translate: -50% -50%;
+  rotate: -8deg;
+  padding: 0.45em 0.9em 0.35em;
+  border: 0.16cqw solid var(--navy);
+  border-radius: 0.4cqw;
+  background: var(--cream);
+  color: var(--navy);
+  font-family: var(--font-bips), var(--font-manrope), sans-serif;
+  font-size: clamp(0.7rem, 1.25cqw, 1.3rem);
+  line-height: 1.05;
+  white-space: nowrap;
+  box-shadow: 0 0.25cqw 0.4cqw rgba(60, 30, 12, 0.22);
+  transition: rotate 0.4s cubic-bezier(0.32, 1.5, 0.52, 1), scale 0.4s ease;
+}
+
+.scene-stamp:hover {
+  rotate: -2deg;
+  scale: 1.05;
+}
+
+/* ── арка входа ──────────────────────────────────────────────────────────── */
+
+.scene-door {
+  position: absolute;
+  border-radius: 46% 46% 4% 4% / 27% 27% 2% 2%;
+  transition: background-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.scene-door:hover,
+.scene-door:focus-visible {
+  background: radial-gradient(78% 66% at 50% 64%, rgba(255, 214, 92, 0.42), rgba(255, 214, 92, 0) 74%);
+  box-shadow: inset 0 -1.2cqw 3.6cqw rgba(255, 222, 130, 0.55);
+}
+
+.scene-door-label {
+  position: absolute;
+  left: 50%;
+  bottom: 101%;
+  translate: -50% 0.6cqw;
+  rotate: -5deg;
+  font-family: var(--font-bips), var(--font-manrope), sans-serif;
+  font-size: clamp(0.85rem, 1.7cqw, 1.8rem);
+  color: var(--red);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.35s ease, translate 0.35s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.scene-door:hover .scene-door-label,
+.scene-door:focus-visible .scene-door-label {
+  opacity: 1;
+  translate: -50% -0.4cqw;
+}
+
+/* ── лимоны ──────────────────────────────────────────────────────────────── */
+
+.scene-lemon {
+  position: absolute;
+  translate: -50% -50%;
+  will-change: transform;
+}
+
+.scene-lemon img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: none;
+}
+
+/* из окна: свободное падение с вращением, к концу растворяется «за кадром» */
+.scene-lemon--window {
+  transform: translate(calc(var(--q, 0) * 2cqw), calc(var(--q, 0) * var(--q, 0) * 98cqw))
+    rotate(calc(var(--q, 0) * 540deg));
+  opacity: calc((1 - var(--q, 0)) * 3.4);
+}
+
+/* по тропинке: позицию и угол считает скролл-движок */
+.scene-lemon--roll {
+  left: var(--lx, 58%);
+  top: var(--ly, 43%);
+  transform: rotate(var(--rot, 0deg)) scale(var(--lemon-scale, 1));
+  opacity: var(--lemon-opacity, 1);
+}
+
+/* ── кораблик ────────────────────────────────────────────────────────────── */
+
+.scene-boat {
+  position: absolute;
+  transform: translateX(calc((var(--q, 0) - 0.42) * 26cqw));
+  will-change: transform;
+}
+
+.scene-boat img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform-origin: 50% 82%;
+  animation: scene-sail 6.5s ease-in-out infinite;
+}
+
+@keyframes scene-sail {
+  0%,
+  100% {
+    rotate: -1.8deg;
+    translate: 0 0.25cqw;
+  }
+  50% {
+    rotate: 2deg;
+    translate: 0 -0.25cqw;
+  }
+}
+
+/* ── облачка мыслей ──────────────────────────────────────────────────────── */
+
+.scene-bubble {
+  white-space: pre-line;
+  position: absolute;
+  translate: -50% -50%;
+  padding: 0.6em 1.1em;
+  border: 0.17cqw solid var(--ink);
+  border-radius: 1.6cqw 1.9cqw 1.7cqw 2cqw;
+  background: var(--cream);
+  color: var(--ink);
+  font-size: clamp(0.72rem, 1.2cqw, 1.25rem);
+  line-height: 1.15;
+  white-space: nowrap;
+  animation: scene-float 5s ease-in-out infinite;
+}
+
+/* два пузырька-хвостика в сторону героя */
+.scene-bubble::before,
+.scene-bubble::after {
+  content: '';
+  position: absolute;
+  border: 0.17cqw solid var(--ink);
+  border-radius: 50%;
+  background: var(--cream);
+}
+
+.scene-bubble::before {
+  width: 0.9cqw;
+  height: 0.9cqw;
+}
+
+.scene-bubble::after {
+  width: 0.5cqw;
+  height: 0.5cqw;
+}
+
+.scene-bubble[data-tail='down']::before {
+  left: 18%;
+  top: 100%;
+  margin-top: 0.35cqw;
+}
+
+.scene-bubble[data-tail='down']::after {
+  left: 13%;
+  top: 100%;
+  margin-top: 1.55cqw;
+}
+
+.scene-bubble[data-tail='right']::before {
+  right: 12%;
+  top: 100%;
+  margin-top: 0.35cqw;
+}
+
+.scene-bubble[data-tail='right']::after {
+  right: 7%;
+  top: 100%;
+  margin-top: 1.55cqw;
+}
+
+.scene-bubble[data-tail='left']::before {
+  left: 12%;
+  top: 100%;
+  margin-top: 0.35cqw;
+}
+
+.scene-bubble[data-tail='left']::after {
+  left: 7%;
+  top: 100%;
+  margin-top: 1.55cqw;
+}
+
+.scene-dots {
+  display: inline-flex;
+  gap: 0.3em;
+  margin-left: 0.45em;
+  vertical-align: middle;
+}
+
+.scene-dots i {
+  width: 0.32cqw;
+  height: 0.32cqw;
+  min-width: 3px;
+  min-height: 3px;
+  border-radius: 50%;
+  background: var(--red);
+  animation: scene-think 1.3s ease-in-out infinite;
+}
+
+.scene-dots i:nth-child(2) {
+  animation-delay: 0.16s;
+}
+
+.scene-dots i:nth-child(3) {
+  animation-delay: 0.32s;
+}
+
+@keyframes scene-think {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-0.28cqw);
+  }
+}
+
+@keyframes scene-float {
+  0%,
+  100% {
+    translate: -50% -50%;
+  }
+  50% {
+    translate: -50% -54%;
+  }
+}
+
+/* ── подсказка про скролл ────────────────────────────────────────────────── */
+
+.scene-hint {
+  position: fixed;
+  left: 50%;
+  bottom: 1.6rem;
+  z-index: 20;
+  translate: -50% 0;
+  rotate: -4deg;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-family: var(--font-bips), var(--font-manrope), sans-serif;
+  font-size: clamp(0.85rem, 1.6cqw, 1.7rem);
+  color: var(--red);
+  text-shadow: 0 0 0.5rem var(--cream), 0 0 1.2rem var(--cream);
+  white-space: nowrap;
+  transition: opacity 0.4s ease, translate 0.4s ease;
+}
+
+.scene-hint[data-hide] {
+  opacity: 0;
+  translate: -50% 0.8rem;
+  pointer-events: none;
+}
+
+.scene-hint svg {
+  width: 1.6em;
+  animation: scene-nudge 1.8s ease-in-out infinite;
+}
+
+@keyframes scene-nudge {
+  0%,
+  100% {
+    transform: translateY(-12%);
+  }
+  50% {
+    transform: translateY(22%);
+  }
+}
+
+/* ── плавающая навигация ─────────────────────────────────────────────────── */
+
+.scene-nav {
+  position: fixed;
+  top: 0.9rem;
+  right: 0.9rem;
+  z-index: 30;
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.3rem;
+  border-radius: 999px;
+  background: rgba(253, 252, 238, 0.82);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 18px rgba(60, 30, 12, 0.14);
+  opacity: 0;
+  transform: translateY(-0.6rem);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+
+.scene-nav[data-in] {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.scene-nav a {
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--navy);
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+
+.scene-nav a:hover {
+  background: rgba(16, 38, 71, 0.09);
+}
+
+.scene-nav a:last-child {
+  background: var(--navy);
+  color: var(--cream);
+}
+
+/* ── появление текста ────────────────────────────────────────────────────── */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(1.4cqw);
+  transition: opacity 0.75s ease, transform 0.75s cubic-bezier(0.2, 0.75, 0.2, 1);
+  transition-delay: var(--d, 0s);
+}
+
+[data-reveal][data-in] {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── уважение к настройке «меньше движения» ──────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-lemon--window,
+  .scene-boat {
+    transform: none;
+  }
+
+  .scene-lemon--window {
+    opacity: 1;
+  }
+
+  .scene-bubble,
+  .scene-boat img,
+  .scene-hint svg,
+  .scene-dots i {
+    animation: none;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .scene-sign {
+    transition: none;
+  }
+}
+
+/* ── юридический подвал ──────────────────────────────────────────────────── */
+
+.scene-legal {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4em 1.4em;
+  font-size: clamp(0.68rem, 1cqw, 1rem);
+  color: rgba(253, 252, 238, 0.72);
+  text-shadow: 0 0 0.6cqw rgba(10, 16, 22, 0.9), 0 0 1.6cqw rgba(10, 16, 22, 0.75);
+}
+
+.scene-legal a:hover {
+  color: var(--cream);
+  text-decoration: underline;
+}
+
+/* ── узкий экран: полотно в обрезе, текст тот же ─────────────────────────── */
+
+@media (max-width: 700px) {
+  /* Видимая полоса составляет около 66cqw. Карточки держим внутри неё и
+     собираем в самостоятельную мобильную колонку. */
+  .scene-copy {
+    left: 20.5%;
+    right: 20.5%;
+  }
+
+  .scene-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.8cqw;
+  }
+
+  .scene-copy[data-plate] {
+    padding: 1.25cqw 1.6cqw;
+    border: 0;
+    border-left: 0.55cqw solid rgba(195, 43, 36, 0.78);
+    border-radius: 0.45cqw 1.1cqw 1.1cqw 0.45cqw;
+    background: rgba(253, 252, 238, 0.86);
+    box-shadow: none;
+    backdrop-filter: blur(3px);
+  }
+
+  .scene-card-title {
+    font-size: clamp(0.92rem, 2.8cqw, 1.08rem);
+  }
+
+  .scene-card-note,
+  .scene-note,
+  .scene-pains,
+  .scene-kicker {
+    font-size: clamp(0.76rem, 2.25cqw, 0.9rem);
+    line-height: 1.34;
+  }
+
+  .scene-title {
+    font-size: clamp(1.42rem, 5.2cqw, 2rem);
+    line-height: 1.02;
+  }
+
+  /* Текст на телефоне тот же, что и на десктопе, только мельче — короткие
+     варианты подписей убраны вместе с переключателем. */
+
+  /* Первый экран на телефоне собирается как журнальный разворот: портрет
+     остаётся слева, а заголовок занимает свободную стену справа. */
+  .scene-hero {
+    /* правее рамки портрета: вплотную к её чёрному краю текст читается плохо */
+    left: 44.5%;
+    right: 20.5%;
+  }
+
+  .scene-hero .scene-title {
+    font-size: clamp(1.25rem, 4.1cqw, 1.65rem);
+    line-height: 1.04;
+  }
+
+  .scene-eyebrow {
+    font-size: clamp(0.78rem, 2.5cqw, 0.95rem);
+  }
+
+  .scene-project {
+    top: 50.8% !important;
+    right: 37%;
+  }
+
+  .scene-pains-copy {
+    top: 63.7% !important;
+    right: 34%;
+  }
+
+  .scene-side-note {
+    top: 71.2% !important;
+    left: 47%;
+  }
+
+  .scene-water-copy {
+    top: 78.8% !important;
+    left: 20.5%;
+    right: 52%;
+  }
+
+  .scene-water-copy .scene-title {
+    font-size: clamp(1.08rem, 3.7cqw, 1.4rem);
+    line-height: 1.04;
+  }
+
+  .scene-boat {
+    margin-left: 17cqw;
+    transform: translateX(calc((var(--q, 0) - 0.42) * 10cqw));
+  }
+
+  .scene-project .scene-title,
+  .scene-pains-copy .scene-title {
+    font-size: clamp(1.08rem, 3.7cqw, 1.4rem);
+  }
+
+  .scene-side-note .scene-card-title {
+    font-size: clamp(0.86rem, 2.65cqw, 1rem);
+  }
+
+  .scene-finale {
+    left: 21%;
+    right: 21%;
+  }
+
+  .scene-finale .scene-note {
+    margin-top: 0.55em;
+  }
+
+  .scene-actions {
+    display: grid;
+    gap: 1.4cqw;
+  }
+
+  .scene-btn {
+    justify-content: center;
+    width: 100%;
+    padding: 0.7em 1em;
+  }
+
+  /* облачко в одну строку не влезает в обрезанное полотно */
+  .scene-bubble {
+    white-space: normal;
+    max-width: 34cqw;
+    padding: 0.55em 0.8em;
+    border-width: 0.2cqw;
+    font-size: clamp(0.7rem, 2.15cqw, 0.84rem);
+  }
+
+  .scene-bubble--duck {
+    left: 38% !important;
+  }
+
+  .scene-bubble--table {
+    left: 65% !important;
+  }
+
+  .scene-bubble--dog {
+    left: 55% !important;
+  }
+
+  .scene-stamp {
+    left: 73% !important;
+    font-size: clamp(0.62rem, 2.1cqw, 0.8rem);
+  }
+}
+
+@media (max-width: 700px) {
+  .scene-nav {
+    top: auto;
+    right: auto;
+    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    left: 50%;
+    width: calc(100% - 1.25rem);
+    justify-content: center;
+    border: 1px solid rgba(16, 38, 71, 0.1);
+    background: rgba(253, 252, 238, 0.92);
+    box-shadow: 0 0.5rem 1.5rem rgba(30, 24, 18, 0.16);
+    transform: translate(-50%, 0.6rem);
+  }
+
+  .scene-nav[data-in] {
+    transform: translate(-50%, 0);
+  }
+
+  .scene-nav a {
+    flex: 1;
+    padding: 0.52rem 0.4rem;
+    text-align: center;
+    font-size: clamp(0.7rem, 3.2vw, 0.82rem);
+  }
+
+  .scene-hint {
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    font-size: 0.9rem;
+  }
+}

@@ -94,8 +94,9 @@ export type MaterialsTeaser = {
   intro: string | null;
 };
 
-// Разметка внутри строки нам в тизере не нужна — собираем чистый текст
-function plainText(text: string): string {
+// Разметка внутри строки нужна не везде: в карточках и тизерах текст короткий и
+// показывается как есть, поэтому маркеры **жирного** и прочее просто снимаем.
+export function plainText(text: string): string {
   return parseInline(text)
     .map((tok) => (tok.t === 'kbd' ? tok.keys.join('+') : tok.t === 'link' ? tok.label : tok.v))
     .join('')

@@ -67,6 +67,7 @@ function parseLessonFields(formData: FormData, videoRequired: boolean) {
     videoEmbedUrl,
     durationSec: durationRaw === '' || !Number.isFinite(durationNum) ? null : durationNum,
     access: parseAccess(formData.get('access')),
+    published: formData.get('published') === 'on',
     materials: String(formData.get('materials') ?? '').trim(),
     hideHeader: formData.get('hideHeader') === 'on',
     hideFooter: formData.get('hideFooter') === 'on',

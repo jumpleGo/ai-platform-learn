@@ -24,9 +24,9 @@ export default async function CourseLayout({ children, params }: {
   // курс ищем по slug, но принимаем и id — со старых ссылок страница урока делает редирект
   const course = courses.find((c) => courseKey(c) === courseSlug || c.id === courseSlug);
   const lessons = course?.lessons ?? [];
-  const items = lessons.map((l, i) => ({
+  const items = lessons.map((l) => ({
     id: l.id,
-    number: i + 1,
+    number: l.number,
     title: l.title,
     locked: isLocked(l, sub, now),
     completed: completedIds.has(l.id),

@@ -44,7 +44,7 @@ function Orb({ color, size, baseX, baseY, ax, ay, kx, ky, phase, opacity }: OrbP
   );
 }
 
-const GLYPHS = ['❯', '$', '{ }', 'claude', '▌', '</>', 'agent', '~/', 'npm run', '⌘', '◇', '·'];
+const GLYPHS = ['❯', '', '{ }', 'claude', '▌', '</>', 'agent', '~/', 'npm run', '⌘', '◇', '·'];
 
 function Glyph({ i, total }: { i: number; total: number }) {
   const frame = useCurrentFrame();
