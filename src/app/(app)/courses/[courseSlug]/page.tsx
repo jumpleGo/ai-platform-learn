@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { ArrowRight, ArrowUpRight, Check, Minus, Send } from 'lucide-react';
@@ -71,6 +72,17 @@ export async function generateMetadata({ params }: {
   };
 }
 
+// Плитки фактов в хиро — в цветах бренда
+const FACT_TONES = ['bg-brand-sky/45', 'bg-brand-yellow/55', 'bg-brand-green/25'] as const;
+
+// Плитки результата — в цветах бренда: это главный блок пользы на лендинге
+const RESULT_TONES = [
+  'bg-brand-sky/45',
+  'bg-brand-yellow/55',
+  'bg-brand-green/25',
+  'bg-brand-red/12',
+] as const;
+
 export default async function CourseLandingPage({ params }: {
   params: Promise<{ courseSlug: string }>;
 }) {
@@ -102,46 +114,65 @@ export default async function CourseLandingPage({ params }: {
     : null;
 
   return (
-    <div className="space-y-20 sm:space-y-24">
+    <div className="space-y-24 sm:space-y-32">
       {/* Хиро: оффер, факты и обе кнопки — оплатить или написать лично */}
-      <section className="animate-rise relative space-y-5 pt-4 sm:pt-8">
-        <p className="font-mono text-sm text-primary"> {landing.eyebrow}</p>
-        <h1 className="max-w-3xl font-heading text-4xl font-semibold tracking-tight text-balance sm:text-5xl/[1.08]">
-          {landing.h1}
-        </h1>
-        <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground text-pretty whitespace-pre-line"><RichText text={landing.lead} /></p>
+      <section className="animate-rise relative pt-6 sm:pt-10">
+        {/* Обложка обучения стоит справа от текста: без неё правая половина
+            первого экрана пустовала. */}
+        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-14">
+          <div>
+            <h1 className="font-heading text-[2.6rem]/[1.04] font-bold tracking-[-0.03em] text-balance text-brand-navy sm:text-[3.4rem]/[1.02]">
+              {landing.h1}
+            </h1>
+            <p className="mt-2.5 max-w-2xl text-lg leading-[1.35] text-muted-foreground text-pretty whitespace-pre-line sm:text-xl">
+              <RichText text={landing.lead} />
+            </p>
 
-        {landing.offer && !cont && (
-          <div className="flex w-fit flex-wrap items-center gap-3.5 rounded-2xl border-2 border-dashed border-primary/35 bg-primary/6 px-4 py-3">
-            <span className="font-marker text-3xl leading-none text-brand-red">{landing.offer.badge}</span>
-            <span className="max-w-xs text-sm leading-snug text-pretty">{landing.offer.text}</span>
+            {landing.offer && !cont && (
+              <div className="mt-6 flex w-fit flex-wrap items-center gap-3.5 rounded-2xl border-2 border-brand-navy/15 bg-brand-yellow px-4 py-3">
+                <span className="font-marker text-3xl leading-none text-brand-red">{landing.offer.badge}</span>
+                <span className="max-w-xs text-sm leading-snug font-medium text-brand-charcoal/85 text-pretty">
+                  {landing.offer.text}
+                </span>
+              </div>
+            )}
+
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              <PrimaryCta
+                cont={cont}
+                cta={landing.cta}
+                className="btn-goose inline-flex h-12 items-center gap-1.5 rounded-xl border-2 border-brand-navy px-6 text-[15px] font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-goose-red)] motion-reduce:hover:translate-y-0"
+              />
+              <a
+                href={TELEGRAM_DM}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy/20 bg-card/60 px-6 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
+              >
+                <Send className="size-4" aria-hidden />
+                Написать в личку
+              </a>
+            </div>
+            <p className="mt-2.5 text-xs text-muted-foreground">{cont?.hint ?? landing.cta.hint}</p>
           </div>
-        )}
 
-        <div className="flex flex-wrap items-center gap-3 pt-1">
-          <PrimaryCta
-            cont={cont}
-            cta={landing.cta}
-            className="inline-flex h-11 items-center gap-1.5 rounded-xl bg-primary px-6 text-[15px] font-medium text-primary-foreground shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md motion-reduce:hover:translate-y-0"
-          />
-          <a
-            href={TELEGRAM_DM}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex h-11 items-center gap-2 rounded-xl border border-border bg-card/60 px-6 text-[15px] font-medium transition-colors hover:border-primary/40 hover:text-primary"
-          >
-            <Send className="size-4" aria-hidden />
-            Написать в личку
-          </a>
+          {landing.cover && (
+            <div className="relative overflow-hidden rounded-3xl border-2 border-brand-navy/12">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={landing.cover} alt="" aria-hidden className="block aspect-[4/3] w-full object-cover" />
+            </div>
+          )}
         </div>
-        <p className="text-xs text-muted-foreground">{cont?.hint ?? landing.cta.hint}</p>
 
         {landing.facts.length > 0 && (
-          <ul className="flex flex-wrap gap-x-10 gap-y-5 pt-4">
-            {landing.facts.map((fact) => (
-              <li key={fact.label}>
+          <ul className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {landing.facts.map((fact, i) => (
+              <li
+                key={fact.label}
+                className={`rounded-2xl border-2 border-brand-navy/12 px-5 py-4 ${FACT_TONES[i % FACT_TONES.length]}`}
+              >
                 <p className="font-marker text-4xl leading-none text-brand-navy">{fact.value}</p>
-                <p className="mt-1.5 max-w-[10rem] text-sm leading-snug text-muted-foreground text-pretty">
+                <p className="mt-2 text-sm leading-snug font-medium text-brand-charcoal/80 text-pretty">
                   {fact.label}
                 </p>
               </li>
@@ -160,8 +191,8 @@ export default async function CourseLandingPage({ params }: {
           />
           <div className="rounded-3xl border-2 border-dashed border-primary/25 bg-brand-yellow/60 px-6 py-9 sm:px-10 sm:py-11">
             <SectionHead
-              eyebrow="боли"
               title="Что обычно идёт не так"
+              accent="не так"
               note="Самые популярные проблемы начинашек."
             />
             <ul className="mt-7 grid grid-cols-1 gap-x-8 gap-y-3.5 sm:grid-cols-2">
@@ -180,24 +211,24 @@ export default async function CourseLandingPage({ params }: {
 
       {/* Результаты */}
       {landing.results.length > 0 && (
-        <section className="animate-rise space-y-6">
+        <section className="animate-rise space-y-10">
           <SectionHead
-            eyebrow="результат"
             title="Что будет на выходе"
+            accent="на выходе"
             note="Конкретные вещи, которые останутся в вашем проекте."
           />
           <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {landing.results.map((item, i) => (
               <li
                 key={item.title}
-                className="animate-float flex min-h-32 flex-col justify-between gap-4 rounded-2xl bg-secondary p-5"
+                className={`animate-float flex min-h-32 flex-col justify-between gap-4 rounded-2xl border-2 border-brand-navy/12 p-5 ${RESULT_TONES[i % RESULT_TONES.length]}`}
                 style={{ '--rise-delay': `${i * 0.06}s` } as React.CSSProperties}
               >
                 <div>
-                  <p className="text-base leading-snug font-semibold">{item.title}</p>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground text-pretty">{item.note}</p>
+                  <p className="text-base leading-snug font-extrabold text-brand-navy">{item.title}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-brand-charcoal/80 text-pretty">{item.note}</p>
                 </div>
-                <span className="flex size-7 items-center justify-center rounded-full bg-primary/12 text-primary">
+                <span className="flex size-7 items-center justify-center rounded-full bg-brand-navy/12 text-brand-navy">
                   <Check className="size-4" aria-hidden />
                 </span>
               </li>
@@ -208,9 +239,8 @@ export default async function CourseLandingPage({ params }: {
 
       {/* Программа */}
       {landing.program.length > 0 && (
-        <section className="animate-rise space-y-6">
+        <section className="animate-rise space-y-10">
           <SectionHead
-            eyebrow="программа"
             title="Что внутри"
             note="Каждый пункт заканчивается практикой на вашем проекте."
           />
@@ -221,7 +251,7 @@ export default async function CourseLandingPage({ params }: {
                   {String(i + 1).padStart(2, '0')}
                 </span>
                 <div className="min-w-0">
-                  <p className="text-[15px] leading-snug font-semibold text-balance">{item.title}</p>
+                  <p className="text-[15px] leading-snug font-bold text-balance">{item.title}</p>
                   {item.note && (
                     <p className="mt-1 text-sm leading-relaxed text-muted-foreground text-pretty">{item.note}</p>
                   )}
@@ -234,9 +264,8 @@ export default async function CourseLandingPage({ params }: {
 
       {/* Кому подойдёт */}
       {landing.audience.length > 0 && (
-        <section className="animate-rise space-y-6">
+        <section className="animate-rise space-y-10">
           <SectionHead
-            eyebrow="для кого"
             title="Кому подойдёт"
             note="Хотя бы один пункт про вас — обучение зайдёт."
           />
@@ -247,7 +276,7 @@ export default async function CourseLandingPage({ params }: {
                   <Check className="size-3.5" aria-hidden />
                 </span>
                 <div>
-                  <p className="text-[15px] leading-snug font-semibold">{item.title}</p>
+                  <p className="text-[15px] leading-snug font-bold">{item.title}</p>
                   <p className="mt-1 text-sm leading-relaxed text-muted-foreground text-pretty">{item.note}</p>
                 </div>
               </li>
@@ -258,9 +287,8 @@ export default async function CourseLandingPage({ params }: {
 
       {/* Почему мы */}
       {landing.why.length > 0 && (
-        <section className="animate-rise space-y-6">
+        <section className="animate-rise space-y-10">
           <SectionHead
-            eyebrow="почему мы"
             title="Чем это отличается от курса на большой платформе"
             note="Там пишут методисты по шаблону и обновляют раз в год. Здесь — практик, который переписывает урок, когда меняется инструмент."
             action={{ href: '/faq', label: 'Все возражения' }}
@@ -268,7 +296,7 @@ export default async function CourseLandingPage({ params }: {
           <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {landing.why.map((item) => (
               <li key={item.title} className="rounded-2xl border border-border bg-card/60 p-5 sm:p-6">
-                <p className="font-heading text-lg font-semibold tracking-tight">{item.title}</p>
+                <p className="font-heading text-lg font-bold tracking-tight">{item.title}</p>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground text-pretty">{item.note}</p>
               </li>
             ))}
@@ -278,8 +306,8 @@ export default async function CourseLandingPage({ params }: {
 
       {/* Формат работы */}
       {landing.format.length > 0 && (
-        <section className="animate-rise space-y-6">
-          <SectionHead eyebrow="формат" title="Как проходит обучение" />
+        <section className="animate-rise space-y-10">
+          <SectionHead title="Как проходит обучение" />
           <ul className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {landing.format.map((item, i) => (
               <li
@@ -288,7 +316,7 @@ export default async function CourseLandingPage({ params }: {
                 style={{ '--rise-delay': `${i * 0.06}s` } as React.CSSProperties}
               >
                 <p className="font-mono text-xs text-muted-foreground">0{i + 1}</p>
-                <p className="mt-2 text-[15px] leading-snug font-semibold">{item.title}</p>
+                <p className="mt-2 text-[15px] leading-snug font-bold">{item.title}</p>
                 <p className="mt-1 text-sm leading-relaxed text-muted-foreground text-pretty">{item.note}</p>
               </li>
             ))}
@@ -303,13 +331,14 @@ export default async function CourseLandingPage({ params }: {
           color="oklch(0.2705 0.0677 258.4)"
           className="z-10 -top-4 left-5 text-lg -rotate-6 sm:-top-5 sm:left-9 sm:text-xl"
         />
-        <div className="grid grid-cols-1 gap-8 rounded-3xl border border-border bg-secondary/50 px-6 py-9 sm:px-10 sm:py-11 lg:grid-cols-[1.1fr_1fr]">
-          <div className="space-y-4">
-            <p className="font-mono text-sm text-primary">$ {cont ? 'ваш доступ' : ''}</p>
-            <h2 className="font-heading text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+        {/* Финальный CTA — бумажная текстура и рамка-тельняшка, как у баннеров
+            бренда: бледная плашка на этом месте не держала внимание. */}
+        <div className="banner-marine-frame grid grid-cols-1 gap-8 overflow-hidden rounded-3xl px-6 py-9 sm:px-10 sm:py-11 lg:grid-cols-[1.1fr_1fr]">
+          <div className="flex flex-col gap-4">
+            <h2 className="font-heading text-[1.9rem]/[1.05] font-extrabold tracking-[-0.025em] text-balance text-brand-navy sm:text-[2.4rem]/[1.02]">
               {cont ? 'Доступ открыт' : landing.price.value}
             </h2>
-            <p className="max-w-md leading-relaxed text-muted-foreground text-pretty">
+            <p className="max-w-md leading-relaxed font-medium text-brand-charcoal/80 text-pretty">
               {cont
                 ? `Обучение уже оплачено — ${cont.hint.toLowerCase()}. Прогресс сохраняется, возвращайтесь в любой момент.`
                 : landing.price.note}
@@ -318,27 +347,37 @@ export default async function CourseLandingPage({ params }: {
               <PrimaryCta
                 cont={cont}
                 cta={landing.cta}
-                className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl bg-primary px-6 text-[15px] font-medium text-primary-foreground shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md motion-reduce:hover:translate-y-0"
+                className="btn-scarf inline-flex h-12 items-center justify-center gap-1.5 rounded-xl border-2 border-brand-navy px-6 text-[15px] font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-scarf-green)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-scarf-green)] motion-reduce:hover:translate-y-0"
               />
               <a
                 href={TELEGRAM_DM}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 text-[15px] font-medium transition-colors hover:border-primary/40 hover:text-primary"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-brand-navy/25 bg-brand-cream/80 px-6 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
               >
                 <Send className="size-4" aria-hidden />
                 Написать в личку
               </a>
             </div>
+            {/* такса добивает блок картинкой: стоит под кнопками у левого края
+                и не спорит с составом обучения справа */}
+            <Image
+              src="/banner-lesson-dachshund.webp"
+              alt=""
+              width={660}
+              height={809}
+              aria-hidden
+              className="pointer-events-none mt-auto -mb-9 w-[150px] max-w-full select-none sm:-mb-11 sm:w-[210px]"
+            />
           </div>
 
           {landing.price.includes.length > 0 && (
-            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6">
-              <p className="font-mono text-xs tracking-wide text-muted-foreground uppercase">Что входит</p>
+            <div className="rounded-2xl border-2 border-brand-navy/15 bg-brand-cream/90 p-5 sm:p-6">
+              <p className="font-marker text-base text-brand-navy">Что входит</p>
               <ul className="mt-3.5 space-y-2.5">
                 {landing.price.includes.map((item) => (
-                  <li key={item} className="flex gap-3 text-sm leading-snug text-pretty">
-                    <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/12 text-primary">
+                  <li key={item} className="flex gap-3 text-sm leading-snug font-medium text-brand-charcoal/85 text-pretty">
+                    <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-brand-navy/12 text-brand-navy">
                       <Check className="size-3" aria-hidden />
                     </span>
                     {item}

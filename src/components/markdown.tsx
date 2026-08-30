@@ -84,8 +84,8 @@ export function Markdown({ source, className }: { source: string; className?: st
           case 'heading': {
             const cls =
               b.level === 2
-                ? 'mt-7 mb-2.5 font-heading text-xl font-semibold tracking-tight text-balance first:mt-0'
-                : 'mt-5 mb-2 font-heading text-base font-semibold tracking-tight first:mt-0';
+                ? 'mt-7 mb-2.5 font-heading text-xl font-bold tracking-tight text-balance first:mt-0'
+                : 'mt-5 mb-2 font-heading text-base font-bold tracking-tight first:mt-0';
             return b.level === 2
               ? <h2 key={i} className={cls}><Inlines tokens={parseInline(b.text)} /></h2>
               : <h3 key={i} className={cls}><Inlines tokens={parseInline(b.text)} /></h3>;

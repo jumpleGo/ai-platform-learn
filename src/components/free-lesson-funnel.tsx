@@ -1,15 +1,20 @@
 import Image from 'next/image';
 import { Check, ChevronDown } from 'lucide-react';
+import { Accent, StickerTag } from '@/components/accent';
 import { Markdown } from '@/components/markdown';
 import { FreeLessonCta, FreeLessonTelegramLink } from '@/components/free-lesson-cta';
 import { TELEGRAM_URL, type FreeLessonContent } from '@/lib/free-lessons';
 
+// Цвета плиток пользы: голубой, жёлтый, зелёный — по палитре бренда
+const OUTCOME_TONES = [
+  'bg-brand-sky text-brand-navy',
+  'bg-brand-yellow text-brand-charcoal',
+  'bg-brand-forest text-brand-cream',
+] as const;
+
 export function FreeLessonMarker() {
-  return (
-    <p className="font-mono text-sm font-medium tracking-wide text-primary uppercase">
-      Открытый урок из программы Gelato
-    </p>
-  );
+  // наклейка вместо мелкой надстрочной строки: тот же сигнал, но в стиле бренда
+  return <StickerTag tone="sky">открытый урок программы</StickerTag>;
 }
 
 export function FreeLessonAfterVideo({ content, materials, ctaHref }: {
@@ -19,16 +24,20 @@ export function FreeLessonAfterVideo({ content, materials, ctaHref }: {
 }) {
   return (
     <div className="space-y-8 sm:space-y-10">
-      <section aria-labelledby="lesson-results" className="rounded-3xl border border-border bg-card px-5 py-7 shadow-sm sm:px-8 sm:py-9">
-        <p className="font-mono text-sm font-medium tracking-wide text-primary uppercase">Результат урока</p>
-        <h2 id="lesson-results" className="mt-2 max-w-2xl font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-          Что вы поймёте после просмотра
+      <section aria-labelledby="lesson-results" className="rounded-3xl border border-border bg-card px-5 py-8 shadow-sm sm:px-8 sm:py-10">
+        <h2 id="lesson-results" className="max-w-2xl font-heading text-3xl font-extrabold tracking-tight text-balance sm:text-4xl">
+          Что вы <Accent>поймёте</Accent> после просмотра
         </h2>
-        <ul className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {content.outcomes.map((outcome) => (
-            <li key={outcome} className="flex min-h-32 flex-col justify-between gap-5 rounded-2xl bg-secondary p-5 text-base font-medium leading-relaxed sm:min-h-40">
-              <span>{outcome}</span>
-              <span className="flex size-7 items-center justify-center rounded-full bg-primary/12 text-primary">
+        {/* Польза — в цветах бренда: три плитки, каждая своим цветом, чтобы блок
+            читался как результат, а не как ещё один абзац текста. */}
+        <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {content.outcomes.map((outcome, i) => (
+            <li
+              key={outcome}
+              className={`flex min-h-36 flex-col justify-between gap-5 rounded-2xl p-5 text-base leading-snug font-semibold sm:min-h-44 ${OUTCOME_TONES[i % OUTCOME_TONES.length]}`}
+            >
+              <span className="text-balance">{outcome}</span>
+              <span className="flex size-7 items-center justify-center rounded-full bg-black/10">
                 <Check className="size-4" aria-hidden />
               </span>
             </li>
@@ -38,7 +47,7 @@ export function FreeLessonAfterVideo({ content, materials, ctaHref }: {
 
       {materials.trim() && (
         <details open className="group rounded-2xl border border-border bg-card/60 px-5 py-4 sm:px-6">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-semibold marker:content-none sm:text-lg">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-bold marker:content-none sm:text-lg">
             Дополнительные материалы и ссылки
             <ChevronDown className="size-5 shrink-0 text-primary transition-transform group-open:rotate-180" aria-hidden />
           </summary>

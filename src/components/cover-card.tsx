@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { plainText } from '@/lib/markdown';
+import { nbsp } from '@/lib/typography';
 
 // «Обложка цепляющая» из эскиза: крупная карточка-плитка для витрин бесплатных
 // материалов и обучений. Картинка — фон под текстом: название маркерным шрифтом лежит
@@ -105,7 +106,7 @@ export function CoverCard({
             )}
             {/* mt-auto держит надпись внизу и без верхней метки */}
             <p className="mt-auto font-marker text-2xl leading-[1.05] text-balance sm:text-[1.75rem]">
-              {plainText(coverTitle)}
+              {nbsp(plainText(coverTitle))}
             </p>
           </div>
         )}
@@ -116,16 +117,22 @@ export function CoverCard({
         )}
       </div>
 
-      <div className="space-y-1 px-0.5">
-        <p className="flex items-start gap-1 text-[15px] leading-snug font-semibold text-balance transition-colors group-hover:text-primary">
-          {plainText(title)}
+      <div className="space-y-1.5 px-0.5">
+        <p className="flex items-start gap-1 text-[15px] leading-snug font-bold text-balance transition-colors group-hover:text-primary">
+          {nbsp(plainText(title))}
           <ArrowUpRight
             className="mt-0.5 size-4 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
             aria-hidden
           />
         </p>
-        {note && <p className="text-sm leading-relaxed text-muted-foreground text-pretty">{plainText(note)}</p>}
-        {meta && <p className="font-mono text-xs text-muted-foreground">{meta}</p>}
+        {note && <p className="text-sm leading-relaxed text-muted-foreground text-pretty">{nbsp(plainText(note))}</p>}
+        {/* тех. строка (длительность, курс) — отдельный слой: линия и разрядка
+            отбивают её от смыслового текста карточки */}
+        {meta && (
+          <p className="mt-3 border-t border-border pt-2.5 font-mono text-[11px] tracking-[0.08em] text-muted-foreground/80 uppercase">
+            {meta}
+          </p>
+        )}
       </div>
     </Link>
   );

@@ -18,9 +18,9 @@ const PROMO_CTA_BASE =
 const PROMO_CTA_GOOSE =
   'btn-goose border-2 border-brand-navy font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] hover:shadow-[0_5px_0_0_var(--color-goose-red)]';
 
-// Вид кнопки в баннере урока — прежний синий
-const PROMO_CTA_NAVY =
-  'bg-primary font-medium text-primary-foreground shadow-sm hover:shadow-md';
+// Вид кнопки в баннере урока — цвета платка таксы, как на бумажной рамке
+const PROMO_CTA_SCARF =
+  'btn-scarf border-2 border-brand-navy font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-scarf-green)] hover:shadow-[0_5px_0_0_var(--color-scarf-green)]';
 
 // Кнопка-ссылка на лендинг: клик уходит в воронку
 function PromoCta({ place, label, look }: { place: string; label: string; look: string }) {
@@ -59,7 +59,7 @@ export function PromoBanner() {
           className="pointer-events-none absolute right-0 bottom-0 w-[150px] select-none sm:w-[290px] lg:w-[380px]"
         />
         <div className="relative max-w-xl space-y-4">
-          <h2 className="font-heading text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+          <h2 className="font-heading text-2xl font-bold tracking-tight text-balance sm:text-3xl">
             Умный вайбкодинг для программистов и вайбкодеров. 0 багов от ИИ.
           </h2>
           <p className="leading-relaxed text-brand-charcoal/75 text-pretty">
@@ -77,21 +77,25 @@ export function PromoBanner() {
 // Баннер внутри урока — показывается вместо доступа к закрытому видео
 export function PromoLessonBanner() {
   return (
-    <div className="animate-rise relative mt-2 rounded-2xl border-2 border-dashed border-primary/30 bg-brand-yellow px-5 py-6 sm:px-7">
-      <DoodleWord
-        text="открой"
-        color="oklch(0.2705 0.0677 258.4)"
-        className="z-10 -top-3.5 left-4 text-lg -rotate-6 sm:text-xl"
+    <div className="banner-marine-frame animate-rise relative mt-2 overflow-hidden rounded-2xl px-5 py-6 sm:px-7">
+      {/* такса из баннера уроков: блок должен читаться как оффер, а не как плашка */}
+      <Image
+        src="/banner-lesson-dachshund.webp"
+        alt=""
+        width={660}
+        height={809}
+        aria-hidden
+        className="pointer-events-none absolute right-0 bottom-0 hidden w-[130px] select-none sm:block lg:w-[160px]"
       />
-      <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
+      <div className="relative flex flex-wrap items-end justify-between gap-x-8 gap-y-5 sm:pr-36 lg:pr-44">
         <div className="min-w-0 max-w-sm space-y-1.5">
-          <p className="font-medium">Урок открывается подпиской</p>
-          <p className="text-sm leading-relaxed text-brand-charcoal/75 text-pretty">
+          <p className="font-heading text-lg font-extrabold tracking-tight text-brand-navy">Урок открывается подпиской</p>
+          <p className="text-sm leading-relaxed font-medium text-brand-charcoal/80 text-pretty">
             Видео и&nbsp;полные материалы доступны по&nbsp;подписке. Оформление занимает пару
             минут на&nbsp;{PROMO_HOST}
           </p>
         </div>
-        <PromoCta place="promo_lesson" label="Получить доступ" look={PROMO_CTA_NAVY} />
+        <PromoCta place="promo_lesson" label="Получить доступ" look={PROMO_CTA_SCARF} />
       </div>
     </div>
   );

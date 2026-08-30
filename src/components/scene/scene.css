@@ -4,7 +4,7 @@
    текста есть нижний предел читаемости. */
 
 .scene {
-  --ink: #20232a;
+  --ink: #16181c;
   --navy: #102647;
   --cream: #fdfcee;
   --red: #c32b24;
@@ -74,14 +74,42 @@
 }
 
 /* На брусчатке свечения по буквам не хватает — рисунок слишком дробный.
-   Там текст ложится на бумажную плашку в духе баннеров бренда. */
+   Там текст ложится на бумажную плашку в духе баннеров бренда. Плашка берёт
+   лёгкий цветной тон бренда (--plate-tone, задаётся ниже по месту на сцене) —
+   иначе шесть станций подряд читаются одной и той же бежевой запиской. */
 .scene-copy[data-plate] {
   padding: 2.2cqw 2.6cqw;
   border-radius: 1.4cqw;
-  border: 0.13cqw dashed rgba(16, 38, 71, 0.26);
-  background: rgba(253, 252, 238, 0.94);
+  border: 0.13cqw dashed color-mix(in oklab, var(--ink) 55%, transparent);
+  background: color-mix(in oklch, var(--plate-tone, var(--cream)) 24%, var(--cream) 76%);
   box-shadow: 0 0.6cqw 1.8cqw rgba(90, 58, 22, 0.18);
   text-shadow: none;
+}
+
+/* Тон плашки по месту на сцене — держит цвет карточки в паре с иллюстрацией:
+   жёлтый у стены и на камнях, зелёный в саду, красный/голубой у пляжа. */
+.scene-wall-cards {
+  --plate-tone: var(--color-brand-yellow);
+}
+
+.scene-yard-cards {
+  --plate-tone: var(--color-brand-green);
+}
+
+.scene-project {
+  --plate-tone: var(--color-brand-yellow);
+}
+
+.scene-pains-copy {
+  --plate-tone: var(--color-brand-red);
+}
+
+.scene-side-note {
+  --plate-tone: var(--color-brand-sky);
+}
+
+.scene-water-copy {
+  --plate-tone: var(--color-brand-sky);
 }
 
 /* Компактные карточки вокруг таксы: оставляем больше воздуха иллюстрации. */
@@ -108,16 +136,43 @@
   font-size: clamp(0.9rem, 1.5cqw, 1.55rem);
 }
 
+/* Эйбро — не подпись, а наклейка бренда: тот же приём, что у StickerTag
+   на /free и /faq (маркерный шрифт, наклон, шаг тени). На сцене без него
+   плашки читались слишком ровно и пресно рядом с насыщенным рисунком. */
 .scene-eyebrow {
+  display: inline-flex;
+  align-items: center;
   font-family: var(--font-bips), var(--font-manrope), sans-serif;
   font-size: clamp(0.85rem, 1.5cqw, 1.6rem);
-  color: var(--red);
+  font-weight: 700;
   letter-spacing: 0.02em;
+  color: var(--tag-ink, var(--navy));
+  background: var(--tag-bg, var(--color-brand-yellow));
+  padding: 0.22em 0.75em 0.16em;
+  border-radius: 999px;
+  border: 0.11cqw solid var(--navy);
+  rotate: -2deg;
+  box-shadow: 0 0.14cqw 0 var(--navy);
+}
+
+.scene-project .scene-eyebrow {
+  --tag-bg: var(--color-brand-red);
+  --tag-ink: var(--color-brand-cream);
+}
+
+.scene-pains-copy .scene-eyebrow {
+  --tag-bg: var(--color-brand-sky);
+  --tag-ink: var(--navy);
+}
+
+.scene-finale .scene-eyebrow {
+  --tag-bg: var(--color-brand-yellow);
+  --tag-ink: var(--navy);
 }
 
 .scene-title {
   margin-top: 0.35em;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.06;
   text-wrap: balance;
@@ -130,7 +185,8 @@
   margin-top: 0.7em;
   line-height: 1.45;
   text-wrap: pretty;
-  color: #3b3a33;
+  font-weight: 500;
+  color: var(--ink);
   font-size: clamp(0.82rem, 1.35cqw, 1.4rem);
 }
 
@@ -140,10 +196,17 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+/* Колонки на стене неравные: у правой карточки заметка длиннее, и на равных
+   колонках она набиралась на строку больше — блок выглядел кривым. Ширина
+   подобрана так, чтобы обе заметки легли в одинаковое число строк. */
+.scene-wall-cards {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.32fr);
+}
+
 .scene-card-title {
   /* переносы строк в контенте осмысленные: JSX схлопывает исходные */
   white-space: pre-line;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.015em;
   text-wrap: balance;
   font-size: clamp(1rem, 1.85cqw, 1.9rem);
@@ -154,8 +217,11 @@
   white-space: pre-line;
   margin-top: 0.45em;
   line-height: 1.45;
-  text-wrap: pretty;
-  color: #3f3e36;
+  /* balance, а не pretty: заметки в карточках короткие, и строки нужно свести
+     к одной длине — иначе соседние карточки выглядят рваными */
+  text-wrap: balance;
+  font-weight: 500;
+  color: var(--ink);
   font-size: clamp(0.78rem, 1.25cqw, 1.3rem);
 }
 
@@ -163,6 +229,7 @@
   margin-top: 1em;
   display: grid;
   gap: 0.55em;
+  font-weight: 500;
   font-size: clamp(0.8rem, 1.3cqw, 1.35rem);
   line-height: 1.4;
 }
@@ -170,7 +237,9 @@
 .scene-pains li {
   display: flex;
   gap: 0.6em;
-  text-wrap: pretty;
+  /* пункты короткие: balance разводит их на строки одинаковой длины,
+     без обрывка в два слова на второй строке */
+  text-wrap: balance;
 }
 
 .scene-pains li::before {
@@ -227,10 +296,6 @@
   color: var(--cream);
 }
 
-.scene-finale .scene-eyebrow {
-  color: #f4e194;
-}
-
 .scene-actions {
   margin-top: clamp(1rem, 2.2cqw, 2.4rem);
   display: flex;
@@ -252,9 +317,13 @@
   transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
 }
 
+/* Кремовая кнопка терялась на олив-охристых горах — жёлтый бренда держит
+   контраст и добавляет ту же наклейку-акцент, что у эйбро. */
 .scene-btn--solid {
-  background: var(--cream);
+  background: var(--color-brand-yellow);
   color: var(--navy);
+  border-color: var(--navy);
+  box-shadow: 0 0.18cqw 0 var(--navy);
 }
 
 .scene-btn--ghost {
@@ -288,9 +357,9 @@
   /* Тень висит на обёртке, а не на картинке: её ничего не обрезает, поэтому
      drop-shadow идёт по альфе логотипа и повторяет неровный ободок наклейки.
      Три слоя: контактный, основной и мягкий рассеянный. */
-  filter: drop-shadow(0 0.1cqw 0.08cqw rgba(52, 26, 10, 0.4))
-    drop-shadow(0 0.42cqw 0.4cqw rgba(60, 30, 12, 0.3))
-    drop-shadow(0 1cqw 1.3cqw rgba(40, 20, 8, 0.18));
+  filter: drop-shadow(0 0.1cqw 0.08cqw rgba(125, 97, 68, 0.5))
+    drop-shadow(0 0.42cqw 0.4cqw rgba(139, 110, 76, 0.38))
+    drop-shadow(0 1cqw 1.3cqw rgba(150, 121, 86, 0.26));
   /* Оба сгиба живут независимо и анимируются оба сразу: когда курсор
      переходит на другую половину, прежний край успевает мягко разогнуться. */
   transition: --fold-l 0.5s cubic-bezier(0.3, 0.8, 0.3, 1),
@@ -438,11 +507,11 @@
   will-change: transform;
 }
 
-.scene-lemon img {
+.scene-lemon svg {
   display: block;
   width: 100%;
   height: auto;
-  filter: none;
+  overflow: visible;
 }
 
 /* из окна: свободное падение с вращением, к концу растворяется «за кадром» */
@@ -490,6 +559,9 @@
 
 /* ── облачка мыслей ──────────────────────────────────────────────────────── */
 
+/* Цвет пузырька — по герою, а не одна и та же кремовая записка на троих:
+   --bubble-bg задаётся модификатором ниже и используется и в теле, и в
+   хвостике, иначе кружочки-хвостики остаются некрашеным кремом. */
 .scene-bubble {
   white-space: pre-line;
   position: absolute;
@@ -497,12 +569,23 @@
   padding: 0.6em 1.1em;
   border: 0.17cqw solid var(--ink);
   border-radius: 1.6cqw 1.9cqw 1.7cqw 2cqw;
-  background: var(--cream);
+  background: var(--bubble-bg, var(--cream));
   color: var(--ink);
   font-size: clamp(0.72rem, 1.2cqw, 1.25rem);
   line-height: 1.15;
-  white-space: nowrap;
   animation: scene-float 5s ease-in-out infinite;
+}
+
+.scene-bubble--duck {
+  --bubble-bg: color-mix(in oklch, var(--color-brand-sky) 32%, var(--cream) 68%);
+}
+
+.scene-bubble--table {
+  --bubble-bg: color-mix(in oklch, var(--color-brand-yellow) 35%, var(--cream) 65%);
+}
+
+.scene-bubble--dog {
+  --bubble-bg: color-mix(in oklch, var(--color-brand-green) 28%, var(--cream) 72%);
 }
 
 /* два пузырька-хвостика в сторону героя */
@@ -512,7 +595,7 @@
   position: absolute;
   border: 0.17cqw solid var(--ink);
   border-radius: 50%;
-  background: var(--cream);
+  background: var(--bubble-bg, var(--cream));
 }
 
 .scene-bubble::before {
@@ -613,30 +696,27 @@
 
 .scene-hint {
   position: fixed;
-  left: 50%;
+  right: 2.2rem;
   bottom: 1.6rem;
   z-index: 20;
-  translate: -50% 0;
   rotate: -4deg;
   display: flex;
   align-items: center;
-  gap: 0.5em;
   font-family: var(--font-bips), var(--font-manrope), sans-serif;
   font-size: clamp(0.85rem, 1.6cqw, 1.7rem);
   color: var(--red);
-  text-shadow: 0 0 0.5rem var(--cream), 0 0 1.2rem var(--cream);
-  white-space: nowrap;
+  filter: drop-shadow(0 0 0.5rem var(--cream)) drop-shadow(0 0 1.2rem var(--cream));
   transition: opacity 0.4s ease, translate 0.4s ease;
 }
 
 .scene-hint[data-hide] {
   opacity: 0;
-  translate: -50% 0.8rem;
+  translate: 0 0.8rem;
   pointer-events: none;
 }
 
 .scene-hint svg {
-  width: 1.6em;
+  width: 2.2em;
   animation: scene-nudge 1.8s ease-in-out infinite;
 }
 
@@ -774,14 +854,12 @@
     gap: 2.8cqw;
   }
 
+  /* Та же плашка, что на десктопе — пунктир и цветной тон, а не отдельный
+     мобильный стиль с акцентной полосой: карточки не должны выглядеть
+     другим сайтом при повороте экрана. */
   .scene-copy[data-plate] {
     padding: 1.25cqw 1.6cqw;
-    border: 0;
-    border-left: 0.55cqw solid rgba(195, 43, 36, 0.78);
-    border-radius: 0.45cqw 1.1cqw 1.1cqw 0.45cqw;
-    background: rgba(253, 252, 238, 0.86);
-    box-shadow: none;
-    backdrop-filter: blur(3px);
+    border-radius: 0.9cqw;
   }
 
   .scene-card-title {

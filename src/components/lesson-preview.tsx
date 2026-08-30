@@ -30,7 +30,7 @@ export function LessonPreview({
             <span className="text-primary">❯</span> claude run
           </p>
           <div className="flex items-center justify-between">
-            <span className="font-heading text-3xl font-semibold text-foreground/15 transition-colors duration-200 group-hover:text-foreground/25">
+            <span className="font-heading text-3xl font-bold text-foreground/15 transition-colors duration-200 group-hover:text-foreground/25">
               {num}
             </span>
             <span className="flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 shadow-sm transition-all duration-200 group-hover:opacity-100 motion-reduce:opacity-100">

@@ -8,7 +8,7 @@ export function FaqAccordion({ items, startOpen = false }: { items: readonly Faq
       {items.map((item, i) => (
         <li key={item.question}>
           <details open={startOpen && i === 0} className="group">
-            <summary className="flex cursor-pointer list-none items-start justify-between gap-4 px-5 py-4 text-[15px] leading-snug font-semibold text-balance marker:content-none transition-colors hover:text-primary sm:px-6">
+            <summary className="flex cursor-pointer list-none items-start justify-between gap-4 px-5 py-4 text-[15px] leading-snug font-bold text-balance marker:content-none transition-colors hover:text-primary sm:px-6">
               {item.question}
               <ChevronDown
                 className="mt-0.5 size-5 shrink-0 text-primary transition-transform group-open:rotate-180"

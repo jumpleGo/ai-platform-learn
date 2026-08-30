@@ -3,12 +3,12 @@ import { ArrowRight, ArrowUpRight, Check } from 'lucide-react';
 import { getPublishedCoursesWithLessons } from '@/lib/db/courses';
 import { getSubscription } from '@/lib/db/subscriptions';
 import { getSession } from '@/lib/session';
-import { isLocked, isSubscriptionActive } from '@/lib/access';
+import { hasCourseAccess, isLocked, isSubscriptionActive } from '@/lib/access';
 import { youtubeId } from '@/lib/video-url';
-import { plural } from '@/lib/utils';
 import { courseKey, lessonPath } from '@/lib/slug';
 import { courseMeta, freeLessonCards, trainingCourses } from '@/lib/catalog';
 import { getCourseLanding } from '@/lib/course-landings';
+import { TitleAccent } from '@/components/accent';
 import { CourseCarousel } from '@/components/course-carousel';
 import { CoverCard } from '@/components/cover-card';
 import { HomeVariantAnalytics } from '@/components/home-variant-analytics';
@@ -40,7 +40,7 @@ const ABOUT = nbspDeep([
   },
   {
     title: 'Актуальные программы',
-    note: 'Уроки обновляются под изменения рынка.\nВы всегда получаете самую акутальную информацию.',
+    note: 'Уроки обновляются под изменения рынка.\nВы всегда получаете самую актуальную информацию.',
   },
   {
     title: 'Работаем лично',
@@ -62,6 +62,23 @@ const PAINS = nbspDeep([
   'Проект живёт на ноутбуке, потому что выложить его в интернет — отдельный страх.',
 ]);
 
+// Плитки блока «о нас» — в цветах бренда: польза не должна читаться как обычный абзац
+const ABOUT_TONES = [
+  'bg-brand-sky/45',
+  'bg-brand-yellow/55',
+  'bg-brand-green/25',
+  'bg-brand-red/12',
+] as const;
+
+// Тона плашек «для кого» — по кругу цветов ABOUT_TONES: иначе самый личный
+// блок (клик по своей роли) выглядит как нейтральный чужой список фильтров
+const FOR_WHOM_TONES = [
+  'bg-brand-sky/50 hover:bg-brand-sky/70',
+  'bg-brand-yellow/60 hover:bg-brand-yellow/80',
+  'bg-brand-green/30 hover:bg-brand-green/45',
+  'bg-brand-red/15 hover:bg-brand-red/25',
+] as const;
+
 // «Для кого»: кликабельные плашки — каждый уходит туда, где узнаёт себя
 const FOR_WHOM: { label: string; href: string }[] = [
   { label: 'Не программист', href: '/courses/claude-code-agents' },
@@ -81,28 +98,39 @@ export default async function HomePage() {
     session ? getSubscription(session.uid) : null,
   ]);
   const now = Date.now();
+  // «Мои курсы» показываем только тем, у кого есть доступ хотя бы к одному купленному курсу
+  const myCourses = session ? courses.filter((c) => hasCourseAccess(c.id, sub, now)) : [];
   const trainings = trainingCourses(courses);
   const freeLessons = freeLessonCards(courses);
   // маркетинговые баннеры — всем, у кого нет действующей подписки (включая гостей)
   const promo = !isSubscriptionActive(sub, now);
 
   return (
-    <div className="space-y-20 sm:space-y-28">
+    <div className="space-y-20 font-medium sm:space-y-24">
       {/* A/B меряем на гостях: вошедшему сцена не показывается вовсе (см. proxy),
           и его показы перекосили бы бакет classic */}
       {!session && <HomeVariantAnalytics variant="classic" />}
-      <section className="animate-rise relative space-y-5 pt-4 sm:pt-8">
-        <p className="relative font-mono text-sm text-primary">
-          $ claude · {trainings.length} {plural(trainings.length, ['обучение', 'обучения', 'обучений'])} ·{' '}
-          {freeLessons.length} {plural(freeLessons.length, ['бесплатный урок', 'бесплатных урока', 'бесплатных уроков'])}
-        </p>
-        <h1 className="relative max-w-2xl font-heading text-4xl font-semibold tracking-tight text-balance sm:text-5xl/[1.1]">
-          Научитесь работать с&nbsp;ИИ — кем&nbsp;бы вы ни&nbsp;были
-        </h1>
-        <p className="relative max-w-xl text-lg leading-relaxed text-muted-foreground text-pretty">
-          Практика, практика и еще раз практика.<br />Актуальные программы, поддержка и обучение на проектах, которые интересны Вам.
-        </p>
-        <div className="relative flex flex-wrap items-center gap-3 pt-1">
+      <section className="animate-rise relative space-y-8 pt-6 sm:pt-10">
+        {/* заголовок и лид — одна смысловая группа, поэтому стоят вплотную;
+            кнопки и лента ролей отходят на отдельный шаг ритма */}
+        {/* заголовок и лид — одна смысловая группа, поэтому стоят вплотную */}
+        <div className="relative space-y-3">
+          <h1 className="font-heading text-[clamp(2.6rem,7vw,5.25rem)]/[0.98] font-bold tracking-[-0.035em] text-balance text-brand-navy">
+            Научитесь работать{' '}
+            <TitleAccent>с&nbsp;ИИ</TitleAccent>{' '}
+            — кем&nbsp;бы вы ни&nbsp;были
+          </h1>
+          <div className="max-w-2xl space-y-1 text-lg leading-[1.35] text-muted-foreground sm:text-xl">
+            {/* два предложения — два блока: каждое балансируется само,
+                иначе на второй строке остаётся обрывок в пару слов */}
+            <p className="text-balance">Практика, практика и еще раз практика.</p>
+            <p className="text-balance">
+              Актуальные программы, поддержка и обучение на проектах, которые интересны Вам.
+            </p>
+          </div>
+        </div>
+
+        <div className="relative flex flex-wrap items-center gap-3">
           <Link
             href="/courses"
             className="inline-flex h-11 items-center gap-1.5 rounded-xl bg-primary px-6 text-[15px] font-medium text-primary-foreground shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md motion-reduce:hover:translate-y-0"
@@ -118,7 +146,7 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        <div className="relative overflow-hidden pt-1">
+        <div className="relative overflow-hidden">
           <ul className="animate-roles flex">
             {[...AUDIENCE, ...AUDIENCE].map((role, i) => (
               <li
@@ -138,14 +166,13 @@ export default async function HomePage() {
 
       {/* Учебная витрина — только своим: гостю она конкурирует с офферами и путает.
           id — цель пункта шапки «Моё обучение» (lib/site.ts) */}
-      {session && courses.length > 0 && (
+      {myCourses.length > 0 && (
         <section id="learning" className="scroll-mt-24 space-y-12 sm:space-y-16">
           <SectionHead
-            eyebrow="ваше обучение"
             title="Продолжить с того места, где остановились"
             note="Все уроки курсов, к которым у вас открыт доступ."
           />
-          {courses.map((course, i) => {
+          {myCourses.map((course, i) => {
             // санитизация: в клиентскую карусель уходят только безопасные поля,
             // без videoEmbedUrl/materials; id ролика — лишь для доступных уроков
             const lockedIds = course.lessons.filter((l) => isLocked(l, sub, now)).map((l) => l.id);
@@ -186,21 +213,21 @@ export default async function HomePage() {
       )}
 
       {/* О нас */}
-      <section id="about" className="animate-rise scroll-mt-24 space-y-8">
+      <section id="about" className="animate-rise scroll-mt-24 space-y-10">
         <SectionHead
-          eyebrow="GELATO"
           title="Маленькая школа ИИ"
+          accent="школа ИИ"
           note="Долой учебные проекты! Наша цель обучить вас на вашем же проекте."
         />
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           {ABOUT.map((item, i) => (
             <li
               key={item.title}
-              className="animate-float rounded-2xl border border-border bg-card/60 p-5 sm:p-6"
+              className={`animate-float rounded-2xl border-2 border-brand-navy/12 p-6 sm:p-7 ${ABOUT_TONES[i % ABOUT_TONES.length]}`}
               style={{ '--rise-delay': `${i * 0.06}s` } as React.CSSProperties}
             >
-              <p className="font-heading text-lg font-semibold tracking-tight">{item.title}</p>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground text-pretty whitespace-pre-line">{item.note}</p>
+              <p className="font-heading text-xl font-extrabold tracking-tight text-brand-navy">{item.title}</p>
+              <p className="mt-2.5 text-[15px] leading-relaxed text-brand-charcoal/80 text-pretty whitespace-pre-line">{item.note}</p>
             </li>
           ))}
         </ul>
@@ -215,13 +242,13 @@ export default async function HomePage() {
         />
         <div className="rounded-3xl border-2 border-dashed border-primary/25 bg-brand-yellow/60 px-6 py-9 sm:px-10 sm:py-11">
           <SectionHead
-            eyebrow="о вас"
             title="Скорее всего, вы уже пробовали"
+            accent="уже пробовали"
             note="И упёрлись не в интеллект модели, а в отсутствие процесса."
           />
           <ul className="mt-7 grid grid-cols-1 gap-x-8 gap-y-3.5 sm:grid-cols-2">
             {PAINS.map((pain) => (
-              <li key={pain} className="flex gap-3 text-[15px] leading-snug text-pretty">
+              <li key={pain} className="flex gap-3 text-[15px] leading-snug text-balance">
                 <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-brand-navy/12 text-brand-navy">
                   <Check className="size-3" aria-hidden />
                 </span>
@@ -236,18 +263,18 @@ export default async function HomePage() {
       </section>
 
       {/* Для кого — кликабельные плашки, каждая уводит в свой раздел */}
-      <section className="animate-rise space-y-6">
+      <section className="animate-rise space-y-10">
         <SectionHead
-          eyebrow="для кого"
           title="Выберите то, что про вас"
+          accent="что про вас"
           note="Нажмите на свою роль — покажем, с чего начинать именно вам."
         />
-        <ul className="flex flex-wrap gap-2.5">
-          {FOR_WHOM.map((item) => (
+        <ul className="flex flex-wrap gap-3">
+          {FOR_WHOM.map((item, i) => (
             <li key={item.label}>
               <Link
                 href={item.href}
-                className="group inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-4 py-2 text-sm font-medium transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/50 hover:text-primary motion-reduce:hover:translate-y-0"
+                className={`group inline-flex items-center gap-1.5 rounded-full border border-brand-navy/15 px-5 py-2.5 text-[15px] font-medium text-brand-navy shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-navy/30 hover:shadow-md motion-reduce:hover:translate-y-0 ${FOR_WHOM_TONES[i % FOR_WHOM_TONES.length]}`}
               >
                 {item.label}
                 <ArrowUpRight
@@ -262,9 +289,8 @@ export default async function HomePage() {
 
       {/* Наши обучения */}
       {trainings.length > 0 && (
-        <section className="animate-rise space-y-6">
+        <section className="animate-rise space-y-10">
           <SectionHead
-            eyebrow="наши обучения"
             title="Программы"
             note="Три направления. Не уверены, какое ваше — на витрине есть тест на четыре вопроса."
             action={{ href: '/courses', label: 'Все обучения' }}
@@ -294,9 +320,8 @@ export default async function HomePage() {
 
       {/* Бесплатные материалы */}
       {freeLessons.length > 0 && (
-        <section className="animate-rise space-y-6">
+        <section className="animate-rise space-y-10">
           <SectionHead
-            eyebrow="бесплатно"
             title="Начните с бесплатных уроков"
             note="Настоящие уроки. Посмотрите, как мы объясняем, прежде чем платить."
             action={{ href: '/free', label: 'Все материалы' }}

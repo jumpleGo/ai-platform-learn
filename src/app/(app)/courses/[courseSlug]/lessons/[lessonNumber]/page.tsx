@@ -237,22 +237,25 @@ export default async function LessonPage({ params, searchParams }: {
         hideLessonsNav={Boolean(freeLesson && !session)}
         funnelMode={Boolean(freeLesson)}
       />
-      <div className="animate-rise relative space-y-6">
-        {freeLesson ? <FreeLessonMarker /> : !lesson.hideBackLink && (
-          <Link
-            href="/"
-            className="group inline-flex items-center gap-1.5 font-mono text-sm text-muted-foreground transition-colors hover:text-primary"
-          >
-            <ArrowLeft className="size-4 transition-transform duration-200 group-hover:-translate-x-0.5" aria-hidden />
-            {course.title}
-          </Link>
-        )}
-        <h1 className={freeLesson
-          ? 'max-w-4xl font-heading text-3xl/[1.1] font-semibold tracking-tight text-balance sm:text-4xl/[1.08]'
-          : 'font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl/[1.15]'}>
-          {freeLesson?.h1 ?? lesson.title}
-        </h1>
-        {freeLesson && <p className="max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">{freeLesson.lead}</p>}
+      <div className="animate-rise relative space-y-8">
+        {/* метка, заголовок и лид — одна смысловая группа, поэтому стоят вплотную */}
+        <div className="space-y-3">
+          {freeLesson ? <FreeLessonMarker /> : !lesson.hideBackLink && (
+            <Link
+              href="/"
+              className="group inline-flex items-center gap-1.5 font-mono text-sm text-muted-foreground transition-colors hover:text-primary"
+            >
+              <ArrowLeft className="size-4 transition-transform duration-200 group-hover:-translate-x-0.5" aria-hidden />
+              {course.title}
+            </Link>
+          )}
+          <h1 className={freeLesson
+            ? 'max-w-4xl font-heading text-[2.5rem]/[1.04] font-extrabold tracking-[-0.03em] text-balance text-brand-navy sm:text-[3.25rem]/[1.02]'
+            : 'font-heading text-3xl font-extrabold tracking-tight text-balance text-brand-navy sm:text-4xl/[1.15]'}>
+            {freeLesson?.h1 ?? lesson.title}
+          </h1>
+          {freeLesson && <p className="max-w-3xl text-lg leading-[1.35] text-muted-foreground text-pretty">{freeLesson.lead}</p>}
+        </div>
         {!freeLesson && (
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 font-mono text-xs text-muted-foreground">
             <WatchingNow seed={views} />

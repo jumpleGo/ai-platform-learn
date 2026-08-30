@@ -3,7 +3,8 @@
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 import Link from 'next/link';
-import { useEffect, useMemo, useRef } from 'react';
+import { Sparkles } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Lemon } from './lemon';
 import {
   CANVAS_H,
@@ -18,8 +19,12 @@ import {
   samplePath,
   scene,
 } from '@/lib/scene';
-import { LEGAL_NAV, PROGRAM_URL, TELEGRAM_DM } from '@/lib/site';
+import { LEGAL_NAV, PROGRAM_URL } from '@/lib/site';
 import './scene.css';
+import { RichText } from '@/components/markdown';
+import { QuizDialog } from '@/components/course-quiz';
+import { track } from '@/lib/analytics/track-client';
+import { EVENTS } from '@/lib/analytics/events';
 
 // «Линия внимания»: точка полотна, по которой считается прогресс анимаций.
 // Чуть выше центра экрана — так герой действия оказывается там, куда смотрят.
@@ -42,13 +47,8 @@ function Bubble({
   children: React.ReactNode;
 }) {
   return (
-    <div className={`scene-bubble ${className}`} data-reveal data-tail={tail} style={{ left: X(x), top: Y(y) }}>
+    <div className={`scene-bubble ${className} whitespace-pre-line`} data-reveal data-tail={tail} style={{ left: X(x), top: Y(y) }}>
       {children}
-      <span className="scene-dots" aria-hidden>
-        <i />
-        <i />
-        <i />
-      </span>
     </div>
   );
 }
@@ -92,6 +92,7 @@ export function GelateriaScene() {
   const navRef = useRef<HTMLElement>(null);
   const hintRef = useRef<HTMLDivElement>(null);
   const acc = useMemo(() => measure(ROLL), []);
+  const [quizOpen, setQuizOpen] = useState(false);
 
   // Плавный скролл: полотно едет с инерцией, поэтому анимации по пути лимона
   // читаются как единый проезд камеры, а не как рывки колеса мыши.
@@ -320,8 +321,9 @@ export function GelateriaScene() {
         <a href={PROGRAM_URL}>Вайбкодинг</a>
       </nav>
 
+      <QuizDialog open={quizOpen} onOpenChange={setQuizOpen} />
+
       <div className="scene-hint" ref={hintRef}>
-        {COPY.scroll}
         <svg viewBox="0 0 24 34" aria-hidden>
           <path
             d="M12 2v27M4 21l8 9 8-9"
@@ -376,7 +378,7 @@ export function GelateriaScene() {
             <span className="scene-sign-curl scene-sign-curl--right" aria-hidden />
           </div>
           <div className="scene-stamp" style={{ left: X(SPOT.stamp.x), top: Y(SPOT.stamp.y) }}>
-            Emil’s edition
+            Emil's Gelateria Italiana
           </div>
 
           {/* ── уточка в окне: облачко и падающий лимон ── */}
@@ -394,8 +396,8 @@ export function GelateriaScene() {
 
           {/* ── текст на фасаде ── */}
           <div className="scene-copy scene-hero" data-reveal style={{ '--l': X(756), '--r': X(180), '--t': Y(624) } as React.CSSProperties}>
-            <p className="scene-eyebrow">{COPY.hero.eyebrow}</p>
-            <h1 className="scene-title">{COPY.hero.title}</h1>
+            <p className="scene-eyebrow whitespace-pre-line">{COPY.hero.eyebrow}</p>
+            <h1 className="scene-title whitespace-pre-line"><RichText text={COPY.hero.title} /></h1>
             <p className="scene-note">{COPY.hero.note}</p>
           </div>
 
@@ -530,15 +532,17 @@ export function GelateriaScene() {
             <h2 className="scene-title">{COPY.finale.title}</h2>
             <p className="scene-note">{COPY.finale.note}</p>
             <div className="scene-actions">
-              <Link className="scene-btn scene-btn--solid" href="/courses">
-                Наши обучения
-              </Link>
-              <Link className="scene-btn scene-btn--ghost" href="/free">
-                Сначала бесплатно
-              </Link>
-              <a className="scene-btn scene-btn--ghost" href={TELEGRAM_DM}>
-                Написать в личку
-              </a>
+              <button
+                type="button"
+                className="scene-btn scene-btn--solid"
+                onClick={() => {
+                  track(EVENTS.quizStarted, { place: 'scene' });
+                  setQuizOpen(true);
+                }}
+              >
+                <Sparkles className="size-4" aria-hidden />
+                Пройти тест
+              </button>
             </div>
           </div>
 

@@ -72,7 +72,7 @@ export default async function AdminPartnersPage() {
   const counts = await countUsersByPartner(partners);
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-heading text-2xl font-semibold tracking-tight">Партнёры</h1>
+      <h1 className="font-heading text-2xl font-bold tracking-tight">Партнёры</h1>
 
       <Card>
         <CardHeader>

@@ -20,8 +20,7 @@ export default function LegalIndexPage() {
   return (
     <div className="animate-rise mx-auto max-w-3xl space-y-8 pt-4 sm:pt-8">
       <header className="space-y-4">
-        <p className="font-mono text-sm text-primary">$ документы</p>
-        <h1 className="font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+        <h1 className="font-heading text-3xl font-bold tracking-tight text-balance text-brand-navy sm:text-4xl">
           Юридические документы
         </h1>
         <p className="leading-relaxed text-muted-foreground text-pretty">
@@ -40,7 +39,7 @@ export default function LegalIndexPage() {
               <span className="flex size-9 items-center justify-center rounded-full bg-primary/12 text-primary">
                 <FileText className="size-4.5" aria-hidden />
               </span>
-              <span className="flex items-start gap-1 font-heading text-lg font-semibold tracking-tight">
+              <span className="flex items-start gap-1 font-heading text-lg font-bold tracking-tight">
                 {item.label}
                 <ArrowUpRight
                   className="mt-1 size-4 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"

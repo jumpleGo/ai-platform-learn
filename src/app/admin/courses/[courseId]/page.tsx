@@ -379,7 +379,7 @@ export default async function AdminCoursePage({
   return (
     <div className="flex max-w-2xl flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-heading text-2xl font-semibold tracking-tight">{course.title}</h1>
+        <h1 className="font-heading text-2xl font-bold tracking-tight">{course.title}</h1>
         <div className="flex items-center gap-4">
           <Link href={publicPath} className="text-sm text-muted-foreground hover:underline">
             Открыть на сайте ↗
@@ -499,7 +499,7 @@ export default async function AdminCoursePage({
       </Card>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">Уроки</h2>
+        <h2 className="text-lg font-bold">Уроки</h2>
         {course.lessons.length === 0 && (
           <p className="text-sm text-muted-foreground">Уроков пока нет</p>
         )}

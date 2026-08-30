@@ -23,7 +23,7 @@ export function CourseLessonsNav({ courseKey, items, completedCount }: {
     >
       <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold">Уроки курса</h2>
+          <h2 className="text-sm font-bold">Уроки курса</h2>
           <span className="font-mono text-xs text-muted-foreground">
             {completedCount}/{total}
           </span>

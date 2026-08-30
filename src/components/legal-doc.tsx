@@ -46,8 +46,7 @@ export function LegalDoc({
   return (
     <article className="animate-rise mx-auto max-w-3xl space-y-10 pt-4 sm:pt-8">
       <header className="space-y-4">
-        <p className="font-mono text-sm text-primary">документы</p>
-        <h1 className="font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">{title}</h1>
+        <h1 className="font-heading text-3xl font-bold tracking-tight text-balance sm:text-4xl">{title}</h1>
         <p className="leading-relaxed text-muted-foreground text-pretty">{lead}</p>
         <p className="font-mono text-xs text-muted-foreground">Редакция от&nbsp;{LEGAL_UPDATED}</p>
       </header>
@@ -55,7 +54,7 @@ export function LegalDoc({
       <div className="space-y-9">
         {sections.map((section, i) => (
           <section key={section.title} className="space-y-3">
-            <h2 className="font-heading text-lg font-semibold tracking-tight text-balance">
+            <h2 className="font-heading text-lg font-bold tracking-tight text-balance">
               <span className="mr-2 font-mono text-sm text-muted-foreground tabular-nums">{i + 1}.</span>
               {section.title}
             </h2>

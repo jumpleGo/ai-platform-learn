@@ -68,7 +68,7 @@ export function CourseCarousel({ course, lessons, lockedIds }: {
       <div className="relative flex items-end justify-between gap-4">
         <div className="min-w-0 space-y-1.5">
           {/* тег идёт инлайном сразу за названием — на узких экранах не уезжает отдельным блоком */}
-          <h2 className="font-heading text-2xl font-semibold tracking-tight">
+          <h2 className="font-heading text-2xl font-bold tracking-tight">
             {course.title}
             {course.showBadge && course.badgeText && (
               <>

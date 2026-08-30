@@ -19,7 +19,7 @@ export default async function AdminCoursesPage() {
   const courses = await listAllCourses();
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-heading text-2xl font-semibold tracking-tight">Курсы</h1>
+      <h1 className="font-heading text-2xl font-bold tracking-tight">Курсы</h1>
 
       <Card>
         <CardHeader>

@@ -3,7 +3,7 @@ import { getPublishedCoursesWithLessons } from '@/lib/db/courses';
 import { courseMeta, trainingCourses } from '@/lib/catalog';
 import { getCourseLanding } from '@/lib/course-landings';
 import { courseKey } from '@/lib/slug';
-import { plural } from '@/lib/utils';
+import { TitleAccent } from '@/components/accent';
 import { CoverCard } from '@/components/cover-card';
 import { CourseQuizBanner } from '@/components/course-quiz';
 import { SectionHead } from '@/components/section-head';
@@ -20,15 +20,12 @@ export default async function CoursesPage() {
   const trainings = trainingCourses(courses);
 
   return (
-    <div className="space-y-16 sm:space-y-20">
-      <section className="animate-rise space-y-5 pt-4 sm:pt-8">
-        <p className="font-mono text-sm text-primary">
-          обучения · {trainings.length} {plural(trainings.length, ['программа', 'программы', 'программ'])}
-        </p>
-        <h1 className="max-w-2xl font-heading text-4xl font-semibold tracking-tight text-balance sm:text-5xl/[1.1]">
-          Наши обучения
+    <div className="space-y-20 sm:space-y-24">
+      <section className="animate-rise pt-6 sm:pt-10">
+        <h1 className="font-heading text-[clamp(2.6rem,7vw,5.25rem)]/[0.98] font-bold tracking-[-0.035em] text-balance text-brand-navy">
+          Наши <TitleAccent>обучения</TitleAccent>
         </h1>
-        <p className="max-w-xl text-lg leading-relaxed text-muted-foreground text-pretty">
+        <p className="mt-2.5 max-w-2xl text-lg leading-[1.35] text-muted-foreground text-pretty sm:text-xl">
           Актуальные программы на сегодняшний день. Каждая, включает в себя домашки, разборы и максимальную отдачу нашего преподавателя.
         </p>
       </section>
@@ -36,9 +33,8 @@ export default async function CoursesPage() {
       <CourseQuizBanner />
 
       {trainings.length > 0 ? (
-        <section className="space-y-6">
+        <section className="space-y-10">
           <SectionHead
-            eyebrow="программы"
             title="Все обучения"
             note="Кликните, чтобы узнать - для кого, что настроите, формат и стоимость."
           />

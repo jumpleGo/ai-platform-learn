@@ -61,14 +61,18 @@ const EMPHASIS: Record<string, string> = { STRONG: '**', B: '**', EM: '*', I: '*
 
 // Значение поля: <br> и блочные узлы сводим к \n, чтобы переносы дошли до сервера.
 // pristine — чтение до правки: переводы строк внутри текстового узла там могут
-// быть только форматированием исходника (JSX их не показывает), схлопываем.
-function readValue(root: HTMLElement, pristine = false): string {
+// быть только форматированием исходника (JSX их не показывает) — но только если
+// элемент не сохраняет пробелы (whitespace-pre-line/pre-wrap). Если сохраняет,
+// перенос настоящий и его схлопывать нельзя — иначе baseline «до правки» не
+// совпадёт с реальным текстом в исходнике, и удаление переноса не отправится
+// на сервер (после Fast Refresh старый перенос «вернётся»).
+function readValue(root: HTMLElement, pristine = false, preservesNewlines = false): string {
   let out = '';
   const walk = (parent: Node) => {
     for (const node of parent.childNodes) {
       if (node.nodeType === Node.TEXT_NODE) {
         const data = (node as Text).data;
-        out += pristine ? data.replace(/[^\S ]*\n[^\S ]*/g, ' ') : data;
+        out += pristine && !preservesNewlines ? data.replace(/[^\S ]*\n[^\S ]*/g, ' ') : data;
       } else if (node.nodeName === 'BR') {
         out += '\n';
       } else if (node.nodeType === Node.ELEMENT_NODE) {
@@ -177,6 +181,35 @@ function toggleEmphasis(field: HTMLElement, tag: 'strong' | 'em') {
   const after = document.createRange();
   after.selectNodeContents(wrapper);
   selection.addRange(after);
+}
+
+// Последний перенос строки в конце contenteditable-блока браузер держит как
+// «фантомный»: курсор к нему не подпускают ни Backspace, ни Delete, ни
+// Cmd+A — они трогают что угодно, кроме него. Поэтому конечный \n убираем
+// вручную, когда каретка стоит сразу после него и дальше в поле ничего нет.
+function removeTrailingBreak(field: HTMLElement): boolean {
+  const selection = window.getSelection();
+  if (!selection || !selection.isCollapsed || selection.rangeCount === 0) return false;
+  const { startContainer: node, startOffset: offset } = selection.getRangeAt(0);
+  if (node.nodeType !== Node.TEXT_NODE) return false;
+  const text = node as Text;
+  if (offset !== text.data.length || !text.data.endsWith('\n')) return false;
+
+  let cur: Node = node;
+  while (cur !== field) {
+    if (cur.nextSibling) return false;
+    const parent = cur.parentNode;
+    if (!parent) return false;
+    cur = parent;
+  }
+
+  text.data = text.data.slice(0, -1);
+  const range = document.createRange();
+  range.setStart(text, text.data.length);
+  range.collapse(true);
+  selection.removeAllRanges();
+  selection.addRange(range);
+  return true;
 }
 
 // Соседний текст вокруг блока: по нему сервер понимает, какое из одинаковых
@@ -347,10 +380,11 @@ export function InlineTextEditor() {
       };
 
       if (block) {
+        const preservesNewlines = /pre/.test(getComputedStyle(block).whiteSpace);
         field = {
           el: block,
-          before: readValue(block, true),
-          preservesNewlines: /pre/.test(getComputedStyle(block).whiteSpace),
+          before: readValue(block, true, preservesNewlines),
+          preservesNewlines,
           element: {
             tag: block.tagName,
             className: block.getAttribute('class') ?? '',
@@ -363,16 +397,17 @@ export function InlineTextEditor() {
         };
       } else {
         // Текст вперемешку с разметкой: правим только этот фрагмент
-        const original = node.data.replace(/[^\S\u00a0]*\n[^\S\u00a0]*/g, ' ');
         const host = node.parentElement;
         const parentStyle = host ? getComputedStyle(host) : null;
+        const preservesNewlines = /pre/.test(parentStyle?.whiteSpace ?? '');
+        const original = preservesNewlines ? node.data : node.data.replace(/[^\S ]*\n[^\S ]*/g, ' ');
         node.data = original;
         node.parentNode?.replaceChild(el, node);
         el.appendChild(node);
         field = {
           el,
           before: original,
-          preservesNewlines: /pre/.test(parentStyle?.whiteSpace ?? ''),
+          preservesNewlines,
           element: host
             ? { tag: host.tagName, className: host.getAttribute('class') ?? '', owner: ownerOf(host) }
             : { tag: '', className: '', owner: '' },
@@ -411,6 +446,9 @@ export function InlineTextEditor() {
           event.preventDefault();
           event.stopPropagation();
           commit(true);
+        } else if (event.key === 'Backspace' && !modifier && removeTrailingBreak(el)) {
+          event.preventDefault();
+          event.stopPropagation();
         }
       });
       el.addEventListener('blur', () => commit(true));
