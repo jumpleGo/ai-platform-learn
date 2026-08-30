@@ -306,15 +306,54 @@
 }
 
 .scene-btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.4em;
   padding: 0.72em 1.5em;
   border-radius: 999px;
   font-weight: 500;
   border: 1.5px solid transparent;
   text-shadow: none;
   transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.scene-btn-label {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+/* Заливка «краской»: круглая маска растёт из точки удара лимона и растекается
+   за границы кнопки — turbulence-фильтр рвёт ровный край circle() на неровное
+   малярное пятно, а не просто красит фон дефолтным transition. Красится не
+   по скроллу (после самого удара до конца страницы может не хватить места
+   докрутить), а сразу после касания (data-hit, ставится в placeHit ровно
+   в момент удара) — фиксированным по времени transition. */
+.scene-btn-splash {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--color-brand-yellow);
+  clip-path: circle(0% at 30% 55%);
+  filter: url(#scene-splash-edge);
+  pointer-events: none;
+  transition: clip-path 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.scene-finale .scene-btn--ghost[data-hit] .scene-btn-splash {
+  clip-path: circle(150% at 30% 55%);
+}
+
+/* Кремовый текст «призрака» на жёлтой заливке нечитаем — как только пятно
+   закрыло больше половины кнопки (data-hit, порог в placeHit), текст и рамка
+   переключаются на тёмно-синий тем же приёмом, что у --solid. */
+.scene-finale .scene-btn--ghost[data-hit] {
+  transition: color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  color: var(--navy);
+  border-color: var(--navy);
+  box-shadow: 0 0.18cqw 0 var(--navy);
 }
 
 /* Кремовая кнопка терялась на олив-охристых горах — жёлтый бренда держит
@@ -525,8 +564,24 @@
 .scene-lemon--roll {
   left: var(--lx, 58%);
   top: var(--ly, 43%);
-  transform: rotate(var(--rot, 0deg)) scale(var(--lemon-scale, 1));
+  transform: rotate(var(--rot, 0deg));
   opacity: var(--lemon-opacity, 1);
+}
+
+/* ── прыжок на кораблик, отскок и удар в кнопку ──────────────────────────────
+   Позицию/поворот на каждый кадр скролла считает placeHit() в
+   gelateria-scene.tsx (см. sampleHit/TRACK.hit в lib/scene.ts) — тот же
+   «проезд камеры», что ведёт катящийся лимон и кораблик, поэтому весь бросок
+   скраббится скроллом вперёд и назад, а не проигрывается один раз по таймеру.
+   Форма лимона нигде не меняется — ни сплющивания при посадке, ни растяжения
+   в полёте: он остаётся цельным круглым и просто исчезает, разбившись об
+   кнопку, ровно в момент удара (см. --hit-opacity). */
+
+.scene-lemon--hit {
+  left: var(--hx, 57.65%);
+  top: var(--hy, 76.29%);
+  transform: rotate(var(--hrot, 0deg));
+  opacity: var(--hit-opacity, 0);
 }
 
 /* ── кораблик ────────────────────────────────────────────────────────────── */
@@ -799,6 +854,11 @@
 
   .scene-lemon--window {
     opacity: 1;
+  }
+
+  .scene-lemon--hit,
+  .scene-btn-splash {
+    display: none;
   }
 
   .scene-bubble,

@@ -8,7 +8,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Lemon } from './lemon';
 import {
   CANVAS_H,
+  CANVAS_W,
   COPY,
+  HIT_IMPACT_POINT,
   ROLL,
   SPOT,
   TRACK,
@@ -16,13 +18,15 @@ import {
   Y,
   dropTail,
   measure,
+  rollRotationEnd,
+  sampleHit,
   samplePath,
   scene,
 } from '@/lib/scene';
 import { LEGAL_NAV, PROGRAM_URL } from '@/lib/site';
 import './scene.css';
 import { RichText } from '@/components/markdown';
-import { QuizDialog } from '@/components/course-quiz';
+import { LessonQuizDialog } from '@/components/lesson-quiz';
 import { track } from '@/lib/analytics/track-client';
 import { EVENTS } from '@/lib/analytics/events';
 
@@ -89,9 +93,12 @@ const FIT_STEPS = [0.94, 0.88, 0.82];
 export function GelateriaScene() {
   const stageRef = useRef<HTMLDivElement>(null);
   const rollRef = useRef<HTMLDivElement>(null);
+  const hitRef = useRef<HTMLDivElement>(null);
+  const finaleBtnRef = useRef<HTMLButtonElement>(null);
   const navRef = useRef<HTMLElement>(null);
   const hintRef = useRef<HTMLDivElement>(null);
   const acc = useMemo(() => measure(ROLL), []);
+  const rollRotEnd = useMemo(() => rollRotationEnd(acc), [acc]);
   const [quizOpen, setQuizOpen] = useState(false);
 
   // Плавный скролл: полотно едет с инерцией, поэтому анимации по пути лимона
@@ -144,13 +151,33 @@ export function GelateriaScene() {
       roll.style.setProperty('--lx', X(p.x));
       roll.style.setProperty('--ly', Y(p.y));
       roll.style.setProperty('--rot', `${p.rot.toFixed(1)}deg`);
-      const fade = Math.min(1, Math.max(0, (1 - q) / 0.08));
-      roll.style.setProperty('--lemon-opacity', fade.toFixed(3));
-      roll.style.setProperty('--lemon-scale', (0.82 + fade * 0.18).toFixed(3));
+      // никакого плавного угасания перед прыжком: лимон катится сплошным,
+      // без просвечивания, и пропадает мгновенно ровно в точке хэндофа
+      // прыгающему лимону (см. placeHit, у которого там же появляется 1)
+      roll.style.setProperty('--lemon-opacity', q < 1 ? '1' : '0');
+    };
+
+    // Прыжок на кораблик, отскок и удар в кнопку — продолжение того же
+    // «проезда камеры», скраббится скроллом туда и обратно, как и всё
+    // остальное на сцене (см. sampleHit/splashProgress в lib/scene.ts).
+    const placeHit = (t: number, boatOffsetX: number, buttonOffset: { x: number; y: number }) => {
+      const hit = hitRef.current;
+      if (!hit) return;
+      const q = Math.min(1, Math.max(0, t));
+      const p = sampleHit(q, rollRotEnd, boatOffsetX, buttonOffset);
+      hit.style.setProperty('--hx', X(p.x));
+      hit.style.setProperty('--hy', Y(p.y));
+      hit.style.setProperty('--hrot', `${p.rot.toFixed(1)}deg`);
+      hit.style.setProperty('--hit-opacity', p.opacity.toFixed(3));
+      // заливка красится не по скроллу (после удара до конца страницы может
+      // не хватить места докрутить), а сразу после касания — фиксированным
+      // по времени CSS-transition, включается булевым data-hit
+      finaleBtnRef.current?.toggleAttribute('data-hit', q >= 1);
     };
 
     if (still) {
       place(0);
+      placeHit(0, 0, { x: 0, y: 0 });
       return () => io.disconnect();
     }
 
@@ -170,6 +197,27 @@ export function GelateriaScene() {
 
       const [rollFrom, rollTo] = TRACK.roll;
       place((focus - rollFrom) / (rollTo - rollFrom));
+
+      // Сдвиг кораблика от точки, на которую нарисована посадка (та же
+      // формула, что и его transform в scene.css: .scene-boat { translateX:
+      // (--q - 0.42) * 26cqw }, cqw тут — то же самое % ширины канвы, что и в
+      // X()/Y(), поэтому переводится в пиксели канвы напрямую).
+      const [boatFrom, boatTo] = TRACK.boat;
+      const qBoat = Math.min(1, Math.max(0, (focus - boatFrom) / (boatTo - boatFrom)));
+      const boatOffsetX = ((qBoat - 0.42) * 26) / 100 * CANVAS_W;
+
+      // Насколько измеренный в DOM центр кнопки (та же точка 30%/55%, откуда
+      // растёт заливка) отличается от нарисованной точки удара.
+      let buttonOffset = { x: 0, y: 0 };
+      const btnRect = finaleBtnRef.current?.getBoundingClientRect();
+      if (btnRect && btnRect.width > 0) {
+        const targetX = (btnRect.left - rect.left + btnRect.width * 0.3) / scale;
+        const targetY = (btnRect.top - rect.top + btnRect.height * 0.55) / scale;
+        buttonOffset = { x: targetX - HIT_IMPACT_POINT.x, y: targetY - HIT_IMPACT_POINT.y };
+      }
+
+      const [hitFrom, hitTo] = TRACK.hit;
+      placeHit((focus - hitFrom) / (hitTo - hitFrom), boatOffsetX, buttonOffset);
 
       arm();
 
@@ -321,7 +369,15 @@ export function GelateriaScene() {
         <a href={PROGRAM_URL}>Вайбкодинг</a>
       </nav>
 
-      <QuizDialog open={quizOpen} onOpenChange={setQuizOpen} />
+      <LessonQuizDialog open={quizOpen} onOpenChange={setQuizOpen} />
+
+      {/* фильтр неровного «малярного» края для заливки кнопки — лимон бьёт в неё в конце сцены */}
+      <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden>
+        <filter id="scene-splash-edge" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.012 0.05" numOctaves={2} seed={7} result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale={26} xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </svg>
 
       <div className="scene-hint" ref={hintRef}>
         <svg viewBox="0 0 24 34" aria-hidden>
@@ -520,6 +576,13 @@ export function GelateriaScene() {
             <p className="scene-note">{COPY.water.note}</p>
           </div>
 
+          {/* ── лимон прыгает на кораблик, отскакивает и летит бить кнопку ──
+              позиция считается из того же «focus», что и катящийся лимон
+              (см. placeHit/TRACK.hit) — скраббится скроллом в обе стороны. */}
+          <div className="scene-lemon scene-lemon--hit" ref={hitRef} style={{ width: X(SPOT.lemon) }} aria-hidden>
+            <Lemon />
+          </div>
+
           {/* ── горы: финал ── */}
           <div
             className="scene-mountain-shade"
@@ -527,21 +590,25 @@ export function GelateriaScene() {
             style={{ top: Y(5940), height: Y(900) }}
             aria-hidden
           />
-          <div className="scene-finale" data-reveal style={{ top: Y(6180) }}>
+          <div className="scene-finale" data-reveal style={{ top: Y(6450) }}>
             <p className="scene-eyebrow">{COPY.finale.eyebrow}</p>
             <h2 className="scene-title">{COPY.finale.title}</h2>
             <p className="scene-note">{COPY.finale.note}</p>
             <div className="scene-actions">
               <button
                 type="button"
-                className="scene-btn scene-btn--solid"
+                ref={finaleBtnRef}
+                className="scene-btn scene-btn--ghost"
                 onClick={() => {
                   track(EVENTS.quizStarted, { place: 'scene' });
                   setQuizOpen(true);
                 }}
               >
-                <Sparkles className="size-4" aria-hidden />
-                Пройти тест
+                <span className="scene-btn-splash" aria-hidden />
+                <span className="scene-btn-label">
+                  <Sparkles className="size-4" aria-hidden />
+                  Пройти тест
+                </span>
               </button>
             </div>
           </div>
