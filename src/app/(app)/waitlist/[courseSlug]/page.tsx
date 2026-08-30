@@ -1,11 +1,36 @@
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { ArrowUpRight } from 'lucide-react';
 import { getTestCourse } from '@/lib/db/courses';
 import { DoodleWord } from '@/components/doodle-decor';
 import { courseKey, waitlistPath } from '@/lib/slug';
+import { SITE_URL } from '@/lib/site';
 
 const PROMO_URL = 'https://vibe.gelato.education';
+
+export async function generateMetadata({ params }: {
+  params: Promise<{ courseSlug: string }>;
+}): Promise<Metadata> {
+  const { courseSlug } = await params;
+  const course = await getTestCourse(courseSlug);
+  if (!course) return {};
+  const title = `${course.title} — скоро в GELATO`;
+  const description = course.description || `Курс «${course.title}» скоро откроется в школе GELATO. Оставьте заявку, чтобы попасть в число первых.`;
+  const canonical = `${SITE_URL}${waitlistPath(courseKey(course))}`;
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: 'website',
+      url: canonical,
+      title,
+      description,
+      images: course.coverUrl ? [{ url: course.coverUrl, alt: course.title }] : undefined,
+    },
+  };
+}
 
 export default async function WaitlistPage({ params }: {
   params: Promise<{ courseSlug: string }>;
