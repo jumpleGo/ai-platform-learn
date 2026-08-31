@@ -138,6 +138,11 @@ export function GelateriaScene() {
     // Первый экран — чистая витрина: рассказ про школу начинается со скролла.
     // Иначе блок «о нас» стоит в кадре уже при загрузке и спорит с вывеской.
     const reveals = Array.from(stage.querySelectorAll('[data-reveal]'));
+    // На телефоне первый смысловой блок — точка входа в историю, поэтому он
+    // виден сразу. Остальная сцена по-прежнему раскрывается после скролла.
+    if (matchMedia('(max-width: 700px)').matches) {
+      stage.querySelector('.scene-hero')?.setAttribute('data-in', '');
+    }
     let armed = false;
     const arm = () => {
       if (armed || scrollY < 24) return;
@@ -204,7 +209,12 @@ export function GelateriaScene() {
       // X()/Y(), поэтому переводится в пиксели канвы напрямую).
       const [boatFrom, boatTo] = TRACK.boat;
       const qBoat = Math.min(1, Math.max(0, (focus - boatFrom) / (boatTo - boatFrom)));
-      const boatOffsetX = ((qBoat - 0.42) * 26) / 100 * CANVAS_W;
+      const mobile = innerWidth <= 700;
+      // CSS мобильного кораблика использует более короткий проезд (10cqw)
+      // и постоянный сдвиг вправо (17cqw). Точка посадки лимона обязана
+      // повторять ровно ту же формулу, иначе он прыгает мимо палубы.
+      const boatShiftCqw = mobile ? (qBoat - 0.42) * 10 + 17 : (qBoat - 0.42) * 26;
+      const boatOffsetX = boatShiftCqw / 100 * CANVAS_W;
 
       // Насколько измеренный в DOM центр кнопки (та же точка 30%/55%, откуда
       // растёт заливка) отличается от нарисованной точки удара.
@@ -217,7 +227,12 @@ export function GelateriaScene() {
       }
 
       const [hitFrom, hitTo] = TRACK.hit;
-      placeHit((focus - hitFrom) / (hitTo - hitFrom), boatOffsetX, buttonOffset);
+      // На мобильном видимая высота полотна короче относительно viewport,
+      // поэтому до десктопной точки 6560 px пользователь физически не успевал
+      // доскроллить. Сжимаем только финальный отрезок полёта: траектория и
+      // измеренная точка удара в кнопку остаются теми же.
+      const effectiveHitTo = mobile ? 6400 : hitTo;
+      placeHit((focus - hitFrom) / (effectiveHitTo - hitFrom), boatOffsetX, buttonOffset);
 
       arm();
 
@@ -272,6 +287,9 @@ export function GelateriaScene() {
       // «места нет» и текст спрячется весь. Ждём разложенной сцены.
       if (stage.offsetHeight < window.innerHeight) return;
       restore();
+      // Мобильная раскадровка зумирована и разнесена отдельно: там нельзя
+      // жертвовать смысловыми абзацами ради свободного места на рисунке.
+      if (matchMedia('(max-width: 700px)').matches) return;
       const blocks = Array.from(stage.querySelectorAll<HTMLElement>('.scene-copy'));
       const others = Array.from(
         stage.querySelectorAll<HTMLElement>('.scene-copy, .scene-bubble, .scene-legal'),
@@ -454,7 +472,9 @@ export function GelateriaScene() {
           <div className="scene-copy scene-hero" data-reveal style={{ '--l': X(756), '--r': X(180), '--t': Y(624) } as React.CSSProperties}>
             <p className="scene-eyebrow whitespace-pre-line">{COPY.hero.eyebrow}</p>
             <h1 className="scene-title whitespace-pre-line"><RichText text={COPY.hero.title} /></h1>
-            <p className="scene-note">{COPY.hero.note}</p>
+            <div className="scene-note scene-hero-story"><RichText text={COPY.hero.story} /></div>
+            <div className="scene-note scene-hero-brand"><RichText text={COPY.hero.brand} /></div>
+            <p className="scene-hero-cta">{COPY.hero.cta}</p>
           </div>
 
           <div
@@ -486,19 +506,36 @@ export function GelateriaScene() {
             className="scene-copy scene-cards scene-yard-cards"
             data-plate
             data-reveal
-            style={{ '--l': X(104), '--r': X(560), '--t': Y(2380) } as React.CSSProperties}
+            style={{ '--l': X(104), '--r': X(104), '--t': Y(2290) } as React.CSSProperties}
           >
             {COPY.yard.map((item, i) => (
-              <div key={item.title} data-reveal style={{ '--d': `${i * 0.12}s` } as React.CSSProperties}>
+              <div
+                key={item.title}
+                className={`scene-yard-card scene-yard-card--${i === 0 ? 'benefit' : 'emil'}`}
+                data-reveal
+                style={{ '--d': `${i * 0.12}s` } as React.CSSProperties}
+              >
                 <p className="scene-card-title">{item.title}</p>
                 <p className="scene-card-note">{item.note}</p>
               </div>
             ))}
           </div>
 
-          <Bubble x={SPOT.tableBubble.x} y={SPOT.tableBubble.y} tail="down" className="scene-bubble--table">
+          <Bubble x={SPOT.tableBubble.x} y={SPOT.tableBubble.y} tail="right" className="scene-bubble--table">
             {COPY.bubbles.table}
           </Bubble>
+
+          {/* Портрет вынесен из фоновой панели отдельным прозрачным слоем:
+              так его можно точно подогнать, не пережимая всю иллюстрацию. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className="scene-emil-avatar"
+            src="/scene/emil-avatar-collage-v2.webp"
+            alt="Эмиль"
+            width={384}
+            height={360}
+            style={{ left: X(SPOT.emilAvatar.x), top: Y(SPOT.emilAvatar.y), width: X(SPOT.emilAvatar.w) }}
+          />
 
           <div className="scene-lemon scene-lemon--roll" ref={rollRef} style={{ width: X(SPOT.lemon) }}>
             <Lemon />
@@ -512,7 +549,10 @@ export function GelateriaScene() {
           >
             <p className="scene-eyebrow">{COPY.project.eyebrow}</p>
             <h2 className="scene-title">{COPY.project.title}</h2>
-            <p className="scene-note">{COPY.project.note}</p>
+            <p className="scene-note">
+              {COPY.project.note}{' '}
+              <span className="scene-project-expert">{COPY.project.expertNote}</span>
+            </p>
           </div>
 
           <Bubble x={SPOT.dogBubble.x} y={SPOT.dogBubble.y} tail="left" className="scene-bubble--dog">
@@ -528,8 +568,12 @@ export function GelateriaScene() {
             <p className="scene-eyebrow">{COPY.pains.eyebrow}</p>
             <h2 className="scene-title">{COPY.pains.title}</h2>
             <ul className="scene-pains">
-              {COPY.pains.items.map((item) => (
-                <li key={item}>{item}</li>
+              {COPY.pains.items.map((item, index) => (
+                <li key={item}>
+                  {index === 1 ? (
+                    <>Объясняете задачу, получаете не&nbsp;то&nbsp;—<br className="scene-mobile-break" /> и&nbsp;переделываете по&nbsp;кругу.</>
+                  ) : item}
+                </li>
               ))}
             </ul>
             <p className="scene-kicker">{COPY.pains.note}</p>
@@ -539,7 +583,7 @@ export function GelateriaScene() {
             className="scene-copy scene-side-note"
             data-plate
             data-reveal
-            style={{ '--l': X(1050), '--r': X(92), '--t': Y(4630) } as React.CSSProperties}
+            style={{ '--l': X(950), '--r': X(72), '--t': Y(4860) } as React.CSSProperties}
           >
             <h3 className="scene-card-title">{COPY.painsSide.title}</h3>
             <p className="scene-card-note">{COPY.painsSide.note}</p>

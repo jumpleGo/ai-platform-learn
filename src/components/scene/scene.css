@@ -27,15 +27,143 @@
    мобильном подъезжаем ближе — полотно шире экрана, края уходят в обрез,
    а композиция и подписи остаются читаемыми. */
 @media (max-width: 700px) {
+  .scene {
+    /* Абсолютный финал выходит чуть ниже рисованного полотна. Этот запас
+       принадлежит самой зелёной сцене, поэтому под кнопкой нет белой полосы. */
+    padding-bottom: 15rem;
+    background: #324f3d;
+  }
+
   .scene-stage {
     /* Мобильная версия — отдельная крупная раскадровка, а не уменьшенный
        десктоп: ключевые персонажи занимают больше экрана, края работают
        как кинематографический кроп. */
-    --mobile-canvas: 152vw;
+    --mobile-canvas: 175vw;
     width: var(--mobile-canvas);
     max-width: none;
     margin-left: calc(50% - var(--mobile-canvas) / 2);
   }
+
+  /* Единая мобильная типографическая шкала. */
+  .scene-title {
+    font-size: 1.55rem;
+    line-height: 1.08;
+  }
+
+  .scene-note,
+  .scene-card-note,
+  .scene-pains,
+  .scene-kicker {
+    font-size: 0.94rem;
+    line-height: 1.42;
+  }
+
+  .scene-card-title {
+    font-size: 1.16rem;
+    line-height: 1.12;
+  }
+
+  .scene-eyebrow {
+    font-size: 0.82rem;
+    line-height: 1.05;
+    padding: 0.18em 0.62em 0.13em;
+    text-shadow: none;
+  }
+
+  .scene-copy[data-plate],
+  .scene-yard-card,
+  .scene-wall-cards > div {
+    background: color-mix(in oklch, var(--plate-tone, var(--color-brand-yellow)) 12%, var(--cream) 88%);
+  }
+
+  .scene-hero {
+    text-shadow: none;
+  }
+
+  .scene-hero .scene-note {
+    font-size: 1rem;
+  }
+
+  .scene-wall-cards {
+    gap: 0.65rem;
+  }
+
+  .scene-wall-cards > div {
+    min-height: 0;
+    justify-content: flex-start;
+    padding: 0.72rem;
+  }
+
+  .scene-wall-cards .scene-card-note {
+    font-size: 0.84rem;
+    line-height: 1.34;
+  }
+
+  .scene-yard-cards {
+    display: block;
+  }
+
+  .scene-yard-card {
+    width: 56%;
+    padding: 0.85rem;
+  }
+
+  .scene-yard-card--emil {
+    width: 64%;
+    margin-top: 1rem;
+    margin-left: 0;
+  }
+
+  .scene-door-label {
+    top: 50%;
+    bottom: auto;
+    translate: -50% -50%;
+    color: var(--color-brand-yellow);
+    font-size: 1rem;
+    opacity: 1;
+    text-shadow: 0 1px 0 var(--navy), 0 0 8px rgba(16, 38, 71, 0.65);
+  }
+
+  .scene-door:hover .scene-door-label,
+  .scene-door:focus-visible .scene-door-label {
+    translate: -50% -50%;
+  }
+
+  .scene-pains {
+    gap: 0.45rem;
+  }
+
+  .scene-pains li {
+    display: block;
+    padding: 0.52rem 0.7rem;
+    border: 1px solid color-mix(in oklab, var(--red) 24%, transparent);
+    border-radius: 1.1rem;
+    background: color-mix(in oklch, var(--color-brand-sky) 9%, var(--cream) 91%);
+  }
+
+  .scene-pains li::before {
+    content: none;
+  }
+
+  .scene-bubble--duck {
+    font-size: 0.7rem;
+  }
+
+  .scene-bubble--dog {
+    top: 59% !important;
+    left: 62% !important;
+  }
+
+  .scene-side-note { top: 81.8% !important; left: 20.5%; right: 20.5%; }
+  .scene-water-copy { top: 90.4% !important; left: 20.5%; right: 20.5%; }
+
+  .scene-finale {
+    top: 97% !important;
+    left: 10%;
+    right: 10%;
+  }
+
+  .scene-legal { top: 102.5% !important; }
 }
 
 /* ── полотно ─────────────────────────────────────────────────────────────── */
@@ -190,17 +318,114 @@
   font-size: clamp(0.82rem, 1.35cqw, 1.4rem);
 }
 
+/* Ключевой момент первого экрана — отдельная брендовая реплика, а не просто
+   жирная строка внутри абзаца. */
+.scene-hero .scene-note strong {
+  display: inline;
+  padding: 0 0.14em;
+  color: var(--navy);
+  font-weight: 800;
+  text-shadow: none;
+}
+
+.scene-hero-story strong {
+  background: linear-gradient(transparent 54%, color-mix(in oklch, var(--color-brand-sky) 62%, transparent) 54%);
+}
+
+.scene-hero-brand strong {
+  background: linear-gradient(transparent 48%, var(--color-brand-yellow) 48%);
+  font-family: var(--font-bips), var(--font-manrope), sans-serif;
+  font-size: 1.08em;
+}
+
+.scene-hero-story,
+.scene-hero-brand {
+  padding: 0;
+  text-shadow: none;
+}
+
+.scene-hero-story {
+  margin-top: 0.7em;
+}
+
+.scene-hero-brand {
+  margin-top: 1.05em;
+}
+
+.scene-hero-cta {
+  display: inline-flex;
+  margin-top: 0.8em;
+  padding: 0.34em 0.7em 0.27em;
+  border: 0.11cqw solid var(--navy);
+  border-radius: 999px;
+  background: var(--color-brand-yellow);
+  color: var(--navy);
+  font-family: var(--font-bips), var(--font-manrope), sans-serif;
+  font-size: clamp(0.78rem, 1.15cqw, 1.2rem);
+  font-weight: 700;
+  line-height: 1.05;
+  box-shadow: 0 0.14cqw 0 var(--navy);
+  rotate: -1.5deg;
+}
+
 .scene-cards {
   display: grid;
   gap: clamp(1rem, 2.4cqw, 2.6rem);
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-/* Колонки на стене неравные: у правой карточки заметка длиннее, и на равных
-   колонках она набиралась на строку больше — блок выглядел кривым. Ширина
-   подобрана так, чтобы обе заметки легли в одинаковое число строк. */
 .scene-wall-cards {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.32fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.scene-wall-cards > div {
+  display: flex;
+  min-height: 13.5cqw;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.15cqw 1.35cqw;
+  border: 0.13cqw dashed color-mix(in oklab, var(--ink) 55%, transparent);
+  border-radius: 1cqw;
+  background: color-mix(in oklch, var(--color-brand-yellow) 18%, var(--cream) 82%);
+  box-shadow: 0 0.6cqw 1.8cqw rgba(90, 58, 22, 0.18);
+}
+
+/* Во дворе две мысли привязаны к разным героям сцены: «Польза» продолжает
+   рассказ сразу под дверью, а представление Эмиля стоит у рабочего стола. */
+.scene-yard-cards {
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  align-items: start;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.scene-yard-card {
+  padding: 1.7cqw 1.9cqw;
+  border: 0.13cqw dashed color-mix(in oklab, var(--ink) 55%, transparent);
+  border-radius: 1.4cqw;
+  background: color-mix(in oklch, var(--color-brand-green) 24%, var(--cream) 76%);
+  box-shadow: 0 0.6cqw 1.8cqw rgba(90, 58, 22, 0.18);
+}
+
+.scene-yard-card--emil {
+  margin-top: 12cqw;
+}
+
+.scene-emil-avatar {
+  position: absolute;
+  z-index: 2;
+  height: auto;
+  transform: rotate(4deg);
+  transform-origin: 50% 88%;
+  filter: drop-shadow(0 0.45cqw 0.45cqw rgba(55, 34, 18, 0.32));
+  pointer-events: none;
 }
 
 .scene-card-title {
@@ -246,6 +471,10 @@
   content: '—';
   color: var(--red);
   flex: none;
+}
+
+.scene-mobile-break {
+  display: none;
 }
 
 .scene-kicker {
@@ -899,6 +1128,70 @@
   text-decoration: underline;
 }
 
+/* Мобильные переопределения стоят после базовых правил, чтобы шкала типов и
+   карточки не зависели от порядка деклараций десктопной сцены. */
+@media (max-width: 700px) {
+  .scene-title { font-size: 1.55rem; line-height: 1.08; }
+  .scene-note,
+  .scene-card-note,
+  .scene-pains,
+  .scene-kicker { font-size: 0.94rem; line-height: 1.42; }
+  .scene-card-title { font-size: 1.16rem; line-height: 1.12; }
+  .scene-eyebrow {
+    padding: 0.18em 0.62em 0.13em;
+    font-size: 0.82rem;
+    line-height: 1.05;
+    text-shadow: none;
+  }
+  .scene-copy[data-plate],
+  .scene-yard-card,
+  .scene-wall-cards > div {
+    background: color-mix(in oklch, var(--plate-tone, var(--color-brand-yellow)) 12%, var(--cream) 88%);
+  }
+  .scene-hero { text-shadow: none; }
+  .scene-hero .scene-note { font-size: 1rem; }
+  .scene-wall-cards { gap: 0.65rem; }
+  .scene-wall-cards > div {
+    min-height: 0;
+    justify-content: flex-start;
+    padding: 0.72rem;
+  }
+  .scene-wall-cards .scene-card-note { font-size: 0.84rem; line-height: 1.34; }
+  .scene-yard-cards { display: block; }
+  .scene-yard-card { width: 56%; padding: 0.85rem; }
+  .scene-yard-card--emil {
+    width: 64%;
+    margin-top: 1rem;
+    margin-left: 0;
+  }
+  .scene-door-label {
+    top: 50%;
+    bottom: auto;
+    translate: -50% -50%;
+    color: var(--color-brand-yellow);
+    font-size: 1rem;
+    opacity: 1;
+    text-shadow: 0 1px 0 var(--navy), 0 0 8px rgba(16, 38, 71, 0.65);
+  }
+  .scene-door:hover .scene-door-label,
+  .scene-door:focus-visible .scene-door-label { translate: -50% -50%; }
+  .scene-pains { gap: 0.45rem; }
+  .scene-pains li {
+    display: block;
+    padding: 0.52rem 0.7rem;
+    border: 1px solid color-mix(in oklab, var(--red) 24%, transparent);
+    border-radius: 1.1rem;
+    background: color-mix(in oklch, var(--color-brand-sky) 9%, var(--cream) 91%);
+  }
+  .scene-pains li::before { content: none; }
+  .scene-bubble--duck { font-size: 0.7rem; }
+  .scene-bubble.scene-bubble--dog { top: 60% !important; left: 62% !important; }
+  .scene-copy.scene-side-note { top: 85.2% !important; left: 20.5%; right: 20.5%; }
+  .scene-copy.scene-water-copy { top: 93.3% !important; left: 20.5%; right: 20.5%; }
+  .scene-finale[data-reveal] { top: 99.9% !important; left: 10%; right: 10%; }
+  .scene-legal { top: 102.5% !important; }
+}
+
 /* ── узкий экран: полотно в обрезе, текст тот же ─────────────────────────── */
 
 @media (max-width: 700px) {
@@ -961,23 +1254,25 @@
 
   .scene-project {
     top: 50.8% !important;
-    right: 37%;
+    left: 20.5%;
+    right: 20.5%;
   }
 
   .scene-pains-copy {
-    top: 63.7% !important;
+    top: 62.2% !important;
     right: 34%;
   }
 
   .scene-side-note {
-    top: 71.2% !important;
-    left: 47%;
+    top: 85.2% !important;
+    left: 20.5%;
+    right: 20.5%;
   }
 
   .scene-water-copy {
-    top: 78.8% !important;
+    top: 93.3% !important;
     left: 20.5%;
-    right: 52%;
+    right: 20.5%;
   }
 
   .scene-water-copy .scene-title {
@@ -1037,7 +1332,8 @@
   }
 
   .scene-bubble--dog {
-    left: 55% !important;
+    top: 60% !important;
+    left: 62% !important;
   }
 
   .scene-stamp {
@@ -1074,5 +1370,233 @@
   .scene-hint {
     bottom: max(1rem, env(safe-area-inset-bottom));
     font-size: 0.9rem;
+  }
+}
+
+/* Финальная мобильная композиция: эти правила намеренно замыкают каскад. */
+@media (max-width: 700px) {
+  .scene-title { font-size: 1.55rem; line-height: 1.08; }
+  .scene-note,
+  .scene-card-note,
+  .scene-pains,
+  .scene-kicker { font-size: 0.94rem; line-height: 1.42; }
+  .scene-card-title { font-size: 1.16rem; line-height: 1.12; }
+  .scene-eyebrow { font-size: 0.82rem; line-height: 1.05; }
+  .scene-copy[data-plate],
+  .scene-yard-card,
+  .scene-wall-cards > div {
+    background: color-mix(in oklch, var(--plate-tone, var(--color-brand-yellow)) 12%, var(--cream) 88%);
+  }
+  .scene-hero { text-shadow: none; }
+  .scene-hero .scene-note { font-size: 1rem; }
+  .scene-wall-cards { gap: 0.65rem; }
+  .scene-wall-cards > div { min-height: 0; padding: 0.72rem; }
+  .scene-wall-cards .scene-card-note { font-size: 0.84rem; line-height: 1.34; }
+  .scene-yard-cards { display: block; }
+  .scene-yard-card { width: 56%; padding: 0.85rem; }
+  .scene-yard-card--emil { width: 64%; margin: 1rem 0 0; }
+  .scene-door-label {
+    top: 50%;
+    bottom: auto;
+    translate: -50% -50%;
+    color: var(--color-brand-yellow);
+    font-size: 1rem;
+    opacity: 1;
+    text-shadow: 0 1px 0 var(--navy), 0 0 8px rgba(16, 38, 71, 0.65);
+  }
+  .scene-door:hover .scene-door-label,
+  .scene-door:focus-visible .scene-door-label { translate: -50% -50%; }
+  .scene-pains { gap: 0.45rem; }
+  .scene-pains li {
+    display: block;
+    padding: 0.52rem 0.7rem;
+    border: 1px solid color-mix(in oklab, var(--red) 24%, transparent);
+    border-radius: 1.1rem;
+    background: color-mix(in oklch, var(--color-brand-sky) 9%, var(--cream) 91%);
+  }
+  .scene-pains li::before { content: none; }
+  .scene-bubble--duck { font-size: 0.7rem; }
+  .scene-project { left: 20.5%; right: 20.5%; }
+  .scene-bubble--dog { top: 60% !important; left: 62% !important; }
+  .scene-pains-copy { top: 62.2% !important; }
+  .scene-side-note { top: 85.2% !important; left: 20.5%; right: 20.5%; }
+  .scene-water-copy { top: 93.3% !important; left: 20.5%; right: 20.5%; }
+  .scene-finale { top: 99.9% !important; left: 10%; right: 10%; }
+  .scene-legal { display: none; }
+
+  .scene-mountain-shade {
+    display: none;
+  }
+
+  .scene-project .scene-note,
+  .scene-pains-copy .scene-pains,
+  .scene-pains-copy .scene-kicker,
+  .scene-side-note .scene-card-note,
+  .scene-water-copy .scene-note,
+  .scene-wall-cards .scene-card-note {
+    font-size: 0.94rem;
+    line-height: 1.42;
+  }
+
+  .scene-project .scene-title,
+  .scene-pains-copy .scene-title,
+  .scene-water-copy .scene-title {
+    font-size: 1.45rem;
+    line-height: 1.08;
+  }
+
+  .scene-side-note .scene-card-title {
+    font-size: 1.16rem;
+    line-height: 1.12;
+  }
+
+  .scene-bubble--dog {
+    max-width: 42cqw;
+    font-size: 0.9rem;
+    line-height: 1.3;
+  }
+
+  /* Одна непрерывная горная панель: увеличиваем нижний срез, не повторяя его. */
+  .scene-stage > picture:last-of-type .scene-slice {
+    height: 24.7% !important;
+    object-fit: cover;
+    object-position: center bottom;
+  }
+
+  /* Сценарии больше не сидят на одной большой карточке. */
+  .scene-copy.scene-pains-copy {
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .scene-pains-copy .scene-eyebrow,
+  .scene-pains-copy .scene-title,
+  .scene-pains-copy .scene-kicker {
+    margin-left: 0.7rem;
+  }
+
+  .scene-pains-copy .scene-title {
+    display: inline-block;
+    max-width: calc(100% - 1.4rem);
+    padding: 0.5rem 0.7rem;
+    border: 0.12rem solid var(--navy);
+    border-radius: 1rem;
+    background: var(--color-brand-yellow);
+    box-shadow: 0 0.16rem 0 var(--navy);
+    rotate: -1deg;
+  }
+
+  .scene-pains li {
+    width: 84%;
+  }
+
+  .scene-pains li:nth-child(odd) {
+    margin-right: auto;
+    rotate: -0.7deg;
+  }
+
+  .scene-pains li:nth-child(even) {
+    margin-left: auto;
+    rotate: 0.7deg;
+  }
+
+  .scene-pains li:nth-child(3n) {
+    width: 76%;
+  }
+
+  .scene-pains li:nth-child(3n + 2) {
+    width: 90%;
+  }
+
+  /* Единая безопасная зона мобильного viewport: 23.75% широкого полотна
+     соответствует примерно 16 px от края экрана при canvas 175vw. */
+  .scene-copy {
+    left: 23.75%;
+    right: 23.75%;
+  }
+
+  .scene-hero {
+    left: 44.5%;
+    right: 23.75%;
+  }
+
+  .scene-hero .scene-eyebrow {
+    padding: 0.32em 0.72em 0.25em;
+    font-size: 1.08rem;
+    line-height: 1.04;
+    box-shadow: 0 0.16rem 0 var(--navy);
+    rotate: -2deg;
+  }
+
+  .scene-hero-cta {
+    display: none;
+  }
+
+  .scene-project,
+  .scene-side-note,
+  .scene-water-copy {
+    left: 23.75% !important;
+    right: 23.75% !important;
+  }
+
+  .scene-project {
+    top: 47.5% !important;
+  }
+
+  .scene-finale[data-reveal] {
+    left: 23.75%;
+    right: 23.75%;
+  }
+
+  .scene-project-expert {
+    display: none;
+  }
+
+  .scene-bubble.scene-bubble--dog {
+    top: 57% !important;
+    left: 44% !important;
+    max-width: 27cqw;
+    padding: 0.45em 0.65em;
+    font-size: 0.72rem;
+    line-height: 1.18;
+  }
+
+  .scene-copy.scene-pains-copy {
+    top: 68% !important;
+  }
+
+  .scene-pains li:nth-child(n + 4) {
+    display: none;
+  }
+
+  .scene-pains li,
+  .scene-pains li:nth-child(3n),
+  .scene-pains li:nth-child(3n + 2) {
+    width: fit-content;
+    max-width: 90%;
+  }
+
+  .scene-pains li:nth-child(odd) {
+    justify-self: start;
+  }
+
+  .scene-pains li:nth-child(even) {
+    justify-self: end;
+  }
+
+  .scene-pains li:nth-child(2) {
+    box-sizing: border-box;
+    width: 15rem;
+    max-width: calc(100% - 1rem);
+    margin-right: auto;
+    margin-left: 0;
+    justify-self: start;
+    text-wrap: pretty;
+  }
+
+  .scene-mobile-break {
+    display: initial;
   }
 }
