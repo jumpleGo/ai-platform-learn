@@ -28,9 +28,10 @@
    а композиция и подписи остаются читаемыми. */
 @media (max-width: 700px) {
   .scene {
-    /* Абсолютный финал выходит чуть ниже рисованного полотна. Этот запас
-       принадлежит самой зелёной сцене, поэтому под кнопкой нет белой полосы. */
-    padding-bottom: 15rem;
+    /* Абсолютный финал выходит ниже рисованного полотна. Запас в vw, а не в
+       rem: он должен расти вместе с полотном, иначе на узком экране кнопка
+       упирается в край зелёного. */
+    padding-bottom: 61.5vw;
     background: #324f3d;
   }
 
@@ -43,127 +44,6 @@
     max-width: none;
     margin-left: calc(50% - var(--mobile-canvas) / 2);
   }
-
-  /* Единая мобильная типографическая шкала. */
-  .scene-title {
-    font-size: 1.55rem;
-    line-height: 1.08;
-  }
-
-  .scene-note,
-  .scene-card-note,
-  .scene-pains,
-  .scene-kicker {
-    font-size: 0.94rem;
-    line-height: 1.42;
-  }
-
-  .scene-card-title {
-    font-size: 1.16rem;
-    line-height: 1.12;
-  }
-
-  .scene-eyebrow {
-    font-size: 0.82rem;
-    line-height: 1.05;
-    padding: 0.18em 0.62em 0.13em;
-    text-shadow: none;
-  }
-
-  .scene-copy[data-plate],
-  .scene-yard-card,
-  .scene-wall-cards > div {
-    background: color-mix(in oklch, var(--plate-tone, var(--color-brand-yellow)) 12%, var(--cream) 88%);
-  }
-
-  .scene-hero {
-    text-shadow: none;
-  }
-
-  .scene-hero .scene-note {
-    font-size: 1rem;
-  }
-
-  .scene-wall-cards {
-    gap: 0.65rem;
-  }
-
-  .scene-wall-cards > div {
-    min-height: 0;
-    justify-content: flex-start;
-    padding: 0.72rem;
-  }
-
-  .scene-wall-cards .scene-card-note {
-    font-size: 0.84rem;
-    line-height: 1.34;
-  }
-
-  .scene-yard-cards {
-    display: block;
-  }
-
-  .scene-yard-card {
-    width: 56%;
-    padding: 0.85rem;
-  }
-
-  .scene-yard-card--emil {
-    width: 64%;
-    margin-top: 1rem;
-    margin-left: 0;
-  }
-
-  .scene-door-label {
-    top: 50%;
-    bottom: auto;
-    translate: -50% -50%;
-    color: var(--color-brand-yellow);
-    font-size: 1rem;
-    opacity: 1;
-    text-shadow: 0 1px 0 var(--navy), 0 0 8px rgba(16, 38, 71, 0.65);
-  }
-
-  .scene-door:hover .scene-door-label,
-  .scene-door:focus-visible .scene-door-label {
-    translate: -50% -50%;
-  }
-
-  .scene-pains {
-    gap: 0.45rem;
-  }
-
-  .scene-pains li {
-    display: block;
-    padding: 0.52rem 0.7rem;
-    border: 1px solid color-mix(in oklab, var(--red) 24%, transparent);
-    border-radius: 1.1rem;
-    background: color-mix(in oklch, var(--color-brand-sky) 9%, var(--cream) 91%);
-  }
-
-  .scene-pains li::before {
-    content: none;
-  }
-
-  .scene-bubble--duck {
-    font-size: 0.7rem;
-  }
-
-  .scene-bubble--dog {
-    top: 59% !important;
-    left: 62% !important;
-  }
-
-  .scene-side-note { top: 81.8% !important; left: 20.5%; right: 20.5%; }
-  .scene-water-copy { top: 90.4% !important; left: 20.5%; right: 20.5%; }
-
-  .scene-finale {
-    top: 97% !important;
-    left: 10%;
-    right: 10%;
-  }
-
-  .scene-legal { top: 102.5% !important; }
 }
 
 /* ── полотно ─────────────────────────────────────────────────────────────── */
@@ -1128,220 +1008,6 @@
   text-decoration: underline;
 }
 
-/* Мобильные переопределения стоят после базовых правил, чтобы шкала типов и
-   карточки не зависели от порядка деклараций десктопной сцены. */
-@media (max-width: 700px) {
-  .scene-title { font-size: 1.55rem; line-height: 1.08; }
-  .scene-note,
-  .scene-card-note,
-  .scene-pains,
-  .scene-kicker { font-size: 0.94rem; line-height: 1.42; }
-  .scene-card-title { font-size: 1.16rem; line-height: 1.12; }
-  .scene-eyebrow {
-    padding: 0.18em 0.62em 0.13em;
-    font-size: 0.82rem;
-    line-height: 1.05;
-    text-shadow: none;
-  }
-  .scene-copy[data-plate],
-  .scene-yard-card,
-  .scene-wall-cards > div {
-    background: color-mix(in oklch, var(--plate-tone, var(--color-brand-yellow)) 12%, var(--cream) 88%);
-  }
-  .scene-hero { text-shadow: none; }
-  .scene-hero .scene-note { font-size: 1rem; }
-  .scene-wall-cards { gap: 0.65rem; }
-  .scene-wall-cards > div {
-    min-height: 0;
-    justify-content: flex-start;
-    padding: 0.72rem;
-  }
-  .scene-wall-cards .scene-card-note { font-size: 0.84rem; line-height: 1.34; }
-  .scene-yard-cards { display: block; }
-  .scene-yard-card { width: 56%; padding: 0.85rem; }
-  .scene-yard-card--emil {
-    width: 64%;
-    margin-top: 1rem;
-    margin-left: 0;
-  }
-  .scene-door-label {
-    top: 50%;
-    bottom: auto;
-    translate: -50% -50%;
-    color: var(--color-brand-yellow);
-    font-size: 1rem;
-    opacity: 1;
-    text-shadow: 0 1px 0 var(--navy), 0 0 8px rgba(16, 38, 71, 0.65);
-  }
-  .scene-door:hover .scene-door-label,
-  .scene-door:focus-visible .scene-door-label { translate: -50% -50%; }
-  .scene-pains { gap: 0.45rem; }
-  .scene-pains li {
-    display: block;
-    padding: 0.52rem 0.7rem;
-    border: 1px solid color-mix(in oklab, var(--red) 24%, transparent);
-    border-radius: 1.1rem;
-    background: color-mix(in oklch, var(--color-brand-sky) 9%, var(--cream) 91%);
-  }
-  .scene-pains li::before { content: none; }
-  .scene-bubble--duck { font-size: 0.7rem; }
-  .scene-bubble.scene-bubble--dog { top: 60% !important; left: 62% !important; }
-  .scene-copy.scene-side-note { top: 85.2% !important; left: 20.5%; right: 20.5%; }
-  .scene-copy.scene-water-copy { top: 93.3% !important; left: 20.5%; right: 20.5%; }
-  .scene-finale[data-reveal] { top: 99.9% !important; left: 10%; right: 10%; }
-  .scene-legal { top: 102.5% !important; }
-}
-
-/* ── узкий экран: полотно в обрезе, текст тот же ─────────────────────────── */
-
-@media (max-width: 700px) {
-  /* Видимая полоса составляет около 66cqw. Карточки держим внутри неё и
-     собираем в самостоятельную мобильную колонку. */
-  .scene-copy {
-    left: 20.5%;
-    right: 20.5%;
-  }
-
-  .scene-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 2.8cqw;
-  }
-
-  /* Та же плашка, что на десктопе — пунктир и цветной тон, а не отдельный
-     мобильный стиль с акцентной полосой: карточки не должны выглядеть
-     другим сайтом при повороте экрана. */
-  .scene-copy[data-plate] {
-    padding: 1.25cqw 1.6cqw;
-    border-radius: 0.9cqw;
-  }
-
-  .scene-card-title {
-    font-size: clamp(0.92rem, 2.8cqw, 1.08rem);
-  }
-
-  .scene-card-note,
-  .scene-note,
-  .scene-pains,
-  .scene-kicker {
-    font-size: clamp(0.76rem, 2.25cqw, 0.9rem);
-    line-height: 1.34;
-  }
-
-  .scene-title {
-    font-size: clamp(1.42rem, 5.2cqw, 2rem);
-    line-height: 1.02;
-  }
-
-  /* Текст на телефоне тот же, что и на десктопе, только мельче — короткие
-     варианты подписей убраны вместе с переключателем. */
-
-  /* Первый экран на телефоне собирается как журнальный разворот: портрет
-     остаётся слева, а заголовок занимает свободную стену справа. */
-  .scene-hero {
-    /* правее рамки портрета: вплотную к её чёрному краю текст читается плохо */
-    left: 44.5%;
-    right: 20.5%;
-  }
-
-  .scene-hero .scene-title {
-    font-size: clamp(1.25rem, 4.1cqw, 1.65rem);
-    line-height: 1.04;
-  }
-
-  .scene-eyebrow {
-    font-size: clamp(0.78rem, 2.5cqw, 0.95rem);
-  }
-
-  .scene-project {
-    top: 50.8% !important;
-    left: 20.5%;
-    right: 20.5%;
-  }
-
-  .scene-pains-copy {
-    top: 62.2% !important;
-    right: 34%;
-  }
-
-  .scene-side-note {
-    top: 85.2% !important;
-    left: 20.5%;
-    right: 20.5%;
-  }
-
-  .scene-water-copy {
-    top: 93.3% !important;
-    left: 20.5%;
-    right: 20.5%;
-  }
-
-  .scene-water-copy .scene-title {
-    font-size: clamp(1.08rem, 3.7cqw, 1.4rem);
-    line-height: 1.04;
-  }
-
-  .scene-boat {
-    margin-left: 17cqw;
-    transform: translateX(calc((var(--q, 0) - 0.42) * 10cqw));
-  }
-
-  .scene-project .scene-title,
-  .scene-pains-copy .scene-title {
-    font-size: clamp(1.08rem, 3.7cqw, 1.4rem);
-  }
-
-  .scene-side-note .scene-card-title {
-    font-size: clamp(0.86rem, 2.65cqw, 1rem);
-  }
-
-  .scene-finale {
-    left: 21%;
-    right: 21%;
-  }
-
-  .scene-finale .scene-note {
-    margin-top: 0.55em;
-  }
-
-  .scene-actions {
-    display: grid;
-    gap: 1.4cqw;
-  }
-
-  .scene-btn {
-    justify-content: center;
-    width: 100%;
-    padding: 0.7em 1em;
-  }
-
-  /* облачко в одну строку не влезает в обрезанное полотно */
-  .scene-bubble {
-    white-space: normal;
-    max-width: 34cqw;
-    padding: 0.55em 0.8em;
-    border-width: 0.2cqw;
-    font-size: clamp(0.7rem, 2.15cqw, 0.84rem);
-  }
-
-  .scene-bubble--duck {
-    left: 38% !important;
-  }
-
-  .scene-bubble--table {
-    left: 65% !important;
-  }
-
-  .scene-bubble--dog {
-    top: 60% !important;
-    left: 62% !important;
-  }
-
-  .scene-stamp {
-    left: 73% !important;
-    font-size: clamp(0.62rem, 2.1cqw, 0.8rem);
-  }
-}
-
 @media (max-width: 700px) {
   .scene-nav {
     top: auto;
@@ -1373,59 +1039,56 @@
   }
 }
 
-/* Финальная мобильная композиция: эти правила намеренно замыкают каскад. */
+/* ── Узкий экран: мобильная раскадровка ──────────────────────────────────────
+   Один блок на всю мобильную версию: и шкала типов, и позиции. Раньше их было
+   четыре, они переопределяли друг друга фиксированными rem — и на маленьком
+   телефоне (390 px, iPhone 13/14) текст перестал влезать в свободные зоны
+   рисунка и наезжал на соседние блоки.
+
+   Правило, которое это держит: внутри полотна ни одного rem. Кегли и отступы
+   задаются в cqw — доле ширины самого полотна, а полотно равно 175vw, поэтому
+   cqw пропорционален ширине экрана. Композиция, собранная на одной ширине,
+   повторяется один в один на любой другой: 320, 360, 390, 430, 700. rem тут
+   означал бы, что чем уже экран, тем большую долю рисунка занимает текст, —
+   именно так раскадровка и разъезжалась.
+
+   Позиции блоков (top в процентах высоты полотна) расставлены по свободным
+   зонам рисунка: стена фасада, брусчатка двора, песок, море, горы. Менять их
+   имеет смысл только вместе с замером — см. пересечения в geo-харнессе. */
 @media (max-width: 700px) {
-  .scene-title { font-size: 1.55rem; line-height: 1.08; }
+  /* ── шкала типов ── */
+  .scene-title {
+    font-size: 3.2cqw;
+    line-height: 1.1;
+  }
+
   .scene-note,
   .scene-card-note,
   .scene-pains,
-  .scene-kicker { font-size: 0.94rem; line-height: 1.42; }
-  .scene-card-title { font-size: 1.16rem; line-height: 1.12; }
-  .scene-eyebrow { font-size: 0.82rem; line-height: 1.05; }
-  .scene-copy[data-plate],
-  .scene-yard-card,
-  .scene-wall-cards > div {
-    background: color-mix(in oklch, var(--plate-tone, var(--color-brand-yellow)) 12%, var(--cream) 88%);
+  .scene-kicker {
+    font-size: 1.95cqw;
+    line-height: 1.42;
   }
-  .scene-hero { text-shadow: none; }
-  .scene-hero .scene-note { font-size: 1rem; }
-  .scene-wall-cards { gap: 0.65rem; }
-  .scene-wall-cards > div { min-height: 0; padding: 0.72rem; }
-  .scene-wall-cards .scene-card-note { font-size: 0.84rem; line-height: 1.34; }
-  .scene-yard-cards { display: block; }
-  .scene-yard-card { width: 56%; padding: 0.85rem; }
-  .scene-yard-card--emil { width: 64%; margin: 1rem 0 0; }
-  .scene-door-label {
-    top: 50%;
-    bottom: auto;
-    translate: -50% -50%;
-    color: var(--color-brand-yellow);
-    font-size: 1rem;
-    opacity: 1;
-    text-shadow: 0 1px 0 var(--navy), 0 0 8px rgba(16, 38, 71, 0.65);
-  }
-  .scene-door:hover .scene-door-label,
-  .scene-door:focus-visible .scene-door-label { translate: -50% -50%; }
-  .scene-pains { gap: 0.45rem; }
-  .scene-pains li {
-    display: block;
-    padding: 0.52rem 0.7rem;
-    border: 1px solid color-mix(in oklab, var(--red) 24%, transparent);
-    border-radius: 1.1rem;
-    background: color-mix(in oklch, var(--color-brand-sky) 9%, var(--cream) 91%);
-  }
-  .scene-pains li::before { content: none; }
-  .scene-bubble--duck { font-size: 0.7rem; }
-  .scene-project { left: 20.5%; right: 20.5%; }
-  .scene-bubble--dog { top: 60% !important; left: 62% !important; }
-  .scene-pains-copy { top: 62.2% !important; }
-  .scene-side-note { top: 85.2% !important; left: 20.5%; right: 20.5%; }
-  .scene-water-copy { top: 93.3% !important; left: 20.5%; right: 20.5%; }
-  .scene-finale { top: 99.9% !important; left: 10%; right: 10%; }
-  .scene-legal { display: none; }
 
-  .scene-mountain-shade {
-    display: none;
+  .scene-card-title {
+    font-size: 2.45cqw;
+    line-height: 1.14;
+  }
+
+  .scene-eyebrow {
+    padding: 0.2em 0.66em 0.14em;
+    border-width: 0.2cqw;
+    font-size: 1.85cqw;
+    line-height: 1.05;
+    box-shadow: 0 0.24cqw 0 var(--navy);
+    text-shadow: none;
+  }
+
+  .scene-project .scene-title,
+  .scene-pains-copy .scene-title,
+  .scene-water-copy .scene-title {
+    font-size: 3cqw;
+    line-height: 1.1;
   }
 
   .scene-project .scene-note,
@@ -1434,26 +1097,219 @@
   .scene-side-note .scene-card-note,
   .scene-water-copy .scene-note,
   .scene-wall-cards .scene-card-note {
-    font-size: 0.94rem;
+    font-size: 1.95cqw;
     line-height: 1.42;
   }
 
-  .scene-project .scene-title,
-  .scene-pains-copy .scene-title,
-  .scene-water-copy .scene-title {
-    font-size: 1.45rem;
-    line-height: 1.08;
-  }
-
   .scene-side-note .scene-card-title {
-    font-size: 1.16rem;
-    line-height: 1.12;
+    font-size: 2.45cqw;
+    line-height: 1.14;
   }
 
-  .scene-bubble--dog {
-    max-width: 42cqw;
-    font-size: 0.9rem;
-    line-height: 1.3;
+  /* ── плашки ── */
+  .scene-copy[data-plate],
+  .scene-yard-card,
+  .scene-wall-cards > div {
+    background: color-mix(in oklch, var(--plate-tone, var(--color-brand-yellow)) 12%, var(--cream) 88%);
+  }
+
+  .scene-copy[data-plate] {
+    padding: 1.5cqw 1.9cqw;
+    border-radius: 1.1cqw;
+  }
+
+  /* Безопасная зона: 23.75% широкого полотна — это ~16 px от края экрана
+     при полотне 175vw, и столько же на любой другой ширине. */
+  .scene-copy {
+    left: 23.75%;
+    right: 23.75%;
+  }
+
+  /* ── первый экран: портрет слева, текст на свободной стене справа ──
+     Выше рисованной точки: между маркизой и окном стены хватает, а ниже
+     начинаются карточки на фасаде. */
+  .scene-copy.scene-hero {
+    top: 6.1%;
+    left: 44.5%;
+    right: 23.75%;
+    text-shadow: none;
+  }
+
+  .scene-hero .scene-eyebrow {
+    padding: 0.32em 0.72em 0.25em;
+    font-size: 2.35cqw;
+    line-height: 1.04;
+  }
+
+  .scene-hero .scene-title {
+    font-size: 3cqw;
+    line-height: 1.06;
+  }
+
+  .scene-hero .scene-note {
+    font-size: 1.95cqw;
+  }
+
+  .scene-hero-cta {
+    display: none;
+  }
+
+  /* ── карточки на фасаде ── */
+  .scene-copy.scene-wall-cards {
+    top: 16.06%;
+  }
+
+  .scene-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.3cqw;
+  }
+
+  .scene-wall-cards > div {
+    min-height: 0;
+    justify-content: flex-start;
+    padding: 1.7cqw;
+  }
+
+  .scene-wall-cards .scene-card-note {
+    font-size: 1.85cqw;
+    line-height: 1.36;
+  }
+
+  /* ── двор: карточки колонкой слева, справа стол с Эмилем ── */
+  .scene-copy.scene-yard-cards {
+    top: 31.1%;
+    display: block;
+  }
+
+  .scene-yard-card {
+    width: 62%;
+    padding: 2cqw;
+  }
+
+  /* Отступ большой намеренно: в разрыв между карточками встаёт облачко
+     «Ciao! Это я — Эмиль» рядом с портретом. */
+  .scene-yard-card--emil {
+    width: 64%;
+    margin: 9cqw 0 0;
+  }
+
+  /* ── арка входа ── */
+  .scene-door-label {
+    top: 50%;
+    bottom: auto;
+    translate: -50% -50%;
+    color: var(--color-brand-yellow);
+    font-size: 2.3cqw;
+    opacity: 1;
+    text-shadow: 0 1px 0 var(--navy), 0 0 8px rgba(16, 38, 71, 0.65);
+  }
+
+  .scene-door:hover .scene-door-label,
+  .scene-door:focus-visible .scene-door-label {
+    translate: -50% -50%;
+  }
+
+  /* ── домашки на брусчатке ── */
+  .scene-copy.scene-project {
+    top: 49.4%;
+  }
+
+  .scene-project-expert {
+    display: none;
+  }
+
+  /* ── «о вас»: не одна плашка, а стопка отдельных реплик на песке ── */
+  .scene-copy.scene-pains-copy {
+    top: 65.2%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .scene-pains-copy .scene-eyebrow,
+  .scene-pains-copy .scene-title,
+  .scene-pains-copy .scene-kicker {
+    margin-left: 1.6cqw;
+  }
+
+  .scene-pains-copy .scene-title {
+    display: inline-block;
+    max-width: calc(100% - 3.2cqw);
+    padding: 1.1cqw 1.6cqw;
+    border: 0.28cqw solid var(--navy);
+    border-radius: 2.3cqw;
+    background: var(--color-brand-yellow);
+    box-shadow: 0 0.37cqw 0 var(--navy);
+    rotate: -1deg;
+  }
+
+  .scene-pains {
+    gap: 1.05cqw;
+  }
+
+  .scene-pains li {
+    display: block;
+    width: fit-content;
+    max-width: 90%;
+    padding: 1.22cqw 1.64cqw;
+    border: 1px solid color-mix(in oklab, var(--red) 24%, transparent);
+    border-radius: 2.6cqw;
+    background: color-mix(in oklch, var(--color-brand-sky) 9%, var(--cream) 91%);
+  }
+
+  .scene-pains li::before {
+    content: none;
+  }
+
+  /* Реплики стоят «в диалоге»: чётные к правому краю, нечётные к левому. */
+  .scene-pains li:nth-child(odd) {
+    justify-self: start;
+  }
+
+  .scene-pains li:nth-child(even) {
+    justify-self: end;
+  }
+
+  /* Вторая реплика ломается по смыслу (см. scene-mobile-break), поэтому
+     ширину ей задаём, а не отдаём на самотёк переносу. */
+  .scene-pains li:nth-child(2) {
+    box-sizing: border-box;
+    width: 35cqw;
+    max-width: calc(100% - 2.3cqw);
+    margin-right: auto;
+    margin-left: 0;
+    justify-self: start;
+    text-wrap: pretty;
+  }
+
+  /* На песке помещаются три реплики — дальше начинается море. */
+  .scene-pains li:nth-child(n + 4) {
+    display: none;
+  }
+
+  .scene-mobile-break {
+    display: initial;
+  }
+
+  /* ── море и горы ── */
+  .scene-boat {
+    margin-left: 17cqw;
+    transform: translateX(calc((var(--q, 0) - 0.42) * 10cqw));
+  }
+
+  .scene-copy.scene-side-note {
+    top: 86%;
+  }
+
+  .scene-copy.scene-water-copy {
+    top: 94%;
+  }
+
+  /* Затемнения гор нет: на мобильном горный срез растянут и градиент ложится
+     не туда, где стоит финал. */
+  .scene-mountain-shade {
+    display: none;
   }
 
   /* Одна непрерывная горная панель: увеличиваем нижний срез, не повторяя его. */
@@ -1463,140 +1319,71 @@
     object-position: center bottom;
   }
 
-  /* Сценарии больше не сидят на одной большой карточке. */
-  .scene-copy.scene-pains-copy {
-    padding: 0 !important;
-    border: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-  }
-
-  .scene-pains-copy .scene-eyebrow,
-  .scene-pains-copy .scene-title,
-  .scene-pains-copy .scene-kicker {
-    margin-left: 0.7rem;
-  }
-
-  .scene-pains-copy .scene-title {
-    display: inline-block;
-    max-width: calc(100% - 1.4rem);
-    padding: 0.5rem 0.7rem;
-    border: 0.12rem solid var(--navy);
-    border-radius: 1rem;
-    background: var(--color-brand-yellow);
-    box-shadow: 0 0.16rem 0 var(--navy);
-    rotate: -1deg;
-  }
-
-  .scene-pains li {
-    width: 84%;
-  }
-
-  .scene-pains li:nth-child(odd) {
-    margin-right: auto;
-    rotate: -0.7deg;
-  }
-
-  .scene-pains li:nth-child(even) {
-    margin-left: auto;
-    rotate: 0.7deg;
-  }
-
-  .scene-pains li:nth-child(3n) {
-    width: 76%;
-  }
-
-  .scene-pains li:nth-child(3n + 2) {
-    width: 90%;
-  }
-
-  /* Единая безопасная зона мобильного viewport: 23.75% широкого полотна
-     соответствует примерно 16 px от края экрана при canvas 175vw. */
-  .scene-copy {
-    left: 23.75%;
-    right: 23.75%;
-  }
-
-  .scene-hero {
-    left: 44.5%;
-    right: 23.75%;
-  }
-
-  .scene-hero .scene-eyebrow {
-    padding: 0.32em 0.72em 0.25em;
-    font-size: 1.08rem;
-    line-height: 1.04;
-    box-shadow: 0 0.16rem 0 var(--navy);
-    rotate: -2deg;
-  }
-
-  .scene-hero-cta {
-    display: none;
-  }
-
-  .scene-project,
-  .scene-side-note,
-  .scene-water-copy {
-    left: 23.75% !important;
-    right: 23.75% !important;
-  }
-
-  .scene-project {
-    top: 47.5% !important;
-  }
-
+  /* Финал уходит ниже полотна — на зелёный запас .scene, чтобы кнопка стояла
+     на чистом фоне, а не на изломе гор. */
   .scene-finale[data-reveal] {
+    top: 100.8% !important;
     left: 23.75%;
     right: 23.75%;
   }
 
-  .scene-project-expert {
-    display: none;
+  .scene-finale .scene-note {
+    margin-top: 0.55em;
+  }
+
+  .scene-actions {
+    display: grid;
+    margin-top: 2.6cqw;
+    gap: 1.4cqw;
+    font-size: 2cqw;
+  }
+
+  .scene-btn {
+    justify-content: center;
+    width: 100%;
+    padding: 0.7em 1em;
+  }
+
+  .scene-legal {
+    top: 106.6% !important;
+    left: 21.4%;
+    right: 21.4%;
+    font-size: 1.7cqw;
+  }
+
+  /* ── наклейки и облачка ── */
+  .scene-stamp {
+    top: 3.9% !important;
+    left: 62% !important;
+    font-size: 1.7cqw;
+  }
+
+  .scene-bubble {
+    white-space: normal;
+    max-width: 34cqw;
+    padding: 0.55em 0.8em;
+    border-width: 0.2cqw;
+    font-size: 1.95cqw;
+  }
+
+  .scene-bubble.scene-bubble--duck {
+    left: 38% !important;
+    font-size: 1.6cqw;
+  }
+
+  .scene-bubble.scene-bubble--table {
+    top: 39.1% !important;
+    left: 57% !important;
+    max-width: 24cqw;
+    font-size: 1.75cqw;
   }
 
   .scene-bubble.scene-bubble--dog {
-    top: 57% !important;
+    top: 56.9% !important;
     left: 44% !important;
     max-width: 27cqw;
     padding: 0.45em 0.65em;
-    font-size: 0.72rem;
+    font-size: 1.7cqw;
     line-height: 1.18;
-  }
-
-  .scene-copy.scene-pains-copy {
-    top: 68% !important;
-  }
-
-  .scene-pains li:nth-child(n + 4) {
-    display: none;
-  }
-
-  .scene-pains li,
-  .scene-pains li:nth-child(3n),
-  .scene-pains li:nth-child(3n + 2) {
-    width: fit-content;
-    max-width: 90%;
-  }
-
-  .scene-pains li:nth-child(odd) {
-    justify-self: start;
-  }
-
-  .scene-pains li:nth-child(even) {
-    justify-self: end;
-  }
-
-  .scene-pains li:nth-child(2) {
-    box-sizing: border-box;
-    width: 15rem;
-    max-width: calc(100% - 1rem);
-    margin-right: auto;
-    margin-left: 0;
-    justify-self: start;
-    text-wrap: pretty;
-  }
-
-  .scene-mobile-break {
-    display: initial;
   }
 }
