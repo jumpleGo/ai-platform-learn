@@ -5,6 +5,7 @@ import {
   isHomeVariant,
   pickHomeVariant,
 } from '@/lib/home-experiment';
+import { parseTestRub } from '@/lib/payments/tariffs';
 
 // Публичный сайт целиком открыт гостям: витрины, лендинги, бесплатные уроки и юр. документы
 const PUBLIC = [
@@ -61,11 +62,12 @@ export function proxy(req: NextRequest) {
     res.cookies.set('partner', ref, { maxAge: 60 * 60 * 24 * 30, path: '/' });
   }
 
-  // Секретный режим 1 рубля для тестирования (?test_rub=1 для включения, ?test_rub=0 для отключения)
-  const testRub = searchParams.get('test_rub');
-  if (testRub === '1') {
-    res.cookies.set('test_rub', '1', { maxAge: 60 * 60 * 24, path: '/', sameSite: 'lax' });
-  } else if (testRub === '0') {
+  // Секретный режим тестовой цены (?test_rub=N — оплата на N рублей, ?test_rub=0 для отключения)
+  const testRubParam = searchParams.get('test_rub');
+  const testRub = parseTestRub(testRubParam);
+  if (testRub) {
+    res.cookies.set('test_rub', String(testRub), { maxAge: 60 * 60 * 24, path: '/', sameSite: 'lax' });
+  } else if (testRubParam === '0') {
     res.cookies.set('test_rub', '', { maxAge: 0, path: '/' });
   }
   return res;

@@ -256,9 +256,16 @@ export const COURSE_PAYMENT_CONFIGS: Record<string, CoursePaymentConfig> = {
 
 import { VIBE_STREAM_REGULAR_PRICE } from '@/lib/payments/vibe-timer';
 
+// Тестовая цена из ?test_rub=N: допускаем 1..100 ₽, всё остальное — режим выключен
+export function parseTestRub(value: string | null | undefined): number | null {
+  if (!value) return null;
+  const n = Number(value);
+  return Number.isInteger(n) && n >= 1 && n <= 100 ? n : null;
+}
+
 export function getTariffsForCourse(
   courseSlugOrId?: string,
-  options?: { isVibeTimerExpired?: boolean; isTestRub?: boolean }
+  options?: { isVibeTimerExpired?: boolean; testRub?: number | null }
 ): Tariff[] {
   const baseList = !courseSlugOrId
     ? DEFAULT_TARIFFS
@@ -269,8 +276,8 @@ export function getTariffsForCourse(
     if (options?.isVibeTimerExpired && t.id === 'vibecoding_stream') {
       price = VIBE_STREAM_REGULAR_PRICE;
     }
-    if (options?.isTestRub) {
-      price = 1;
+    if (options?.testRub) {
+      price = options.testRub;
     }
     return price !== t.price ? { ...t, price } : t;
   });
@@ -284,7 +291,7 @@ export function getCoursePaymentConfig(courseSlugOrId?: string): CoursePaymentCo
 export function getTariffById(
   id: string,
   courseSlugOrId?: string,
-  options?: { isVibeTimerExpired?: boolean; isTestRub?: boolean }
+  options?: { isVibeTimerExpired?: boolean; testRub?: number | null }
 ): Tariff | undefined {
   const list = getTariffsForCourse(courseSlugOrId, options);
   const found = list.find((t) => t.id === id);
@@ -298,8 +305,8 @@ export function getTariffById(
       if (options?.isVibeTimerExpired && t.id === 'vibecoding_stream') {
         price = VIBE_STREAM_REGULAR_PRICE;
       }
-      if (options?.isTestRub) {
-        price = 1;
+      if (options?.testRub) {
+        price = options.testRub;
       }
       return price !== t.price ? { ...t, price } : t;
     }
@@ -309,7 +316,7 @@ export function getTariffById(
 
 export function getDefaultTariff(
   courseSlugOrId?: string,
-  options?: { isVibeTimerExpired?: boolean; isTestRub?: boolean }
+  options?: { isVibeTimerExpired?: boolean; testRub?: number | null }
 ): Tariff {
   const list = getTariffsForCourse(courseSlugOrId, options);
   return list.find((t) => t.popular) || list[0] || DEFAULT_TARIFFS[0];

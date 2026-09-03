@@ -8,6 +8,7 @@ import {
   getTariffsForCourse,
   getCoursePaymentConfig,
   getDefaultTariff,
+  parseTestRub,
 } from '@/lib/payments/tariffs';
 import { clientAuth } from '@/lib/firebase/client';
 import { track } from '@/lib/analytics/track-client';
@@ -30,25 +31,24 @@ export function PaymentModal({
   courseTitle,
   defaultTariffId,
 }: PaymentModalProps) {
-  const [isTestRub, setIsTestRub] = useState(false);
+  // Тестовая цена в рублях из ?test_rub=N (null — обычный режим)
+  const [testRub, setTestRub] = useState<number | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const q = new URLSearchParams(window.location.search).get('test_rub');
-      if (q === '1') {
-        document.cookie = 'test_rub=1; path=/; max-age=86400; SameSite=Lax';
-        localStorage.setItem('test_rub', '1');
-        setIsTestRub(true);
+      const fromQuery = parseTestRub(q);
+      if (fromQuery) {
+        document.cookie = `test_rub=${fromQuery}; path=/; max-age=86400; SameSite=Lax`;
+        localStorage.setItem('test_rub', String(fromQuery));
+        setTestRub(fromQuery);
       } else if (q === '0') {
         document.cookie = 'test_rub=; path=/; max-age=0;';
         localStorage.removeItem('test_rub');
-        setIsTestRub(false);
+        setTestRub(null);
       } else {
-        const active =
-          document.cookie.includes('test_rub=1') ||
-          localStorage.getItem('test_rub') === '1' ||
-          window.location.search.includes('test_rub=1');
-        setIsTestRub(active);
+        const fromCookie = document.cookie.match(/(?:^|;\s*)test_rub=(\d+)/)?.[1];
+        setTestRub(parseTestRub(fromCookie) ?? parseTestRub(localStorage.getItem('test_rub')));
       }
     }
   }, []);
@@ -57,11 +57,11 @@ export function PaymentModal({
   const courseConfig = getCoursePaymentConfig(courseSlug);
   const tariffs = getTariffsForCourse(courseSlug, {
     isVibeTimerExpired: vibeTimer.isExpired,
-    isTestRub,
+    testRub,
   });
 
   const getTariffPrice = (t: Tariff) => {
-    if (isTestRub) return 1;
+    if (testRub) return testRub;
     if (t.id === 'vibecoding_stream' && vibeTimer.mounted) {
       return vibeTimer.currentPrice;
     }
@@ -78,7 +78,7 @@ export function PaymentModal({
     }
     return getDefaultTariff(courseSlug, {
       isVibeTimerExpired: vibeTimer.isExpired,
-      isTestRub,
+      testRub,
     });
   });
   const [email, setEmail] = useState('');
@@ -116,10 +116,10 @@ export function PaymentModal({
         if (found) {
           setSelectedTariff(found);
         } else {
-          setSelectedTariff(getDefaultTariff(courseSlug, { isVibeTimerExpired: vibeTimer.isExpired, isTestRub }));
+          setSelectedTariff(getDefaultTariff(courseSlug, { isVibeTimerExpired: vibeTimer.isExpired, testRub }));
         }
       } else {
-        setSelectedTariff(getDefaultTariff(courseSlug, { isVibeTimerExpired: vibeTimer.isExpired, isTestRub }));
+        setSelectedTariff(getDefaultTariff(courseSlug, { isVibeTimerExpired: vibeTimer.isExpired, testRub }));
       }
 
       // Pre-fill email and telegram
@@ -133,7 +133,7 @@ export function PaymentModal({
       const savedTg = typeof window !== 'undefined' ? localStorage.getItem('gelato_user_tg') : '';
       if (savedTg) setTelegram(savedTg);
     }
-  }, [isOpen, courseSlug, defaultTariffId, tariffs, isTestRub, vibeTimer.isExpired]);
+  }, [isOpen, courseSlug, defaultTariffId, tariffs, testRub, vibeTimer.isExpired]);
 
   if (!isOpen) return null;
 
@@ -168,8 +168,8 @@ export function PaymentModal({
         if (cleanTg) localStorage.setItem('gelato_user_tg', cleanTg);
       }
 
-      const effectivePrice = isTestRub
-        ? 1
+      const effectivePrice = testRub
+        ? testRub
         : selectedTariff.id === 'vibecoding_stream' && vibeTimer.mounted
           ? vibeTimer.currentPrice
           : selectedTariff.price;
@@ -192,7 +192,7 @@ export function PaymentModal({
           telegram: cleanTg || null,
           courseTitle: displayTitle,
           courseSlug,
-          testRub: Boolean(isTestRub),
+          testRub,
         }),
       });
 

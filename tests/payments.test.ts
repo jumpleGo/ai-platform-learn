@@ -6,6 +6,7 @@ import {
   getDefaultTariff,
   getTariffsForCourse,
   getCoursePaymentConfig,
+  parseTestRub,
 } from '../src/lib/payments/tariffs';
 
 describe('T-Bank Token Generation', () => {
@@ -139,5 +140,26 @@ describe('Tariff Support and Enrollment logic', () => {
     expect(pwd1.startsWith('g-')).toBe(true);
     expect(pwd1.length).toBe(8);
     expect(pwd1).not.toBe(pwd2);
+  });
+});
+
+describe('parseTestRub', () => {
+  it('принимает целые рубли от 1 до 100', () => {
+    expect(parseTestRub('1')).toBe(1);
+    expect(parseTestRub('10')).toBe(10);
+    expect(parseTestRub('100')).toBe(100);
+  });
+
+  it('отклоняет ноль, мусор и суммы вне диапазона', () => {
+    expect(parseTestRub('0')).toBeNull();
+    expect(parseTestRub('101')).toBeNull();
+    expect(parseTestRub('1.5')).toBeNull();
+    expect(parseTestRub('abc')).toBeNull();
+    expect(parseTestRub(null)).toBeNull();
+  });
+
+  it('подставляет тестовую сумму в цену тарифов', () => {
+    const list = getTariffsForCourse('vibecoding', { testRub: 10 });
+    expect(list.every((t) => t.price === 10)).toBe(true);
   });
 });

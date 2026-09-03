@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getTariffById, getDefaultTariff, getCoursePaymentConfig } from '@/lib/payments/tariffs';
+import { getTariffById, getDefaultTariff, getCoursePaymentConfig, parseTestRub } from '@/lib/payments/tariffs';
 import { initTBankPayment } from '@/lib/payments/tbank';
 import { savePaymentRecord } from '@/lib/db/payments';
 import { normalizeEmail } from '@/lib/db/grants';
@@ -26,7 +26,9 @@ export async function POST(req: Request) {
     }
 
     const cookieHeader = req.headers.get('cookie') || '';
-    const isTestRub = cookieHeader.includes('test_rub=1') || body.testRub === true;
+    const testRub =
+      parseTestRub(cookieHeader.match(/(?:^|;\s*)test_rub=(\d+)/)?.[1]) ??
+      parseTestRub(body.testRub === true ? '1' : String(body.testRub ?? ''));
     const timerCookieMatch = cookieHeader.match(/vibe_price_timer_end=(\d+)/);
     let isVibeTimerExpired = false;
     if (timerCookieMatch) {
@@ -38,8 +40,8 @@ export async function POST(req: Request) {
 
     const trustedCourseKey = course ? courseKey(course) : undefined;
     const tariff = tariffId
-      ? getTariffById(tariffId, trustedCourseKey, { isVibeTimerExpired, isTestRub })
-      : getDefaultTariff(trustedCourseKey, { isVibeTimerExpired, isTestRub });
+      ? getTariffById(tariffId, trustedCourseKey, { isVibeTimerExpired, testRub })
+      : getDefaultTariff(trustedCourseKey, { isVibeTimerExpired, testRub });
     if (!tariff) {
       return NextResponse.json({ error: 'Тариф не найден для выбранного курса' }, { status: 400 });
     }
@@ -50,7 +52,7 @@ export async function POST(req: Request) {
 
     const orderId = `${Date.now()}_${Math.floor(Math.random() * 10000)}`;
 
-    const finalAmount = isTestRub ? 1 : tariff.price;
+    const finalAmount = testRub ?? tariff.price;
 
     // 1. Инициализация в Т-Банке
     const initRes = await initTBankPayment({
