@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
+import { TELEGRAM_DM } from '@/lib/site';
 import { useCallback, useEffect, useState } from 'react';
 import { CheckCircle2, CircleX, LoaderCircle, RefreshCw } from 'lucide-react';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -100,8 +102,8 @@ export function PaymentResult({
         {state === 'confirmed' ? (
           hasSupport ? (
             <>
-              <div className="mx-auto size-16 text-4xl flex items-center justify-center rounded-2xl bg-amber-100 border-2 border-brand-navy">
-                🍦
+              <div className="mx-auto size-16 flex items-center justify-center rounded-2xl bg-brand-cream border-2 border-brand-navy overflow-hidden">
+                <Image src="/logo.webp" alt="Gelato" width={48} height={48} className="size-12 object-contain" />
               </div>
               <h1 className="mt-5 text-2xl sm:text-3xl font-heading font-extrabold text-brand-navy">
                 Вы записаны на поток!
@@ -131,12 +133,12 @@ export function PaymentResult({
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <a
-                  href="https://t.me/gelato_ai"
+                  href={TELEGRAM_DM}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(buttonVariants(), 'rounded-xl h-12 text-sm font-bold bg-brand-navy hover:bg-brand-navy/90 text-brand-cream')}
                 >
-                  Написать в Telegram @gelato_ai
+                  Связаться с нами в Telegram
                 </a>
                 <Link
                   href={courseHref}
