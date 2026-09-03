@@ -6,9 +6,9 @@ import { Bot, Terminal, ShieldCheck, Sparkles, CheckCircle2, AlertTriangle, Arro
 export function VibeComparisonSection() {
   return (
     <section className="animate-rise relative">
-      <div className="overflow-hidden rounded-3xl border-2 border-brand-navy/20 bg-card shadow-[0_6px_0_0_rgba(16,38,71,0.08)]">
+      <div className="sm:overflow-hidden sm:rounded-3xl sm:border-2 sm:border-brand-navy/20 sm:bg-card sm:shadow-[0_6px_0_0_rgba(16,38,71,0.08)]">
         {/* Шапка блока */}
-        <div className="border-b-2 border-brand-navy/10 bg-brand-cream/60 p-6 sm:p-8">
+        <div className="pb-4 sm:border-b-2 sm:border-brand-navy/10 sm:bg-brand-cream/60 sm:p-8">
           <div className="flex flex-col gap-2">
             <h2 className="font-heading text-2xl sm:text-3xl font-black text-brand-navy leading-tight text-pretty">
               Почему одного Claude или Codex мало
@@ -20,10 +20,10 @@ export function VibeComparisonSection() {
         </div>
 
         {/* Наглядное прямое сравнение «В чате» vs «Конвейер в репозитории» в стиле Gelato */}
-        <div className="p-6 sm:p-9">
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="pt-2 sm:p-9">
+          <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-2">
             {/* Левая сторона: Одиночный чат */}
-            <div className="flex flex-col justify-between rounded-3xl border-2 border-brand-navy/20 bg-card p-6 sm:p-8 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all">
+            <div className="flex flex-col justify-between rounded-3xl border-2 border-brand-navy/15 bg-card p-6 sm:p-8 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy">
               <div>
                 <div className="flex items-center justify-between border-b-2 border-brand-navy/10 pb-4">
                   <div className="flex items-center gap-2">
@@ -67,8 +67,8 @@ export function VibeComparisonSection() {
                 </div>
               </div>
 
-              <div className="mt-8 rounded-2xl border-2 border-brand-navy/15 bg-brand-red/10 p-4 text-sm sm:text-base font-bold text-brand-navy leading-snug">
-                ❌ <strong className="text-brand-red">Тупик:</strong> часы ручного дебага, усталость и риск остаться не у дел.
+              <div className="mt-6 sm:mt-8 rounded-2xl border-2 border-brand-navy/15 bg-brand-red/10 p-4 text-sm sm:text-base font-bold text-brand-navy leading-snug">
+                <strong className="text-brand-red">Тупик:</strong> часы ручного дебага, усталость и риск остаться не у дел.
               </div>
             </div>
 
@@ -117,8 +117,8 @@ export function VibeComparisonSection() {
                 </div>
               </div>
 
-              <div className="mt-8 rounded-2xl border-2 border-brand-navy bg-brand-forest text-brand-cream p-4 text-sm sm:text-base font-black leading-snug shadow-2xs">
-                ✓ <strong className="text-brand-yellow">Результат:</strong> ты на шаг впереди рынка, управляешь процессом и сдаешь продукт.
+              <div className="mt-6 sm:mt-8 rounded-2xl border-2 border-brand-navy bg-brand-forest text-brand-cream p-4 text-sm sm:text-base font-black leading-snug shadow-2xs">
+                <strong className="text-brand-yellow">Результат:</strong> ты на шаг впереди рынка, управляешь процессом и сдаешь продукт.
               </div>
             </div>
           </div>

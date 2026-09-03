@@ -196,10 +196,11 @@ export default async function CourseLandingPage({ params }: {
           color="oklch(0.2705 0.0677 258.4)"
           className="z-10 -top-4 left-5 text-lg -rotate-6 sm:-top-5 sm:left-9 sm:text-xl"
         />
-        <div className="overflow-hidden rounded-3xl border-2 border-brand-navy/20 bg-card p-6 sm:p-10 shadow-[0_6px_0_0_rgba(16,38,71,0.08)]">
-          <div className="grid grid-cols-1 items-start gap-6 sm:grid-cols-[160px_1fr] sm:gap-10">
-            <div className="flex flex-col items-center text-center">
-              <div className="relative size-28 sm:size-36 overflow-hidden rounded-2xl border-2 border-brand-navy/20 bg-brand-cream shadow-xs">
+        <div className="overflow-hidden rounded-3xl border-2 border-brand-navy/20 bg-card p-5 sm:p-8 shadow-[0_6px_0_0_rgba(16,38,71,0.08)]">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
+            {/* Аватар и контакты слева */}
+            <div className="flex items-center gap-3.5 sm:flex-col sm:items-center sm:text-center sm:w-28 shrink-0">
+              <div className="relative size-16 sm:size-20 overflow-hidden rounded-2xl border-2 border-brand-navy/20 bg-brand-cream shadow-xs shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/scene/emil-avatar-collage-v2.webp"
@@ -207,41 +208,44 @@ export default async function CourseLandingPage({ params }: {
                   className="size-full object-cover object-top"
                 />
               </div>
-              <span className="mt-3 font-marker text-xl text-brand-navy">Эмиль</span>
-              <span className="mt-0.5 font-mono text-[10px] font-black uppercase tracking-wider text-brand-forest">
-                Внедряю ИИ в прод
-              </span>
-              <div className="mt-3 flex items-center gap-2">
-                <a
-                  href="https://t.me/rrotatew"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 rounded-lg border border-brand-navy/20 bg-brand-cream/80 px-2.5 py-1 font-mono text-[11px] font-bold text-brand-navy hover:border-brand-navy/60 transition-colors"
-                >
-                  <Send className="size-3 text-brand-forest" />
-                  Telegram
-                </a>
-                <a
-                  href="https://www.linkedin.com/in/rrotatew"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 rounded-lg border border-brand-navy/20 bg-brand-cream/80 px-2.5 py-1 font-mono text-[11px] font-bold text-brand-navy hover:border-brand-navy/60 transition-colors"
-                >
-                  <ArrowUpRight className="size-3 text-brand-forest" />
-                  LinkedIn
-                </a>
+              <div className="flex flex-col sm:items-center">
+                <span className="font-marker text-lg text-brand-navy leading-none">Эмиль</span>
+                <span className="mt-0.5 font-mono text-[10px] font-black uppercase tracking-wider text-brand-forest">
+                  Внедряю ИИ в прод
+                </span>
+                <div className="mt-2 flex items-center gap-1.5">
+                  <a
+                    href="https://t.me/rrotatew"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 rounded-md border border-brand-navy/20 bg-brand-cream/80 px-2 py-0.5 font-mono text-[10px] font-bold text-brand-navy hover:border-brand-navy/60 transition-colors"
+                  >
+                    <Send className="size-2.5 text-brand-forest" />
+                    TG
+                  </a>
+                  <a
+                    href="https://www.linkedin.com/in/rrotatew"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 rounded-md border border-brand-navy/20 bg-brand-cream/80 px-2 py-0.5 font-mono text-[10px] font-bold text-brand-navy hover:border-brand-navy/60 transition-colors"
+                  >
+                    <ArrowUpRight className="size-2.5 text-brand-forest" />
+                    In
+                  </a>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-4">
+            {/* Основной текст автора */}
+            <div className="min-w-0 flex-1 space-y-3">
               <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-forest/15 border border-brand-forest/25 px-2.5 py-1 font-mono text-xs font-black uppercase text-brand-forest">
                 <span className="size-2 rounded-full bg-brand-forest animate-pulse" />
                 Вы сможете избежать потерь
               </span>
-              <h3 className="font-heading text-2xl sm:text-3xl font-black text-brand-navy leading-tight">
+              <h3 className="font-heading text-xl sm:text-2xl lg:text-3xl font-black text-brand-navy leading-tight">
                 «Учу тому, чем <span className="relative inline-block whitespace-nowrap">пользуюсь сам<DoodleUnderline color="var(--color-goose-red)" className="w-full" /></span>»
               </h3>
-              <div className="space-y-3 text-base sm:text-[17px] font-medium leading-relaxed text-brand-charcoal/85 text-pretty">
+              <div className="space-y-2.5 text-base sm:text-[17px] font-medium leading-relaxed text-brand-charcoal/85 text-pretty">
                 <p>
                   <RichText text="Метод, которому учу, я **собрал сам на практике в крупных компаниях**. Каждый день работаю по нему и **делюсь ровно тем, чем пользуюсь**." />
                 </p>
@@ -268,26 +272,67 @@ export default async function CourseLandingPage({ params }: {
             note="Конкретные осязаемые результаты, которые останутся работать в вашем проекте."
           />
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-            {landing.results.map((item, idx) => (
-              <div
-                key={item.title}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border-2 border-brand-navy/20 bg-card p-6 sm:p-8 shadow-[0_4px_0_0_rgba(16,38,71,0.08)] transition-all hover:-translate-y-1 hover:border-brand-navy hover:shadow-[0_8px_0_0_rgba(16,38,71,0.14)]"
-              >
-                <div>
-                  <div className="flex items-center justify-between gap-4 border-b-2 border-brand-navy/10 pb-4">
-                    <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy leading-tight">
-                      {item.title}
-                    </h3>
-                    <span className="font-marker text-3xl sm:text-4xl leading-none text-brand-forest shrink-0">
-                      0{idx + 1}
-                    </span>
+            {landing.results.map((item, idx) => {
+              const isKiller = item.title.toLowerCase().includes('автотест') || (idx === 2 && landing.results.length === 4);
+
+              if (isKiller) {
+                return (
+                  <div key={item.title} className="relative">
+                    {/* Кривенькая маркерная надпись «killer» над карточкой */}
+                    <DoodleWord
+                      text="killer"
+                      color="#1B449C"
+                      className="z-20 -top-4 right-6 text-xl -rotate-6 sm:-top-5 sm:right-8 sm:text-2xl"
+                    />
+
+                    <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border-2 border-brand-navy bg-[#F0F5FC] p-6 sm:p-8 shadow-[0_6px_0_0_rgba(16,38,71,0.12)] transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_rgba(16,38,71,0.18)]">
+                      {/* Верхняя фирменная сине-белая полоска (шезлонг / тельняшка) */}
+                      <div
+                        className="absolute top-0 left-0 right-0 h-3.5 border-b-2 border-brand-navy/25"
+                        style={{
+                          backgroundImage: 'repeating-linear-gradient(90deg, #1B449C 0px, #1B449C 16px, #F0F5FC 16px, #F0F5FC 32px)',
+                        }}
+                      />
+
+                      <div className="pt-2">
+                        <div className="flex items-start justify-between gap-4 border-b-2 border-brand-navy/15 pb-4">
+                          <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy leading-tight">
+                            {item.title}
+                          </h3>
+                          <span className="font-marker text-3xl sm:text-4xl leading-none text-brand-navy shrink-0">
+                            0{idx + 1}
+                          </span>
+                        </div>
+                        <div className="mt-4 text-base sm:text-[17px] font-bold leading-relaxed text-brand-navy/90 text-pretty">
+                          <RichText text={item.note} />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="mt-4 text-base sm:text-[17px] font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
-                    <RichText text={item.note} />
+                );
+              }
+
+              return (
+                <div
+                  key={item.title}
+                  className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border-2 border-brand-navy/15 bg-card p-6 sm:p-8 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:-translate-y-0.5 hover:border-brand-navy hover:shadow-[0_6px_0_0_rgba(16,38,71,0.12)]"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-4 border-b-2 border-brand-navy/10 pb-4">
+                      <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy leading-tight">
+                        {item.title}
+                      </h3>
+                      <span className="font-marker text-3xl sm:text-4xl leading-none text-brand-forest shrink-0">
+                        0{idx + 1}
+                      </span>
+                    </div>
+                    <div className="mt-4 text-base sm:text-[17px] font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
+                      <RichText text={item.note} />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Промежуточный сочный CTA после результатов */}
@@ -326,27 +371,68 @@ export default async function CourseLandingPage({ params }: {
             </span>
           </div>
 
-          <div className="space-y-3">
-            {landing.program.map((item, i) => (
-              <div
-                key={item.title}
-                className="group flex items-start gap-4 rounded-2xl border-2 border-brand-navy/12 bg-card p-5 sm:gap-6 sm:p-6 shadow-xs transition-all hover:border-brand-navy hover:shadow-[0_4px_0_0_rgba(16,38,71,0.08)]"
-              >
-                <span className="font-marker text-3xl sm:text-5xl leading-none text-brand-forest shrink-0 mt-0.5">
-                  {i + 1}.
-                </span>
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-heading text-lg sm:text-xl font-black text-brand-navy">
-                    {item.title}
-                  </h3>
-                  {item.note && (
-                    <div className="mt-1.5 text-sm sm:text-base font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
-                      <RichText text={item.note} />
+          <div className="space-y-3.5">
+            {landing.program.map((item, i) => {
+              const isOmg = item.title.toLowerCase().includes('память') || item.title.toLowerCase().includes('контекст, память');
+
+              if (isOmg) {
+                return (
+                  <div key={item.title} className="relative">
+                    {/* Кривенькая маркерная надпись «OMG!» над карточкой */}
+                    <DoodleWord
+                      text="OMG!"
+                      color="#D4447E"
+                      className="z-20 -top-4 right-6 text-xl -rotate-6 sm:-top-5 sm:right-8 sm:text-2xl"
+                    />
+
+                    <div className="group relative flex items-start gap-4 overflow-hidden rounded-2xl border-2 border-brand-navy bg-[#FCEDF3] p-5 pt-6 sm:gap-6 sm:p-6 sm:pt-7 shadow-[0_6px_0_0_rgba(16,38,71,0.12)] transition-all hover:shadow-[0_8px_0_0_rgba(16,38,71,0.18)]">
+                      {/* Верхняя фирменная розово-фиолетовая полоска с пляжного зонтика */}
+                      <div
+                        className="absolute top-0 left-0 right-0 h-3.5 border-b-2 border-brand-navy/25"
+                        style={{
+                          backgroundImage: 'repeating-linear-gradient(90deg, #D4447E 0px, #D4447E 16px, #FCEDF3 16px, #FCEDF3 32px)',
+                        }}
+                      />
+
+                      <span className="font-marker text-3xl sm:text-5xl leading-none text-brand-navy shrink-0 mt-0.5">
+                        {i + 1}.
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-heading text-lg sm:text-xl font-black text-brand-navy">
+                          {item.title}
+                        </h3>
+                        {item.note && (
+                          <div className="mt-2 text-base sm:text-[17px] font-bold leading-relaxed text-brand-navy/90 text-pretty">
+                            <RichText text={item.note} />
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  )}
+                  </div>
+                );
+              }
+
+              return (
+                <div
+                  key={item.title}
+                  className="group flex items-start gap-4 rounded-2xl border-2 border-brand-navy/15 bg-card p-5 sm:gap-6 sm:p-6 shadow-xs transition-all hover:border-brand-navy hover:shadow-[0_4px_0_0_rgba(16,38,71,0.08)]"
+                >
+                  <span className="font-marker text-3xl sm:text-5xl leading-none text-brand-forest shrink-0 mt-0.5">
+                    {i + 1}.
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-heading text-lg sm:text-xl font-black text-brand-navy">
+                      {item.title}
+                    </h3>
+                    {item.note && (
+                      <div className="mt-2 text-base sm:text-[17px] font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
+                        <RichText text={item.note} />
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {!cont && (
@@ -371,26 +457,67 @@ export default async function CourseLandingPage({ params }: {
             note="Хотя бы один пункт про вас — обучение точно решит вашу задачу."
           />
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            {landing.audience.map((item, idx) => (
-              <div
-                key={item.title}
-                className="group relative flex flex-col justify-between rounded-3xl border-2 border-brand-navy/15 bg-card p-6 sm:p-7 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:-translate-y-0.5 hover:border-brand-navy hover:shadow-[0_6px_0_0_rgba(16,38,71,0.12)]"
-              >
-                <div>
-                  <div className="flex items-center justify-between border-b-2 border-brand-navy/10 pb-3.5">
-                    <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy">
-                      {item.title}
-                    </h3>
-                    <span className="font-marker text-3xl leading-none text-brand-forest">
-                      0{idx + 1}
-                    </span>
+            {landing.audience.map((item, idx) => {
+              const isDevs = item.title.toLowerCase().includes('разработчик') || idx === 1;
+
+              if (isDevs) {
+                return (
+                  <div key={item.title} className="relative">
+                    {/* Кривенькая маркерная надпись «JS, PHP» над карточкой */}
+                    <DoodleWord
+                      text="JS, PHP"
+                      color="#1F6E43"
+                      className="z-20 -top-4 right-6 text-xl -rotate-6 sm:-top-5 sm:right-8 sm:text-2xl"
+                    />
+
+                    <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border-2 border-brand-navy bg-[#EDF6F0] p-6 sm:p-7 shadow-[0_6px_0_0_rgba(16,38,71,0.12)] transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_rgba(16,38,71,0.18)]">
+                      {/* Верхняя фирменная зелёно-белая полоска с пляжного зонтика */}
+                      <div
+                        className="absolute top-0 left-0 right-0 h-3.5 border-b-2 border-brand-navy/25"
+                        style={{
+                          backgroundImage: 'repeating-linear-gradient(90deg, #1F6E43 0px, #1F6E43 16px, #EDF6F0 16px, #EDF6F0 32px)',
+                        }}
+                      />
+
+                      <div className="pt-2">
+                        <div className="flex items-center justify-between border-b-2 border-brand-navy/15 pb-3.5">
+                          <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy">
+                            {item.title}
+                          </h3>
+                          <span className="font-marker text-3xl leading-none text-brand-navy">
+                            0{idx + 1}
+                          </span>
+                        </div>
+                        <div className="mt-3.5 text-base sm:text-[17px] font-bold leading-relaxed text-brand-navy/90 text-pretty">
+                          <RichText text={item.note} />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="mt-3.5 text-base sm:text-[17px] font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
-                    <RichText text={item.note} />
+                );
+              }
+
+              return (
+                <div
+                  key={item.title}
+                  className="group relative flex flex-col justify-between rounded-3xl border-2 border-brand-navy/15 bg-card p-6 sm:p-7 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:-translate-y-0.5 hover:border-brand-navy hover:shadow-[0_6px_0_0_rgba(16,38,71,0.12)]"
+                >
+                  <div>
+                    <div className="flex items-center justify-between border-b-2 border-brand-navy/10 pb-3.5">
+                      <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy">
+                        {item.title}
+                      </h3>
+                      <span className="font-marker text-3xl leading-none text-brand-forest">
+                        0{idx + 1}
+                      </span>
+                    </div>
+                    <div className="mt-3.5 text-base sm:text-[17px] font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
+                      <RichText text={item.note} />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {!cont && (
@@ -416,9 +543,9 @@ export default async function CourseLandingPage({ params }: {
             className="z-10 -top-4 left-5 text-lg -rotate-6 sm:-top-5 sm:left-9 sm:text-xl"
           />
           <SectionHead
-            title="Чем это отличается от других курсов"
+            title="Чем это отличается от других курсов"
             accent="отличается"
-            note="Здесь — практика и методы из реальноых проектов."
+            note="Здесь — практика и методы из реальных проектов."
           />
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             {landing.why.map((item, idx) => {
@@ -426,20 +553,25 @@ export default async function CourseLandingPage({ params }: {
                 return (
                   <div
                     key={item.title}
-                    className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border-2 border-brand-navy bg-[#FAF4EA] p-6 sm:p-8 shadow-[0_6px_0_0_rgba(16,38,71,0.12)] transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_rgba(16,38,71,0.18)]"
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border-2 border-brand-navy bg-[#FFF6F2] p-6 sm:p-8 shadow-[0_6px_0_0_rgba(16,38,71,0.12)] transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_rgba(16,38,71,0.18)]"
                   >
                     {/* Верхняя фирменная красно-белая полоска тента джелатерии */}
-                    <div className="absolute top-0 left-0 right-0 h-3 bg-[repeating-linear-gradient(90deg,var(--color-goose-red)_0_16px,#FAF4EA_16px_32px)] border-b-2 border-brand-navy/20" />
+                    <div
+                      className="absolute top-0 left-0 right-0 h-3.5 border-b-2 border-brand-navy/25"
+                      style={{
+                        backgroundImage: 'repeating-linear-gradient(90deg, #CE3D31 0px, #CE3D31 16px, #FFF6F2 16px, #FFF6F2 32px)',
+                      }}
+                    />
 
-                    <div className="pt-2">
+                    <div className="pt-3">
                       <div className="flex items-start justify-between gap-4 border-b-2 border-brand-navy/15 pb-4">
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-yellow/80 border-2 border-brand-navy/30 pl-1.5 pr-3 py-0.5 font-mono text-[11px] font-black uppercase tracking-wider text-brand-navy shadow-2xs">
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-yellow border-2 border-brand-navy/40 pl-2 pr-3 py-0.5 font-mono text-[11px] font-black uppercase tracking-wider text-brand-navy shadow-2xs">
                               <Lemon className="size-4 shrink-0 -rotate-12" />
                               Gelato Метод
                             </span>
-                            <span className="font-marker text-xs text-brand-red">★ главное отличие</span>
+                            <span className="font-mono text-xs font-bold uppercase text-brand-red">главное отличие</span>
                           </div>
                           <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy leading-tight">
                             {item.title}
@@ -507,32 +639,49 @@ export default async function CourseLandingPage({ params }: {
                 <h4 className="mt-3 font-heading font-black text-xl text-brand-navy leading-snug">
                   «Сожгу лимиты и токены»
                 </h4>
-                <p className="mt-3 text-sm sm:text-base font-medium leading-relaxed text-brand-charcoal/90">
+                <p className="mt-3 text-base sm:text-[17px] font-medium leading-relaxed text-brand-charcoal/90">
                   <RichText text="**Наоборот.** Контекст живёт в `CLAUDE.md` и Skills, а не пересказывается в каждом чате. На второй неделе ты **тратишь меньше токенов**, чем в обычном чате." />
                 </p>
               </div>
-              <div className="mt-5 border-t border-dashed border-brand-navy/10 pt-3 text-xs font-bold text-brand-forest">
-                ✓ Экономия токенов до 60%
+              <div className="mt-5 border-t border-dashed border-brand-navy/10 pt-3 text-xs sm:text-sm font-bold text-brand-forest">
+                Экономия токенов до 60%
               </div>
             </div>
 
-            <div className="flex flex-col justify-between rounded-3xl border-2 border-brand-navy/15 bg-card p-6 sm:p-7 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy">
-              <div>
-                <div className="flex items-center justify-between border-b border-brand-navy/10 pb-3">
-                  <span className="font-mono text-xs font-black uppercase text-brand-red">
-                    сомнение 02
-                  </span>
-                  <span className="font-marker text-2xl text-brand-red">?</span>
+            <div className="relative">
+              {/* Кривенькая маркерная надпись «DeepSeek, GPT, Claude» над карточкой */}
+              <DoodleWord
+                text="DeepSeek, GPT, Claude"
+                color="#1B449C"
+                className="z-20 -top-4 right-4 text-base -rotate-6 sm:-top-5 sm:right-6 sm:text-xl whitespace-nowrap"
+              />
+
+              <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border-2 border-brand-navy bg-[#F0F5FC] p-6 sm:p-7 shadow-[0_6px_0_0_rgba(16,38,71,0.12)] transition-all hover:shadow-[0_8px_0_0_rgba(16,38,71,0.18)]">
+                {/* Верхняя фирменная сине-белая полоска шезлонга */}
+                <div
+                  className="absolute top-0 left-0 right-0 h-3.5 border-b-2 border-brand-navy/25"
+                  style={{
+                    backgroundImage: 'repeating-linear-gradient(90deg, #1B449C 0px, #1B449C 16px, #F0F5FC 16px, #F0F5FC 32px)',
+                  }}
+                />
+
+                <div className="pt-2">
+                  <div className="flex items-center justify-between border-b-2 border-brand-navy/15 pb-3">
+                    <span className="font-mono text-xs font-black uppercase text-brand-red">
+                      сомнение 02
+                    </span>
+                    <span className="font-marker text-2xl text-brand-red">?</span>
+                  </div>
+                  <h4 className="mt-3 font-heading font-black text-xl text-brand-navy leading-snug">
+                    «Модели сменятся и всё устареет»
+                  </h4>
+                  <p className="mt-3 text-base sm:text-[17px] font-bold leading-relaxed text-brand-navy/90">
+                    <RichText text="**Конвейер не привязан к вендору.** Сегодня Claude Code, завтра Codex или DeepSeek. **Архитектура, тесты и правила проекта остаются твоими** навсегда." />
+                  </p>
                 </div>
-                <h4 className="mt-3 font-heading font-black text-xl text-brand-navy leading-snug">
-                  «Модели сменятся и всё устареет»
-                </h4>
-                <p className="mt-3 text-sm sm:text-base font-medium leading-relaxed text-brand-charcoal/90">
-                  <RichText text="**Конвейер не привязан к вендору.** Сегодня Claude Code, завтра Codex или DeepSeek. **Архитектура, тесты и правила проекта остаются твоими** навсегда." />
-                </p>
-              </div>
-              <div className="mt-5 border-t border-dashed border-brand-navy/10 pt-3 text-xs font-bold text-brand-forest">
-                ✓ Универсальный мультимодельный стек
+                <div className="mt-5 border-t border-dashed border-brand-navy/20 pt-3 text-xs sm:text-sm font-black text-brand-navy">
+                  Универсальный мультимодельный стек
+                </div>
               </div>
             </div>
 
@@ -547,12 +696,12 @@ export default async function CourseLandingPage({ params }: {
                 <h4 className="mt-3 font-heading font-black text-xl text-brand-navy leading-snug">
                   «Получится нечитаемый мусор»
                 </h4>
-                <p className="mt-3 text-sm sm:text-base font-medium leading-relaxed text-brand-charcoal/90">
-                  <RichText text="**ИИ пишет по строгим инженерным гайдам.** Агент соблюдает твою структуру папок, строгие типы и правила линтера. Код получается **чище и понятнее, чем у джуна**." />
+                <p className="mt-3 text-base sm:text-[17px] font-medium leading-relaxed text-brand-charcoal/90">
+                  <RichText text="**ИИ пишет по строгим инженерным гайдам.** Агент соблюдает твою структуру папок, строгие типы и правила линтера. Код получается **чище и понятнее, чем у сеньора**." />
                 </p>
               </div>
-              <div className="mt-5 border-t border-dashed border-brand-navy/10 pt-3 text-xs font-bold text-brand-forest">
-                ✓ Чистая модульная архитектура
+              <div className="mt-5 border-t border-dashed border-brand-navy/10 pt-3 text-xs sm:text-sm font-bold text-brand-forest">
+                Чистая модульная архитектура
               </div>
             </div>
           </div>
