@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
-import { ArrowRight, ArrowUpRight, Check, Minus, Send } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Check, ChevronDown, Minus, Send } from 'lucide-react';
 import { getPublishedCoursesWithLessons, type CourseWithLessons } from '@/lib/db/courses';
 import { getSubscription } from '@/lib/db/subscriptions';
 import { getCompletedLessonIds } from '@/lib/db/progress';
@@ -11,9 +11,10 @@ import { hasCourseAccess } from '@/lib/access';
 import { buildFallbackLanding, getCourseLanding, type CourseLanding } from '@/lib/course-landings';
 import { courseKey, lessonPath } from '@/lib/slug';
 import { SITE_URL, TELEGRAM_DM } from '@/lib/site';
-import { DoodleWord } from '@/components/doodle-decor';
+import { DoodleWord, DoodleUnderline } from '@/components/doodle-decor';
 import { SectionHead } from '@/components/section-head';
 import { RichText } from '@/components/markdown';
+import { Lemon } from '@/components/scene/lemon';
 
 // Курс ищем по slug, но принимаем и id документа — со старых ссылок делаем редирект
 async function findCourse(key: string): Promise<CourseWithLessons | null> {
@@ -27,6 +28,7 @@ function landingFor(course: CourseWithLessons): CourseLanding {
 
 import { CourseBuyButton } from '@/components/payment/course-buy-button';
 import { VibeTimerBadge } from '@/components/payment/vibe-timer-badge';
+import { VibeComparisonSection } from '@/components/vibe-pipeline-visual';
 
 // Оплативший приходит на лендинг за входом в уроки, а не за офером: продающие
 // кнопки уступают место переходу к первому непройденному уроку.
@@ -128,7 +130,7 @@ export default async function CourseLandingPage({ params }: {
               <div className="mt-6 flex w-fit flex-col gap-2.5 rounded-2xl border-2 border-brand-navy/15 bg-brand-yellow p-4 sm:flex-row sm:items-center sm:gap-3.5">
                 <span className="font-marker text-3xl leading-none text-brand-red shrink-0">{landing.offer.badge}</span>
                 <div className="flex flex-col gap-1.5">
-                  <span className="max-w-md text-sm leading-snug font-medium text-brand-charcoal/85 text-pretty">
+                  <span className="max-w-md text-sm leading-snug font-medium text-brand-charcoal/85 text-pretty whitespace-pre-line">
                     {landing.offer.text}
                   </span>
                   {(key === 'it-vibecoding' || key === 'vibecoding') && (
@@ -187,44 +189,74 @@ export default async function CourseLandingPage({ params }: {
         )}
       </section>
 
-      {/* Боли и запросы */}
-      {landing.pains.length > 0 && (
-        <section className="animate-rise relative">
-          <DoodleWord
-            text="знакомо?"
-            color="oklch(0.535 0.1893 28.3)"
-            className="z-10 -top-4 left-4 text-lg -rotate-6 sm:-top-5 sm:left-8 sm:text-xl"
-          />
-          <div className="rounded-3xl border-2 border-brand-navy/20 bg-brand-cream/50 p-6 sm:p-9 shadow-[0_4px_0_0_rgba(16,38,71,0.08)]">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-brand-navy/10 pb-5">
-              <SectionHead
-                title="Что обычно идёт не так"
-                accent="не так"
-                note="Самые популярные тупики, на которых теряются недели и сливаются бюджеты."
-              />
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-red/30 bg-brand-red/10 px-3.5 py-1 font-mono text-xs font-bold text-brand-red">
-                <span className="size-1.5 rounded-full bg-brand-red animate-pulse" />
-                {landing.pains.length} типовых проблем
+      {/* Блок об авторе (Второй блок страницы) */}
+      <section className="animate-rise relative" id="about">
+        <DoodleWord
+          text="кто я"
+          color="oklch(0.2705 0.0677 258.4)"
+          className="z-10 -top-4 left-5 text-lg -rotate-6 sm:-top-5 sm:left-9 sm:text-xl"
+        />
+        <div className="overflow-hidden rounded-3xl border-2 border-brand-navy/20 bg-card p-6 sm:p-10 shadow-[0_6px_0_0_rgba(16,38,71,0.08)]">
+          <div className="grid grid-cols-1 items-start gap-6 sm:grid-cols-[160px_1fr] sm:gap-10">
+            <div className="flex flex-col items-center text-center">
+              <div className="relative size-28 sm:size-36 overflow-hidden rounded-2xl border-2 border-brand-navy/20 bg-brand-cream shadow-xs">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/scene/emil-avatar-collage-v2.webp"
+                  alt="Эмиль, автор курса"
+                  className="size-full object-cover object-top"
+                />
+              </div>
+              <span className="mt-3 font-marker text-xl text-brand-navy">Эмиль</span>
+              <span className="mt-0.5 font-mono text-[10px] font-black uppercase tracking-wider text-brand-forest">
+                Внедряю ИИ в прод
               </span>
+              <div className="mt-3 flex items-center gap-2">
+                <a
+                  href="https://t.me/rrotatew"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 rounded-lg border border-brand-navy/20 bg-brand-cream/80 px-2.5 py-1 font-mono text-[11px] font-bold text-brand-navy hover:border-brand-navy/60 transition-colors"
+                >
+                  <Send className="size-3 text-brand-forest" />
+                  Telegram
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/rrotatew"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 rounded-lg border border-brand-navy/20 bg-brand-cream/80 px-2.5 py-1 font-mono text-[11px] font-bold text-brand-navy hover:border-brand-navy/60 transition-colors"
+                >
+                  <ArrowUpRight className="size-3 text-brand-forest" />
+                  LinkedIn
+                </a>
+              </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {landing.pains.map((pain, idx) => (
-                <div
-                  key={pain}
-                  className="flex items-start gap-3.5 rounded-xl border-2 border-brand-navy/10 bg-card p-4 shadow-2xs transition-colors hover:border-brand-navy/30"
-                >
-                  <span className="font-marker text-2xl leading-none text-brand-red shrink-0">
-                    {idx + 1}.
-                  </span>
-                  <p className="text-[14px] sm:text-[15px] font-semibold leading-snug text-brand-charcoal text-pretty">
-                    {pain}
-                  </p>
-                </div>
-              ))}
+            <div className="space-y-4">
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-forest/15 border border-brand-forest/25 px-2.5 py-1 font-mono text-xs font-black uppercase text-brand-forest">
+                <span className="size-2 rounded-full bg-brand-forest animate-pulse" />
+                Вы сможете избежать потерь
+              </span>
+              <h3 className="font-heading text-2xl sm:text-3xl font-black text-brand-navy leading-tight">
+                «Учу тому, чем <span className="relative inline-block whitespace-nowrap">пользуюсь сам<DoodleUnderline color="var(--color-goose-red)" className="w-full" /></span>»
+              </h3>
+              <div className="space-y-3 text-base sm:text-[17px] font-medium leading-relaxed text-brand-charcoal/85 text-pretty">
+                <p>
+                  <RichText text="Метод, которому учу, я **собрал сам на практике в крупных компаниях**. Каждый день работаю по нему и **делюсь ровно тем, чем пользуюсь**." />
+                </p>
+                <p>
+                  <RichText text="Чужие гайды не пересказываю — **транслирую свой опыт**, построенный на **больших ошибках**, которые повлекли **потерю денег и времени**." />
+                </p>
+              </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
+
+      {/* Интерактивный блок сравнения «Одиночный чат vs Конвейер агентов» */}
+      {(key === 'it-vibecoding' || key === 'vibecoding') && (
+        <VibeComparisonSection />
       )}
 
       {/* Результаты */}
@@ -235,34 +267,49 @@ export default async function CourseLandingPage({ params }: {
             accent="на выходе"
             note="Конкретные осязаемые результаты, которые останутся работать в вашем проекте."
           />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             {landing.results.map((item, idx) => (
               <div
                 key={item.title}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border-2 border-brand-navy/15 bg-brand-cream/70 p-6 shadow-[0_3px_0_0_rgba(16,38,71,0.06)] transition-all hover:-translate-y-0.5 hover:border-brand-navy hover:shadow-[0_6px_0_0_rgba(16,38,71,0.12)]"
+                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border-2 border-brand-navy/20 bg-card p-6 sm:p-8 shadow-[0_4px_0_0_rgba(16,38,71,0.08)] transition-all hover:-translate-y-1 hover:border-brand-navy hover:shadow-[0_8px_0_0_rgba(16,38,71,0.14)]"
               >
                 <div>
-                  <div className="flex items-center justify-between gap-2 border-b border-brand-navy/10 pb-3">
-                    <span className="font-mono text-xs font-extrabold uppercase tracking-wider text-brand-forest">
-                      // Результат {idx + 1}
-                    </span>
-                    <span className="font-marker text-3xl leading-none text-brand-forest">
-                      {idx + 1}.
+                  <div className="flex items-center justify-between gap-4 border-b-2 border-brand-navy/10 pb-4">
+                    <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy leading-tight">
+                      {item.title}
+                    </h3>
+                    <span className="font-marker text-3xl sm:text-4xl leading-none text-brand-forest shrink-0">
+                      0{idx + 1}
                     </span>
                   </div>
-                  <h3 className="mt-3.5 font-heading text-lg font-extrabold text-brand-navy">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 text-sm font-medium leading-relaxed text-brand-charcoal/85 text-pretty whitespace-pre-line">
-                    {item.note}
-                  </p>
-                </div>
-                <div className="mt-5 flex items-center gap-1.5 font-mono text-[11px] font-bold text-brand-forest">
-                  <span>✓ Проверено на практике</span>
+                  <div className="mt-4 text-base sm:text-[17px] font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
+                    <RichText text={item.note} />
+                  </div>
                 </div>
               </div>
             ))}
           </div>
+
+          {/* Промежуточный сочный CTA после результатов */}
+          {!cont && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border-2 border-brand-navy/15 bg-brand-forest/10 p-5 sm:p-6">
+              <div>
+                <h4 className="font-heading text-lg font-extrabold text-brand-navy">
+                  Хотите настроить такой конвейер на своём коде?
+                </h4>
+                <p className="mt-1 text-xs sm:text-sm text-brand-charcoal/80 font-medium">
+                  Старт потока 14 сентября · Первый чистый коммит уже в первый день · 3 дня гарантия 100%
+                </p>
+              </div>
+              <PrimaryCta
+                cont={cont}
+                cta={{ label: 'Занять место на потоке', href: landing.cta.href, hint: '' }}
+                courseSlug={key}
+                courseTitle={course.title}
+                className="btn-goose inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl border-2 border-brand-navy px-5 text-sm font-extrabold text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_0_0_var(--color-goose-red)]"
+              />
+            </div>
+          )}
         </section>
       )}
 
@@ -271,7 +318,7 @@ export default async function CourseLandingPage({ params }: {
         <section className="animate-rise space-y-8">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <SectionHead
-              title="Что внутри"
+              title="Программа обучения"
               note="Пошаговая программа. Каждый модуль заканчивается практикой на вашем проекте."
             />
             <span className="font-mono text-xs font-bold text-brand-forest bg-brand-green/20 border border-brand-green/30 px-3 py-1 rounded-full">
@@ -283,30 +330,36 @@ export default async function CourseLandingPage({ params }: {
             {landing.program.map((item, i) => (
               <div
                 key={item.title}
-                className="group flex flex-col gap-3 rounded-2xl border-2 border-brand-navy/12 bg-brand-cream/60 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6 shadow-xs transition-all hover:border-brand-navy hover:shadow-[0_4px_0_0_rgba(16,38,71,0.08)]"
+                className="group flex items-start gap-4 rounded-2xl border-2 border-brand-navy/12 bg-card p-5 sm:gap-6 sm:p-6 shadow-xs transition-all hover:border-brand-navy hover:shadow-[0_4px_0_0_rgba(16,38,71,0.08)]"
               >
-                <div className="flex items-start gap-4 sm:items-center sm:gap-5">
-                  <span className="font-marker text-4xl leading-none text-brand-navy shrink-0 group-hover:text-brand-forest transition-colors">
-                    {i + 1}.
-                  </span>
-                  <div className="min-w-0">
-                    <h3 className="font-heading text-base sm:text-lg font-extrabold text-brand-navy">
-                      {item.title}
-                    </h3>
-                    {item.note && (
-                      <p className="mt-1 text-sm font-medium leading-relaxed text-brand-charcoal/80 text-pretty">
-                        <RichText text={item.note} /></p>
-                    )}
-                  </div>
-                </div>
-                <div className="shrink-0 self-start sm:self-center">
-                  <span className="inline-flex items-center rounded-lg border border-brand-forest/30 bg-brand-green/20 px-3 py-1 font-mono text-xs font-bold text-brand-forest group-hover:bg-brand-forest group-hover:text-brand-cream transition-colors">
-                    Модуль {i + 1} →
-                  </span>
+                <span className="font-marker text-3xl sm:text-5xl leading-none text-brand-forest shrink-0 mt-0.5">
+                  {i + 1}.
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-heading text-lg sm:text-xl font-black text-brand-navy">
+                    {item.title}
+                  </h3>
+                  {item.note && (
+                    <div className="mt-1.5 text-sm sm:text-base font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
+                      <RichText text={item.note} />
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
           </div>
+
+          {!cont && (
+            <div className="flex justify-center pt-2">
+              <PrimaryCta
+                cont={cont}
+                cta={{ label: 'Получить доступ к 17 урокам', href: landing.cta.href, hint: '' }}
+                courseSlug={key}
+                courseTitle={course.title}
+                className="btn-goose inline-flex h-12 items-center justify-center gap-2 rounded-2xl border-2 border-brand-navy px-8 text-base font-extrabold text-brand-navy shadow-[0_4px_0_0_var(--color-goose-red)] transition-all hover:-translate-y-0.5 hover:shadow-[0_6px_0_0_var(--color-goose-red)]"
+              />
+            </div>
+          )}
         </section>
       )}
 
@@ -317,103 +370,191 @@ export default async function CourseLandingPage({ params }: {
             title="Кому подойдёт"
             note="Хотя бы один пункт про вас — обучение точно решит вашу задачу."
           />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             {landing.audience.map((item, idx) => (
               <div
                 key={item.title}
-                className="group relative flex flex-col justify-between rounded-2xl border-2 border-brand-navy/15 bg-brand-cream/70 p-6 shadow-[0_3px_0_0_rgba(16,38,71,0.06)] transition-all hover:-translate-y-0.5 hover:border-brand-navy hover:shadow-[0_5px_0_0_rgba(16,38,71,0.12)]"
+                className="group relative flex flex-col justify-between rounded-3xl border-2 border-brand-navy/15 bg-card p-6 sm:p-7 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:-translate-y-0.5 hover:border-brand-navy hover:shadow-[0_6px_0_0_rgba(16,38,71,0.12)]"
               >
                 <div>
-                  <div className="flex items-center justify-between border-b border-brand-navy/10 pb-3">
-                    <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-green/25 border border-brand-forest/20 px-2.5 py-0.5 font-mono text-xs font-extrabold text-brand-forest">
-                      <span className="size-2 rounded-full bg-brand-forest" />
-                      СЕГМЕНТ 0{idx + 1}
-                    </span>
-                    <span className="font-marker text-2xl leading-none text-brand-navy/50">
-                      #{idx + 1}
+                  <div className="flex items-center justify-between border-b-2 border-brand-navy/10 pb-3.5">
+                    <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy">
+                      {item.title}
+                    </h3>
+                    <span className="font-marker text-3xl leading-none text-brand-forest">
+                      0{idx + 1}
                     </span>
                   </div>
-                  <h3 className="mt-3 font-heading text-lg font-extrabold text-brand-navy">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 text-sm font-medium leading-relaxed text-brand-charcoal/85 text-pretty">
-                    {item.note}
-                  </p>
-                </div>
-                <div className="mt-5 flex items-center gap-2 pt-3 border-t border-dashed border-brand-navy/10 text-xs font-bold text-brand-forest">
-                  <span>✓ не нужно быть мега крутым. Разберемся со всем</span>
+                  <div className="mt-3.5 text-base sm:text-[17px] font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
+                    <RichText text={item.note} />
+                  </div>
                 </div>
               </div>
             ))}
           </div>
+
+          {!cont && (
+            <div className="flex justify-center pt-2">
+              <PrimaryCta
+                cont={cont}
+                cta={{ label: 'Занять место на потоке 14 сентября', href: landing.cta.href, hint: '' }}
+                courseSlug={key}
+                courseTitle={course.title}
+                className="btn-scarf inline-flex h-12 items-center justify-center gap-2 rounded-2xl border-2 border-brand-navy px-8 text-base font-extrabold text-brand-navy shadow-[0_4px_0_0_var(--color-scarf-green)] transition-all hover:-translate-y-0.5 hover:shadow-[0_6px_0_0_var(--color-scarf-green)]"
+              />
+            </div>
+          )}
         </section>
       )}
 
       {/* Почему мы */}
       {landing.why.length > 0 && (
-        <section className="animate-rise space-y-8">
+        <section className="animate-rise relative space-y-8">
+          <DoodleWord
+            text="почему именно мы"
+            color="oklch(0.535 0.1893 28.3)"
+            className="z-10 -top-4 left-5 text-lg -rotate-6 sm:-top-5 sm:left-9 sm:text-xl"
+          />
           <SectionHead
             title="Чем это отличается от других курсов"
-            note="Здесь — практика и методы из реального продакшена, а не пересказ чужих гайдов."
-            action={{ href: '/faq', label: 'Все возражения' }}
+            accent="отличается"
+            note="Здесь — практика и методы из реальноых проектов."
           />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {landing.why.map((item, idx) => (
-              <div
-                key={item.title}
-                className={`rounded-2xl border-2 border-brand-navy/15 bg-brand-cream/80 p-6 shadow-[0_3px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy hover:shadow-[0_5px_0_0_rgba(16,38,71,0.12)] ${
-                  idx === 0 ? 'md:col-span-2 border-brand-forest/40 bg-gradient-to-br from-brand-cream via-brand-cream to-brand-green/10' : ''
-                }`}
-              >
-                <div className="flex items-center justify-between border-b border-brand-navy/10 pb-3">
-                  <span className="font-mono text-xs font-black uppercase text-brand-forest">
-                    {idx === 0 ? '★ Главное отличие' : `0${idx + 1} / ПРЕИМУЩЕСТВО`}
-                  </span>
-                  <span className="font-marker text-2xl leading-none text-brand-forest">
-                    #{idx + 1}
-                  </span>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            {landing.why.map((item, idx) => {
+              if (idx === 0) {
+                return (
+                  <div
+                    key={item.title}
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border-2 border-brand-navy bg-[#FAF4EA] p-6 sm:p-8 shadow-[0_6px_0_0_rgba(16,38,71,0.12)] transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_rgba(16,38,71,0.18)]"
+                  >
+                    {/* Верхняя фирменная красно-белая полоска тента джелатерии */}
+                    <div className="absolute top-0 left-0 right-0 h-3 bg-[repeating-linear-gradient(90deg,var(--color-goose-red)_0_16px,#FAF4EA_16px_32px)] border-b-2 border-brand-navy/20" />
+
+                    <div className="pt-2">
+                      <div className="flex items-start justify-between gap-4 border-b-2 border-brand-navy/15 pb-4">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-yellow/80 border-2 border-brand-navy/30 pl-1.5 pr-3 py-0.5 font-mono text-[11px] font-black uppercase tracking-wider text-brand-navy shadow-2xs">
+                              <Lemon className="size-4 shrink-0 -rotate-12" />
+                              Gelato Метод
+                            </span>
+                            <span className="font-marker text-xs text-brand-red">★ главное отличие</span>
+                          </div>
+                          <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy leading-tight">
+                            {item.title}
+                          </h3>
+                        </div>
+                        <span className="font-marker text-4xl sm:text-5xl leading-none shrink-0 text-brand-navy">
+                          01
+                        </span>
+                      </div>
+                      <div className="mt-4 text-base sm:text-[17px] font-bold leading-relaxed text-brand-navy/90 text-pretty">
+                        <RichText text={item.note} />
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <div
+                  key={item.title}
+                  className="group relative flex flex-col justify-between rounded-3xl border-2 border-brand-navy/15 bg-card p-6 sm:p-8 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:-translate-y-0.5 hover:border-brand-navy hover:shadow-[0_6px_0_0_rgba(16,38,71,0.12)]"
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-4 border-b border-brand-navy/10 pb-4">
+                      <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy leading-tight">
+                        {item.title}
+                      </h3>
+                      <span className="font-marker text-3xl sm:text-4xl leading-none shrink-0 text-brand-forest">
+                        0{idx + 1}
+                      </span>
+                    </div>
+                    <div className="mt-4 text-base sm:text-[17px] font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
+                      <RichText text={item.note} />
+                    </div>
+                  </div>
                 </div>
-                <h3 className={`mt-3 font-heading font-extrabold text-brand-navy ${idx === 0 ? 'text-xl sm:text-2xl' : 'text-lg'}`}>
-                  {item.title}
-                </h3>
-                <p className={`mt-2 font-medium leading-relaxed text-brand-charcoal/85 text-pretty ${idx === 0 ? 'text-base max-w-2xl' : 'text-sm'}`}>
-                  {item.note}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}
 
-      {/* Формат работы */}
-      {landing.format.length > 0 && (
-        <section className="animate-rise space-y-8">
-          <SectionHead
-            title="Как проходит обучение"
-            note="Понятный предсказуемый процесс: от первого клика до работающей системы."
+      {/* Блок «Частые сомнения перед стартом» на месте прежнего формата */}
+      {(key === 'it-vibecoding' || key === 'vibecoding') && (
+        <section className="animate-rise relative space-y-8">
+          <DoodleWord
+            text="честно"
+            color="oklch(0.535 0.1893 28.3)"
+            className="z-10 -top-4 left-5 text-lg -rotate-6 sm:-top-5 sm:left-9 sm:text-xl"
           />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {landing.format.map((item, i) => (
-              <div
-                key={item.title}
-                className="relative flex flex-col justify-between rounded-2xl border-2 border-brand-navy/15 bg-brand-cream/70 p-6 shadow-[0_3px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-forest hover:shadow-[0_5px_0_0_rgba(16,38,71,0.12)]"
-              >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-marker text-3xl leading-none text-brand-forest">
-                      {i + 1}.
-                    </span>
-                    <span className="font-mono text-xs font-bold text-brand-navy/40">ШАГ {i + 1}</span>
-                  </div>
-                  <h3 className="mt-4 font-heading text-base sm:text-lg font-extrabold text-brand-navy">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 text-sm font-medium leading-relaxed text-brand-charcoal/80 text-pretty">
-                    {item.note}
-                  </p>
+          <SectionHead
+            title="Частые сомнения перед стартом"
+            accent="сомнения"
+            note="Разбираем реальные технические вопросы, которые возникают при переходе на агентов."
+          />
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+            <div className="flex flex-col justify-between rounded-3xl border-2 border-brand-navy/15 bg-card p-6 sm:p-7 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy">
+              <div>
+                <div className="flex items-center justify-between border-b border-brand-navy/10 pb-3">
+                  <span className="font-mono text-xs font-black uppercase text-brand-red">
+                    сомнение 01
+                  </span>
+                  <span className="font-marker text-2xl text-brand-red">?</span>
                 </div>
+                <h4 className="mt-3 font-heading font-black text-xl text-brand-navy leading-snug">
+                  «Сожгу лимиты и токены»
+                </h4>
+                <p className="mt-3 text-sm sm:text-base font-medium leading-relaxed text-brand-charcoal/90">
+                  <RichText text="**Наоборот.** Контекст живёт в `CLAUDE.md` и Skills, а не пересказывается в каждом чате. На второй неделе ты **тратишь меньше токенов**, чем в обычном чате." />
+                </p>
               </div>
-            ))}
+              <div className="mt-5 border-t border-dashed border-brand-navy/10 pt-3 text-xs font-bold text-brand-forest">
+                ✓ Экономия токенов до 60%
+              </div>
+            </div>
+
+            <div className="flex flex-col justify-between rounded-3xl border-2 border-brand-navy/15 bg-card p-6 sm:p-7 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy">
+              <div>
+                <div className="flex items-center justify-between border-b border-brand-navy/10 pb-3">
+                  <span className="font-mono text-xs font-black uppercase text-brand-red">
+                    сомнение 02
+                  </span>
+                  <span className="font-marker text-2xl text-brand-red">?</span>
+                </div>
+                <h4 className="mt-3 font-heading font-black text-xl text-brand-navy leading-snug">
+                  «Модели сменятся и всё устареет»
+                </h4>
+                <p className="mt-3 text-sm sm:text-base font-medium leading-relaxed text-brand-charcoal/90">
+                  <RichText text="**Конвейер не привязан к вендору.** Сегодня Claude Code, завтра Codex или DeepSeek. **Архитектура, тесты и правила проекта остаются твоими** навсегда." />
+                </p>
+              </div>
+              <div className="mt-5 border-t border-dashed border-brand-navy/10 pt-3 text-xs font-bold text-brand-forest">
+                ✓ Универсальный мультимодельный стек
+              </div>
+            </div>
+
+            <div className="flex flex-col justify-between rounded-3xl border-2 border-brand-navy/15 bg-card p-6 sm:p-7 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy">
+              <div>
+                <div className="flex items-center justify-between border-b border-brand-navy/10 pb-3">
+                  <span className="font-mono text-xs font-black uppercase text-brand-red">
+                    сомнение 03
+                  </span>
+                  <span className="font-marker text-2xl text-brand-red">?</span>
+                </div>
+                <h4 className="mt-3 font-heading font-black text-xl text-brand-navy leading-snug">
+                  «Получится нечитаемый мусор»
+                </h4>
+                <p className="mt-3 text-sm sm:text-base font-medium leading-relaxed text-brand-charcoal/90">
+                  <RichText text="**ИИ пишет по строгим инженерным гайдам.** Агент соблюдает твою структуру папок, строгие типы и правила линтера. Код получается **чище и понятнее, чем у джуна**." />
+                </p>
+              </div>
+              <div className="mt-5 border-t border-dashed border-brand-navy/10 pt-3 text-xs font-bold text-brand-forest">
+                ✓ Чистая модульная архитектура
+              </div>
+            </div>
           </div>
         </section>
       )}
@@ -431,11 +572,15 @@ export default async function CourseLandingPage({ params }: {
             <h2 className="font-heading text-[1.9rem]/[1.05] font-extrabold tracking-[-0.025em] text-balance text-brand-navy sm:text-[2.4rem]/[1.02]">
               {cont ? 'Доступ открыт' : landing.price.value}
             </h2>
-            <p className="max-w-md leading-relaxed font-medium text-brand-charcoal/80 text-pretty">
-              {cont
-                ? `Обучение уже оплачено — ${cont.hint.toLowerCase()}. Прогресс сохраняется, возвращайтесь в любой момент.`
-                : landing.price.note}
-            </p>
+            <div className="max-w-md leading-relaxed font-medium text-brand-charcoal/85 text-pretty">
+              {cont ? (
+                <p>
+                  Обучение уже оплачено — {cont.hint.toLowerCase()}. Прогресс сохраняется, возвращайтесь в любой момент.
+                </p>
+              ) : (
+                <RichText text="Выбирай **самостоятельный формат** или **продвинутый с личным разбором** твоего репозитория.\nСтарт **14 сентября**." />
+              )}
+            </div>
             {(key === 'it-vibecoding' || key === 'vibecoding') && !cont && (
               <VibeTimerBadge className="w-fit" />
             )}
@@ -472,12 +617,81 @@ export default async function CourseLandingPage({ params }: {
         </div>
       </section>
 
-      <p className="text-sm text-muted-foreground">
+      {/* Блок «Как проходит обучение» ниже баннера в стиле Вопрос-Ответ */}
+      {landing.format.length > 0 && (
+        <section className="animate-rise space-y-6 pt-4">
+          <SectionHead
+            title="Как проходит обучение: вопросы и ответы"
+            accent="вопросы и ответы"
+            note="Всё о процессе, домашках и поддержке после оплаты."
+          />
+          <div className="space-y-3">
+            <details className="group rounded-3xl border-2 border-brand-navy/15 bg-card p-5 sm:p-6 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy open:shadow-[0_6px_0_0_rgba(16,38,71,0.1)]">
+              <summary className="flex cursor-pointer items-center justify-between gap-4 font-heading text-lg sm:text-xl font-black text-brand-navy list-none select-none">
+                <span>Как и когда открывается доступ к материалам?</span>
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-brand-navy/5 border border-brand-navy/10 text-brand-navy transition-transform duration-200 group-open:rotate-180">
+                  <ChevronDown className="size-4" />
+                </span>
+              </summary>
+              <div className="mt-3.5 border-t border-dashed border-brand-navy/10 pt-3.5 text-base font-medium leading-relaxed text-brand-charcoal/90">
+                <RichText text="Все 17 уроков курса **открываются целиком со старта потока 14 сентября**. Вы двигаетесь в комфортном для себя темпе без искусственных задержек. **Доступ к курсу сохраняется на 2 месяца**." />
+              </div>
+            </details>
+
+            <details className="group rounded-3xl border-2 border-brand-navy/15 bg-card p-5 sm:p-6 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy open:shadow-[0_6px_0_0_rgba(16,38,71,0.1)]">
+              <summary className="flex cursor-pointer items-center justify-between gap-4 font-heading text-lg sm:text-xl font-black text-brand-navy list-none select-none">
+                <span>На каких задачах мы будем практиковаться?</span>
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-brand-navy/5 border border-brand-navy/10 text-brand-navy transition-transform duration-200 group-open:rotate-180">
+                  <ChevronDown className="size-4" />
+                </span>
+              </summary>
+              <div className="mt-3.5 border-t border-dashed border-brand-navy/10 pt-3.5 text-base font-medium leading-relaxed text-brand-charcoal/90">
+                <RichText text="Никаких оторванных от жизни примеров. **Каждое задание вы внедряете прямо в свой реальный проект или стартап**. Если проекта пока нет — выдадим готовый боевой шаблон." />
+              </div>
+            </details>
+
+            <details className="group rounded-3xl border-2 border-brand-navy/15 bg-card p-5 sm:p-6 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy open:shadow-[0_6px_0_0_rgba(16,38,71,0.1)]">
+              <summary className="flex cursor-pointer items-center justify-between gap-4 font-heading text-lg sm:text-xl font-black text-brand-navy list-none select-none">
+                <span>Как устроена обратная связь и помощь автора?</span>
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-brand-navy/5 border border-brand-navy/10 text-brand-navy transition-transform duration-200 group-open:rotate-180">
+                  <ChevronDown className="size-4" />
+                </span>
+              </summary>
+              <div className="mt-3.5 border-t border-dashed border-brand-navy/10 pt-3.5 text-base font-medium leading-relaxed text-brand-charcoal/90">
+                <RichText text="В тарифе с поддержкой вы получаете **3 недели закрытого чата с личным разбором от Эмиля**. Застряли на ошибке — присылаете код, получаем решение текстом или голосовым." />
+              </div>
+            </details>
+          </div>
+
+          {!cont && (
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4">
+              <PrimaryCta
+                cont={cont}
+                cta={{ label: 'Выбрать тариф и начать', href: landing.cta.href, hint: '' }}
+                courseSlug={key}
+                courseTitle={course.title}
+                className="btn-scarf inline-flex h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-2xl border-2 border-brand-navy px-8 text-base font-extrabold text-brand-navy shadow-[0_4px_0_0_var(--color-scarf-green)] transition-all hover:-translate-y-0.5 hover:shadow-[0_6px_0_0_var(--color-scarf-green)]"
+              />
+              <a
+                href="https://t.me/rrotatew"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-2xl border-2 border-brand-navy/20 bg-card px-6 font-mono text-sm font-bold text-brand-navy hover:border-brand-navy/60 transition-colors shadow-2xs"
+              >
+                <Send className="size-4 text-brand-forest" />
+                Спросить автора в Telegram
+              </a>
+            </div>
+          )}
+        </section>
+      )}
+
+      <p className="text-sm text-muted-foreground pt-2">
         Остались вопросы?{' '}
         <Link href="/faq" className="font-medium text-primary underline underline-offset-4 hover:text-foreground">
-          Посмотрите вопрос-ответ
+          Посмотрите полный FAQ
         </Link>{' '}
-        — там разобраны вопросы, оплата и возврат. Или{' '}
+        — там подробно разобраны оплата и возврат. Или{' '}
         <Link href="/free" className="font-medium text-primary underline underline-offset-4 hover:text-foreground">
           начните с&nbsp;бесплатных уроков
         </Link>

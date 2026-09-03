@@ -34,7 +34,7 @@ function Inlines({ tokens }: { tokens: Inline[] }) {
           case 'text':
             return <Fragment key={i}>{tok.v}</Fragment>;
           case 'bold':
-            return <strong key={i} className="font-semibold text-foreground">{tok.v}</strong>;
+            return <strong key={i} className="font-black text-brand-navy">{tok.v}</strong>;
           case 'italic':
             return <em key={i}>{tok.v}</em>;
           case 'code':

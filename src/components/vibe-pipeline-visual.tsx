@@ -1,0 +1,130 @@
+'use client';
+
+import React from 'react';
+import { Bot, Terminal, ShieldCheck, Sparkles, CheckCircle2, AlertTriangle, ArrowRight, RefreshCw, XCircle } from 'lucide-react';
+
+export function VibeComparisonSection() {
+  return (
+    <section className="animate-rise relative">
+      <div className="overflow-hidden rounded-3xl border-2 border-brand-navy/20 bg-card shadow-[0_6px_0_0_rgba(16,38,71,0.08)]">
+        {/* Шапка блока */}
+        <div className="border-b-2 border-brand-navy/10 bg-brand-cream/60 p-6 sm:p-8">
+          <div className="flex flex-col gap-2">
+            <h2 className="font-heading text-2xl sm:text-3xl font-black text-brand-navy leading-tight text-pretty">
+              Почему одного Claude или Codex мало
+            </h2>
+            <p className="mt-1 text-base sm:text-lg font-medium text-brand-charcoal/85 max-w-3xl">
+              Одиночный инструмент не знает контекст проекта и сам себя не проверяет. Разница — в обвязке вокруг модели:
+            </p>
+          </div>
+        </div>
+
+        {/* Наглядное прямое сравнение «В чате» vs «Конвейер в репозитории» в стиле Gelato */}
+        <div className="p-6 sm:p-9">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {/* Левая сторона: Одиночный чат */}
+            <div className="flex flex-col justify-between rounded-3xl border-2 border-brand-navy/20 bg-card p-6 sm:p-8 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all">
+              <div>
+                <div className="flex items-center justify-between border-b-2 border-brand-navy/10 pb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center justify-center rounded-lg bg-brand-red/10 border border-brand-red/25 px-2.5 py-1 font-mono text-xs font-black uppercase text-brand-red">
+                      хаос
+                    </span>
+                    <span className="font-heading text-lg sm:text-xl font-black text-brand-navy">
+                      Одиночный чат
+                    </span>
+                  </div>
+                  <span className="font-marker text-2xl text-brand-red">01</span>
+                </div>
+
+                <div className="mt-6 space-y-5">
+                  <div className="space-y-1.5">
+                    <h4 className="font-heading text-lg sm:text-xl font-black text-brand-navy">
+                      1. Каждый раз с чистого листа
+                    </h4>
+                    <p className="text-base sm:text-[17px] font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
+                      Модель <strong className="font-black text-brand-navy">не помнит прошлые договорённости</strong>. Ты тратишь часы на пересказ структуры и стека в каждом новом окне.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <h4 className="font-heading text-lg sm:text-xl font-black text-brand-navy">
+                      2. Модель сама себе судья
+                    </h4>
+                    <p className="text-base sm:text-[17px] font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
+                      ИИ пишет непроверенный код, уверяет что всё работает, а <strong className="font-black text-brand-navy">на проде всё падает</strong> из-за сломанных типов и связей.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <h4 className="font-heading text-lg sm:text-xl font-black text-brand-navy">
+                      3. Ручной кодинг проигрывает
+                    </h4>
+                    <p className="text-base sm:text-[17px] font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
+                      Пока другие отгружают фичи через команды агентов, ты <strong className="font-black text-brand-navy">вручную возишься с опечатками</strong> и логами ошибок.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 rounded-2xl border-2 border-brand-navy/15 bg-brand-red/10 p-4 text-sm sm:text-base font-bold text-brand-navy leading-snug">
+                ❌ <strong className="text-brand-red">Тупик:</strong> часы ручного дебага, усталость и риск остаться не у дел.
+              </div>
+            </div>
+
+            {/* Правая сторона: Конвейер агентов */}
+            <div className="flex flex-col justify-between rounded-3xl border-2 border-brand-navy bg-brand-yellow/30 p-6 sm:p-8 shadow-[0_6px_0_0_rgba(16,38,71,0.12)] transition-all">
+              <div>
+                <div className="flex items-center justify-between border-b-2 border-brand-navy/15 pb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center justify-center rounded-lg bg-brand-forest/20 border border-brand-forest/30 px-2.5 py-1 font-mono text-xs font-black uppercase text-brand-forest">
+                      система
+                    </span>
+                    <span className="font-heading text-lg sm:text-xl font-black text-brand-navy">
+                      Конвейер в твоём репо
+                    </span>
+                  </div>
+                  <span className="font-marker text-2xl text-brand-forest">02</span>
+                </div>
+
+                <div className="mt-6 space-y-5">
+                  <div className="space-y-1.5">
+                    <h4 className="font-heading text-lg sm:text-xl font-black text-brand-navy">
+                      1. Контекст вшит в репозиторий
+                    </h4>
+                    <p className="text-base sm:text-[17px] font-bold leading-relaxed text-brand-navy/90 text-pretty">
+                      <strong className="font-black text-brand-forest">CLAUDE.md и правила проекта</strong> подгружаются автоматически. Агент знает проект лучше джуна.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <h4 className="font-heading text-lg sm:text-xl font-black text-brand-navy">
+                      2. Автопроверки до показа тебе
+                    </h4>
+                    <p className="text-base sm:text-[17px] font-bold leading-relaxed text-brand-navy/90 text-pretty">
+                      TypeScript, линтер и автотесты прогоняются сами. <strong className="font-black text-brand-forest">Агент чинит ошибки сам</strong> до зелёного статуса.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <h4 className="font-heading text-lg sm:text-xl font-black text-brand-navy">
+                      3. Ты — архитектор и тимлид
+                    </h4>
+                    <p className="text-base sm:text-[17px] font-bold leading-relaxed text-brand-navy/90 text-pretty">
+                      Ты ставишь задачу словами и <strong className="font-black text-brand-forest">принимаешь готовый чистый Pull Request</strong> в 10 раз быстрее.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 rounded-2xl border-2 border-brand-navy bg-brand-forest text-brand-cream p-4 text-sm sm:text-base font-black leading-snug shadow-2xs">
+                ✓ <strong className="text-brand-yellow">Результат:</strong> ты на шаг впереди рынка, управляешь процессом и сдаешь продукт.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
