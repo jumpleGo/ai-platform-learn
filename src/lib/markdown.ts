@@ -14,7 +14,7 @@ export type Block =
   | { t: 'heading'; level: 2 | 3; text: string }
   | { t: 'p'; text: string }
   | { t: 'ul'; items: string[] }
-  | { t: 'ol'; items: string[] }
+  | { t: 'ol'; items: string[]; start?: number }
   | { t: 'callout'; text: string }
   | { t: 'code'; text: string }
   | { t: 'table'; headers: string[]; rows: string[][] };
@@ -176,16 +176,58 @@ export function parseBlocks(md: string): Block[] {
     // - / * маркированный список
     if (/^\s*[-*]\s+/.test(line)) {
       const items: string[] = [];
-      while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) { items.push(lines[i].replace(/^\s*[-*]\s+/, '')); i++; }
+      while (i < lines.length) {
+        if (/^\s*[-*]\s+/.test(lines[i])) {
+          items.push(lines[i].replace(/^\s*[-*]\s+/, ''));
+          i++;
+        } else if (lines[i].startsWith('  ') || lines[i].startsWith('\t')) {
+          if (items.length > 0) {
+            items[items.length - 1] += ' ' + lines[i].trim();
+          }
+          i++;
+        } else if (lines[i].trim() === '') {
+          let next = i + 1;
+          while (next < lines.length && lines[next].trim() === '') next++;
+          if (next < lines.length && /^\s*[-*]\s+/.test(lines[next])) {
+            i = next;
+          } else {
+            break;
+          }
+        } else {
+          break;
+        }
+      }
       blocks.push({ t: 'ul', items });
       continue;
     }
 
     // 1. нумерованный список
     if (/^\s*\d+\.\s+/.test(line)) {
+      const startMatch = line.match(/^\s*(\d+)\.\s+/);
+      const start = startMatch ? parseInt(startMatch[1], 10) : 1;
       const items: string[] = [];
-      while (i < lines.length && /^\s*\d+\.\s+/.test(lines[i])) { items.push(lines[i].replace(/^\s*\d+\.\s+/, '')); i++; }
-      blocks.push({ t: 'ol', items });
+      while (i < lines.length) {
+        if (/^\s*\d+\.\s+/.test(lines[i])) {
+          items.push(lines[i].replace(/^\s*\d+\.\s+/, ''));
+          i++;
+        } else if (lines[i].startsWith('  ') || lines[i].startsWith('\t')) {
+          if (items.length > 0) {
+            items[items.length - 1] += ' ' + lines[i].trim();
+          }
+          i++;
+        } else if (lines[i].trim() === '') {
+          let next = i + 1;
+          while (next < lines.length && lines[next].trim() === '') next++;
+          if (next < lines.length && /^\s*\d+\.\s+/.test(lines[next])) {
+            i = next;
+          } else {
+            break;
+          }
+        } else {
+          break;
+        }
+      }
+      blocks.push({ t: 'ol', items, start });
       continue;
     }
 

@@ -16,7 +16,7 @@ const UNDERLINES = {
  */
 export function Accent({
   children,
-  color = 'var(--color-brand-navy)',
+  color = 'var(--color-brand-forest)',
   stroke = 'single',
   className = '',
 }: {

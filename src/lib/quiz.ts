@@ -130,7 +130,7 @@ export type QuizResult = {
 
 const RESULTS: Record<string, QuizResult> = {
   vibecoding: {
-    slug: 'vibecoding',
+    slug: 'it-vibecoding',
     title: 'Вайбкодим как инженер',
     verdict: 'Вам нужны страховки, а не новые промпты',
     note: 'У вас есть что ломать — значит, пора научить ИИ проверять себя: типы, тесты, линтер, CI и правила проекта.',

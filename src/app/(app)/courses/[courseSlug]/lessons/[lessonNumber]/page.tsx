@@ -14,6 +14,7 @@ import type { Lesson } from '@/lib/types';
 import { courseKey, lessonPath } from '@/lib/slug';
 import { isBannerSlot, pickVariant, slotVariants, variantSeed } from '@/lib/banners';
 import { VideoEmbed } from '@/components/video-embed';
+import { LockedVideoPlayer } from '@/components/payment/locked-video-player';
 // Оффер закрытого урока — маркетинговый баннер на внешний лендинг
 import { PromoLessonBanner } from '@/components/promo-banner';
 import { CompleteLessonButton } from '@/components/complete-lesson-button';
@@ -25,6 +26,7 @@ import { WatchingNow } from '@/components/watching-now';
 import { BannerSlotView } from '@/components/banner-slot';
 import { FreeLessonAnalytics } from '@/components/free-lesson-analytics';
 import { FreeLessonAfterVideo, FreeLessonMarker } from '@/components/free-lesson-funnel';
+import { LessonQuizMatchModal } from '@/components/lesson-quiz-modal';
 import { EVENTS } from '@/lib/analytics/events';
 import {
   SITE_URL, buildProgramUrl, getFreeLessonContent, isoDuration, type FreeLessonContent,
@@ -101,7 +103,7 @@ function freeLessonJsonLd({
       '@id': courseSchemaId,
       name: courseTitle,
       description: 'Практическая программа Gelato Dev о системной и проверяемой AI-разработке на реальном проекте.',
-      provider: { '@type': 'Organization', name: 'Gelato Dev', url: 'https://vibe.gelato.education' },
+      provider: { '@type': 'Organization', name: 'Gelato Dev', url: `${SITE_URL}/courses/vibecoding` },
     },
     {
       '@type': 'LearningResource',
@@ -237,6 +239,11 @@ export default async function LessonPage({ params, searchParams }: {
         hideLessonsNav={Boolean(freeLesson && !session)}
         funnelMode={Boolean(freeLesson)}
       />
+      <LessonQuizMatchModal
+        lessonNumber={number}
+        source={Array.isArray(query.source) ? query.source[0] : query.source}
+        utmContent={Array.isArray(query.utm_content) ? query.utm_content[0] : query.utm_content}
+      />
       <div className="animate-rise relative space-y-8">
         {/* метка, заголовок и лид — одна смысловая группа, поэтому стоят вплотную */}
         <div className="space-y-3">
@@ -269,7 +276,12 @@ export default async function LessonPage({ params, searchParams }: {
         )}
         <div className="overflow-hidden rounded-2xl border border-border shadow-md">
           {locked ? (
-            <LockedVideo previewUrl={lesson.previewImageUrl} title={lesson.title} />
+            <LockedVideoPlayer
+              previewUrl={lesson.previewImageUrl}
+              title={lesson.title}
+              courseSlug={courseKey(course)}
+              courseTitle={course.title}
+            />
           ) : lesson.videoEmbedUrl ? (
             <VideoEmbed
               courseId={courseId}
@@ -281,7 +293,12 @@ export default async function LessonPage({ params, searchParams }: {
             <MissingVideo />
           )}
         </div>
-        {locked && !freeLesson && <PromoLessonBanner />}
+        {locked && !freeLesson && (
+          <PromoLessonBanner
+            courseSlug={courseKey(course)}
+            courseTitle={course.title}
+          />
+        )}
         {!freeLesson && lesson.description && (
           <p className="max-w-2xl leading-relaxed text-muted-foreground">{lesson.description}</p>
         )}
@@ -360,24 +377,6 @@ function MissingVideo() {
         <Clapperboard className="size-5 text-primary" aria-hidden />
       </span>
       <p className="px-6 text-sm font-medium text-foreground/90">Видео скоро появится</p>
-    </div>
-  );
-}
-
-// Постер заблокированного урока: только загруженное превью (кадр из видео не используем —
-// он раскрыл бы id ролика и фактически ссылку)
-function LockedVideo({ previewUrl, title }: { previewUrl: string | null; title: string }) {
-  return (
-    <div className="relative aspect-video w-full bg-black">
-      {previewUrl && (
-        <img src={previewUrl} alt={title} className="size-full object-cover opacity-40" />
-      )}
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center">
-        <span className="flex size-12 items-center justify-center rounded-full bg-primary/15">
-          <Lock className="size-5 text-primary" aria-hidden />
-        </span>
-        <p className="px-6 text-sm font-medium text-foreground/90">Видео доступно по подписке</p>
-      </div>
     </div>
   );
 }

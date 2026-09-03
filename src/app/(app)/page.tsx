@@ -82,8 +82,8 @@ const FOR_WHOM_TONES = [
 // «Для кого»: кликабельные плашки — каждый уходит туда, где узнаёт себя
 const FOR_WHOM: { label: string; href: string }[] = [
   { label: 'Не программист', href: '/courses/claude-code-agents' },
-  { label: 'Вайбкодер с живым проектом', href: '/courses/vibecoding' },
-  { label: 'Разработчик в команде', href: '/courses/vibecoding' },
+  { label: 'Вайбкодер с живым проектом', href: '/courses/it-vibecoding' },
+  { label: 'Разработчик в команде', href: '/courses/it-vibecoding' },
   { label: 'Маркетолог', href: '/courses/ai-cartoons' },
   { label: 'Дизайнер', href: '/courses/ai-cartoons' },
   { label: 'Родитель', href: '/courses/ai-cartoons' },

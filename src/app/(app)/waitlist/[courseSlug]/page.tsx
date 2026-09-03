@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { ArrowUpRight } from 'lucide-react';
 import { getTestCourse } from '@/lib/db/courses';
@@ -7,7 +8,7 @@ import { DoodleWord } from '@/components/doodle-decor';
 import { courseKey, waitlistPath } from '@/lib/slug';
 import { SITE_URL } from '@/lib/site';
 
-const PROMO_URL = 'https://vibe.gelato.education';
+const PROMO_URL = '/courses/vibecoding';
 
 export async function generateMetadata({ params }: {
   params: Promise<{ courseSlug: string }>;
@@ -75,15 +76,13 @@ export default async function WaitlistPage({ params }: {
             Курс скоро откроется. Оставьте заявку, чтобы попасть в число первых — вам напишут,
             как только появится доступ.
           </p>
-          <a
+          <Link
             href={PROMO_URL}
-            target="_blank"
-            rel="noopener noreferrer"
             className="btn-goose inline-flex h-12 items-center gap-1.5 rounded-xl border-2 border-brand-navy px-6 text-[15px] font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-goose-red)] motion-reduce:hover:translate-y-0"
           >
             Записаться
             <ArrowUpRight className="size-4" aria-hidden />
-          </a>
+          </Link>
         </div>
       </div>
     </section>

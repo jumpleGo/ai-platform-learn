@@ -107,19 +107,21 @@ export function Markdown({ source, className }: { source: string; className?: st
                 ))}
               </ul>
             );
-          case 'ol':
+          case 'ol': {
+            const start = b.start ?? 1;
             return (
-              <ol key={i} className="mt-3 space-y-1.5 first:mt-0">
+              <ol key={i} className="mt-3 space-y-2 first:mt-0" start={start}>
                 {b.items.map((it, j) => (
-                  <li key={j} className="flex gap-2.5 leading-relaxed text-muted-foreground">
-                    <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md bg-primary/10 font-mono text-xs font-medium text-primary">
-                      {j + 1}
+                  <li key={j} className="flex items-start gap-2.5 leading-relaxed text-muted-foreground">
+                    <span className="font-marker text-2xl leading-none text-primary shrink-0 select-none">
+                      {start + j}.
                     </span>
-                    <span className="pt-0.5"><Inlines tokens={parseInline(it)} /></span>
+                    <span className="min-w-0 pt-0.5"><Inlines tokens={parseInline(it)} /></span>
                   </li>
                 ))}
               </ol>
             );
+          }
           case 'callout':
             return (
               <div key={i} className="mt-4 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 first:mt-0">

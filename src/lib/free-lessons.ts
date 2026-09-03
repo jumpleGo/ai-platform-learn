@@ -1,6 +1,5 @@
 export const SITE_URL = 'https://gelato.education';
-// Временная точка перехода до готовности основного продажного лендинга.
-export const PROGRAM_URL = 'https://vibe.gelato.education';
+export const PROGRAM_URL = '/courses/vibecoding';
 export const TELEGRAM_URL = 'https://t.me/gelato_ai';
 
 export type FreeLessonFaq = {
@@ -116,7 +115,7 @@ export function buildProgramUrl(
   lesson: FreeLessonContent,
   searchParams: Record<string, SearchValue> = {},
 ): string {
-  const url = new URL(PROGRAM_URL);
+  const url = new URL(PROGRAM_URL, SITE_URL);
   const defaults = {
     source: 'free_lesson',
     medium: 'lesson',
@@ -134,7 +133,7 @@ export function buildProgramUrl(
     url.searchParams.set(key, first(searchParams[key]) || first(searchParams[plainKey]) || defaults[plainKey]);
   }
 
-  return url.toString();
+  return `${url.pathname}${url.search}`;
 }
 
 export function isoDuration(seconds: number | null): string | undefined {

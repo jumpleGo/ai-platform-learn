@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "NODE_EXTRA_CA_CERTS=certificates/russian-trusted-root-ca.pem next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "NODE_EXTRA_CA_CERTS=certificates/russian-trusted-root-ca.pem next start",
     "test": "vitest run",
     "emulators": "firebase emulators:start --project demo-platform",
     "deploy": "git push origin main && gcloud compute ssh instance-20260629-154904 --zone=us-east1-b --project=project-60c23922-f4e8-4760-988 --command='~/deploy.sh'"
@@ -21,6 +21,7 @@
     "lucide-react": "^1.17.0",
     "next": "16.2.9",
     "next-themes": "^0.4.6",
+    "nodemailer": "^9.1.0",
     "posthog-js": "^1.384.2",
     "posthog-node": "^5.36.11",
     "react": "19.2.4",
@@ -35,6 +36,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/nodemailer": "^8.0.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "tailwindcss": "^4",

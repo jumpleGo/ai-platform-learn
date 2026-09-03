@@ -20,11 +20,17 @@ export function FreeLessonCta({
   return (
     <a
       href={href}
-      onClick={() => track(EVENTS.lessonCtaClicked, {
-        lesson_id: lessonId,
-        cta_position: position,
-        destination: new URL(href).hostname,
-      })}
+      onClick={() => {
+        let destination = '';
+        try {
+          destination = new URL(href, typeof window !== 'undefined' ? window.location.href : 'https://gelato.education').hostname;
+        } catch {}
+        track(EVENTS.lessonCtaClicked, {
+          lesson_id: lessonId,
+          cta_position: position,
+          destination,
+        });
+      }}
       className={`btn-scarf inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border-2 border-brand-navy px-5 py-3 text-center text-sm font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-scarf-green)] hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-scarf-green)] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand-navy/40 ${className}`}
     >
       {label}

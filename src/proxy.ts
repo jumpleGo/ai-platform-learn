@@ -9,7 +9,7 @@ import {
 // Публичный сайт целиком открыт гостям: витрины, лендинги, бесплатные уроки и юр. документы
 const PUBLIC = [
   '/login', '/register', '/r/', '/api/',
-  '/courses', '/waitlist', '/free', '/faq', '/legal',
+  '/courses', '/waitlist', '/free', '/faq', '/legal', '/payment',
   // карта сайта и robots должны отдаваться роботам без сессии
   '/sitemap.xml', '/robots.txt',
 ];

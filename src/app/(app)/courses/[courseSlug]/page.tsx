@@ -25,16 +25,20 @@ function landingFor(course: CourseWithLessons): CourseLanding {
   return getCourseLanding(courseKey(course)) ?? buildFallbackLanding(course, course.lessons);
 }
 
+import { CourseBuyButton } from '@/components/payment/course-buy-button';
+import { VibeTimerBadge } from '@/components/payment/vibe-timer-badge';
+
 // Оплативший приходит на лендинг за входом в уроки, а не за офером: продающие
 // кнопки уступают место переходу к первому непройденному уроку.
 type Continue = { href: string; label: string; hint: string };
 
 // Главная кнопка лендинга: у оплатившего — внутренний переход к урокам,
-// у остальных — внешняя оплата. Классы приходят с места вызова: в хиро и в
-// блоке стоимости кнопка выровнена по-разному.
-function PrimaryCta({ cont, cta, className }: {
+// у остальных — быстрое открытие модалки оплаты.
+function PrimaryCta({ cont, cta, courseSlug, courseTitle, className }: {
   cont: Continue | null;
   cta: CourseLanding['cta'];
+  courseSlug: string;
+  courseTitle: string;
   className: string;
 }) {
   return cont ? (
@@ -43,10 +47,12 @@ function PrimaryCta({ cont, cta, className }: {
       <ArrowRight className="size-4" aria-hidden />
     </Link>
   ) : (
-    <a href={cta.href} target="_blank" rel="noopener noreferrer" className={className}>
-      {cta.label}
-      <ArrowUpRight className="size-4" aria-hidden />
-    </a>
+    <CourseBuyButton
+      courseSlug={courseSlug}
+      courseTitle={courseTitle}
+      label={cta.label}
+      className={className}
+    />
   );
 }
 
@@ -71,17 +77,6 @@ export async function generateMetadata({ params }: {
     },
   };
 }
-
-// Плитки фактов в хиро — в цветах бренда
-const FACT_TONES = ['bg-brand-sky/45', 'bg-brand-yellow/55', 'bg-brand-green/25'] as const;
-
-// Плитки результата — в цветах бренда: это главный блок пользы на лендинге
-const RESULT_TONES = [
-  'bg-brand-sky/45',
-  'bg-brand-yellow/55',
-  'bg-brand-green/25',
-  'bg-brand-red/12',
-] as const;
 
 export default async function CourseLandingPage({ params }: {
   params: Promise<{ courseSlug: string }>;
@@ -129,11 +124,16 @@ export default async function CourseLandingPage({ params }: {
             </p>
 
             {landing.offer && !cont && (
-              <div className="mt-6 flex w-fit flex-wrap items-center gap-3.5 rounded-2xl border-2 border-brand-navy/15 bg-brand-yellow px-4 py-3">
-                <span className="font-marker text-3xl leading-none text-brand-red">{landing.offer.badge}</span>
-                <span className="max-w-xs text-sm leading-snug font-medium text-brand-charcoal/85 text-pretty">
-                  {landing.offer.text}
-                </span>
+              <div className="mt-6 flex w-fit flex-col gap-2.5 rounded-2xl border-2 border-brand-navy/15 bg-brand-yellow p-4 sm:flex-row sm:items-center sm:gap-3.5">
+                <span className="font-marker text-3xl leading-none text-brand-red shrink-0">{landing.offer.badge}</span>
+                <div className="flex flex-col gap-1.5">
+                  <span className="max-w-md text-sm leading-snug font-medium text-brand-charcoal/85 text-pretty">
+                    {landing.offer.text}
+                  </span>
+                  {(key === 'it-vibecoding' || key === 'vibecoding') && (
+                    <VibeTimerBadge className="w-fit" />
+                  )}
+                </div>
               </div>
             )}
 
@@ -141,6 +141,8 @@ export default async function CourseLandingPage({ params }: {
               <PrimaryCta
                 cont={cont}
                 cta={landing.cta}
+                courseSlug={key}
+                courseTitle={course.title}
                 className="btn-goose inline-flex h-12 items-center gap-1.5 rounded-xl border-2 border-brand-navy px-6 text-[15px] font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-goose-red)] motion-reduce:hover:translate-y-0"
               />
               <a
@@ -165,19 +167,22 @@ export default async function CourseLandingPage({ params }: {
         </div>
 
         {landing.facts.length > 0 && (
-          <ul className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {landing.facts.map((fact, i) => (
-              <li
+          <div className="mt-6 grid grid-cols-3 gap-2 sm:mt-10 sm:gap-4">
+            {landing.facts.map((fact, idx) => (
+              <div
                 key={fact.label}
-                className={`rounded-2xl border-2 border-brand-navy/12 px-5 py-4 ${FACT_TONES[i % FACT_TONES.length]}`}
+                className="group relative overflow-hidden rounded-xl border-2 border-brand-navy/15 bg-brand-cream/80 p-3 shadow-[0_2px_0_0_rgba(16,38,71,0.06)] transition-all hover:-translate-y-0.5 hover:border-brand-navy hover:shadow-[0_4px_0_0_rgba(16,38,71,0.12)] sm:rounded-2xl sm:p-6 sm:shadow-[0_3px_0_0_rgba(16,38,71,0.06)] sm:hover:shadow-[0_5px_0_0_rgba(16,38,71,0.12)]"
               >
-                <p className="font-marker text-4xl leading-none text-brand-navy">{fact.value}</p>
-                <p className="mt-2 text-sm leading-snug font-medium text-brand-charcoal/80 text-pretty">
+                <div className="flex items-baseline justify-between">
+                  <span className="font-marker text-2xl leading-none text-brand-navy sm:text-5xl">{fact.value}</span>
+                  <span className="hidden font-mono text-xs font-black text-brand-navy/35 sm:inline">0{idx + 1}</span>
+                </div>
+                <p className="mt-1.5 text-xs font-bold leading-tight text-brand-charcoal text-pretty sm:mt-3 sm:text-[15px] sm:leading-snug">
                   {fact.label}
                 </p>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </section>
 
@@ -189,138 +194,226 @@ export default async function CourseLandingPage({ params }: {
             color="oklch(0.535 0.1893 28.3)"
             className="z-10 -top-4 left-4 text-lg -rotate-6 sm:-top-5 sm:left-8 sm:text-xl"
           />
-          <div className="rounded-3xl border-2 border-dashed border-primary/25 bg-brand-yellow/60 px-6 py-9 sm:px-10 sm:py-11">
-            <SectionHead
-              title="Что обычно идёт не так"
-              accent="не так"
-              note="Самые популярные проблемы начинашек."
-            />
-            <ul className="mt-7 grid grid-cols-1 gap-x-8 gap-y-3.5 sm:grid-cols-2">
-              {landing.pains.map((pain) => (
-                <li key={pain} className="flex gap-3 text-[15px] leading-snug text-pretty">
-                  <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-brand-navy/12 text-brand-navy">
-                    <Minus className="size-3" aria-hidden />
+          <div className="rounded-3xl border-2 border-brand-navy/20 bg-brand-cream/50 p-6 sm:p-9 shadow-[0_4px_0_0_rgba(16,38,71,0.08)]">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-brand-navy/10 pb-5">
+              <SectionHead
+                title="Что обычно идёт не так"
+                accent="не так"
+                note="Самые популярные тупики, на которых теряются недели и сливаются бюджеты."
+              />
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-red/30 bg-brand-red/10 px-3.5 py-1 font-mono text-xs font-bold text-brand-red">
+                <span className="size-1.5 rounded-full bg-brand-red animate-pulse" />
+                {landing.pains.length} типовых проблем
+              </span>
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {landing.pains.map((pain, idx) => (
+                <div
+                  key={pain}
+                  className="flex items-start gap-3.5 rounded-xl border-2 border-brand-navy/10 bg-card p-4 shadow-2xs transition-colors hover:border-brand-navy/30"
+                >
+                  <span className="font-marker text-2xl leading-none text-brand-red shrink-0">
+                    {idx + 1}.
                   </span>
-                  {pain}
-                </li>
+                  <p className="text-[14px] sm:text-[15px] font-semibold leading-snug text-brand-charcoal text-pretty">
+                    {pain}
+                  </p>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         </section>
       )}
 
       {/* Результаты */}
       {landing.results.length > 0 && (
-        <section className="animate-rise space-y-10">
+        <section className="animate-rise space-y-8">
           <SectionHead
             title="Что будет на выходе"
             accent="на выходе"
-            note="Конкретные вещи, которые останутся в вашем проекте."
+            note="Конкретные осязаемые результаты, которые останутся работать в вашем проекте."
           />
-          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {landing.results.map((item, i) => (
-              <li
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {landing.results.map((item, idx) => (
+              <div
                 key={item.title}
-                className={`animate-float flex min-h-32 flex-col justify-between gap-4 rounded-2xl border-2 border-brand-navy/12 p-5 ${RESULT_TONES[i % RESULT_TONES.length]}`}
-                style={{ '--rise-delay': `${i * 0.06}s` } as React.CSSProperties}
+                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border-2 border-brand-navy/15 bg-brand-cream/70 p-6 shadow-[0_3px_0_0_rgba(16,38,71,0.06)] transition-all hover:-translate-y-0.5 hover:border-brand-navy hover:shadow-[0_6px_0_0_rgba(16,38,71,0.12)]"
               >
                 <div>
-                  <p className="text-base leading-snug font-extrabold text-brand-navy">{item.title}</p>
-                  <p className="mt-1.5 text-sm leading-relaxed text-brand-charcoal/80 text-pretty">{item.note}</p>
+                  <div className="flex items-center justify-between gap-2 border-b border-brand-navy/10 pb-3">
+                    <span className="font-mono text-xs font-extrabold uppercase tracking-wider text-brand-forest">
+                      // Результат {idx + 1}
+                    </span>
+                    <span className="font-marker text-3xl leading-none text-brand-forest">
+                      {idx + 1}.
+                    </span>
+                  </div>
+                  <h3 className="mt-3.5 font-heading text-lg font-extrabold text-brand-navy">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-sm font-medium leading-relaxed text-brand-charcoal/85 text-pretty whitespace-pre-line">
+                    {item.note}
+                  </p>
                 </div>
-                <span className="flex size-7 items-center justify-center rounded-full bg-brand-navy/12 text-brand-navy">
-                  <Check className="size-4" aria-hidden />
-                </span>
-              </li>
+                <div className="mt-5 flex items-center gap-1.5 font-mono text-[11px] font-bold text-brand-forest">
+                  <span>✓ Проверено на практике</span>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
       )}
 
       {/* Программа */}
       {landing.program.length > 0 && (
-        <section className="animate-rise space-y-10">
-          <SectionHead
-            title="Что внутри"
-            note="Каждый пункт заканчивается практикой на вашем проекте."
-          />
-          <ol className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card/50">
+        <section className="animate-rise space-y-8">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <SectionHead
+              title="Что внутри"
+              note="Пошаговая программа. Каждый модуль заканчивается практикой на вашем проекте."
+            />
+            <span className="font-mono text-xs font-bold text-brand-forest bg-brand-green/20 border border-brand-green/30 px-3 py-1 rounded-full">
+              {landing.program.length} модулей · от старта к результату
+            </span>
+          </div>
+
+          <div className="space-y-3">
             {landing.program.map((item, i) => (
-              <li key={item.title} className="flex gap-4 px-5 py-4 sm:gap-6 sm:px-6">
-                <span className="font-mono text-sm text-muted-foreground tabular-nums">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <div className="min-w-0">
-                  <p className="text-[15px] leading-snug font-bold text-balance">{item.title}</p>
-                  {item.note && (
-                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground text-pretty">{item.note}</p>
-                  )}
+              <div
+                key={item.title}
+                className="group flex flex-col gap-3 rounded-2xl border-2 border-brand-navy/12 bg-brand-cream/60 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6 shadow-xs transition-all hover:border-brand-navy hover:shadow-[0_4px_0_0_rgba(16,38,71,0.08)]"
+              >
+                <div className="flex items-start gap-4 sm:items-center sm:gap-5">
+                  <span className="font-marker text-4xl leading-none text-brand-navy shrink-0 group-hover:text-brand-forest transition-colors">
+                    {i + 1}.
+                  </span>
+                  <div className="min-w-0">
+                    <h3 className="font-heading text-base sm:text-lg font-extrabold text-brand-navy">
+                      {item.title}
+                    </h3>
+                    {item.note && (
+                      <p className="mt-1 text-sm font-medium leading-relaxed text-brand-charcoal/80 text-pretty">
+                        <RichText text={item.note} /></p>
+                    )}
+                  </div>
                 </div>
-              </li>
+                <div className="shrink-0 self-start sm:self-center">
+                  <span className="inline-flex items-center rounded-lg border border-brand-forest/30 bg-brand-green/20 px-3 py-1 font-mono text-xs font-bold text-brand-forest group-hover:bg-brand-forest group-hover:text-brand-cream transition-colors">
+                    Модуль {i + 1} →
+                  </span>
+                </div>
+              </div>
             ))}
-          </ol>
+          </div>
         </section>
       )}
 
       {/* Кому подойдёт */}
       {landing.audience.length > 0 && (
-        <section className="animate-rise space-y-10">
+        <section className="animate-rise space-y-8">
           <SectionHead
             title="Кому подойдёт"
-            note="Хотя бы один пункт про вас — обучение зайдёт."
+            note="Хотя бы один пункт про вас — обучение точно решит вашу задачу."
           />
-          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {landing.audience.map((item) => (
-              <li key={item.title} className="flex gap-3.5 rounded-2xl border border-border bg-card/60 p-5">
-                <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-green/15 text-brand-forest">
-                  <Check className="size-3.5" aria-hidden />
-                </span>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {landing.audience.map((item, idx) => (
+              <div
+                key={item.title}
+                className="group relative flex flex-col justify-between rounded-2xl border-2 border-brand-navy/15 bg-brand-cream/70 p-6 shadow-[0_3px_0_0_rgba(16,38,71,0.06)] transition-all hover:-translate-y-0.5 hover:border-brand-navy hover:shadow-[0_5px_0_0_rgba(16,38,71,0.12)]"
+              >
                 <div>
-                  <p className="text-[15px] leading-snug font-bold">{item.title}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground text-pretty">{item.note}</p>
+                  <div className="flex items-center justify-between border-b border-brand-navy/10 pb-3">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-green/25 border border-brand-forest/20 px-2.5 py-0.5 font-mono text-xs font-extrabold text-brand-forest">
+                      <span className="size-2 rounded-full bg-brand-forest" />
+                      СЕГМЕНТ 0{idx + 1}
+                    </span>
+                    <span className="font-marker text-2xl leading-none text-brand-navy/50">
+                      #{idx + 1}
+                    </span>
+                  </div>
+                  <h3 className="mt-3 font-heading text-lg font-extrabold text-brand-navy">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-sm font-medium leading-relaxed text-brand-charcoal/85 text-pretty">
+                    {item.note}
+                  </p>
                 </div>
-              </li>
+                <div className="mt-5 flex items-center gap-2 pt-3 border-t border-dashed border-brand-navy/10 text-xs font-bold text-brand-forest">
+                  <span>✓ не нужно быть мега крутым. Разберемся со всем</span>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
       )}
 
       {/* Почему мы */}
       {landing.why.length > 0 && (
-        <section className="animate-rise space-y-10">
+        <section className="animate-rise space-y-8">
           <SectionHead
-            title="Чем это отличается от курса на большой платформе"
-            note="Там пишут методисты по шаблону и обновляют раз в год. Здесь — практик, который переписывает урок, когда меняется инструмент."
+            title="Чем это отличается от других курсов"
+            note="Здесь — практика и методы из реального продакшена, а не пересказ чужих гайдов."
             action={{ href: '/faq', label: 'Все возражения' }}
           />
-          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {landing.why.map((item) => (
-              <li key={item.title} className="rounded-2xl border border-border bg-card/60 p-5 sm:p-6">
-                <p className="font-heading text-lg font-bold tracking-tight">{item.title}</p>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground text-pretty">{item.note}</p>
-              </li>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {landing.why.map((item, idx) => (
+              <div
+                key={item.title}
+                className={`rounded-2xl border-2 border-brand-navy/15 bg-brand-cream/80 p-6 shadow-[0_3px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy hover:shadow-[0_5px_0_0_rgba(16,38,71,0.12)] ${
+                  idx === 0 ? 'md:col-span-2 border-brand-forest/40 bg-gradient-to-br from-brand-cream via-brand-cream to-brand-green/10' : ''
+                }`}
+              >
+                <div className="flex items-center justify-between border-b border-brand-navy/10 pb-3">
+                  <span className="font-mono text-xs font-black uppercase text-brand-forest">
+                    {idx === 0 ? '★ Главное отличие' : `0${idx + 1} / ПРЕИМУЩЕСТВО`}
+                  </span>
+                  <span className="font-marker text-2xl leading-none text-brand-forest">
+                    #{idx + 1}
+                  </span>
+                </div>
+                <h3 className={`mt-3 font-heading font-extrabold text-brand-navy ${idx === 0 ? 'text-xl sm:text-2xl' : 'text-lg'}`}>
+                  {item.title}
+                </h3>
+                <p className={`mt-2 font-medium leading-relaxed text-brand-charcoal/85 text-pretty ${idx === 0 ? 'text-base max-w-2xl' : 'text-sm'}`}>
+                  {item.note}
+                </p>
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
       )}
 
       {/* Формат работы */}
       {landing.format.length > 0 && (
-        <section className="animate-rise space-y-10">
-          <SectionHead title="Как проходит обучение" />
-          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <section className="animate-rise space-y-8">
+          <SectionHead
+            title="Как проходит обучение"
+            note="Понятный предсказуемый процесс: от первого клика до работающей системы."
+          />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {landing.format.map((item, i) => (
-              <li
+              <div
                 key={item.title}
-                className="animate-float rounded-2xl border border-border bg-card/60 p-5"
-                style={{ '--rise-delay': `${i * 0.06}s` } as React.CSSProperties}
+                className="relative flex flex-col justify-between rounded-2xl border-2 border-brand-navy/15 bg-brand-cream/70 p-6 shadow-[0_3px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-forest hover:shadow-[0_5px_0_0_rgba(16,38,71,0.12)]"
               >
-                <p className="font-mono text-xs text-muted-foreground">0{i + 1}</p>
-                <p className="mt-2 text-[15px] leading-snug font-bold">{item.title}</p>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground text-pretty">{item.note}</p>
-              </li>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-marker text-3xl leading-none text-brand-forest">
+                      {i + 1}.
+                    </span>
+                    <span className="font-mono text-xs font-bold text-brand-navy/40">ШАГ {i + 1}</span>
+                  </div>
+                  <h3 className="mt-4 font-heading text-base sm:text-lg font-extrabold text-brand-navy">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-sm font-medium leading-relaxed text-brand-charcoal/80 text-pretty">
+                    {item.note}
+                  </p>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
       )}
 
@@ -331,9 +424,8 @@ export default async function CourseLandingPage({ params }: {
           color="oklch(0.2705 0.0677 258.4)"
           className="z-10 -top-4 left-5 text-lg -rotate-6 sm:-top-5 sm:left-9 sm:text-xl"
         />
-        {/* Финальный CTA — бумажная текстура и рамка-тельняшка, как у баннеров
-            бренда: бледная плашка на этом месте не держала внимание. */}
-        <div className="banner-marine-frame grid grid-cols-1 gap-8 overflow-hidden rounded-3xl px-6 py-9 sm:px-10 sm:py-11 lg:grid-cols-[1.1fr_1fr]">
+        {/* Финальный CTA — бумажная текстура и рамка-тельняшка */}
+        <div className="banner-marine-frame grid grid-cols-1 items-center gap-8 overflow-hidden rounded-3xl px-6 py-9 sm:px-10 sm:py-11 md:grid-cols-[1.25fr_0.75fr]">
           <div className="flex flex-col gap-4">
             <h2 className="font-heading text-[1.9rem]/[1.05] font-extrabold tracking-[-0.025em] text-balance text-brand-navy sm:text-[2.4rem]/[1.02]">
               {cont ? 'Доступ открыт' : landing.price.value}
@@ -343,10 +435,15 @@ export default async function CourseLandingPage({ params }: {
                 ? `Обучение уже оплачено — ${cont.hint.toLowerCase()}. Прогресс сохраняется, возвращайтесь в любой момент.`
                 : landing.price.note}
             </p>
+            {(key === 'it-vibecoding' || key === 'vibecoding') && !cont && (
+              <VibeTimerBadge className="w-fit" />
+            )}
             <div className="flex flex-col gap-2.5 pt-2 sm:flex-row sm:items-center">
               <PrimaryCta
                 cont={cont}
                 cta={landing.cta}
+                courseSlug={key}
+                courseTitle={course.title}
                 className="btn-scarf inline-flex h-12 items-center justify-center gap-1.5 rounded-xl border-2 border-brand-navy px-6 text-[15px] font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-scarf-green)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-scarf-green)] motion-reduce:hover:translate-y-0"
               />
               <a
@@ -359,33 +456,18 @@ export default async function CourseLandingPage({ params }: {
                 Написать в личку
               </a>
             </div>
-            {/* такса добивает блок картинкой: стоит под кнопками у левого края
-                и не спорит с составом обучения справа */}
+          </div>
+
+          <div className="flex items-end justify-center md:justify-end">
             <Image
               src="/banner-lesson-dachshund.webp"
               alt=""
               width={660}
               height={809}
               aria-hidden
-              className="pointer-events-none mt-auto -mb-9 w-[150px] max-w-full select-none sm:-mb-11 sm:w-[210px]"
+              className="pointer-events-none -mb-9 w-[180px] max-w-full select-none sm:w-[220px] md:-mb-11 md:w-[260px]"
             />
           </div>
-
-          {landing.price.includes.length > 0 && (
-            <div className="rounded-2xl border-2 border-brand-navy/15 bg-brand-cream/90 p-5 sm:p-6">
-              <p className="font-marker text-base text-brand-navy">Что входит</p>
-              <ul className="mt-3.5 space-y-2.5">
-                {landing.price.includes.map((item) => (
-                  <li key={item} className="flex gap-3 text-sm leading-snug font-medium text-brand-charcoal/85 text-pretty">
-                    <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-brand-navy/12 text-brand-navy">
-                      <Check className="size-3" aria-hidden />
-                    </span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
       </section>
 

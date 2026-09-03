@@ -26,8 +26,8 @@ describe('free lesson funnel config', () => {
 describe('buildProgramUrl', () => {
   it('ведёт на программу и всегда маркирует урок как источник', () => {
     const lesson = getFreeLessonContent('claude-code', 2)!;
-    const url = new URL(buildProgramUrl(lesson));
-    expect(`${url.origin}${url.pathname}`).toBe(PROGRAM_URL);
+    const url = new URL(buildProgramUrl(lesson), 'https://gelato.education');
+    expect(url.pathname).toBe(PROGRAM_URL);
     expect(Object.fromEntries(url.searchParams)).toMatchObject({
       source: 'free_lesson',
       medium: 'lesson',
@@ -48,7 +48,7 @@ describe('buildProgramUrl', () => {
       lesson_id: '99',
       utm_source: 'telegram',
       utm_campaign: ['launch', 'ignored'],
-    }));
+    }), 'https://gelato.education');
     expect(url.searchParams.get('source')).toBe('free_lesson');
     expect(url.searchParams.get('lesson_id')).toBe('03');
     expect(url.searchParams.get('utm_source')).toBe('telegram');

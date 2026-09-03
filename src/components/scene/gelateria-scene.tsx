@@ -384,7 +384,7 @@ export function GelateriaScene() {
       <nav className="scene-nav" ref={navRef} aria-label="Разделы школы">
         <Link href="/free">Бесплатно</Link>
         <Link href="/courses">Обучения</Link>
-        <a href={PROGRAM_URL}>Вайбкодинг</a>
+        <Link href={PROGRAM_URL}>Вайбкодинг</Link>
       </nav>
 
       <LessonQuizDialog open={quizOpen} onOpenChange={setQuizOpen} />

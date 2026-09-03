@@ -5,13 +5,6 @@ import { Markdown } from '@/components/markdown';
 import { FreeLessonCta, FreeLessonTelegramLink } from '@/components/free-lesson-cta';
 import { TELEGRAM_URL, type FreeLessonContent } from '@/lib/free-lessons';
 
-// Цвета плиток пользы: голубой, жёлтый, зелёный — по палитре бренда
-const OUTCOME_TONES = [
-  'bg-brand-sky text-brand-navy',
-  'bg-brand-yellow text-brand-charcoal',
-  'bg-brand-forest text-brand-cream',
-] as const;
-
 export function FreeLessonMarker() {
   // наклейка вместо мелкой надстрочной строки: тот же сигнал, но в стиле бренда
   return <StickerTag tone="sky">открытый урок программы</StickerTag>;
@@ -23,23 +16,21 @@ export function FreeLessonAfterVideo({ content, materials, ctaHref }: {
   ctaHref: string;
 }) {
   return (
-    <div className="space-y-8 sm:space-y-10">
-      <section aria-labelledby="lesson-results" className="rounded-3xl border border-border bg-card px-5 py-8 shadow-sm sm:px-8 sm:py-10">
-        <h2 id="lesson-results" className="max-w-2xl font-heading text-3xl font-extrabold tracking-tight text-balance sm:text-4xl">
-          Что вы <Accent>поймёте</Accent> после просмотра
+    <div className="space-y-6 sm:space-y-8">
+      <section aria-labelledby="lesson-results" className="rounded-2xl border-2 border-brand-navy/15 bg-brand-cream/60 p-5 shadow-[0_3px_0_0_rgba(16,38,71,0.06)] sm:p-7">
+        <h2 id="lesson-results" className="font-heading text-lg sm:text-2xl font-extrabold tracking-tight text-brand-navy text-balance">
+          Что вы <Accent color="var(--color-brand-forest)">поймёте</Accent> после просмотра
         </h2>
-        {/* Польза — в цветах бренда: три плитки, каждая своим цветом, чтобы блок
-            читался как результат, а не как ещё один абзац текста. */}
-        <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {content.outcomes.map((outcome, i) => (
+        <ul className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-3">
+          {content.outcomes.map((outcome, idx) => (
             <li
               key={outcome}
-              className={`flex min-h-36 flex-col justify-between gap-5 rounded-2xl p-5 text-base leading-snug font-semibold sm:min-h-44 ${OUTCOME_TONES[i % OUTCOME_TONES.length]}`}
+              className="flex items-start gap-3.5 rounded-xl border-2 border-brand-navy/12 bg-card p-3.5 shadow-xs transition-all hover:border-brand-navy hover:shadow-sm sm:p-4"
             >
-              <span className="text-balance">{outcome}</span>
-              <span className="flex size-7 items-center justify-center rounded-full bg-black/10">
-                <Check className="size-4" aria-hidden />
+              <span className="font-marker text-3xl leading-none text-brand-forest shrink-0">
+                {idx + 1}.
               </span>
+              <span className="text-sm font-bold leading-snug text-brand-navy text-pretty">{outcome}</span>
             </li>
           ))}
         </ul>

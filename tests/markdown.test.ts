@@ -119,7 +119,9 @@ describe('parseBlocks', () => {
 
   it('маркированный и нумерованный списки', () => {
     expect(parseBlocks('- один\n- два')).toEqual([{ t: 'ul', items: ['один', 'два'] }]);
-    expect(parseBlocks('1. первый\n2. второй')).toEqual([{ t: 'ol', items: ['первый', 'второй'] }]);
+    expect(parseBlocks('1. первый\n2. второй')).toEqual([{ t: 'ol', items: ['первый', 'второй'], start: 1 }]);
+    expect(parseBlocks('1. первый\n\n2. второй\n\n3. третий')).toEqual([{ t: 'ol', items: ['первый', 'второй', 'третий'], start: 1 }]);
+    expect(parseBlocks('6. шестой\n7. седьмой')).toEqual([{ t: 'ol', items: ['шестой', 'седьмой'], start: 6 }]);
   });
 
   it('выноска через >', () => {

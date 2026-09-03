@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { NavigationProgress } from "@/components/navigation-progress";
 import { PostHogProvider } from "@/lib/analytics/posthog-client";
 import { InlineTextEditor } from "@/components/dev/inline-text-editor";
+import { PaymentModalProvider } from "@/components/payment/payment-modal-context";
 import { YandexMetrika } from "@/components/yandex-metrika";
 import "./globals.css";
 
@@ -70,7 +71,9 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <NavigationProgress />
-        <PostHogProvider>{children}</PostHogProvider>
+        <PostHogProvider>
+          <PaymentModalProvider>{children}</PaymentModalProvider>
+        </PostHogProvider>
         <Toaster />
         {process.env.NODE_ENV === "development" ? <InlineTextEditor /> : null}
         {process.env.NODE_ENV === "production" ? <YandexMetrika /> : null}
