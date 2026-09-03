@@ -73,7 +73,8 @@ export async function generateMetadata({ params }: {
       url: canonical,
       title: landing.seoTitle,
       description: landing.seoDescription,
-      images: course.coverUrl ? [{ url: course.coverUrl, alt: landing.h1 }] : undefined,
+      // без обложки в базе берём обложку лендинга, иначе превью в мессенджерах пустое
+      images: [{ url: course.coverUrl || `${SITE_URL}${landing.cover || '/og-gelato.png'}`, alt: landing.h1 }],
     },
   };
 }
