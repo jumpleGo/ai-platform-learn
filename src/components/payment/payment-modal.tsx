@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { Accent } from '@/components/accent';
 import {
@@ -55,10 +55,11 @@ export function PaymentModal({
 
   const vibeTimer = useVibePriceTimer();
   const courseConfig = getCoursePaymentConfig(courseSlug);
-  const tariffs = getTariffsForCourse(courseSlug, {
-    isVibeTimerExpired: vibeTimer.isExpired,
-    testRub,
-  });
+  // Мемоизируем: иначе новый массив на каждом рендере сбрасывал выбранный тариф через эффект ниже
+  const tariffs = useMemo(
+    () => getTariffsForCourse(courseSlug, { isVibeTimerExpired: vibeTimer.isExpired, testRub }),
+    [courseSlug, vibeTimer.isExpired, testRub],
+  );
 
   const getTariffPrice = (t: Tariff) => {
     if (testRub) return testRub;
@@ -133,7 +134,13 @@ export function PaymentModal({
       const savedTg = typeof window !== 'undefined' ? localStorage.getItem('gelato_user_tg') : '';
       if (savedTg) setTelegram(savedTg);
     }
-  }, [isOpen, courseSlug, defaultTariffId, tariffs, testRub, vibeTimer.isExpired]);
+    // сброс к тарифу по умолчанию только при открытии модалки или смене курса
+  }, [isOpen, courseSlug, defaultTariffId]);
+
+  // Список пересобрался (истёк таймер, включился test_rub) — оставляем выбранный тариф, обновляем его цену
+  useEffect(() => {
+    setSelectedTariff((cur) => tariffs.find((t) => t.id === cur.id) ?? tariffs[0] ?? cur);
+  }, [tariffs]);
 
   if (!isOpen) return null;
 
