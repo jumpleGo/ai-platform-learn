@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { clientAuth } from '@/lib/firebase/client';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,8 @@ import {
   signInWithGoogleAndSession,
 } from '../session-client';
 
-export default function LoginPage() {
+function LoginForm() {
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +26,16 @@ export default function LoginPage() {
   const [dataConsent, setDataConsent] = useState(false);
   const [cookieConsent, setCookieConsent] = useState(false);
   const consented = dataConsent && cookieConsent;
+
+  useEffect(() => {
+    const qEmail = searchParams.get('email');
+    if (qEmail) {
+      setEmail(qEmail);
+    } else {
+      const saved = typeof window !== 'undefined' ? localStorage.getItem('gelato_user_email') : '';
+      if (saved) setEmail(saved);
+    }
+  }, [searchParams]);
 
   function finishLogin() {
     // полный переход: гарантированно подхватывает только что выставленную session-cookie
@@ -135,5 +147,13 @@ export default function LoginPage() {
         </p>
       </CardContent>
     </Card>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }

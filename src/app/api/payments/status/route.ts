@@ -48,6 +48,10 @@ export async function POST(req: Request) {
         status: 'CONFIRMED',
         confirmed: fulfillment.success,
         courseSlug: record.courseSlug ?? null,
+        hasSupport: Boolean(record.hasSupport),
+        startDate: record.startDate ?? null,
+        telegram: record.telegram ?? null,
+        email: record.email ?? null,
       });
     }
 
@@ -58,6 +62,10 @@ export async function POST(req: Request) {
         status,
         confirmed: false,
         courseSlug: record.courseSlug ?? null,
+        hasSupport: Boolean(record.hasSupport),
+        startDate: record.startDate ?? null,
+        telegram: record.telegram ?? null,
+        email: record.email ?? null,
       });
     }
 
@@ -66,6 +74,10 @@ export async function POST(req: Request) {
       status: status || 'PENDING',
       confirmed: false,
       courseSlug: record.courseSlug ?? null,
+      hasSupport: Boolean(record.hasSupport),
+      startDate: record.startDate ?? null,
+      telegram: record.telegram ?? null,
+      email: record.email ?? null,
     });
   } catch (error: any) {
     console.error('Payment status route error:', error);

@@ -60,6 +60,14 @@ export function proxy(req: NextRequest) {
   if (ref && /^[a-z0-9-]{1,64}$/.test(ref)) {
     res.cookies.set('partner', ref, { maxAge: 60 * 60 * 24 * 30, path: '/' });
   }
+
+  // Секретный режим 1 рубля для тестирования (?test_rub=1 для включения, ?test_rub=0 для отключения)
+  const testRub = searchParams.get('test_rub');
+  if (testRub === '1') {
+    res.cookies.set('test_rub', '1', { maxAge: 60 * 60 * 24, path: '/', sameSite: 'lax' });
+  } else if (testRub === '0') {
+    res.cookies.set('test_rub', '', { maxAge: 0, path: '/' });
+  }
   return res;
 }
 

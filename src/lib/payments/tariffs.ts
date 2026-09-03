@@ -7,6 +7,8 @@ export interface Tariff {
   periodDays: number;
   months: number;
   popular?: boolean;
+  hasSupport?: boolean;
+  startDate?: string;
   features: string[];
   excludedFeatures?: string[];
   specialOffer?: {
@@ -33,6 +35,7 @@ export const DEFAULT_TARIFFS: Tariff[] = [
     oldPrice: 2790,
     periodDays: 30,
     months: 1,
+    hasSupport: false,
     features: [
       'Доступ ко всем платным курсам',
       'Исходники, шаблоны и правила для ИИ',
@@ -48,6 +51,7 @@ export const DEFAULT_TARIFFS: Tariff[] = [
     periodDays: 90,
     months: 3,
     popular: true,
+    hasSupport: false,
     features: [
       'Доступ ко всем платным курсам',
       'Исходники, шаблоны и правила для ИИ',
@@ -63,6 +67,7 @@ export const DEFAULT_TARIFFS: Tariff[] = [
     oldPrice: 13990,
     periodDays: 365,
     months: 12,
+    hasSupport: false,
     features: [
       '365 дней безлимитного доступа',
       'Все текущие и будущие курсы',
@@ -87,6 +92,7 @@ const VIBECODING_PAYMENT_CONFIG: CoursePaymentConfig = {
       oldPrice: 10900,
       periodDays: 60,
       months: 2,
+      hasSupport: false,
       features: [
         'Все 5 этапов и 17 уроков программы',
         'Шаблоны CLAUDE.md, rules и линтеров',
@@ -103,6 +109,8 @@ const VIBECODING_PAYMENT_CONFIG: CoursePaymentConfig = {
       periodDays: 60,
       months: 2,
       popular: true,
+      hasSupport: true,
+      startDate: '14 сентября',
       features: [
         'Старт потока 14 сентября',
         'Все 17 уроков и материалы программы',
@@ -136,6 +144,7 @@ export const COURSE_PAYMENT_CONFIGS: Record<string, CoursePaymentConfig> = {
         oldPrice: 2790,
         periodDays: 30,
         months: 1,
+        hasSupport: false,
         features: [
           '8 модулей от сценария до монтажа',
           'Шаблоны промптов и лист персонажа',
@@ -151,6 +160,8 @@ export const COURSE_PAYMENT_CONFIGS: Record<string, CoursePaymentConfig> = {
         periodDays: 90,
         months: 3,
         popular: true,
+        hasSupport: true,
+        startDate: 'по предзаписи',
         features: [
           'Все модули пайплайна от идеи до ролика',
           'Личный разбор ваших кадров',
@@ -166,6 +177,7 @@ export const COURSE_PAYMENT_CONFIGS: Record<string, CoursePaymentConfig> = {
         oldPrice: 12490,
         periodDays: 365,
         months: 12,
+        hasSupport: false,
         features: [
           '365 дней безлимитного доступа',
           'Все текущие и будущие программы',
@@ -187,6 +199,7 @@ export const COURSE_PAYMENT_CONFIGS: Record<string, CoursePaymentConfig> = {
         oldPrice: 10990,
         periodDays: 60,
         months: 2,
+        hasSupport: false,
         features: [
           'Все уроки и конспекты на платформе',
           'Шаблоны агентов, скиллы и MCP',
@@ -203,6 +216,8 @@ export const COURSE_PAYMENT_CONFIGS: Record<string, CoursePaymentConfig> = {
         periodDays: 60,
         months: 2,
         popular: true,
+        hasSupport: true,
+        startDate: '14 сентября',
         features: [
           'Все уроки и практика на вашем проекте',
           'Личная поддержка в течение 3 недель',
@@ -222,6 +237,8 @@ export const COURSE_PAYMENT_CONFIGS: Record<string, CoursePaymentConfig> = {
         oldPrice: 37990,
         periodDays: 60,
         months: 2,
+        hasSupport: true,
+        startDate: '14 сентября',
         features: [
           'Всё из тарифа с поддержкой',
           'Мультиагентная система и оркестрация',
@@ -241,17 +258,22 @@ import { VIBE_STREAM_REGULAR_PRICE } from '@/lib/payments/vibe-timer';
 
 export function getTariffsForCourse(
   courseSlugOrId?: string,
-  options?: { isVibeTimerExpired?: boolean }
+  options?: { isVibeTimerExpired?: boolean; isTestRub?: boolean }
 ): Tariff[] {
-  if (!courseSlugOrId) return DEFAULT_TARIFFS;
-  const config = COURSE_PAYMENT_CONFIGS[courseSlugOrId];
-  const list = config ? config.tariffs : DEFAULT_TARIFFS;
-  if (options?.isVibeTimerExpired) {
-    return list.map((t) =>
-      t.id === 'vibecoding_stream' ? { ...t, price: VIBE_STREAM_REGULAR_PRICE } : t
-    );
-  }
-  return list;
+  const baseList = !courseSlugOrId
+    ? DEFAULT_TARIFFS
+    : COURSE_PAYMENT_CONFIGS[courseSlugOrId]?.tariffs || DEFAULT_TARIFFS;
+
+  return baseList.map((t) => {
+    let price = t.price;
+    if (options?.isVibeTimerExpired && t.id === 'vibecoding_stream') {
+      price = VIBE_STREAM_REGULAR_PRICE;
+    }
+    if (options?.isTestRub) {
+      price = 1;
+    }
+    return price !== t.price ? { ...t, price } : t;
+  });
 }
 
 export function getCoursePaymentConfig(courseSlugOrId?: string): CoursePaymentConfig | null {
@@ -262,7 +284,7 @@ export function getCoursePaymentConfig(courseSlugOrId?: string): CoursePaymentCo
 export function getTariffById(
   id: string,
   courseSlugOrId?: string,
-  options?: { isVibeTimerExpired?: boolean }
+  options?: { isVibeTimerExpired?: boolean; isTestRub?: boolean }
 ): Tariff | undefined {
   const list = getTariffsForCourse(courseSlugOrId, options);
   const found = list.find((t) => t.id === id);
@@ -272,18 +294,23 @@ export function getTariffById(
   for (const c of Object.values(COURSE_PAYMENT_CONFIGS)) {
     const t = c.tariffs.find((item) => item.id === id);
     if (t) {
-      return options?.isVibeTimerExpired && t.id === 'vibecoding_stream'
-        ? { ...t, price: VIBE_STREAM_REGULAR_PRICE }
-        : t;
+      let price = t.price;
+      if (options?.isVibeTimerExpired && t.id === 'vibecoding_stream') {
+        price = VIBE_STREAM_REGULAR_PRICE;
+      }
+      if (options?.isTestRub) {
+        price = 1;
+      }
+      return price !== t.price ? { ...t, price } : t;
     }
   }
-  return DEFAULT_TARIFFS.find((t) => t.id === id);
+  return undefined;
 }
 
 export function getDefaultTariff(
   courseSlugOrId?: string,
-  options?: { isVibeTimerExpired?: boolean }
+  options?: { isVibeTimerExpired?: boolean; isTestRub?: boolean }
 ): Tariff {
   const list = getTariffsForCourse(courseSlugOrId, options);
-  return list.find((t) => t.popular) || list[0];
+  return list.find((t) => t.popular) || list[0] || DEFAULT_TARIFFS[0];
 }

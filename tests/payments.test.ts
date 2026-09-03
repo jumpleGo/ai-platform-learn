@@ -118,3 +118,26 @@ describe('Vibe Price Timer utilities', () => {
     expect(checkIsVibeTimerExpired(Date.now() + 10000)).toBe(false);
   });
 });
+
+describe('Tariff Support and Enrollment logic', () => {
+  it('корректно размечает тарифы с личной поддержкой и самостоятельные', () => {
+    const stream = getTariffById('vibecoding_stream', 'it-vibecoding');
+    expect(stream?.hasSupport).toBe(true);
+    expect(stream?.startDate).toBe('14 сентября');
+
+    const selfPaced = getTariffById('vibecoding_month', 'it-vibecoding');
+    expect(selfPaced?.hasSupport).toBe(false);
+
+    const defaultPlans = getTariffsForCourse();
+    expect(defaultPlans.every((p) => !p.hasSupport)).toBe(true);
+  });
+
+  it('генерирует читаемый и безопасный пароль для новых пользователей', async () => {
+    const { generateRandomPassword } = await import('../src/lib/payments/password');
+    const pwd1 = generateRandomPassword();
+    const pwd2 = generateRandomPassword();
+    expect(pwd1.startsWith('g-')).toBe(true);
+    expect(pwd1.length).toBe(8);
+    expect(pwd1).not.toBe(pwd2);
+  });
+});

@@ -30,9 +30,43 @@ export function PaymentModal({
   courseTitle,
   defaultTariffId,
 }: PaymentModalProps) {
+  const [isTestRub, setIsTestRub] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const q = new URLSearchParams(window.location.search).get('test_rub');
+      if (q === '1') {
+        document.cookie = 'test_rub=1; path=/; max-age=86400; SameSite=Lax';
+        localStorage.setItem('test_rub', '1');
+        setIsTestRub(true);
+      } else if (q === '0') {
+        document.cookie = 'test_rub=; path=/; max-age=0;';
+        localStorage.removeItem('test_rub');
+        setIsTestRub(false);
+      } else {
+        const active =
+          document.cookie.includes('test_rub=1') ||
+          localStorage.getItem('test_rub') === '1' ||
+          window.location.search.includes('test_rub=1');
+        setIsTestRub(active);
+      }
+    }
+  }, []);
+
   const vibeTimer = useVibePriceTimer();
   const courseConfig = getCoursePaymentConfig(courseSlug);
-  const tariffs = getTariffsForCourse(courseSlug);
+  const tariffs = getTariffsForCourse(courseSlug, {
+    isVibeTimerExpired: vibeTimer.isExpired,
+    isTestRub,
+  });
+
+  const getTariffPrice = (t: Tariff) => {
+    if (isTestRub) return 1;
+    if (t.id === 'vibecoding_stream' && vibeTimer.mounted) {
+      return vibeTimer.currentPrice;
+    }
+    return t.price;
+  };
 
   const displayTitle = courseConfig?.courseTitle || courseTitle || 'Доступ ко всем курсам';
   const modalTitle = courseSlug === 'claude-code-agents' ? 'Claude Code с нуля' : displayTitle;
@@ -42,9 +76,13 @@ export function PaymentModal({
       const found = tariffs.find((t) => t.id === defaultTariffId);
       if (found) return found;
     }
-    return getDefaultTariff(courseSlug);
+    return getDefaultTariff(courseSlug, {
+      isVibeTimerExpired: vibeTimer.isExpired,
+      isTestRub,
+    });
   });
   const [email, setEmail] = useState('');
+  const [telegram, setTelegram] = useState('');
   const [agreed, setAgreed] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,19 +111,18 @@ export function PaymentModal({
       setError(null);
       setLoading(false);
 
-      const currentTariffs = getTariffsForCourse(courseSlug);
       if (defaultTariffId) {
-        const found = currentTariffs.find((t) => t.id === defaultTariffId);
+        const found = tariffs.find((t) => t.id === defaultTariffId);
         if (found) {
           setSelectedTariff(found);
         } else {
-          setSelectedTariff(getDefaultTariff(courseSlug));
+          setSelectedTariff(getDefaultTariff(courseSlug, { isVibeTimerExpired: vibeTimer.isExpired, isTestRub }));
         }
       } else {
-        setSelectedTariff(getDefaultTariff(courseSlug));
+        setSelectedTariff(getDefaultTariff(courseSlug, { isVibeTimerExpired: vibeTimer.isExpired, isTestRub }));
       }
 
-      // Pre-fill email
+      // Pre-fill email and telegram
       const userEmail = clientAuth.currentUser?.email;
       if (userEmail) {
         setEmail(userEmail);
@@ -93,8 +130,10 @@ export function PaymentModal({
         const saved = typeof window !== 'undefined' ? localStorage.getItem('gelato_user_email') : '';
         if (saved) setEmail(saved);
       }
+      const savedTg = typeof window !== 'undefined' ? localStorage.getItem('gelato_user_tg') : '';
+      if (savedTg) setTelegram(savedTg);
     }
-  }, [isOpen, courseSlug, defaultTariffId]);
+  }, [isOpen, courseSlug, defaultTariffId, tariffs, isTestRub, vibeTimer.isExpired]);
 
   if (!isOpen) return null;
 
@@ -111,6 +150,12 @@ export function PaymentModal({
       return;
     }
 
+    const cleanTg = telegram.trim();
+    if (selectedTariff.hasSupport && !cleanTg) {
+      setError('Для тарифа с поддержкой укажите ваш Telegram (@username) для связи и добавления в закрытый чат');
+      return;
+    }
+
     if (!agreed) {
       setError('Необходимо согласие с условиями');
       return;
@@ -120,10 +165,12 @@ export function PaymentModal({
       setLoading(true);
       if (typeof window !== 'undefined') {
         localStorage.setItem('gelato_user_email', cleanEmail);
+        if (cleanTg) localStorage.setItem('gelato_user_tg', cleanTg);
       }
 
-      const effectivePrice =
-        selectedTariff.id === 'vibecoding_stream' && vibeTimer.mounted
+      const effectivePrice = isTestRub
+        ? 1
+        : selectedTariff.id === 'vibecoding_stream' && vibeTimer.mounted
           ? vibeTimer.currentPrice
           : selectedTariff.price;
 
@@ -131,6 +178,7 @@ export function PaymentModal({
         tariffId: selectedTariff.id,
         price: effectivePrice,
         email: cleanEmail,
+        telegram: cleanTg || undefined,
         courseSlug,
         courseTitle: displayTitle,
       });
@@ -141,8 +189,10 @@ export function PaymentModal({
         body: JSON.stringify({
           tariffId: selectedTariff.id,
           email: cleanEmail,
+          telegram: cleanTg || null,
           courseTitle: displayTitle,
           courseSlug,
+          testRub: Boolean(isTestRub),
         }),
       });
 
@@ -205,7 +255,7 @@ export function PaymentModal({
                   {tariffs.map((t) => {
                     const isSelected = selectedTariff.id === t.id;
                     const isVibeStream = t.id === 'vibecoding_stream';
-                    const displayPrice = isVibeStream && vibeTimer.mounted ? vibeTimer.currentPrice : t.price;
+                    const displayPrice = getTariffPrice(t);
                     return (
                       <button
                         type="button"
@@ -309,6 +359,35 @@ export function PaymentModal({
                 </p>
               </div>
 
+              {/* Telegram Input */}
+              <div className="space-y-1">
+                <label
+                  htmlFor="payment-telegram"
+                  className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-brand-navy/60"
+                >
+                  <span>Telegram для связи</span>
+                  {selectedTariff.hasSupport ? (
+                    <span className="font-extrabold text-brand-red lowercase text-[11px]">обязательно для поддержки</span>
+                  ) : (
+                    <span className="text-[11px] text-brand-charcoal/50 font-normal lowercase">необязательно</span>
+                  )}
+                </label>
+                <input
+                  id="payment-telegram"
+                  type="text"
+                  required={Boolean(selectedTariff.hasSupport)}
+                  placeholder="@username или телефон"
+                  value={telegram}
+                  onChange={(e) => setTelegram(e.target.value)}
+                  className="h-11 w-full rounded-lg border-2 border-brand-navy/20 bg-white/70 px-3 text-base font-medium text-brand-navy outline-none placeholder:text-brand-navy/30 focus:border-brand-navy"
+                />
+                <p className="text-[11px] text-brand-charcoal/60">
+                  {selectedTariff.hasSupport
+                    ? 'Напишем вам в Telegram перед стартом и добавим в закрытый чат'
+                    : 'Можно указать для оперативной связи'}
+                </p>
+              </div>
+
               {/* Error Message */}
               {error && (
                 <div className="rounded-lg border border-brand-red/30 bg-brand-red/10 px-3 py-2 text-sm font-medium text-brand-red">
@@ -362,7 +441,7 @@ export function PaymentModal({
                       height={20}
                       className="h-6 w-auto object-contain"
                     />
-                    <span>Перейти к оплате {selectedTariff.price.toLocaleString('ru-RU')} ₽</span>
+                    <span>Перейти к оплате {getTariffPrice(selectedTariff).toLocaleString('ru-RU')} ₽</span>
                     <span className="text-lg leading-none transition-transform group-hover:translate-x-1" aria-hidden>→</span>
                   </>
                 )}

@@ -26,6 +26,7 @@ export async function POST(req: Request) {
     }
 
     const cookieHeader = req.headers.get('cookie') || '';
+    const isTestRub = cookieHeader.includes('test_rub=1') || body.testRub === true;
     const timerCookieMatch = cookieHeader.match(/vibe_price_timer_end=(\d+)/);
     let isVibeTimerExpired = false;
     if (timerCookieMatch) {
@@ -37,8 +38,8 @@ export async function POST(req: Request) {
 
     const trustedCourseKey = course ? courseKey(course) : undefined;
     const tariff = tariffId
-      ? getTariffById(tariffId, trustedCourseKey, { isVibeTimerExpired })
-      : getDefaultTariff(trustedCourseKey, { isVibeTimerExpired });
+      ? getTariffById(tariffId, trustedCourseKey, { isVibeTimerExpired, isTestRub })
+      : getDefaultTariff(trustedCourseKey, { isVibeTimerExpired, isTestRub });
     if (!tariff) {
       return NextResponse.json({ error: 'Тариф не найден для выбранного курса' }, { status: 400 });
     }
@@ -49,9 +50,11 @@ export async function POST(req: Request) {
 
     const orderId = `${Date.now()}_${Math.floor(Math.random() * 10000)}`;
 
+    const finalAmount = isTestRub ? 1 : tariff.price;
+
     // 1. Инициализация в Т-Банке
     const initRes = await initTBankPayment({
-      amount: tariff.price,
+      amount: finalAmount,
       orderId,
       email: normalizedEmail,
       description,
@@ -65,12 +68,17 @@ export async function POST(req: Request) {
       throw new Error('Т-Банк не вернул ссылку на платёжную форму');
     }
 
+    const telegram = typeof body.telegram === 'string' ? body.telegram.trim() : null;
+
     // Запись сохраняем до редиректа; все способы оплаты обрабатывает форма Т-Банка.
     await savePaymentRecord({
       paymentId,
       orderId,
       email: normalizedEmail,
-      amount: tariff.price,
+      telegram: telegram || null,
+      hasSupport: Boolean(tariff.hasSupport),
+      startDate: tariff.startDate ?? null,
+      amount: finalAmount,
       tariffId: tariff.id,
       tariffTitle: tariff.title,
       periodDays: tariff.periodDays,
@@ -86,7 +94,7 @@ export async function POST(req: Request) {
       success: true,
       paymentId,
       orderId,
-      amount: tariff.price,
+      amount: finalAmount,
       tariffTitle: tariff.title,
       periodDays: tariff.periodDays,
       paymentUrl,
