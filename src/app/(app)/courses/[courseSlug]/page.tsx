@@ -1,3 +1,4 @@
+import React from 'react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -120,7 +121,20 @@ export default async function CourseLandingPage({ params }: {
         <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-14">
           <div>
             <h1 className="font-heading text-[2.6rem]/[1.04] font-bold tracking-[-0.03em] text-balance text-brand-navy sm:text-[3.4rem]/[1.02]">
-              {landing.h1}
+              {/* Слово «тимлида» подчёркиваем маркерной линией — как «пользуюсь сам» в блоке автора */}
+              {landing.h1.includes('тимлида')
+                ? landing.h1.split('тимлида').map((part, i, arr) => (
+                    <React.Fragment key={i}>
+                      {part}
+                      {i < arr.length - 1 && (
+                        <span className="relative inline-block whitespace-nowrap">
+                          тимлида
+                          <DoodleUnderline color="var(--color-goose-red)" className="w-full" />
+                        </span>
+                      )}
+                    </React.Fragment>
+                  ))
+                : landing.h1}
             </h1>
             <p className="mt-2.5 max-w-2xl text-lg leading-[1.35] text-muted-foreground text-pretty whitespace-pre-line sm:text-xl">
               <RichText text={landing.lead} />
@@ -200,7 +214,7 @@ export default async function CourseLandingPage({ params }: {
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
             {/* Аватар и контакты слева */}
             <div className="flex items-center gap-3.5 sm:flex-col sm:items-center sm:text-center sm:w-28 shrink-0">
-              <div className="relative size-16 sm:size-20 overflow-hidden rounded-2xl border-2 border-brand-navy/20 bg-brand-cream shadow-xs shrink-0">
+              <div className="relative size-20 sm:size-24 overflow-hidden rounded-2xl border-2 border-brand-navy/20 bg-brand-cream shadow-xs shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/scene/emil-avatar-collage-v2.webp"
@@ -258,7 +272,7 @@ export default async function CourseLandingPage({ params }: {
         </div>
       </section>
 
-      {/* Интерактивный блок сравнения «Одиночный чат vs Конвейер агентов» */}
+      {/* Блок сравнения «Проект без настройки vs Проект, настроенный под ИИ» */}
       {(key === 'it-vibecoding' || key === 'vibecoding') && (
         <VibeComparisonSection />
       )}
@@ -340,7 +354,7 @@ export default async function CourseLandingPage({ params }: {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border-2 border-brand-navy/15 bg-brand-forest/10 p-5 sm:p-6">
               <div>
                 <h4 className="font-heading text-lg font-extrabold text-brand-navy">
-                  Хотите настроить такой конвейер на своём коде?
+                  Хотите так настроить свой проект под ИИ?
                 </h4>
                 <p className="mt-1 text-xs sm:text-sm text-brand-charcoal/80 font-medium">
                   Старт потока 14 сентября · Первый чистый коммит уже в первый день · 3 дня гарантия 100%
@@ -571,7 +585,6 @@ export default async function CourseLandingPage({ params }: {
                               <Lemon className="size-4 shrink-0 -rotate-12" />
                               Gelato Метод
                             </span>
-                            <span className="font-mono text-xs font-bold uppercase text-brand-red">главное отличие</span>
                           </div>
                           <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy leading-tight">
                             {item.title}
@@ -625,7 +638,7 @@ export default async function CourseLandingPage({ params }: {
           <SectionHead
             title="Частые сомнения перед стартом"
             accent="сомнения"
-            note="Разбираем реальные технические вопросы, которые возникают при переходе на агентов."
+            note="Разбираем реальные технические вопросы, которые возникают при настройке проекта под ИИ."
           />
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             <div className="flex flex-col justify-between rounded-3xl border-2 border-brand-navy/15 bg-card p-6 sm:p-7 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy">
@@ -676,7 +689,7 @@ export default async function CourseLandingPage({ params }: {
                     «Модели сменятся и всё устареет»
                   </h4>
                   <p className="mt-3 text-base sm:text-[17px] font-bold leading-relaxed text-brand-navy/90">
-                    <RichText text="**Конвейер не привязан к вендору.** Сегодня Claude Code, завтра Codex или DeepSeek. **Архитектура, тесты и правила проекта остаются твоими** навсегда." />
+                    <RichText text="**Настройка не привязана к вендору.** Сегодня Claude Code, завтра Codex или DeepSeek. **Тесты, линтер и правила живут в твоём репозитории** и переживут любую модель." />
                   </p>
                 </div>
                 <div className="mt-5 border-t border-dashed border-brand-navy/20 pt-3 text-xs sm:text-sm font-black text-brand-navy">
@@ -697,7 +710,7 @@ export default async function CourseLandingPage({ params }: {
                   «Получится нечитаемый мусор»
                 </h4>
                 <p className="mt-3 text-base sm:text-[17px] font-medium leading-relaxed text-brand-charcoal/90">
-                  <RichText text="**ИИ пишет по строгим инженерным гайдам.** Агент соблюдает твою структуру папок, строгие типы и правила линтера. Код получается **чище и понятнее, чем у сеньора**." />
+                  <RichText text="**ИИ пишет по правилам проекта.** Структура папок, строгие типы и линтер заданы в конфиге, а не в голове. Код получается **чище и понятнее, чем у сеньора**." />
                 </p>
               </div>
               <div className="mt-5 border-t border-dashed border-brand-navy/10 pt-3 text-xs sm:text-sm font-bold text-brand-forest">

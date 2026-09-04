@@ -14,15 +14,15 @@ export function VibeComparisonSection() {
               Почему одного Claude или Codex мало
             </h2>
             <p className="mt-1 text-base sm:text-lg font-medium text-brand-charcoal/85 max-w-3xl">
-              Одиночный инструмент не знает контекст проекта и сам себя не проверяет. Разница — в обвязке вокруг модели:
+              Модель одна и та же у всех. Разница — в том, насколько проект к ней подготовлен: правила, тесты, контекст.
             </p>
           </div>
         </div>
 
-        {/* Наглядное прямое сравнение «В чате» vs «Конвейер в репозитории» в стиле Gelato */}
+        {/* Наглядное сравнение «Проект без настройки» vs «Проект, настроенный под ИИ» в стиле Gelato */}
         <div className="pt-2 sm:p-9">
           <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-2">
-            {/* Левая сторона: Одиночный чат */}
+            {/* Левая сторона: проект без настройки */}
             <div className="flex flex-col justify-between rounded-3xl border-2 border-brand-navy/15 bg-card p-6 sm:p-8 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy">
               <div>
                 <div className="flex items-center justify-between border-b-2 border-brand-navy/10 pb-4">
@@ -31,7 +31,7 @@ export function VibeComparisonSection() {
                       хаос
                     </span>
                     <span className="font-heading text-lg sm:text-xl font-black text-brand-navy">
-                      Одиночный чат
+                      Проект без настройки
                     </span>
                   </div>
                   <span className="font-marker text-2xl text-brand-red">01</span>
@@ -58,10 +58,10 @@ export function VibeComparisonSection() {
 
                   <div className="space-y-1.5">
                     <h4 className="font-heading text-lg sm:text-xl font-black text-brand-navy">
-                      3. Ручной кодинг проигрывает
+                      3. Проверять нечем
                     </h4>
                     <p className="text-base sm:text-[17px] font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
-                      Пока другие отгружают фичи через команды агентов, ты <strong className="font-black text-brand-navy">вручную возишься с опечатками</strong> и логами ошибок.
+                      Нет тестов и линтера — <strong className="font-black text-brand-navy">ошибки находишь ты, а не машина</strong>. Каждый фикс проверяешь руками и ловишь регрессии на проде.
                     </p>
                   </div>
                 </div>
@@ -72,7 +72,7 @@ export function VibeComparisonSection() {
               </div>
             </div>
 
-            {/* Правая сторона: Конвейер агентов */}
+            {/* Правая сторона: проект, настроенный под ИИ */}
             <div className="flex flex-col justify-between rounded-3xl border-2 border-brand-navy bg-brand-yellow/30 p-6 sm:p-8 shadow-[0_6px_0_0_rgba(16,38,71,0.12)] transition-all">
               <div>
                 <div className="flex items-center justify-between border-b-2 border-brand-navy/15 pb-4">
@@ -81,7 +81,7 @@ export function VibeComparisonSection() {
                       система
                     </span>
                     <span className="font-heading text-lg sm:text-xl font-black text-brand-navy">
-                      Конвейер в твоём репо
+                      Проект, настроенный под ИИ
                     </span>
                   </div>
                   <span className="font-marker text-2xl text-brand-forest">02</span>
@@ -93,7 +93,7 @@ export function VibeComparisonSection() {
                       1. Контекст вшит в репозиторий
                     </h4>
                     <p className="text-base sm:text-[17px] font-bold leading-relaxed text-brand-navy/90 text-pretty">
-                      <strong className="font-black text-brand-forest">CLAUDE.md и правила проекта</strong> подгружаются автоматически. Агент знает проект лучше джуна.
+                      <strong className="font-black text-brand-forest">CLAUDE.md, rules и skills</strong> подгружаются автоматически. ИИ знает стек и договорённости без пересказа.
                     </p>
                   </div>
 
@@ -102,23 +102,23 @@ export function VibeComparisonSection() {
                       2. Автопроверки до показа тебе
                     </h4>
                     <p className="text-base sm:text-[17px] font-bold leading-relaxed text-brand-navy/90 text-pretty">
-                      TypeScript, линтер и автотесты прогоняются сами. <strong className="font-black text-brand-forest">Агент чинит ошибки сам</strong> до зелёного статуса.
+                      TypeScript, линтер и автотесты прогоняются сами. <strong className="font-black text-brand-forest">ИИ видит ошибку и чинит её</strong> до зелёного статуса.
                     </p>
                   </div>
 
                   <div className="space-y-1.5">
                     <h4 className="font-heading text-lg sm:text-xl font-black text-brand-navy">
-                      3. Ты — архитектор и тимлид
+                      3. Агенты — сверху, а не вместо
                     </h4>
                     <p className="text-base sm:text-[17px] font-bold leading-relaxed text-brand-navy/90 text-pretty">
-                      Ты ставишь задачу словами и <strong className="font-black text-brand-forest">принимаешь готовый чистый Pull Request</strong> в 10 раз быстрее.
+                      На готовый фундамент ложатся сабагенты и оркестрация. Ты <strong className="font-black text-brand-forest">принимаешь чистый Pull Request</strong> в 10 раз быстрее.
                     </p>
                   </div>
                 </div>
               </div>
 
               <div className="mt-6 sm:mt-8 rounded-2xl border-2 border-brand-navy bg-brand-forest text-brand-cream p-4 text-sm sm:text-base font-black leading-snug shadow-2xs">
-                <strong className="text-brand-yellow">Результат:</strong> ты на шаг впереди рынка, управляешь процессом и сдаешь продукт.
+                <strong className="text-brand-yellow">Результат:</strong> проект, в котором ИИ работает хорошо, а ты сдаёшь продукт.
               </div>
             </div>
           </div>
