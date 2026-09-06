@@ -147,8 +147,7 @@ export default async function CourseLandingPage({ params }: {
                       {i < arr.length - 1 && (
                         <span className="relative inline-block whitespace-nowrap">
                           тимлида
-                          <DoodleUnderline color="var(--color-goose-red)" className="w-full" />
-                        </span>
+                           </span>
                       )}
                     </React.Fragment>
                   ))
@@ -238,12 +237,6 @@ export default async function CourseLandingPage({ params }: {
           </div>
         )}
 
-        {/* Один проверяемый цикл вместо голых цифр: схема-конвейер, а не текст */}
-        {landing.caseStudy && (
-          <div className="mt-5 sm:mt-6">
-            <CaseCycle data={landing.caseStudy} />
-          </div>
-        )}
       </section>
 
       {/* Блок об авторе (Второй блок страницы) */}
@@ -315,6 +308,14 @@ export default async function CourseLandingPage({ params }: {
       {/* Блок сравнения «Проект без настройки vs Проект, настроенный под ИИ» */}
       {isVibe && (
         <VibeComparisonSection />
+      )}
+
+      {/* Один проверяемый цикл вместо голых цифр: схема-конвейер после контраста хаос/система,
+          а не в хиро — на первом экране он перегружал взгляд */}
+      {landing.caseStudy && (
+        <section className="animate-rise">
+          <CaseCycle data={landing.caseStudy} />
+        </section>
       )}
 
       {/* Результаты */}

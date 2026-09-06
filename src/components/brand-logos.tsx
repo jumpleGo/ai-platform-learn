@@ -63,13 +63,14 @@ export function BrandLogo({ name, size = 'md' }: { name: LogoKey; size?: 'sm' | 
 export function LogoStack({ logos, className = '' }: { logos: readonly LogoKey[]; className?: string }) {
   const [first, second] = logos;
   if (!first) return null;
+  // перекрытие небольшое, а у верхней плитки светлая обводка — иначе две плитки читаются как одна
   return (
-    <span className={`relative inline-flex h-12 ${second ? 'w-[4.25rem]' : 'w-10'} shrink-0 ${className}`} aria-hidden>
-      <span className="absolute top-1 left-0 -rotate-6 shadow-[0_2px_0_0_rgba(16,38,71,0.12)] rounded-xl">
+    <span className={`relative inline-flex h-12 ${second ? 'w-[4.75rem]' : 'w-10'} shrink-0 ${className}`} aria-hidden>
+      <span className="absolute top-1.5 left-0 -rotate-6 rounded-xl shadow-[0_2px_0_0_rgba(16,38,71,0.12)]">
         <BrandLogo name={first} />
       </span>
       {second && (
-        <span className="absolute top-0 left-6 rotate-6 shadow-[0_2px_0_0_rgba(16,38,71,0.12)] rounded-xl">
+        <span className="absolute top-0 left-8 rotate-6 rounded-xl shadow-[0_2px_0_0_rgba(16,38,71,0.12)] ring-[3px] ring-card">
           <BrandLogo name={second} />
         </span>
       )}
