@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { generateTBankToken } from '../src/lib/payments/token';
 import {
   TARIFFS,
@@ -93,30 +93,41 @@ describe('Tariffs configuration', () => {
     )).toBe(true);
   });
 
-  it('меняет цену тарифа с поддержкой вайбкодинга после истечения 24-часового таймера', () => {
+  it('тариф с поддержкой вайбкодинга всегда идёт по спеццене', () => {
     const promoTariff = getTariffById('vibecoding_stream', 'it-vibecoding');
     expect(promoTariff?.price).toBe(19900);
     expect(promoTariff?.features).toContain('Старт потока 14 сентября');
-
-    const expiredTariff = getTariffById('vibecoding_stream', 'it-vibecoding', { isVibeTimerExpired: true });
-    expect(expiredTariff?.price).toBe(24900);
-
-    const expiredList = getTariffsForCourse('it-vibecoding', { isVibeTimerExpired: true });
-    expect(expiredList.find((t) => t.id === 'vibecoding_stream')?.price).toBe(24900);
+    expect(getTariffsForCourse('it-vibecoding').find((t) => t.id === 'vibecoding_stream')?.price).toBe(19900);
   });
 });
 
 describe('Vibe Price Timer utilities', () => {
   it('форматирует время таймера в HH:MM:SS', async () => {
-    const { formatVibeTimer, checkIsVibeTimerExpired } = await import('../src/lib/payments/vibe-timer');
+    const { formatVibeTimer } = await import('../src/lib/payments/vibe-timer');
     expect(formatVibeTimer(0)).toBe('00:00:00');
     expect(formatVibeTimer(1000)).toBe('00:00:01');
     expect(formatVibeTimer(65000)).toBe('00:01:05');
     expect(formatVibeTimer(3665000)).toBe('01:01:05');
     expect(formatVibeTimer(24 * 3600 * 1000)).toBe('24:00:00');
+  });
 
-    expect(checkIsVibeTimerExpired(Date.now() - 1000)).toBe(true);
-    expect(checkIsVibeTimerExpired(Date.now() + 10000)).toBe(false);
+  it('перезапускает таймер, если кука отсутствует или её срок в прошлом', async () => {
+    const { getOrCreateVibeTimerExpiry, VIBE_TIMER_COOKIE, VIBE_TIMER_DURATION_MS } = await import('../src/lib/payments/vibe-timer');
+    let jar = `${VIBE_TIMER_COOKIE}=${Date.now() - 1000}`;
+    const doc = {
+      get cookie() { return jar; },
+      set cookie(v: string) { jar = v.split(';')[0]; },
+    };
+    vi.stubGlobal('document', doc);
+    try {
+      const before = Date.now();
+      const fresh = getOrCreateVibeTimerExpiry();
+      expect(fresh).toBeGreaterThanOrEqual(before + VIBE_TIMER_DURATION_MS);
+      // Повторный вызов возвращает уже сохранённое значение
+      expect(getOrCreateVibeTimerExpiry()).toBe(fresh);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });
 

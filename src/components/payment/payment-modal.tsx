@@ -57,17 +57,11 @@ export function PaymentModal({
   const courseConfig = getCoursePaymentConfig(courseSlug);
   // Мемоизируем: иначе новый массив на каждом рендере сбрасывал выбранный тариф через эффект ниже
   const tariffs = useMemo(
-    () => getTariffsForCourse(courseSlug, { isVibeTimerExpired: vibeTimer.isExpired, testRub }),
-    [courseSlug, vibeTimer.isExpired, testRub],
+    () => getTariffsForCourse(courseSlug, { testRub }),
+    [courseSlug, testRub],
   );
 
-  const getTariffPrice = (t: Tariff) => {
-    if (testRub) return testRub;
-    if (t.id === 'vibecoding_stream' && vibeTimer.mounted) {
-      return vibeTimer.currentPrice;
-    }
-    return t.price;
-  };
+  const getTariffPrice = (t: Tariff) => (testRub ? testRub : t.price);
 
   const displayTitle = courseConfig?.courseTitle || courseTitle || 'Доступ ко всем курсам';
   const modalTitle = courseSlug === 'claude-code-agents' ? 'Claude Code с нуля' : displayTitle;
@@ -77,10 +71,7 @@ export function PaymentModal({
       const found = tariffs.find((t) => t.id === defaultTariffId);
       if (found) return found;
     }
-    return getDefaultTariff(courseSlug, {
-      isVibeTimerExpired: vibeTimer.isExpired,
-      testRub,
-    });
+    return getDefaultTariff(courseSlug, { testRub });
   });
   const [email, setEmail] = useState('');
   const [telegram, setTelegram] = useState('');
@@ -117,10 +108,10 @@ export function PaymentModal({
         if (found) {
           setSelectedTariff(found);
         } else {
-          setSelectedTariff(getDefaultTariff(courseSlug, { isVibeTimerExpired: vibeTimer.isExpired, testRub }));
+          setSelectedTariff(getDefaultTariff(courseSlug, { testRub }));
         }
       } else {
-        setSelectedTariff(getDefaultTariff(courseSlug, { isVibeTimerExpired: vibeTimer.isExpired, testRub }));
+        setSelectedTariff(getDefaultTariff(courseSlug, { testRub }));
       }
 
       // Pre-fill email and telegram
@@ -137,7 +128,7 @@ export function PaymentModal({
     // сброс к тарифу по умолчанию только при открытии модалки или смене курса
   }, [isOpen, courseSlug, defaultTariffId]);
 
-  // Список пересобрался (истёк таймер, включился test_rub) — оставляем выбранный тариф, обновляем его цену
+  // Список пересобрался (включился test_rub) — оставляем выбранный тариф, обновляем его цену
   useEffect(() => {
     setSelectedTariff((cur) => tariffs.find((t) => t.id === cur.id) ?? tariffs[0] ?? cur);
   }, [tariffs]);
@@ -175,11 +166,7 @@ export function PaymentModal({
         if (cleanTg) localStorage.setItem('gelato_user_tg', cleanTg);
       }
 
-      const effectivePrice = testRub
-        ? testRub
-        : selectedTariff.id === 'vibecoding_stream' && vibeTimer.mounted
-          ? vibeTimer.currentPrice
-          : selectedTariff.price;
+      const effectivePrice = testRub ?? selectedTariff.price;
 
       track(EVENTS.subscribeClicked, {
         tariffId: selectedTariff.id,
@@ -286,16 +273,10 @@ export function PaymentModal({
                               </span>
                             )}
                             {isVibeStream && vibeTimer.mounted && (
-                              !vibeTimer.isExpired ? (
-                                <span className="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-brand-red bg-brand-red/10 border border-brand-red/25 px-1.5 py-0.5 rounded">
-                                  <Clock className="size-3" aria-hidden />
-                                  <span>{vibeTimer.formattedTime}</span>
-                                </span>
-                              ) : (
-                                <span className="text-[11px] font-bold text-brand-charcoal/50">
-                                  Спеццена истекла
-                                </span>
-                              )
+                              <span className="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-brand-red bg-brand-red/10 border border-brand-red/25 px-1.5 py-0.5 rounded">
+                                <Clock className="size-3" aria-hidden />
+                                <span>{vibeTimer.formattedTime}</span>
+                              </span>
                             )}
                           </div>
 

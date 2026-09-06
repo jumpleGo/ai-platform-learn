@@ -29,19 +29,10 @@ export async function POST(req: Request) {
     const testRub =
       parseTestRub(cookieHeader.match(/(?:^|;\s*)test_rub=(\d+)/)?.[1]) ??
       parseTestRub(body.testRub === true ? '1' : String(body.testRub ?? ''));
-    const timerCookieMatch = cookieHeader.match(/vibe_price_timer_end=(\d+)/);
-    let isVibeTimerExpired = false;
-    if (timerCookieMatch) {
-      const expiry = Number(timerCookieMatch[1]);
-      if (!isNaN(expiry) && Date.now() >= expiry) {
-        isVibeTimerExpired = true;
-      }
-    }
-
     const trustedCourseKey = course ? courseKey(course) : undefined;
     const tariff = tariffId
-      ? getTariffById(tariffId, trustedCourseKey, { isVibeTimerExpired, testRub })
-      : getDefaultTariff(trustedCourseKey, { isVibeTimerExpired, testRub });
+      ? getTariffById(tariffId, trustedCourseKey, { testRub })
+      : getDefaultTariff(trustedCourseKey, { testRub });
     if (!tariff) {
       return NextResponse.json({ error: 'Тариф не найден для выбранного курса' }, { status: 400 });
     }

@@ -254,8 +254,6 @@ export const COURSE_PAYMENT_CONFIGS: Record<string, CoursePaymentConfig> = {
   },
 };
 
-import { VIBE_STREAM_REGULAR_PRICE } from '@/lib/payments/vibe-timer';
-
 // Тестовая цена из ?test_rub=N: допускаем 1..100 ₽, всё остальное — режим выключен
 export function parseTestRub(value: string | null | undefined): number | null {
   if (!value) return null;
@@ -265,7 +263,7 @@ export function parseTestRub(value: string | null | undefined): number | null {
 
 export function getTariffsForCourse(
   courseSlugOrId?: string,
-  options?: { isVibeTimerExpired?: boolean; testRub?: number | null }
+  options?: { testRub?: number | null }
 ): Tariff[] {
   const baseList = !courseSlugOrId
     ? DEFAULT_TARIFFS
@@ -273,9 +271,6 @@ export function getTariffsForCourse(
 
   return baseList.map((t) => {
     let price = t.price;
-    if (options?.isVibeTimerExpired && t.id === 'vibecoding_stream') {
-      price = VIBE_STREAM_REGULAR_PRICE;
-    }
     if (options?.testRub) {
       price = options.testRub;
     }
@@ -291,7 +286,7 @@ export function getCoursePaymentConfig(courseSlugOrId?: string): CoursePaymentCo
 export function getTariffById(
   id: string,
   courseSlugOrId?: string,
-  options?: { isVibeTimerExpired?: boolean; testRub?: number | null }
+  options?: { testRub?: number | null }
 ): Tariff | undefined {
   const list = getTariffsForCourse(courseSlugOrId, options);
   const found = list.find((t) => t.id === id);
@@ -302,9 +297,6 @@ export function getTariffById(
     const t = c.tariffs.find((item) => item.id === id);
     if (t) {
       let price = t.price;
-      if (options?.isVibeTimerExpired && t.id === 'vibecoding_stream') {
-        price = VIBE_STREAM_REGULAR_PRICE;
-      }
       if (options?.testRub) {
         price = options.testRub;
       }
@@ -316,7 +308,7 @@ export function getTariffById(
 
 export function getDefaultTariff(
   courseSlugOrId?: string,
-  options?: { isVibeTimerExpired?: boolean; testRub?: number | null }
+  options?: { testRub?: number | null }
 ): Tariff {
   const list = getTariffsForCourse(courseSlugOrId, options);
   return list.find((t) => t.popular) || list[0] || DEFAULT_TARIFFS[0];

@@ -213,8 +213,8 @@ export default async function CourseLandingPage({ params }: {
         <div className="overflow-hidden rounded-3xl border-2 border-brand-navy/20 bg-card p-5 sm:p-8 shadow-[0_6px_0_0_rgba(16,38,71,0.08)]">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
             {/* Аватар и контакты слева */}
-            <div className="flex items-center gap-3.5 sm:flex-col sm:items-center sm:text-center sm:w-28 shrink-0">
-              <div className="relative size-20 sm:size-24 overflow-hidden rounded-2xl border-2 border-brand-navy/20 bg-brand-cream shadow-xs shrink-0">
+            <div className="flex items-center gap-4 sm:flex-col sm:items-center sm:text-center sm:w-40 shrink-0">
+              <div className="relative size-28 sm:size-40 overflow-hidden rounded-2xl border-2 border-brand-navy/20 bg-brand-cream shadow-[0_3px_0_0_rgba(16,38,71,0.1)] shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/scene/emil-avatar-collage-v2.webp"
@@ -223,7 +223,7 @@ export default async function CourseLandingPage({ params }: {
                 />
               </div>
               <div className="flex flex-col sm:items-center">
-                <span className="font-marker text-lg text-brand-navy leading-none">Эмиль</span>
+                <span className="font-marker text-xl sm:text-2xl text-brand-navy leading-none">Эмиль</span>
                 <span className="mt-0.5 font-mono text-[10px] font-black uppercase tracking-wider text-brand-forest">
                   Внедряю ИИ в прод
                 </span>
