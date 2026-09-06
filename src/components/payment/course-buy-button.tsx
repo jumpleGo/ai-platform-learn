@@ -11,6 +11,8 @@ interface CourseBuyButtonProps {
   label?: string;
   className?: string;
   place?: string;
+  // Тариф уже выбран на странице — модалка открывается сразу на нём
+  tariffId?: string;
 }
 
 export function CourseBuyButton({
@@ -19,12 +21,14 @@ export function CourseBuyButton({
   label = 'Оформить подписку',
   className = '',
   place = 'course_landing',
+  tariffId,
 }: CourseBuyButtonProps) {
   const { openPaymentModal } = usePaymentModal();
 
   const handleClick = () => {
-    track(EVENTS.subscribeClicked, { place, courseTitle, courseSlug });
-    openPaymentModal({ courseTitle, courseSlug });
+    track(EVENTS.subscribeClicked, { place, courseTitle, courseSlug, tariffId });
+    if (tariffId) track(EVENTS.tariffSelected, { tariffId, courseSlug, place });
+    openPaymentModal({ courseTitle, courseSlug, defaultTariffId: tariffId });
   };
 
   return (

@@ -30,21 +30,28 @@ export function SectionHead({
   accent,
   note,
   action,
+  size = 'md',
 }: {
   title: string;
   /** слово или фраза из заголовка, которую выделяем росчерком */
   accent?: string;
   note?: string;
   action?: { href: string; label: string };
+  /** lg — для длинных лендингов: заголовок крупнее, чтобы секции читались с пролистывания */
+  size?: 'md' | 'lg';
 }) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
       <div className="max-w-2xl space-y-3">
-        <h2 className="font-heading text-3xl font-extrabold tracking-tight text-balance sm:text-4xl">
+        <h2
+          className={`font-heading font-extrabold tracking-tight text-balance ${
+            size === 'lg' ? 'text-4xl sm:text-5xl tracking-[-0.03em]' : 'text-3xl sm:text-4xl'
+          }`}
+        >
           {withAccent(nbsp(title), accent)}
         </h2>
         {note && (
-          <p className="text-[17px] leading-relaxed text-muted-foreground text-pretty whitespace-pre-line">
+          <p className={`leading-relaxed text-muted-foreground text-pretty whitespace-pre-line ${size === 'lg' ? 'text-base' : 'text-[17px]'}`}>
             {nbsp(note)}
           </p>
         )}

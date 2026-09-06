@@ -76,7 +76,7 @@ export function PromoBanner() {
         />
         <div className="relative max-w-xl space-y-4">
           <h2 className="font-heading text-2xl font-bold tracking-tight text-balance sm:text-3xl">
-            Умный вайбкодинг для программистов и вайбкодеров. 0 багов от ИИ.
+            Умный вайбкодинг для программистов и вайбкодеров. Код от ИИ проходит типы, тесты и линтер до ревью.
           </h2>
           <p className="leading-relaxed text-brand-charcoal/75 text-pretty">
             Как настроить проект и что включить в него, чтобы ИИ летала в твоем проекте и реализовывала задачи с правильным инженерским подходом. Обучает инженер с 8 летним опытом.

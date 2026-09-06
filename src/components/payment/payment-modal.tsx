@@ -78,6 +78,9 @@ export function PaymentModal({
   const [agreed, setAgreed] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Тариф выбран на лендинге — список сворачиваем до одной строки, модалка остаётся
+  // для email и оплаты. «Изменить» раскрывает полный список
+  const [showAllTariffs, setShowAllTariffs] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -103,16 +106,9 @@ export function PaymentModal({
       setError(null);
       setLoading(false);
 
-      if (defaultTariffId) {
-        const found = tariffs.find((t) => t.id === defaultTariffId);
-        if (found) {
-          setSelectedTariff(found);
-        } else {
-          setSelectedTariff(getDefaultTariff(courseSlug, { testRub }));
-        }
-      } else {
-        setSelectedTariff(getDefaultTariff(courseSlug, { testRub }));
-      }
+      const preselected = defaultTariffId ? tariffs.find((t) => t.id === defaultTariffId) : undefined;
+      setSelectedTariff(preselected ?? getDefaultTariff(courseSlug, { testRub }));
+      setShowAllTariffs(!preselected);
 
       // Pre-fill email and telegram
       const userEmail = clientAuth.currentUser?.email;
@@ -135,8 +131,11 @@ export function PaymentModal({
 
   if (!isOpen) return null;
 
-  const specialOffer = selectedTariff.specialOffer;
-  const reservedSpecialOffer = specialOffer ?? tariffs.find((tariff) => tariff.specialOffer)?.specialOffer;
+  // В свёрнутом режиме подарок уже показан на карточке лендинга — не дублируем
+  const specialOffer = showAllTariffs ? selectedTariff.specialOffer : undefined;
+  const reservedSpecialOffer = showAllTariffs
+    ? specialOffer ?? tariffs.find((tariff) => tariff.specialOffer)?.specialOffer
+    : undefined;
 
   const handleStartPayment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -176,6 +175,8 @@ export function PaymentModal({
         courseSlug,
         courseTitle: displayTitle,
       });
+      // Отдельный шаг воронки: клики по CTA его не заменяют
+      track(EVENTS.paymentStarted, { tariffId: selectedTariff.id, price: effectivePrice, courseSlug });
 
       const res = await fetch('/api/payments/init', {
         method: 'POST',
@@ -243,6 +244,29 @@ export function PaymentModal({
         <div className="flex-1 overflow-y-auto px-5 py-5 sm:px-6">
           <form onSubmit={handleStartPayment} className="space-y-5">
               {/* Tariffs List */}
+              {!showAllTariffs ? (
+                <div className="space-y-1.5">
+                  <p className="text-xs font-bold uppercase tracking-wider text-brand-navy/60">Ваш тариф</p>
+                  <div className="flex items-center justify-between gap-3 rounded-xl border-2 border-brand-navy bg-brand-yellow/45 px-4 py-3">
+                    <div className="min-w-0">
+                      <span className="font-heading text-base font-extrabold text-brand-navy">{selectedTariff.title}</span>
+                      <p className="mt-0.5 truncate text-xs text-brand-charcoal/65">{selectedTariff.description}</p>
+                    </div>
+                    <div className="flex shrink-0 flex-col items-end gap-1">
+                      <span className="font-heading text-lg font-bold text-brand-navy tabular-nums">
+                        {getTariffPrice(selectedTariff).toLocaleString('ru-RU')} ₽
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setShowAllTariffs(true)}
+                        className="cursor-pointer text-xs font-bold text-brand-navy/70 underline underline-offset-2 hover:text-brand-navy"
+                      >
+                        изменить
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
               <div className="space-y-2.5">
                 <p className="text-xs font-bold uppercase tracking-wider text-brand-navy/60">Выберите формат</p>
                 <div className="grid grid-cols-1 gap-2">
@@ -324,6 +348,7 @@ export function PaymentModal({
                   })}
                 </div>
               </div>
+              )}
 
               {/* Email Input */}
               <div className="space-y-1">

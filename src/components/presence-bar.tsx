@@ -35,6 +35,9 @@ export function PresenceBar({ registered }: { registered: number }) {
     return () => clearTimeout(timer);
   }, [registered]);
 
+  // «1 учится сейчас» работает против доверия — показываем только заметное значение
+  if (n < 3) return null;
+
   return (
     <span
       className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-2.5 py-1 font-mono text-xs text-muted-foreground"

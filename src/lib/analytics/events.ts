@@ -18,4 +18,7 @@ export const EVENTS = {
   quizStarted: 'quiz_started',                 // props: place
   quizCompleted: 'quiz_completed',             // props: result_slug
   homeViewed: 'home_view',                     // props: variant (A/B главной)
+  pricingViewed: 'pricing_viewed',             // props: courseSlug, place — блок тарифов попал в экран
+  tariffSelected: 'tariff_selected',           // props: tariffId, price, courseSlug, place
+  paymentStarted: 'payment_started',           // props: tariffId, price, courseSlug — сабмит формы оплаты, не клик по CTA
 } as const;
