@@ -13,10 +13,9 @@ describe('A/B главной', () => {
     expect(pickHomeVariant('c0ffee-1234')).toBe(first);
   });
 
-  it('делит показы примерно поровну', () => {
+  it('отдаёт сцену всем посетителям при SCENE_SHARE = 1.0', () => {
     const scene = ids.filter((id) => pickHomeVariant(id) === 'scene').length;
-    expect(scene / ids.length).toBeGreaterThan(0.45);
-    expect(scene / ids.length).toBeLessThan(0.55);
+    expect(scene).toBe(ids.length);
   });
 
   it('признаёт только известные варианты', () => {

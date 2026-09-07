@@ -18,13 +18,12 @@ export function isHomeVariant(value: unknown): value is HomeVariant {
 }
 
 // Доля посетителей, которым достаётся сцена. Здесь же тест и сворачивается:
-// 1 — сцена становится главной, 0 — остаётся только привычная витрина.
-export const SCENE_SHARE = 0.5;
+// 1 — сцена становится главной для всех гостей, 0 — остаётся только привычная витрина.
+export const SCENE_SHARE = 1.0;
 
-// Делим показы детерминированно: один посетитель всегда видит одну и ту же
-// главную, иначе замер конверсии смешает варианты внутри одного визита.
-// Берём хеш целиком (а не остаток от деления): у FNV-1a младший бит почти
-// не перемешан, и деление по нему даёт перекос.
+// Делим показы детерминированно: при SCENE_SHARE = 1.0 все гости видят сцену-джелатерию
 export function pickHomeVariant(visitorId: string): HomeVariant {
+  if (SCENE_SHARE >= 1.0) return 'scene';
+  if (SCENE_SHARE <= 0.0) return 'classic';
   return hashSeed(`home:${visitorId}`) / 0x1_0000_0000 < SCENE_SHARE ? 'scene' : 'classic';
 }
