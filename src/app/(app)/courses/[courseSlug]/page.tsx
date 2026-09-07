@@ -753,31 +753,22 @@ export default async function CourseLandingPage({ params }: {
                   Обучение уже оплачено — {cont.hint.toLowerCase()}. Прогресс сохраняется, возвращайтесь в любой момент.
                 </p>
               ) : showTariffs ? (
-                <RichText text="Напиши пару слов о проекте и стеке — **подскажу, хватит ли самостоятельного формата** или нужна поддержка. Или начни с бесплатного урока." />
+                <RichText text="Напиши пару слов о проекте и стеке — **подскажу, хватит ли самостоятельного формата** или нужна поддержка." />
               ) : (
                 <RichText text={landing.price.note} />
               )}
             </div>
             <div className="flex flex-col gap-2.5 pt-2 sm:flex-row sm:items-center">
               {showTariffs ? (
-                <>
-                  <a
-                    href={TELEGRAM_DM}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-scarf inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-brand-navy px-6 text-[15px] font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-scarf-green)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-scarf-green)] motion-reduce:hover:translate-y-0"
-                  >
-                    <Send className="size-4" aria-hidden />
-                    Написать в личку
-                  </a>
-                  <Link
-                    href="/free?from=vibecoding"
-                    className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-brand-navy/25 bg-brand-cream/80 px-6 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
-                  >
-                    Бесплатный урок
-                    <ArrowRight className="size-4" aria-hidden />
-                  </Link>
-                </>
+                <a
+                  href={TELEGRAM_DM}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-scarf inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-brand-navy px-6 text-[15px] font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-scarf-green)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-scarf-green)] motion-reduce:hover:translate-y-0"
+                >
+                  <Send className="size-4" aria-hidden />
+                  Написать в личку
+                </a>
               ) : (
                 <>
                   <PrimaryCta
