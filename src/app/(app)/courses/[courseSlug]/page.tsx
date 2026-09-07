@@ -18,7 +18,7 @@ import { SectionHead } from '@/components/section-head';
 import { RichText } from '@/components/markdown';
 import { Lemon } from '@/components/scene/lemon';
 import { CaseCycle } from '@/components/case-cycle';
-import { BrandLogoRow, LogoStack } from '@/components/brand-logos';
+import { BrandLogoRow, LogoStack, BrandLogo } from '@/components/brand-logos';
 
 // Курс ищем по slug, но принимаем и id документа — со старых ссылок делаем редирект
 async function findCourse(key: string): Promise<CourseWithLessons | null> {
@@ -299,6 +299,68 @@ export default async function CourseLandingPage({ params }: {
                 <p>
                   <RichText text="Метод, которому учу, я **собрал сам на практике в крупных компаниях**. Каждый день работаю по нему и **делюсь ровно тем, чем пользуюсь**." />
                 </p>
+              </div>
+
+              {/* Плагины автора с гитхабом */}
+              <div className="pt-2">
+                <div className="text-xs font-mono font-black uppercase tracking-wider text-brand-navy/60 mb-2.5">
+                  Мои opensource инструменты:
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <a
+                    href="https://github.com/bubli-mubli/swarm-search"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative flex flex-col justify-between rounded-2xl border-2 border-brand-navy/15 bg-brand-cream/60 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-navy hover:bg-brand-cream hover:shadow-[0_4px_0_0_rgba(16,38,71,0.12)]"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <BrandLogo name="github" size="sm" />
+                          <span className="font-heading font-black text-brand-navy group-hover:text-brand-navy transition-colors text-base">
+                            swarm-search
+                          </span>
+                        </div>
+                        <ArrowUpRight className="size-4 text-brand-navy/40 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-brand-navy" />
+                      </div>
+                      <p className="mt-2 text-xs leading-relaxed text-brand-charcoal/80">
+                        Параллельный swarm research для Claude, GPT и Gemini: N дешёвых воркеров исследуют тему, один синтезирует выжимку с источниками.
+                      </p>
+                    </div>
+                    <div className="mt-3 flex items-center gap-1.5">
+                      <span className="inline-flex items-center rounded-md border border-brand-forest/25 bg-brand-forest/10 px-2 py-0.5 font-mono text-[11px] font-black text-brand-forest">
+                        40× быстрее, чем Deep Research
+                      </span>
+                    </div>
+                  </a>
+
+                  <a
+                    href="https://github.com/bubli-mubli/llm-council"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative flex flex-col justify-between rounded-2xl border-2 border-brand-navy/15 bg-brand-cream/60 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-navy hover:bg-brand-cream hover:shadow-[0_4px_0_0_rgba(16,38,71,0.12)]"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <BrandLogo name="github" size="sm" />
+                          <span className="font-heading font-black text-brand-navy group-hover:text-brand-navy transition-colors text-base">
+                            llm-council
+                          </span>
+                        </div>
+                        <ArrowUpRight className="size-4 text-brand-navy/40 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-brand-navy" />
+                      </div>
+                      <p className="mt-2 text-xs leading-relaxed text-brand-charcoal/80">
+                        Совет моделей — независимое второе мнение от других LLM-семейств (Gemini, Codex, DeepSeek) для cross-check важных решений.
+                      </p>
+                    </div>
+                    <div className="mt-3 flex items-center gap-1.5">
+                      <span className="inline-flex items-center rounded-md border border-brand-forest/25 bg-brand-forest/10 px-2 py-0.5 font-mono text-[11px] font-black text-brand-forest">
+                        сложные решения
+                      </span>
+                    </div>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
