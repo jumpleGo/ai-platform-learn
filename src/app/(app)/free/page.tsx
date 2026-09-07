@@ -1,7 +1,8 @@
+import { cookies } from 'next/headers';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Send } from 'lucide-react';
+import { ArrowRight, Send, Sparkles } from 'lucide-react';
 import { getPublishedCoursesWithLessons } from '@/lib/db/courses';
 import { freeLessonCards } from '@/lib/catalog';
 import { lessonPath } from '@/lib/slug';
@@ -17,7 +18,16 @@ export const metadata: Metadata = {
   alternates: { canonical: '/free' },
 };
 
-export default async function FreePage() {
+export default async function FreePage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ from?: string }>;
+}) {
+  const params = searchParams ? await searchParams : {};
+  const cookieStore = await cookies();
+  const fromLanding = params.from || cookieStore.get('from_landing')?.value;
+  const isFromVibe = fromLanding === 'vibecoding';
+
   const courses = await getPublishedCoursesWithLessons();
   const lessons = freeLessonCards(courses);
 
@@ -34,6 +44,31 @@ export default async function FreePage() {
         <p className="mt-2.5 max-w-2xl text-lg leading-[1.35] text-muted-foreground text-pretty sm:text-xl">
           Полноценные уроки: смотрите целиком и забирайте конспекты.
         </p>
+
+        {isFromVibe && (
+          <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border-2 border-brand-navy bg-brand-yellow/35 p-5 shadow-[0_4px_0_0_rgba(16,38,71,0.1)]">
+            <div className="flex items-start gap-3">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-brand-navy text-brand-yellow mt-0.5">
+                <Sparkles className="size-5" />
+              </span>
+              <div>
+                <p className="font-heading text-base sm:text-lg font-black text-brand-navy">
+                  Вы перешли с интенсива «Инженерный вайбкодинг»
+                </p>
+                <p className="mt-0.5 text-xs sm:text-sm font-medium text-brand-charcoal/85 text-pretty">
+                  Посмотрите открытый разбор и возвращайтесь на страницу курса, чтобы выбрать формат участия.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/courses/vibecoding#pricing"
+              className="btn-goose inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl border-2 border-brand-navy px-5 text-sm font-extrabold text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_0_0_var(--color-goose-red)]"
+            >
+              К тарифам курса
+              <ArrowRight className="size-4" aria-hidden />
+            </Link>
+          </div>
+        )}
       </section>
 
       {lessons.length > 0 ? (

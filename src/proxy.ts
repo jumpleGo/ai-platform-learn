@@ -61,6 +61,10 @@ export function proxy(req: NextRequest) {
   if (ref && /^[a-z0-9-]{1,64}$/.test(ref)) {
     res.cookies.set('partner', ref, { maxAge: 60 * 60 * 24 * 30, path: '/' });
   }
+  const fromParam = searchParams.get('from');
+  if (fromParam && /^[a-z0-9_-]{1,64}$/.test(fromParam)) {
+    res.cookies.set('from_landing', fromParam, { maxAge: 60 * 60 * 24 * 30, path: '/' });
+  }
 
   // Секретный режим тестовой цены (?test_rub=N — оплата на N рублей, ?test_rub=0 для отключения)
   const testRubParam = searchParams.get('test_rub');

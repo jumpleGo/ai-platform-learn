@@ -25,9 +25,9 @@ export function CaseCycle({ data }: { data: CaseStudy }) {
       </div>
 
       <div className="px-5 py-6 sm:px-7 sm:py-8">
-        {/* Конвейер: на десктопе пять колонок с линией, на мобильном вертикальная лента */}
-        <ol className="relative grid grid-cols-1 gap-6 lg:grid-cols-5 lg:gap-4">
-          <span className="absolute top-7 right-[10%] left-[10%] hidden h-0.5 bg-brand-navy/15 lg:block" aria-hidden />
+        {/* Конвейер: на десктопе сетка по числу шагов с линией, на мобильном вертикальная лента */}
+        <ol className={`relative grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 ${data.steps.length === 6 ? 'xl:grid-cols-6' : 'xl:grid-cols-5'} xl:gap-3`}>
+          <span className="absolute top-7 right-[5%] left-[5%] hidden h-0.5 bg-brand-navy/15 xl:block" aria-hidden />
           {data.steps.map((step, i) => {
             const isLast = i === data.steps.length - 1;
             const isDiff = step.icon === 'diff';
@@ -70,7 +70,9 @@ export function CaseCycle({ data }: { data: CaseStudy }) {
                     </div>
                   )}
 
-                  <p className="mt-1.5 text-[15px] leading-snug text-brand-charcoal/75 text-pretty whitespace-pre-line">{step.detail}</p>
+                  {step.detail && (
+                    <p className="mt-1.5 text-[15px] leading-snug text-brand-charcoal/75 text-pretty whitespace-pre-line">{step.detail}</p>
+                  )}
                 </div>
               </li>
             );

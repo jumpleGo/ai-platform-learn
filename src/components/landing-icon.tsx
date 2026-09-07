@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import { Target, BookOpen, FileDiff, ShieldCheck, Eye, type LucideProps } from 'lucide-react';
+import { Target, BookOpen, Terminal, FileDiff, ShieldCheck, Eye, GitCommitHorizontal, type LucideProps } from 'lucide-react';
 import type { IconKey } from '@/lib/course-landings';
 
 // Иконки по ключу из контента: контент лежит в lib без React, набор иконок — здесь.
@@ -7,9 +7,11 @@ import type { IconKey } from '@/lib/course-landings';
 const ICONS: Record<IconKey, ComponentType<LucideProps>> = {
   target: Target,
   book: BookOpen,
+  prompt: Terminal,
   diff: FileDiff,
   shield: ShieldCheck,
   eye: Eye,
+  commit: GitCommitHorizontal,
 };
 
 export function LandingIcon({ name, className = 'size-5' }: { name: IconKey; className?: string }) {

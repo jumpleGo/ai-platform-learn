@@ -23,15 +23,15 @@ const CHAOS = [
 const SYSTEM = [
   {
     title: '1. Контекст вшит в репозиторий',
-    note: <><strong className="font-black text-brand-forest">CLAUDE.md, rules и skills</strong> подгружаются автоматически.</>,
+    note: <><strong className="font-black text-brand-forest">CLAUDE.md, rules и skills</strong> загружаются агентом автоматически.</>,
   },
   {
     title: '2. Автопроверки до коммита',
-    note: <>TypeScript, линтер и автотесты прогоняются сами. <strong className="font-black text-brand-forest">ИИ видит ошибку и чинит её</strong>.</>,
+    note: <>TypeScript, линтер и тесты запускаются локально. <strong className="font-black text-brand-forest">Модель чинит упавшие тесты сама</strong>.</>,
   },
   {
-    title: '3. Агенты',
-    note: <>На готовый фундамент ложатся сабагенты и оркестрация. Ты <strong className="font-black text-brand-forest">принимаешь чистый Pull Request</strong>.</>,
+    title: '3. Чистый дифф и ревью',
+    note: <>Изолированный патч без шума, проверка сабагентом-ревьюером. <strong className="font-black text-brand-forest">В репозиторий идёт чистый коммит</strong>.</>,
   },
 ];
 
@@ -109,7 +109,7 @@ export function VibeComparisonSection() {
 
               <div className="mt-auto pt-6 sm:pt-8">
                 <div className="rounded-2xl border-2 border-brand-navy bg-brand-forest text-brand-cream p-4 text-sm sm:text-base font-black leading-snug shadow-2xs">
-                  <strong className="text-brand-yellow">Результат:</strong> проект, в котором ИИ работает хорошо.
+                  <strong className="text-brand-yellow">Результат:</strong> проверяемый цикл от задачи до чистого коммита.
                 </div>
               </div>
             </div>

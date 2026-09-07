@@ -187,26 +187,58 @@ export default async function CourseLandingPage({ params }: {
             )}
 
             <div className="mt-9 flex flex-wrap items-center gap-3 sm:mt-10">
-              <PrimaryCta
-                cont={cont}
-                cta={landing.cta}
-                pricingHref={pricingHref}
-                courseSlug={key}
-                courseTitle={course.title}
-                className="btn-goose inline-flex h-12 items-center gap-1.5 rounded-xl border-2 border-brand-navy px-6 text-[15px] font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-goose-red)] motion-reduce:hover:translate-y-0"
-              />
-              <a
-                href={TELEGRAM_DM}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy/20 bg-card/60 px-6 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
-              >
-                <Send className="size-4" aria-hidden />
-                Написать в личку
-              </a>
+              {isVibe && !cont ? (
+                <>
+                  <Link
+                    href="/free?from=vibecoding"
+                    className="btn-goose inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy px-6 text-[15px] font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-goose-red)] motion-reduce:hover:translate-y-0"
+                  >
+                    Бесплатный урок / разбор
+                    <ArrowRight className="size-4" aria-hidden />
+                  </Link>
+                  <a
+                    href="#pricing"
+                    className="inline-flex h-12 items-center gap-1.5 rounded-xl border-2 border-brand-navy/25 bg-brand-cream/80 px-5 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
+                  >
+                    К тарифам
+                    <ArrowDown className="size-4" aria-hidden />
+                  </a>
+                  <a
+                    href={TELEGRAM_DM}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy/20 bg-card/60 px-5 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
+                  >
+                    <Send className="size-4" aria-hidden />
+                    Личка
+                  </a>
+                </>
+              ) : (
+                <>
+                  <PrimaryCta
+                    cont={cont}
+                    cta={landing.cta}
+                    pricingHref={pricingHref}
+                    courseSlug={key}
+                    courseTitle={course.title}
+                    className="btn-goose inline-flex h-12 items-center gap-1.5 rounded-xl border-2 border-brand-navy px-6 text-[15px] font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-goose-red)] motion-reduce:hover:translate-y-0"
+                  />
+                  <a
+                    href={TELEGRAM_DM}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy/20 bg-card/60 px-6 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
+                  >
+                    <Send className="size-4" aria-hidden />
+                    Написать в личку
+                  </a>
+                </>
+              )}
             </div>
             {(cont?.hint ?? landing.cta.hint) && (
-              <p className="mt-2.5 text-xs text-muted-foreground">{cont?.hint ?? landing.cta.hint}</p>
+              <p className="mt-2.5 text-xs text-muted-foreground">
+                {cont?.hint ?? landing.cta.hint}
+              </p>
             )}
           </div>
 
@@ -473,16 +505,111 @@ export default async function CourseLandingPage({ params }: {
                 <PrimaryCta
                   cont={cont}
                   cta={{ label: landing.cta.label, href: landing.cta.href, hint: '' }}
-                pricingHref={pricingHref}
+                  pricingHref={pricingHref}
                   courseSlug={key}
                   courseTitle={course.title}
                   className="btn-goose inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl border-2 border-brand-navy px-5 text-sm font-extrabold text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_0_0_var(--color-goose-red)]"
                 />
                 {/* Ранний бесплатный шаг: не только в футере */}
-                <Link href="/free" className="text-xs font-bold text-brand-navy/70 underline underline-offset-4 hover:text-brand-navy">
+                <Link href="/free?from=vibecoding" className="text-xs font-bold text-brand-navy/70 underline underline-offset-4 hover:text-brand-navy">
                   Сначала посмотреть бесплатный урок
                 </Link>
               </div>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Кому подойдёт (после результатов) */}
+      {landing.audience.length > 0 && (
+        <section className="animate-rise space-y-8">
+          <SectionHead
+            size="lg"
+            title="Кому подойдёт"
+          />
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            {landing.audience.map((item, idx) => {
+              // Две выделенные карточки — вайбкодеры и разработчики — стоят рядом в первом ряду,
+              // у каждой своя полоска и маркерная надпись
+              const title = item.title.toLowerCase();
+              const accent = title.includes('вайбкодер') || idx === 0
+                ? { doodle: 'vibe', color: '#C2410C', bg: '#FFF1E8' }
+                : title.includes('разработчик') || idx === 1
+                  ? { doodle: 'JS, PHP', color: '#1F6E43', bg: '#EDF6F0' }
+                  : null;
+
+              if (accent) {
+                return (
+                  <div key={item.title} className="relative">
+                    <DoodleWord
+                      text={accent.doodle}
+                      color={accent.color}
+                      className="z-20 -top-4 right-6 text-xl -rotate-6 sm:-top-5 sm:right-8 sm:text-2xl"
+                    />
+
+                    <div
+                      className="group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border-2 border-brand-navy p-6 sm:p-7 shadow-[0_6px_0_0_rgba(16,38,71,0.12)] transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_rgba(16,38,71,0.18)]"
+                      style={{ backgroundColor: accent.bg }}
+                    >
+                      {/* Верхняя фирменная полоска с пляжного зонтика в цвете карточки */}
+                      <div
+                        className="absolute top-0 left-0 right-0 h-3.5 border-b-2 border-brand-navy/25"
+                        style={{
+                          backgroundImage: `repeating-linear-gradient(90deg, ${accent.color} 0px, ${accent.color} 16px, ${accent.bg} 16px, ${accent.bg} 32px)`,
+                        }}
+                      />
+
+                      <div className="pt-2">
+                        <div className="flex items-center justify-between border-b-2 border-brand-navy/15 pb-3.5">
+                          <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy">
+                            {item.title}
+                          </h3>
+                          <span className="font-marker text-3xl leading-none text-brand-navy">
+                            0{idx + 1}
+                          </span>
+                        </div>
+                        <div className="mt-3.5 text-[17px] sm:text-lg font-bold leading-relaxed text-brand-navy/90 text-pretty">
+                          <RichText text={item.note} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <div
+                  key={item.title}
+                  className="group relative flex flex-col justify-between rounded-3xl border-2 border-brand-navy/15 bg-card p-6 sm:p-7 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:-translate-y-0.5 hover:border-brand-navy hover:shadow-[0_6px_0_0_rgba(16,38,71,0.12)]"
+                >
+                  <div>
+                    <div className="flex items-center justify-between border-b-2 border-brand-navy/10 pb-3.5">
+                      <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy">
+                        {item.title}
+                      </h3>
+                      <span className="font-marker text-3xl leading-none text-brand-forest">
+                        0{idx + 1}
+                      </span>
+                    </div>
+                    <div className="mt-3.5 text-[17px] sm:text-lg font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
+                      <RichText text={item.note} />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {!cont && (
+            <div className="flex justify-center pt-2">
+              <PrimaryCta
+                cont={cont}
+                cta={{ label: landing.cta.label, href: landing.cta.href, hint: '' }}
+                pricingHref={pricingHref}
+                courseSlug={key}
+                courseTitle={course.title}
+                className="btn-scarf inline-flex h-12 items-center justify-center gap-2 rounded-2xl border-2 border-brand-navy px-8 text-base font-extrabold text-brand-navy shadow-[0_4px_0_0_var(--color-scarf-green)] transition-all hover:-translate-y-0.5 hover:shadow-[0_6px_0_0_var(--color-scarf-green)]"
+              />
             </div>
           )}
         </section>
@@ -493,7 +620,7 @@ export default async function CourseLandingPage({ params }: {
         <section className="animate-rise space-y-8">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <SectionHead
-            size="lg"
+              size="lg"
               title="Программа обучения"
             />
             <span className="font-mono text-xs font-bold text-brand-forest bg-brand-green/20 border border-brand-green/30 px-3 py-1 rounded-full">
@@ -592,100 +719,100 @@ export default async function CourseLandingPage({ params }: {
         </section>
       )}
 
-      {/* Кому подойдёт */}
-      {landing.audience.length > 0 && (
-        <section className="animate-rise space-y-8">
-          <SectionHead
-            size="lg"
-            title="Кому подойдёт"
-          />
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            {landing.audience.map((item, idx) => {
-              // Две выделенные карточки — вайбкодеры и разработчики — стоят рядом в первом ряду,
-              // у каждой своя полоска и маркерная надпись
-              const title = item.title.toLowerCase();
-              const accent = title.includes('вайбкодер') || idx === 0
-                ? { doodle: 'vibe', color: '#C2410C', bg: '#FFF1E8' }
-                : title.includes('разработчик') || idx === 1
-                  ? { doodle: 'JS, PHP', color: '#1F6E43', bg: '#EDF6F0' }
-                  : null;
-
-              if (accent) {
-                return (
-                  <div key={item.title} className="relative">
-                    <DoodleWord
-                      text={accent.doodle}
-                      color={accent.color}
-                      className="z-20 -top-4 right-6 text-xl -rotate-6 sm:-top-5 sm:right-8 sm:text-2xl"
-                    />
-
-                    <div
-                      className="group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border-2 border-brand-navy p-6 sm:p-7 shadow-[0_6px_0_0_rgba(16,38,71,0.12)] transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_rgba(16,38,71,0.18)]"
-                      style={{ backgroundColor: accent.bg }}
-                    >
-                      {/* Верхняя фирменная полоска с пляжного зонтика в цвете карточки */}
-                      <div
-                        className="absolute top-0 left-0 right-0 h-3.5 border-b-2 border-brand-navy/25"
-                        style={{
-                          backgroundImage: `repeating-linear-gradient(90deg, ${accent.color} 0px, ${accent.color} 16px, ${accent.bg} 16px, ${accent.bg} 32px)`,
-                        }}
-                      />
-
-                      <div className="pt-2">
-                        <div className="flex items-center justify-between border-b-2 border-brand-navy/15 pb-3.5">
-                          <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy">
-                            {item.title}
-                          </h3>
-                          <span className="font-marker text-3xl leading-none text-brand-navy">
-                            0{idx + 1}
-                          </span>
-                        </div>
-                        <div className="mt-3.5 text-[17px] sm:text-lg font-bold leading-relaxed text-brand-navy/90 text-pretty">
-                          <RichText text={item.note} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-
-              return (
-                <div
-                  key={item.title}
-                  className="group relative flex flex-col justify-between rounded-3xl border-2 border-brand-navy/15 bg-card p-6 sm:p-7 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:-translate-y-0.5 hover:border-brand-navy hover:shadow-[0_6px_0_0_rgba(16,38,71,0.12)]"
-                >
-                  <div>
-                    <div className="flex items-center justify-between border-b-2 border-brand-navy/10 pb-3.5">
-                      <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy">
-                        {item.title}
-                      </h3>
-                      <span className="font-marker text-3xl leading-none text-brand-forest">
-                        0{idx + 1}
-                      </span>
-                    </div>
-                    <div className="mt-3.5 text-[17px] sm:text-lg font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
-                      <RichText text={item.note} />
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+      {/* Форматы участия: тарифы с ценой и составом прямо на странице (подняты сразу после программы) */}
+      <section id="pricing" className="animate-rise relative scroll-mt-24 space-y-8">
+        <DoodleWord
+          text="дальше просто"
+          color="oklch(0.2705 0.0677 258.4)"
+          className="z-10 -top-4 left-5 text-lg -rotate-6 sm:-top-5 sm:left-9 sm:text-xl"
+        />
+        {showTariffs && (
+          <>
+            <SectionHead
+              size="lg"
+              title={landing.price.value}
+              note={landing.price.note}
+            />
+            <TariffCards
+              courseSlug={key}
+              courseTitle={course.title}
+              footnote={nbsp('\n')}
+            />
+          </>
+        )}
+        {/* Бумажная текстура и рамка-тельняшка. С тарифами выше — «не знаешь, какой формат»,
+            без них — прежний оффер с кнопкой, у оплатившего — вход в уроки */}
+        <div className="banner-marine-frame grid grid-cols-1 items-center gap-8 overflow-hidden rounded-3xl px-6 py-9 sm:px-10 sm:py-11 md:grid-cols-[1.25fr_0.75fr]">
+          <div className="flex flex-col gap-4">
+            <h2 className="font-heading text-[1.9rem]/[1.05] font-extrabold tracking-[-0.025em] text-balance text-brand-navy sm:text-[2.4rem]/[1.02]">
+              {cont ? 'Доступ открыт' : showTariffs ? 'Не знаешь, какой формат твой?' : landing.price.value}
+            </h2>
+            <div className="max-w-md leading-relaxed font-medium text-brand-charcoal/85 text-pretty">
+              {cont ? (
+                <p>
+                  Обучение уже оплачено — {cont.hint.toLowerCase()}. Прогресс сохраняется, возвращайтесь в любой момент.
+                </p>
+              ) : showTariffs ? (
+                <RichText text="Напиши пару слов о проекте и стеке — **подскажу, хватит ли самостоятельного формата** или нужна поддержка. Или начни с бесплатного урока." />
+              ) : (
+                <RichText text={landing.price.note} />
+              )}
+            </div>
+            <div className="flex flex-col gap-2.5 pt-2 sm:flex-row sm:items-center">
+              {showTariffs ? (
+                <>
+                  <a
+                    href={TELEGRAM_DM}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-scarf inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-brand-navy px-6 text-[15px] font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-scarf-green)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-scarf-green)] motion-reduce:hover:translate-y-0"
+                  >
+                    <Send className="size-4" aria-hidden />
+                    Написать в личку
+                  </a>
+                  <Link
+                    href="/free?from=vibecoding"
+                    className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-brand-navy/25 bg-brand-cream/80 px-6 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
+                  >
+                    Бесплатный урок
+                    <ArrowRight className="size-4" aria-hidden />
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <PrimaryCta
+                    cont={cont}
+                    cta={landing.cta}
+                    courseSlug={key}
+                    courseTitle={course.title}
+                    className="btn-scarf inline-flex h-12 items-center justify-center gap-1.5 rounded-xl border-2 border-brand-navy px-6 text-[15px] font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-scarf-green)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-scarf-green)] motion-reduce:hover:translate-y-0"
+                  />
+                  <a
+                    href={TELEGRAM_DM}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-brand-navy/25 bg-brand-cream/80 px-6 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
+                  >
+                    <Send className="size-4" aria-hidden />
+                    Написать в личку
+                  </a>
+                </>
+              )}
+            </div>
           </div>
 
-          {!cont && (
-            <div className="flex justify-center pt-2">
-              <PrimaryCta
-                cont={cont}
-                cta={{ label: landing.cta.label, href: landing.cta.href, hint: '' }}
-                pricingHref={pricingHref}
-                courseSlug={key}
-                courseTitle={course.title}
-                className="btn-scarf inline-flex h-12 items-center justify-center gap-2 rounded-2xl border-2 border-brand-navy px-8 text-base font-extrabold text-brand-navy shadow-[0_4px_0_0_var(--color-scarf-green)] transition-all hover:-translate-y-0.5 hover:shadow-[0_6px_0_0_var(--color-scarf-green)]"
-              />
-            </div>
-          )}
-        </section>
-      )}
+          <div className="flex items-end justify-center md:justify-end">
+            <Image
+              src="/banner-lesson-dachshund.webp"
+              alt=""
+              width={660}
+              height={809}
+              aria-hidden
+              className="pointer-events-none -mb-9 w-[180px] max-w-full select-none sm:w-[220px] md:-mb-11 md:w-[260px]"
+            />
+          </div>
+        </div>
+      </section>
 
       {/* Почему мы */}
       {landing.why.length > 0 && (
@@ -766,186 +893,14 @@ export default async function CourseLandingPage({ params }: {
         </section>
       )}
 
-      {/* Форматы участия: тарифы с ценой и составом прямо на странице.
-          У оплатившего — баннер с переходом к урокам. */}
-      <section id="pricing" className="animate-rise relative scroll-mt-24 space-y-8">
-        <DoodleWord
-          text="дальше просто"
-          color="oklch(0.2705 0.0677 258.4)"
-          className="z-10 -top-4 left-5 text-lg -rotate-6 sm:-top-5 sm:left-9 sm:text-xl"
-        />
-        {showTariffs && (
-          <>
-            <SectionHead
-            size="lg"
-              title={landing.price.value}
-              note={landing.price.note}
-            />
-            <TariffCards
-              courseSlug={key}
-              courseTitle={course.title}
-              footnote={nbsp('\n')}
-            />
-          </>
-        )}
-        {/* Бумажная текстура и рамка-тельняшка. С тарифами выше — «не знаешь, какой формат»,
-            без них — прежний оффер с кнопкой, у оплатившего — вход в уроки */}
-        <div className="banner-marine-frame grid grid-cols-1 items-center gap-8 overflow-hidden rounded-3xl px-6 py-9 sm:px-10 sm:py-11 md:grid-cols-[1.25fr_0.75fr]">
-          <div className="flex flex-col gap-4">
-            <h2 className="font-heading text-[1.9rem]/[1.05] font-extrabold tracking-[-0.025em] text-balance text-brand-navy sm:text-[2.4rem]/[1.02]">
-              {cont ? 'Доступ открыт' : showTariffs ? 'Не знаешь, какой формат твой?' : landing.price.value}
-            </h2>
-            <div className="max-w-md leading-relaxed font-medium text-brand-charcoal/85 text-pretty">
-              {cont ? (
-                <p>
-                  Обучение уже оплачено — {cont.hint.toLowerCase()}. Прогресс сохраняется, возвращайтесь в любой момент.
-                </p>
-              ) : showTariffs ? (
-                <RichText text="Напиши пару слов о проекте и стеке — **подскажу, хватит ли самостоятельного формата** или нужна поддержка. Или начни с бесплатного урока." />
-              ) : (
-                <RichText text={landing.price.note} />
-              )}
-            </div>
-            <div className="flex flex-col gap-2.5 pt-2 sm:flex-row sm:items-center">
-              {showTariffs ? (
-                <>
-                  <a
-                    href={TELEGRAM_DM}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-scarf inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-brand-navy px-6 text-[15px] font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-scarf-green)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-scarf-green)] motion-reduce:hover:translate-y-0"
-                  >
-                    <Send className="size-4" aria-hidden />
-                    Написать в личку
-                  </a>
-                  <Link
-                    href="/free"
-                    className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-brand-navy/25 bg-brand-cream/80 px-6 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
-                  >
-                    Бесплатный урок
-                    <ArrowRight className="size-4" aria-hidden />
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <PrimaryCta
-                    cont={cont}
-                    cta={landing.cta}
-                    courseSlug={key}
-                    courseTitle={course.title}
-                    className="btn-scarf inline-flex h-12 items-center justify-center gap-1.5 rounded-xl border-2 border-brand-navy px-6 text-[15px] font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-scarf-green)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-scarf-green)] motion-reduce:hover:translate-y-0"
-                  />
-                  <a
-                    href={TELEGRAM_DM}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-brand-navy/25 bg-brand-cream/80 px-6 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
-                  >
-                    <Send className="size-4" aria-hidden />
-                    Написать в личку
-                  </a>
-                </>
-              )}
-            </div>
-          </div>
-
-          <div className="flex items-end justify-center md:justify-end">
-            <Image
-              src="/banner-lesson-dachshund.webp"
-              alt=""
-              width={660}
-              height={809}
-              aria-hidden
-              className="pointer-events-none -mb-9 w-[180px] max-w-full select-none sm:w-[220px] md:-mb-11 md:w-[260px]"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Блок «Частые сомнения перед стартом» на месте прежнего формата */}
-      {isVibe && (
-        <section className="animate-rise relative space-y-8">
-          <DoodleWord
-            text="честно"
-            color="oklch(0.535 0.1893 28.3)"
-            className="z-10 -top-4 left-5 text-lg -rotate-6 sm:-top-5 sm:left-9 sm:text-xl"
-          />
-          <SectionHead
-            size="lg"
-            title="Частые сомнения перед стартом"
-            accent="сомнения"
-           
-          />
-                    {/* Три карточки в subgrid: шапки, заголовки, тексты и подписи стоят на одних линиях,
-              даже если текст разной длины. Внутри карточки — только прямые дети, без обёрток. */}
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-3 md:grid-rows-[auto_auto_auto_auto]">
-            <div className="flex flex-col rounded-3xl border-2 border-brand-navy/15 bg-card p-6 pt-8 sm:p-7 sm:pt-9 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy md:grid md:grid-rows-subgrid md:row-span-4">
-              <div className="flex items-center justify-between border-b border-brand-navy/10 pb-3">
-                <span className="font-mono text-xs font-black uppercase text-brand-red">сомнение 01</span>
-                <span className="font-marker text-2xl text-brand-red">?</span>
-              </div>
-              <h4 className="pt-3 font-heading font-black text-xl text-brand-navy leading-snug">«Сожгу лимиты и токены»</h4>
-              <p className="pt-3 text-[17px] sm:text-lg font-medium leading-relaxed text-brand-charcoal/90">
-                <RichText text="**Наоборот.** Контекст живёт в `CLAUDE.md` и Skills, а не пересказывается в каждом чате: **модель читает правила из файлов**. Пересказ стека и архитектуры из каждого диалога уходит." />
-              </p>
-              <div className="mt-auto w-full self-end border-t border-dashed border-brand-navy/10 pt-3 text-xs sm:text-sm font-bold text-brand-forest">
-                Контекст в файлах
-              </div>
-            </div>
-
-            {/* Полоска сверху скруглена сама, чтобы карточке не нужен был overflow-hidden — иначе он срезал бы надпись-дудл */}
-            <div className="group relative flex flex-col rounded-3xl border-2 border-brand-navy bg-[#F0F5FC] p-6 pt-8 sm:p-7 sm:pt-9 shadow-[0_6px_0_0_rgba(16,38,71,0.12)] transition-all hover:shadow-[0_8px_0_0_rgba(16,38,71,0.18)] md:grid md:grid-rows-subgrid md:row-span-4">
-              <DoodleWord
-                text="DeepSeek, GPT, Claude"
-                color="#1B449C"
-                className="z-20 -top-4 right-4 text-base -rotate-6 sm:-top-5 sm:right-6 sm:text-xl whitespace-nowrap"
-              />
-              <div
-                className="absolute top-0 left-0 right-0 h-3.5 rounded-t-[calc(1.5rem-2px)] border-b-2 border-brand-navy/25"
-                style={{
-                  backgroundImage: 'repeating-linear-gradient(90deg, #1B449C 0px, #1B449C 16px, #F0F5FC 16px, #F0F5FC 32px)',
-                }}
-                aria-hidden
-              />
-              <div className="flex items-center justify-between border-b-2 border-brand-navy/15 pb-3">
-                <span className="font-mono text-xs font-black uppercase text-brand-red">сомнение 02</span>
-                <span className="font-marker text-2xl text-brand-red">?</span>
-              </div>
-              <h4 className="pt-3 font-heading font-black text-xl text-brand-navy leading-snug">«Модели сменятся и всё устареет»</h4>
-              <p className="pt-3 text-[17px] sm:text-lg font-bold leading-relaxed text-brand-navy/90">
-                <RichText text="**Настройка не привязана к вендору.** Сегодня Claude Code, завтра Codex или DeepSeek." />
-              </p>
-              <div className="mt-auto flex w-full flex-wrap items-center justify-between gap-3 self-end border-t border-dashed border-brand-navy/20 pt-3 text-xs sm:text-sm font-black text-brand-navy">
-                <span>Универсальный мультимодельный стек</span>
-                <BrandLogoRow logos={['claude', 'codex', 'kimi', 'deepseek', 'gemini']} size="sm" />
-              </div>
-            </div>
-
-            <div className="flex flex-col rounded-3xl border-2 border-brand-navy/15 bg-card p-6 pt-8 sm:p-7 sm:pt-9 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy md:grid md:grid-rows-subgrid md:row-span-4">
-              <div className="flex items-center justify-between border-b border-brand-navy/10 pb-3">
-                <span className="font-mono text-xs font-black uppercase text-brand-red">сомнение 03</span>
-                <span className="font-marker text-2xl text-brand-red">?</span>
-              </div>
-              <h4 className="pt-3 font-heading font-black text-xl text-brand-navy leading-snug">«Получится нечитаемый мусор»</h4>
-              <p className="pt-3 text-[17px] sm:text-lg font-medium leading-relaxed text-brand-charcoal/90">
-                <RichText text="**ИИ пишет по правилам проекта.** Структура папок, строгие типы и линтер заданы в конфиге. Код **проходит линтер, типы и тесты до того, как ты его увидишь**." />
-              </p>
-              <div className="mt-auto w-full self-end border-t border-dashed border-brand-navy/10 pt-3 text-xs sm:text-sm font-bold text-brand-forest">
-                Зелёный статус проверок до ревью
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Блок «Как проходит обучение» ниже баннера в стиле Вопрос-Ответ */}
+      {/* Блок «Как проходит обучение» в стиле Вопрос-Ответ (6 пунктов с сомнениями) */}
       {landing.format.length > 0 && (
         <section className="animate-rise space-y-6 pt-4">
           <SectionHead
             size="lg"
             title="Как проходит обучение: вопросы и ответы"
             accent="вопросы и ответы"
-            note="Всё о процессе, домашках и поддержке после оплаты."
+            note="Всё о процессе, сомнениях, домашках и поддержке."
           />
           <div className="space-y-3">
             <details className="group rounded-3xl border-2 border-brand-navy/15 bg-card p-5 sm:p-6 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy open:shadow-[0_6px_0_0_rgba(16,38,71,0.1)]">
@@ -981,6 +936,42 @@ export default async function CourseLandingPage({ params }: {
               </summary>
               <div className="mt-3.5 border-t border-dashed border-brand-navy/10 pt-3.5 text-[17px] font-medium leading-relaxed sm:text-lg text-brand-charcoal/90">
                 <RichText text="В тарифе с поддержкой вы получаете **3 недели закрытого чата с личным разбором от Эмиля**. Застряли на ошибке — присылаете код, получаете решение текстом или голосовым. **Автор видит только то, что вы сами прислали в чат**: фрагменты кода, диффы, скриншоты. Доступ к вашему репозиторию не нужен." />
+              </div>
+            </details>
+
+            <details className="group rounded-3xl border-2 border-brand-navy/15 bg-card p-5 sm:p-6 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy open:shadow-[0_6px_0_0_rgba(16,38,71,0.1)]">
+              <summary className="flex cursor-pointer items-center justify-between gap-4 font-heading text-lg sm:text-xl font-black text-brand-navy list-none select-none">
+                <span>Не сожгу ли я все лимиты и токены?</span>
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-brand-navy/5 border border-brand-navy/10 text-brand-navy transition-transform duration-200 group-open:rotate-180">
+                  <ChevronDown className="size-4" />
+                </span>
+              </summary>
+              <div className="mt-3.5 border-t border-dashed border-brand-navy/10 pt-3.5 text-[17px] font-medium leading-relaxed sm:text-lg text-brand-charcoal/90">
+                <RichText text="**Наоборот, расход станет меньше.** Контекст живёт в `CLAUDE.md`, rules и skills, а не пересказывается вручную в каждом чате: **модель читает правила из файлов проекта**. Пересказ стека, зависимостей и архитектуры из каждого диалога навсегда уходит." />
+              </div>
+            </details>
+
+            <details className="group rounded-3xl border-2 border-brand-navy/15 bg-card p-5 sm:p-6 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy open:shadow-[0_6px_0_0_rgba(16,38,71,0.1)]">
+              <summary className="flex cursor-pointer items-center justify-between gap-4 font-heading text-lg sm:text-xl font-black text-brand-navy list-none select-none">
+                <span>Что если модели сменятся и всё устареет?</span>
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-brand-navy/5 border border-brand-navy/10 text-brand-navy transition-transform duration-200 group-open:rotate-180">
+                  <ChevronDown className="size-4" />
+                </span>
+              </summary>
+              <div className="mt-3.5 border-t border-dashed border-brand-navy/10 pt-3.5 text-[17px] font-medium leading-relaxed sm:text-lg text-brand-charcoal/90">
+                <RichText text="**Инженерная настройка не привязана к вендору.** Сегодня вы работаете с Claude Code, завтра с Codex, Gemini или DeepSeek. Архитектура файлов контекста, тесты, линтеры и правила репозитория работают одинаково с любой современной моделью." />
+              </div>
+            </details>
+
+            <details className="group rounded-3xl border-2 border-brand-navy/15 bg-card p-5 sm:p-6 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy open:shadow-[0_6px_0_0_rgba(16,38,71,0.1)]">
+              <summary className="flex cursor-pointer items-center justify-between gap-4 font-heading text-lg sm:text-xl font-black text-brand-navy list-none select-none">
+                <span>Не получится ли нечитаемый мусор и спагетти-код?</span>
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-brand-navy/5 border border-brand-navy/10 text-brand-navy transition-transform duration-200 group-open:rotate-180">
+                  <ChevronDown className="size-4" />
+                </span>
+              </summary>
+              <div className="mt-3.5 border-t border-dashed border-brand-navy/10 pt-3.5 text-[17px] font-medium leading-relaxed sm:text-lg text-brand-charcoal/90">
+                <RichText text="**ИИ пишет строго по правилам вашего проекта.** Структура папок, типизация TypeScript и линтеры зафиксированы в конфиге. Код **проходит проверку линтером, типами и автотестами ещё до того, как попадёт к вам на ревью**." />
               </div>
             </details>
           </div>

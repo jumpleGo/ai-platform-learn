@@ -168,9 +168,9 @@ export default async function LessonPage({ params, searchParams }: {
   const materials = locked ? '' : lesson.materials;
   const teaser = locked && lesson.materials ? materialsTeaser(lesson.materials) : null;
   const views = lesson.views ?? 0;
-  // Вариант маркетингового блока залипает за посетителем: id из cookie (её ставит proxy),
-  // выбор — по весам в админке. Показы и клики считает BannerSlotView.
-  const visitorId = (await cookies()).get('vid')?.value ?? 'anon';
+  const cookieStore = await cookies();
+  const visitorId = cookieStore.get('vid')?.value ?? 'anon';
+  const fromLanding = (Array.isArray(query.from) ? query.from[0] : query.from) ?? cookieStore.get('from_landing')?.value;
   const banners = (['materials', 'related'] as const).map((slot) => {
     const variants = slotVariants(lesson, slot);
     // принудительный вариант показываем как есть и не считаем в статистике
@@ -344,7 +344,12 @@ export default async function LessonPage({ params, searchParams }: {
           />
         )}
         {freeLesson && ctaHref && (
-          <FreeLessonAfterVideo content={freeLesson} materials={materials} ctaHref={ctaHref} />
+          <FreeLessonAfterVideo
+            content={freeLesson}
+            materials={materials}
+            ctaHref={ctaHref}
+            fromLanding={fromLanding}
+          />
         )}
       </div>
     </>
