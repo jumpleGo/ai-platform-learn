@@ -92,6 +92,12 @@ export async function generateMetadata({ params }: {
       // без обложки в базе берём обложку лендинга, иначе превью в мессенджерах пустое
       images: [{ url: course.coverUrl || `${SITE_URL}${landing.cover || '/og-gelato.png'}`, alt: landing.h1 }],
     },
+    twitter: {
+      card: 'summary_large_image',
+      title: landing.seoTitle,
+      description: landing.seoDescription,
+      images: [course.coverUrl || `${SITE_URL}${landing.cover || '/og-gelato.png'}`],
+    },
   };
 }
 
