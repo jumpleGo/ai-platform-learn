@@ -1,6 +1,7 @@
 import { ArrowUpRight, Check, GitCommitHorizontal } from 'lucide-react';
 import type { CourseLanding } from '@/lib/course-landings';
 import { LandingIcon } from '@/components/landing-icon';
+import { ProofInspector } from '@/components/proof-inspector';
 
 type CaseStudy = NonNullable<CourseLanding['caseStudy']>;
 
@@ -96,6 +97,9 @@ export function CaseCycle({ data }: { data: CaseStudy }) {
             </span>
           </div>
         </div>
+
+        {/* Наглядные артефакты цикла: CLAUDE.md, точечный diff и лог автопроверок */}
+        <ProofInspector />
 
         {data.repoUrl && (
           <a

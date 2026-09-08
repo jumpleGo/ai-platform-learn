@@ -163,18 +163,17 @@ export default async function CourseLandingPage({ params }: {
               {isVibe ? (
                 // Лёгкие ручные подчёркивания под двумя обещаниями — как «тимлида» в заголовке
                 <>
-                  За обучение{' '}
+                  Обучаем ИИ правилам твоего репозитория:{' '}
                   <span className="relative inline-block whitespace-nowrap text-brand-navy">
-                    настроим твой репозиторий
+                    CLAUDE.md, rules, линтер, типы и тесты
                     <DoodleUnderline thin color="var(--color-scarf-green)" className="opacity-70" />
-                  </span>{' '}
-                  под ИИ: <strong className="font-black text-brand-navy"><br />CLAUDE.md, rules, skills, линтер, типы и тесты</strong>.
-                  {'\n'}А также{' '}
+                  </span>
+                  .{'\n'}Модель сама исправляет ошибки по тестам и предлагает{' '}
                   <span className="relative inline-block whitespace-nowrap text-brand-navy">
-                    покроем всё агентами
+                    чистые изолированные коммиты
                     <DoodleUnderline thin color="var(--color-scarf-green)" className="opacity-70" />
-                  </span>{' '}
-                  и добавим оркестрацию.
+                  </span>
+                  .
                 </>
               ) : (
                 <RichText text={landing.lead} />
@@ -199,7 +198,7 @@ export default async function CourseLandingPage({ params }: {
                     href="/free?from=vibecoding"
                     className="btn-goose inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy px-6 text-[15px] font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-goose-red)] motion-reduce:hover:translate-y-0"
                   >
-                    Бесплатный урок / разбор
+                    Разбор метода (15 минут)
                     <ArrowRight className="size-4" aria-hidden />
                   </Link>
                   <a
@@ -277,7 +276,19 @@ export default async function CourseLandingPage({ params }: {
 
       </section>
 
-      {/* Блок об авторе (Второй блок страницы) */}
+      {/* Для вайбкодинга: техническое доказательство и сравнение хаос/система сразу после хиро */}
+      {isVibe && (
+        <>
+          <VibeComparisonSection />
+          {landing.caseStudy && (
+            <section className="animate-rise">
+              <CaseCycle data={landing.caseStudy} />
+            </section>
+          )}
+        </>
+      )}
+
+      {/* Блок об авторе */}
       <section className="animate-rise relative" id="about">
         <DoodleWord
           text="кто я"
@@ -405,14 +416,8 @@ export default async function CourseLandingPage({ params }: {
         </div>
       </section>
 
-      {/* Блок сравнения «Проект без настройки vs Проект, настроенный под ИИ» */}
-      {isVibe && (
-        <VibeComparisonSection />
-      )}
-
-      {/* Один проверяемый цикл вместо голых цифр: схема-конвейер после контраста хаос/система,
-          а не в хиро — на первом экране он перегружал взгляд */}
-      {landing.caseStudy && (
+      {/* Для других курсов с caseStudy (если есть) */}
+      {!isVibe && landing.caseStudy && (
         <section className="animate-rise">
           <CaseCycle data={landing.caseStudy} />
         </section>
@@ -914,13 +919,18 @@ export default async function CourseLandingPage({ params }: {
 
             <details className="group rounded-3xl border-2 border-brand-navy/15 bg-card p-5 sm:p-6 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy open:shadow-[0_6px_0_0_rgba(16,38,71,0.1)]">
               <summary className="flex cursor-pointer items-center justify-between gap-4 font-heading text-lg sm:text-xl font-black text-brand-navy list-none select-none">
-                <span>На каких задачах мы будем практиковаться?</span>
+                <span>Подойдёт ли курс, если у меня другой стек или закрытый код?</span>
                 <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-brand-navy/5 border border-brand-navy/10 text-brand-navy transition-transform duration-200 group-open:rotate-180">
                   <ChevronDown className="size-4" />
                 </span>
               </summary>
-              <div className="mt-3.5 border-t border-dashed border-brand-navy/10 pt-3.5 text-[17px] font-medium leading-relaxed sm:text-lg text-brand-charcoal/90">
-                <RichText text="**На вашем собственном проекте** — вы можете взять как рабочий проект, так и личный сервис или пет-проект. Мы не даём искусственных учебных заготовок: вы сразу внедряете правила репозитория, CLAUDE.md, линтеры, тесты и агентов в ту кодовую базу, над которой реально работаете. При этом приватность гарантирована: автору и моделям уходят только те точечные диффы, которые вы сами решите показать." />
+              <div className="mt-3.5 border-t border-dashed border-brand-navy/10 pt-3.5 text-[17px] font-medium leading-relaxed sm:text-lg text-brand-charcoal/90 space-y-2">
+                <p>
+                  <RichText text="**Стек не имеет значения.** Метод показывает настройку архитектуры ИИ. Вместо TypeScript и Vitest на Python настраиваются `ruff` и `pytest`, на PHP — `PHPStan` и `Pest`, на Go — `golangci-lint` и `go test`. Правила репозитория, `CLAUDE.md` и формат изоляции диффов одинаковы для любого языка." />
+                </p>
+                <p>
+                  <RichText text="**Закрытый рабочий код показывать не нужно.** Вы можете проходить все задания на отдельном учебном репозитории или пет-проекте без риска раскрытия коммерческой тайны. Автор видит только те фрагменты, которые вы сами отправляете в чат разбора." />
+                </p>
               </div>
             </details>
 
