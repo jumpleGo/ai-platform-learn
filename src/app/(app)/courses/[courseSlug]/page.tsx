@@ -111,6 +111,7 @@ export default async function CourseLandingPage({ params }: {
   if (courseSlug !== key) permanentRedirect(`/courses/${key}`);
   const landing = landingFor(course);
   const isVibe = key === 'it-vibecoding' || key === 'vibecoding';
+  const isAgents = key === 'claude-code-agents';
 
   const session = await getSession();
   const [sub, completed] = await Promise.all([
@@ -131,10 +132,63 @@ export default async function CourseLandingPage({ params }: {
         hint: `Урок ${nextIndex + 1} из ${course.lessons.length}${doneCount ? ` · пройдено ${doneCount}` : ''}`,
       }
     : null;
-  // Тарифы на странице пока только у вайбкодинга: у него две карточки и проверенные тексты
-  const showTariffs = isVibe && !cont;
+  // Для продаваемых флагманских программ цена и состав должны быть видны до модалки.
+  const showTariffs = (isVibe || isAgents) && !cont;
   // Все «Выбрать тариф» ведут к карточкам на странице, модалка остаётся для оплаты
   const pricingHref = showTariffs ? '#pricing' : undefined;
+  const faqItems = isAgents
+    ? [
+        {
+          question: 'Что именно входит в курс?',
+          answer: '**Введение и 8 практических уроков.** Сначала установим Claude Code и выполним первую задачу. Затем научим его помнить правила вашего проекта, подключим нужные инструменты, создадим сайт и собственных агентов. После каждого урока есть понятное практическое задание.',
+        },
+        {
+          question: 'Получится ли без опыта программирования?',
+          answer: '**Да, стартуем с установки и терминала.** Код и файлы создаёт Claude Code по вашим заданиям обычными словами. При этом вы научитесь ориентироваться в папках проекта и проверять результат — полностью игнорировать техническую часть не получится.',
+        },
+        {
+          question: 'Нужен ли готовый проект?',
+          answer: '**Нет.** Можно прийти с идеей, повторяющейся рабочей задачей или начать с простой HTML-страницы прямо на курсе. Если проект уже есть, вы сможете настроить для него контекст, правила, команды и агентов.',
+        },
+        {
+          question: 'Что я сделаю руками во время обучения?',
+          answer: 'Вы настроите помощника, который пишет в вашем стиле, **создадите свой сайт и опубликуете его в интернете — ссылку сможет открыть любой человек**. Затем подключите к Claude внешний сервис и соберёте отдельных агентов под свои повторяющиеся задачи.',
+        },
+        {
+          question: 'Как устроена поддержка?',
+          answer: 'В зависимости от тарифа вы получаете **3 или 4 недели личной поддержки**. Можно прислать вопрос, скриншот или запись экрана: автор поможет найти причину ошибки и поправить настройку. В самостоятельном тарифе поддержки нет.',
+        },
+        {
+          question: 'Какие дополнительные расходы понадобятся?',
+          answer: 'Для практики нужен Claude Code. **В тарифах с поддержкой месяц Claude Pro идёт в подарок.** Если вы захотите подключить дополнительный платный сервис, его подписка оплачивается отдельно; для прохождения базовой программы выбирать такой сервис не обязательно.',
+        },
+      ]
+    : [
+        {
+          question: 'Как и когда открывается доступ к материалам?',
+          answer: 'Все 17 уроков курса **открываются целиком со старта потока 14 сентября**. Вы двигаетесь в комфортном для себя темпе. **Доступ к курсу сохраняется на 2 месяца**.',
+        },
+        {
+          question: 'Подойдёт ли курс, если у меня другой стек или закрытый код?',
+          answer: '**Стек не имеет значения.** Правила репозитория, `CLAUDE.md` и изоляция изменений работают с разными языками. Закрытый рабочий код показывать не нужно: задания можно проходить на отдельном репозитории или пет-проекте.',
+        },
+        {
+          question: 'Как устроена обратная связь и помощь автора?',
+          answer: 'В тарифе с поддержкой вы получаете **3 недели закрытого чата с личным разбором от Эмиля**. Присылаете код, дифф или скриншот — получаете решение текстом или голосовым.',
+        },
+        {
+          question: 'Не сожгу ли я все лимиты и токены?',
+          answer: 'Контекст живёт в `CLAUDE.md`, rules и skills, поэтому его не нужно пересказывать вручную в каждом чате. Это сокращает лишний поиск и повторную работу.',
+        },
+        {
+          question: 'Что если модели сменятся и всё устареет?',
+          answer: 'Архитектура контекста, тесты, линтеры и правила репозитория не зависят от одной модели и переносятся на другие современные инструменты.',
+        },
+        {
+          question: 'Не получится ли нечитаемый мусор и спагетти-код?',
+          answer: 'ИИ работает по правилам проекта, а результат проверяется типами, линтерами и автотестами до ревью.',
+        },
+      ];
 
   return (
     <div className="space-y-24 sm:space-y-32">
@@ -146,7 +200,20 @@ export default async function CourseLandingPage({ params }: {
           <div>
             <h1 className="font-heading text-[2.6rem]/[1.04] font-bold tracking-[-0.03em] text-balance text-brand-navy sm:text-[3.4rem]/[1.02]">
               {/* Слово «тимлида» подчёркиваем маркерной линией — как «пользуюсь сам» в блоке автора */}
-              {landing.h1.includes('тимлида')
+              {isAgents ? (
+                <>
+                  Создайте своих{' '}
+                  <span className="relative inline-block whitespace-nowrap">
+                    ИИ-агентов
+                    <DoodleUnderline color="var(--color-goose-red)" className="w-full" />
+                  </span>{' '}
+                  <br />в Claude Code —{' '}
+                  <span className="relative inline-block whitespace-nowrap">
+                    с нуля
+                    <DoodleUnderline thin color="var(--color-scarf-green)" className="w-full" />
+                  </span>
+                </>
+              ) : landing.h1.includes('тимлида')
                 ? landing.h1.split('тимлида').map((part, i, arr) => (
                     <React.Fragment key={i}>
                       {part}
@@ -160,7 +227,22 @@ export default async function CourseLandingPage({ params }: {
                 : landing.h1}
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-[1.45] text-muted-foreground text-pretty whitespace-pre-line sm:mt-6 sm:text-xl">
-              {isVibe ? (
+              {isAgents ? (
+                <>
+                  Установите Claude Code, научите его понимать{' '}
+                  <span className="relative inline-block whitespace-nowrap text-brand-navy">
+                    контекст вашего проекта
+                    <DoodleUnderline thin color="var(--color-scarf-green)" className="opacity-70" />
+                  </span>{' '}
+                  и создайте агентов под повторяющиеся задачи.{`\n`}
+                  Код вручную писать не придётся — вы разберётесь, где лежат инструкции и{' '}
+                  <span className="relative inline-block whitespace-nowrap text-brand-navy">
+                    как проверять результат
+                    <DoodleUnderline thin color="var(--color-goose-red)" className="opacity-70" />
+                  </span>
+                  .
+                </>
+              ) : isVibe ? (
                 // Лёгкие ручные подчёркивания под двумя обещаниями — как «тимлида» в заголовке
                 <>
                   Обучаем ИИ правилам твоего репозитория:{' '}
@@ -192,15 +274,17 @@ export default async function CourseLandingPage({ params }: {
             )}
 
             <div className="mt-9 flex flex-wrap items-center gap-3 sm:mt-10">
-              {isVibe && !cont ? (
+              {(isVibe || isAgents) && !cont ? (
                 <>
-                  <Link
-                    href="/free?from=vibecoding"
-                    className="btn-goose inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy px-6 text-[15px] font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-goose-red)] motion-reduce:hover:translate-y-0"
-                  >
-                    Разбор метода (15 минут)
-                    <ArrowRight className="size-4" aria-hidden />
-                  </Link>
+                  {isAgents && (
+                    <Link
+                      href="/courses/claude-code-agents/lessons/1?from=course_landing"
+                      className="btn-goose inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy px-6 text-base font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-goose-red)] motion-reduce:hover:translate-y-0"
+                    >
+                      Бесплатное введение (2 минуты)
+                      <ArrowRight className="size-4" aria-hidden />
+                    </Link>
+                  )}
                   <a
                     href="#pricing"
                     className="inline-flex h-12 items-center gap-1.5 rounded-xl border-2 border-brand-navy/25 bg-brand-cream/80 px-5 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
@@ -208,15 +292,17 @@ export default async function CourseLandingPage({ params }: {
                     К тарифам
                     <ArrowDown className="size-4" aria-hidden />
                   </a>
-                  <a
-                    href={TELEGRAM_DM}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy/20 bg-card/60 px-5 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
-                  >
-                    <Send className="size-4" aria-hidden />
-                    Личка
-                  </a>
+                  {!isAgents && (
+                    <a
+                      href={TELEGRAM_DM}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy/20 bg-card/60 px-5 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
+                    >
+                      <Send className="size-4" aria-hidden />
+                      Личка
+                    </a>
+                  )}
                 </>
               ) : (
                 <>
@@ -256,22 +342,19 @@ export default async function CourseLandingPage({ params }: {
         </div>
 
         {landing.facts.length > 0 && (
-          <div className="mt-6 grid grid-cols-3 gap-2 sm:mt-10 sm:gap-4">
+          <dl className="mt-8 grid grid-cols-1 gap-y-5 border-y-2 border-brand-navy/10 py-6 sm:mt-11 sm:grid-cols-3 sm:gap-y-0 sm:py-7">
             {landing.facts.map((fact, idx) => (
               <div
                 key={fact.label}
-                className="group relative overflow-hidden rounded-xl border-2 border-brand-navy/15 bg-brand-cream/80 p-3 shadow-[0_2px_0_0_rgba(16,38,71,0.06)] transition-all hover:-translate-y-0.5 hover:border-brand-navy hover:shadow-[0_4px_0_0_rgba(16,38,71,0.12)] sm:rounded-2xl sm:p-6 sm:shadow-[0_3px_0_0_rgba(16,38,71,0.06)] sm:hover:shadow-[0_5px_0_0_rgba(16,38,71,0.12)]"
+                className={`flex items-center gap-4 sm:block sm:px-6 ${idx > 0 ? 'border-t-2 border-brand-navy/10 pt-5 sm:border-l-2 sm:border-t-0 sm:pt-0' : ''}`}
               >
-                <div className="flex items-baseline justify-between">
-                  <span className="font-marker text-2xl leading-none text-brand-navy sm:text-5xl">{fact.value}</span>
-                  <span className="hidden font-mono text-xs font-black text-brand-navy/35 sm:inline">0{idx + 1}</span>
-                </div>
-                <p className="mt-1.5 text-xs font-bold leading-tight text-brand-charcoal text-pretty sm:mt-3 sm:text-[15px] sm:leading-snug">
+                <dt className="min-w-fit font-marker text-4xl leading-none text-brand-navy sm:text-6xl">{fact.value}</dt>
+                <dd className="max-w-xs text-base font-bold leading-snug text-brand-charcoal text-pretty sm:mt-2 sm:text-lg">
                   {fact.label}
-                </p>
+                </dd>
               </div>
             ))}
-          </div>
+          </dl>
         )}
 
       </section>
@@ -372,13 +455,13 @@ export default async function CourseLandingPage({ params }: {
                         </div>
                         <ArrowUpRight className="size-4 text-brand-navy/40 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-brand-navy" />
                       </div>
-                      <p className="mt-2 text-xs leading-relaxed text-brand-charcoal/80">
+                      <p className="mt-2 text-base leading-relaxed text-brand-charcoal/80 sm:text-[17px]">
                         Параллельный swarm research для Claude, GPT и Gemini: N дешёвых воркеров исследуют тему, один синтезирует выжимку с источниками.
                       </p>
                     </div>
                     <div className="mt-3 flex items-center gap-1.5">
-                      <span className="inline-flex items-center rounded-md border border-brand-forest/25 bg-brand-forest/10 px-2 py-0.5 font-mono text-[11px] font-black text-brand-forest">
-                        40× быстрее, чем Deep Research
+                      <span className="inline-flex items-center rounded-md border border-brand-forest/25 bg-brand-forest/10 px-2.5 py-1 font-mono text-xs font-black text-brand-forest sm:text-sm">
+                        параллельная работа нескольких моделей
                       </span>
                     </div>
                   </a>
@@ -399,12 +482,12 @@ export default async function CourseLandingPage({ params }: {
                         </div>
                         <ArrowUpRight className="size-4 text-brand-navy/40 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-brand-navy" />
                       </div>
-                      <p className="mt-2 text-xs leading-relaxed text-brand-charcoal/80">
+                      <p className="mt-2 text-base leading-relaxed text-brand-charcoal/80 sm:text-[17px]">
                         Совет моделей — независимое второе мнение от других LLM-семейств (Gemini, Codex, DeepSeek) для cross-check важных решений.
                       </p>
                     </div>
                     <div className="mt-3 flex items-center gap-1.5">
-                      <span className="inline-flex items-center rounded-md border border-brand-forest/25 bg-brand-forest/10 px-2 py-0.5 font-mono text-[11px] font-black text-brand-forest">
+                      <span className="inline-flex items-center rounded-md border border-brand-forest/25 bg-brand-forest/10 px-2.5 py-1 font-mono text-xs font-black text-brand-forest sm:text-sm">
                         сложные решения
                       </span>
                     </div>
@@ -428,12 +511,12 @@ export default async function CourseLandingPage({ params }: {
         <section className="animate-rise space-y-8">
           <SectionHead
             size="lg"
-            title="Что будет на выходе"
-            accent="на выходе"
+            title={isAgents ? 'Чему вы научитесь' : 'Что будет на выходе'}
+            accent={isAgents ? 'научитесь' : 'на выходе'}
           />
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             {landing.results.map((item, idx) => {
-              const isKiller = item.title.toLowerCase().includes('автотест') || (idx === 2 && landing.results.length === 4);
+              const isKiller = item.title.toLowerCase().includes('автотест') || (isVibe && idx === 2 && landing.results.length === 4);
 
               if (isKiller) {
                 return (
@@ -456,14 +539,14 @@ export default async function CourseLandingPage({ params }: {
 
                       <div className="pt-2">
                         <div className="flex items-start justify-between gap-4 border-b-2 border-brand-navy/15 pb-4">
-                          <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy leading-tight">
+                          <h3 className="font-heading text-2xl font-black leading-tight text-brand-navy sm:text-3xl">
                             {item.title}
                           </h3>
                           <span className="font-marker text-3xl sm:text-4xl leading-none text-brand-navy shrink-0">
                             0{idx + 1}
                           </span>
                         </div>
-                        <div className="mt-4 text-[17px] sm:text-lg font-bold leading-relaxed text-brand-navy/90 text-pretty">
+                        <div className="mt-4 text-lg font-bold leading-relaxed text-brand-navy/90 text-pretty sm:text-xl">
                           <RichText text={item.note} />
                         </div>
                         {/* В выделенной карточке логотипы не показываем: полоска сверху уже акцент */}
@@ -480,14 +563,14 @@ export default async function CourseLandingPage({ params }: {
                 >
                   <div>
                     <div className="flex items-center justify-between gap-4 border-b-2 border-brand-navy/10 pb-4">
-                      <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy leading-tight">
+                      <h3 className="font-heading text-2xl font-black leading-tight text-brand-navy sm:text-3xl">
                         {item.title}
                       </h3>
                       <span className="font-marker text-3xl sm:text-4xl leading-none text-brand-forest shrink-0">
                         0{idx + 1}
                       </span>
                     </div>
-                    <div className="mt-4 text-[17px] sm:text-lg font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
+                    <div className="mt-4 text-lg font-medium leading-relaxed text-brand-charcoal/90 text-pretty sm:text-xl">
                       <RichText text={item.note} />
                     </div>
                     {item.logos && (
@@ -506,28 +589,105 @@ export default async function CourseLandingPage({ params }: {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border-2 border-brand-navy/15 bg-brand-forest/10 p-5 sm:p-6">
               <div>
                 <h4 className="font-heading text-lg font-extrabold text-brand-navy">
-                  Хотите так настроить свой проект под ИИ?
+                  {isAgents ? 'Хотите сначала разобраться, как давать ИИ задачи?' : 'Хотите так настроить свой проект под ИИ?'}
                 </h4>
-                <p className="mt-1 text-xs sm:text-sm text-brand-charcoal/80 font-medium">
-                  Старт потока 14 сентября · Первый чистый коммит в первый день · Возврат 100% в первые 2 дня
+                <p className="mt-1 text-base font-medium leading-relaxed text-brand-charcoal/80 sm:text-lg">
+                  {isAgents
+                    ? '15 минут · без оплаты · контекст, постановка задачи и проверка ответа'
+                    : 'Старт потока 14 сентября · Первый чистый коммит в первый день · Возврат 100% в первые 2 дня'}
                 </p>
               </div>
               <div className="flex flex-col items-center gap-2 sm:items-end">
-                <PrimaryCta
-                  cont={cont}
-                  cta={{ label: landing.cta.label, href: landing.cta.href, hint: '' }}
-                  pricingHref={pricingHref}
-                  courseSlug={key}
-                  courseTitle={course.title}
-                  className="btn-goose inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl border-2 border-brand-navy px-5 text-sm font-extrabold text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_0_0_var(--color-goose-red)]"
-                />
-                {/* Ранний бесплатный шаг: не только в футере */}
-                <Link href="/free?from=vibecoding" className="text-xs font-bold text-brand-navy/70 underline underline-offset-4 hover:text-brand-navy">
-                  Сначала посмотреть бесплатный урок
-                </Link>
+                {isAgents ? (
+                  <Link
+                    href="/courses/claude-code-agents/lessons/1?from=course_landing"
+                    className="btn-goose inline-flex h-12 shrink-0 items-center justify-center gap-1.5 rounded-xl border-2 border-brand-navy px-5 text-base font-extrabold text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_0_0_var(--color-goose-red)]"
+                  >
+                    Посмотреть бесплатное введение
+                    <ArrowRight className="size-4" aria-hidden />
+                  </Link>
+                ) : (
+                  <PrimaryCta
+                    cont={cont}
+                    cta={{ label: landing.cta.label, href: landing.cta.href, hint: '' }}
+                    pricingHref={pricingHref}
+                    courseSlug={key}
+                    courseTitle={course.title}
+                    className="btn-goose inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl border-2 border-brand-navy px-5 text-sm font-extrabold text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_0_0_var(--color-goose-red)]"
+                  />
+                )}
+                {isAgents && (
+                  <Link href="#pricing" className="text-sm font-bold text-brand-navy/70 underline underline-offset-4 hover:text-brand-navy sm:text-base">
+                    Или сразу сравнить тарифы
+                  </Link>
+                )}
               </div>
             </div>
           )}
+        </section>
+      )}
+
+      {landing.examples && landing.examples.length > 0 && (
+        <section className="animate-rise space-y-8">
+          <div className="grid gap-5 border-b-2 border-brand-navy/10 pb-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+            <SectionHead
+              size="lg"
+              title="Что может быть на выходе"
+              accent="на выходе"
+            />
+            <div className="grid w-fit grid-cols-[auto_8.5rem] items-center gap-3 border-l-4 border-brand-yellow pl-4 sm:justify-self-end">
+              <span className="font-marker text-6xl leading-none text-brand-red sm:text-7xl">99+</span>
+              <span className="text-base font-bold leading-tight text-brand-navy sm:text-lg">других идей под вашу работу</span>
+            </div>
+          </div>
+          <div className="grid gap-x-8 gap-y-7 sm:grid-cols-2">
+            {landing.examples.map((item, idx) => (
+              <article key={item.title} className="flex gap-5 border-t-2 border-brand-navy/12 pt-5">
+                <span className="font-marker text-5xl leading-none text-brand-forest sm:text-6xl">0{idx + 1}</span>
+                <div>
+                  <h3 className="font-heading text-2xl font-black leading-tight text-brand-navy sm:text-3xl">{item.title}</h3>
+                  <div className="mt-2 text-lg font-medium leading-relaxed text-brand-charcoal/90 sm:text-xl">
+                    <RichText text={item.note} />
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {landing.scenarios && landing.scenarios.length > 0 && (
+        <section className="animate-rise space-y-8">
+          <SectionHead
+            size="lg"
+            title="Как это выглядит на реальной задаче"
+            note="Не абстрактная «команда агентов», а понятный процесс с вашим контролем на каждом важном шаге."
+          />
+          <div className="space-y-5">
+            {landing.scenarios.map((scenario, idx) => (
+              <article key={scenario.before} className="rounded-3xl border-2 border-brand-navy/15 bg-card p-5 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] sm:p-7">
+                <div className="mb-5 flex items-center gap-3 border-b-2 border-brand-navy/10 pb-4">
+                  <span className="font-marker text-4xl leading-none text-brand-red">0{idx + 1}</span>
+                  <h3 className="font-heading text-xl font-black text-brand-navy sm:text-2xl">Один законченный рабочий цикл</h3>
+                </div>
+                <div className="grid gap-5 md:grid-cols-3 md:divide-x-2 md:divide-brand-navy/10">
+                  {[
+                    ['До', scenario.before],
+                    ['Что делает агент', scenario.agent],
+                    ['На выходе', scenario.after],
+                  ].map(([label, value]) => (
+                    <div key={label} className="md:px-5 md:first:pl-0 md:last:pr-0">
+                      <p className="font-mono text-sm font-black uppercase tracking-wider text-brand-forest">{label}</p>
+                      <p className="mt-2 text-lg font-medium leading-relaxed text-brand-charcoal sm:text-xl">{value}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-5 border-l-4 border-brand-yellow px-4 py-2 text-base font-bold leading-relaxed text-brand-navy sm:text-lg">
+                  Контроль человека: {scenario.control}
+                </p>
+              </article>
+            ))}
+          </div>
         </section>
       )}
 
@@ -543,11 +703,13 @@ export default async function CourseLandingPage({ params }: {
               // Две выделенные карточки — вайбкодеры и разработчики — стоят рядом в первом ряду,
               // у каждой своя полоска и маркерная надпись
               const title = item.title.toLowerCase();
-              const accent = title.includes('вайбкодер') || idx === 0
-                ? { doodle: 'vibe', color: '#C2410C', bg: '#FFF1E8' }
-                : title.includes('разработчик') || idx === 1
-                  ? { doodle: 'JS, PHP', color: '#1F6E43', bg: '#EDF6F0' }
-                  : null;
+              const accent = isVibe
+                ? title.includes('вайбкодер') || idx === 0
+                  ? { doodle: 'vibe', color: '#C2410C', bg: '#FFF1E8' }
+                  : title.includes('разработчик') || idx === 1
+                    ? { doodle: 'JS, PHP', color: '#1F6E43', bg: '#EDF6F0' }
+                    : null
+                : null;
 
               if (accent) {
                 return (
@@ -595,14 +757,14 @@ export default async function CourseLandingPage({ params }: {
                 >
                   <div>
                     <div className="flex items-center justify-between border-b-2 border-brand-navy/10 pb-3.5">
-                      <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy">
+                      <h3 className="font-heading text-2xl font-black text-brand-navy sm:text-3xl">
                         {item.title}
                       </h3>
                       <span className="font-marker text-3xl leading-none text-brand-forest">
                         0{idx + 1}
                       </span>
                     </div>
-                    <div className="mt-3.5 text-[17px] sm:text-lg font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
+                    <div className="mt-3.5 text-lg font-medium leading-relaxed text-brand-charcoal/90 text-pretty sm:text-xl">
                       <RichText text={item.note} />
                     </div>
                   </div>
@@ -626,32 +788,38 @@ export default async function CourseLandingPage({ params }: {
         </section>
       )}
 
+      {landing.requirements && landing.requirements.length > 0 && (
+        <section className="animate-rise space-y-8">
+          <SectionHead size="lg" title="Что нужно для старта" />
+          <dl className="divide-y-2 divide-dashed divide-brand-navy/10 border-y-2 border-dashed border-brand-navy/10">
+            {landing.requirements.map((item) => (
+              <div key={item.label} className={`grid gap-1 py-4 sm:grid-cols-[10rem_1fr] sm:items-baseline sm:gap-8 sm:py-5 ${item.label === 'В подарок' ? 'my-2 rounded-2xl bg-brand-yellow px-5 sm:px-6' : ''}`}>
+                <dt className={`font-mono text-sm font-black uppercase tracking-wider ${item.label === 'В подарок' ? 'text-brand-red' : 'text-brand-navy/55'}`}>{item.label}</dt>
+                <dd className="font-heading text-xl font-black leading-snug text-brand-navy sm:text-2xl">{item.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
+
       {/* Программа */}
       {landing.program.length > 0 && (
         <section className="animate-rise space-y-8">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <SectionHead
-              size="lg"
-              title="Программа обучения"
-            />
-            <span className="font-mono text-xs font-bold text-brand-forest bg-brand-green/20 border border-brand-green/30 px-3 py-1 rounded-full">
-              {landing.program.length} модулей · от старта к результату
-            </span>
-          </div>
+          <SectionHead size="lg" title="Программа обучения" />
 
           {/* Условия участия рядом с программой: нагрузка, сроки, домашки, подписки */}
           {landing.terms && landing.terms.length > 0 && (
-            <dl className="divide-y-2 divide-dashed divide-brand-navy/10 border-y-2 border-dashed border-brand-navy/10">
+            <dl className={isAgents ? 'grid border-y-2 border-brand-navy/10 py-6 sm:grid-cols-3 sm:py-7' : 'divide-y-2 divide-dashed divide-brand-navy/10 border-y-2 border-dashed border-brand-navy/10'}>
               {landing.terms.map((t) => (
-                <div key={t.label} className="grid grid-cols-1 gap-x-8 gap-y-1 py-4 sm:grid-cols-[12rem_1fr] sm:items-baseline sm:py-5">
-                  <dt className="font-mono text-xs font-black uppercase tracking-wider text-brand-navy/55 sm:text-sm">{t.label}</dt>
-                  <dd className="font-heading text-xl font-black leading-snug text-brand-navy text-pretty sm:text-2xl">{t.value}</dd>
+                <div key={t.label} className={isAgents ? 'flex flex-col items-center border-t-2 border-brand-navy/10 px-5 py-5 text-center first:border-t-0 sm:border-l-2 sm:border-t-0 sm:py-1 sm:first:border-l-0' : 'grid grid-cols-1 gap-x-8 gap-y-1 py-4 sm:grid-cols-[12rem_1fr] sm:items-baseline sm:py-5'}>
+                  <dt className={isAgents ? 'font-marker text-5xl leading-none text-brand-navy sm:text-6xl' : 'font-mono text-xs font-black uppercase tracking-wider text-brand-navy/55 sm:text-sm'}>{t.label}</dt>
+                  <dd className={isAgents ? 'mt-2 max-w-64 text-base font-bold leading-snug text-brand-charcoal sm:text-lg' : 'font-heading text-xl font-black leading-snug text-brand-navy text-pretty sm:text-2xl'}>{t.value}</dd>
                 </div>
               ))}
             </dl>
           )}
 
-          <div className="space-y-3.5">
+          <div className={isAgents ? 'grid gap-x-10 gap-y-0 sm:grid-cols-2' : 'space-y-3.5'}>
             {landing.program.map((item, i) => {
               const isOmg = item.title.toLowerCase().includes('память') || item.title.toLowerCase().includes('контекст, память');
 
@@ -678,11 +846,11 @@ export default async function CourseLandingPage({ params }: {
                         {i + 1}.
                       </span>
                       <div className="min-w-0 flex-1">
-                        <h3 className="font-heading text-lg sm:text-xl font-black text-brand-navy">
+                        <h3 className="font-heading text-xl font-black text-brand-navy sm:text-2xl">
                           {item.title}
                         </h3>
                         {item.note && (
-                          <div className="mt-2 text-[17px] sm:text-lg font-bold leading-relaxed text-brand-navy/90 text-pretty">
+                          <div className="mt-2 text-lg font-bold leading-relaxed text-brand-navy/90 text-pretty sm:text-xl">
                             <RichText text={item.note} />
                           </div>
                         )}
@@ -692,7 +860,17 @@ export default async function CourseLandingPage({ params }: {
                 );
               }
 
-              return (
+              return isAgents ? (
+                <article key={item.title} className="grid grid-cols-[4rem_1fr] gap-4 border-t-2 border-brand-navy/10 py-6 sm:grid-cols-[5rem_1fr]">
+                  <span className="font-marker text-5xl leading-none text-brand-forest sm:text-6xl">{String(i + 1).padStart(2, '0')}</span>
+                  <div>
+                    <h3 className="font-heading text-xl font-black leading-tight text-brand-navy sm:text-2xl">{item.title.replace(/^\d+\.\s*/, '')}</h3>
+                    <div className="mt-2 text-base font-medium leading-relaxed text-brand-charcoal/85 sm:text-lg">
+                      <RichText text={item.note} />
+                    </div>
+                  </div>
+                </article>
+              ) : (
                 <div
                   key={item.title}
                   className="group flex items-start gap-4 rounded-2xl border-2 border-brand-navy/15 bg-card p-5 sm:gap-6 sm:p-6 shadow-xs transition-all hover:border-brand-navy hover:shadow-[0_4px_0_0_rgba(16,38,71,0.08)]"
@@ -701,11 +879,11 @@ export default async function CourseLandingPage({ params }: {
                     {i + 1}.
                   </span>
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-heading text-lg sm:text-xl font-black text-brand-navy">
+                    <h3 className="font-heading text-xl font-black text-brand-navy sm:text-2xl">
                       {item.title}
                     </h3>
                     {item.note && (
-                      <div className="mt-2 text-[17px] sm:text-lg font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
+                      <div className="mt-2 text-lg font-medium leading-relaxed text-brand-charcoal/90 text-pretty sm:text-xl">
                         <RichText text={item.note} />
                       </div>
                     )}
@@ -742,7 +920,7 @@ export default async function CourseLandingPage({ params }: {
             <SectionHead
               size="lg"
               title={landing.price.value}
-              note={landing.price.note}
+              note={isAgents ? undefined : landing.price.note}
             />
             <TariffCards
               courseSlug={key}
@@ -758,13 +936,16 @@ export default async function CourseLandingPage({ params }: {
             <h2 className="font-heading text-[1.9rem]/[1.05] font-extrabold tracking-[-0.025em] text-balance text-brand-navy sm:text-[2.4rem]/[1.02]">
               {cont ? 'Доступ открыт' : showTariffs ? 'Не знаешь, какой формат твой?' : landing.price.value}
             </h2>
-            <div className="max-w-md leading-relaxed font-medium text-brand-charcoal/85 text-pretty">
+            <div className="max-w-xl text-lg font-medium leading-relaxed text-brand-charcoal/85 text-pretty sm:text-xl">
               {cont ? (
                 <p>
                   Обучение уже оплачено — {cont.hint.toLowerCase()}. Прогресс сохраняется, возвращайтесь в любой момент.
                 </p>
               ) : showTariffs ? (
-                <RichText text="Напиши пару слов о проекте и стеке — **подскажу, хватит ли самостоятельного формата** или нужна поддержка." />
+                <RichText text={isAgents
+                  ? 'Напишите пару слов о том, **что хотите создать или какую задачу упростить** — подскажу подходящий формат и с чего лучше начать.'
+                  : 'Напиши пару слов о проекте и стеке — **подскажу, хватит ли самостоятельного формата** или нужна поддержка.'}
+                />
               ) : (
                 <RichText text={landing.price.note} />
               )}
@@ -862,7 +1043,7 @@ export default async function CourseLandingPage({ params }: {
                           01
                         </span>
                       </div>
-                      <div className="mt-4 text-[17px] sm:text-lg font-bold leading-relaxed text-brand-navy/90 text-pretty">
+                      <div className="mt-4 text-lg font-bold leading-relaxed text-brand-navy/90 text-pretty sm:text-xl">
                         <RichText text={item.note} />
                       </div>
                     </div>
@@ -884,7 +1065,7 @@ export default async function CourseLandingPage({ params }: {
                         0{idx + 1}
                       </span>
                     </div>
-                    <div className="mt-4 text-[17px] sm:text-lg font-medium leading-relaxed text-brand-charcoal/90 text-pretty">
+                    <div className="mt-4 text-lg font-medium leading-relaxed text-brand-charcoal/90 text-pretty sm:text-xl">
                       <RichText text={item.note} />
                     </div>
                   </div>
@@ -902,9 +1083,21 @@ export default async function CourseLandingPage({ params }: {
             size="lg"
             title="Как проходит обучение: вопросы и ответы"
             accent="вопросы и ответы"
-            note="Всё о процессе, сомнениях, домашках и поддержке."
           />
           <div className="space-y-3">
+            {isAgents ? faqItems.map((item) => (
+              <details key={item.question} className="group rounded-3xl border-2 border-brand-navy/15 bg-card p-5 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy open:shadow-[0_6px_0_0_rgba(16,38,71,0.1)] sm:p-7">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-heading text-xl font-black text-brand-navy select-none sm:text-2xl">
+                  <span>{item.question}</span>
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-brand-navy/10 bg-brand-navy/5 text-brand-navy transition-transform duration-200 group-open:rotate-180">
+                    <ChevronDown className="size-5" />
+                  </span>
+                </summary>
+                <div className="mt-4 border-t border-dashed border-brand-navy/10 pt-4 text-lg font-medium leading-relaxed text-brand-charcoal/90 sm:text-xl">
+                  <RichText text={item.answer} />
+                </div>
+              </details>
+            )) : <>
             <details className="group rounded-3xl border-2 border-brand-navy/15 bg-card p-5 sm:p-6 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy open:shadow-[0_6px_0_0_rgba(16,38,71,0.1)]">
               <summary className="flex cursor-pointer items-center justify-between gap-4 font-heading text-lg sm:text-xl font-black text-brand-navy list-none select-none">
                 <span>Как и когда открывается доступ к материалам?</span>
@@ -981,6 +1174,7 @@ export default async function CourseLandingPage({ params }: {
                 <RichText text="**ИИ пишет строго по правилам вашего проекта.** Структура папок, типизация TypeScript и линтеры зафиксированы в конфиге. Код **проходит проверку линтером, типами и автотестами ещё до того, как попадёт к вам на ревью**." />
               </div>
             </details>
+            </>}
           </div>
 
           {!cont && (

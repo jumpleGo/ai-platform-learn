@@ -83,7 +83,7 @@ describe('Tariffs configuration', () => {
     expect(getTariffById('cartoons_month', 'vibecoding')).toBeUndefined();
 
     const agentsTariffs = getTariffsForCourse('claude-code-agents');
-    expect(agentsTariffs.map((tariff) => tariff.price)).toEqual([7990, 15990, 27990]);
+    expect(agentsTariffs.map((tariff) => tariff.price)).toEqual([7990, 19990, 27990]);
     expect(agentsTariffs[0].specialOffer).toBeUndefined();
     expect(agentsTariffs[0].excludedFeatures).toContain('Поддержка не входит');
     expect(agentsTariffs[1].specialOffer?.title).toContain('Claude Pro');

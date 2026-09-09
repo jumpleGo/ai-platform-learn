@@ -33,4 +33,23 @@ describe('тест-подбор обучения', () => {
     expect(pickQuizResult([]).slug).toBe('claude-code-agents');
     expect(pickQuizResult([99, 99]).slug).toBe('claude-code-agents');
   });
+
+  it('лендинг курса агентов соответствует фактической программе', () => {
+    const landing = getCourseLanding('claude-code-agents');
+    expect(landing).not.toBeNull();
+    expect(landing?.program).toHaveLength(8);
+    const titles = landing?.program.map((item) => item.title.replaceAll('\u00a0', ' '));
+    expect(titles).toEqual(expect.arrayContaining([
+      expect.stringContaining('Claude Code'),
+      expect.stringContaining('CLAUDE.md'),
+      expect.stringContaining('MCP'),
+      expect.stringContaining('GitHub'),
+      expect.stringContaining('Свои агенты'),
+    ]));
+
+    const copy = JSON.stringify(landing);
+    expect(copy).not.toContain('команда на автопилоте');
+    expect(copy).not.toContain('принимает заказы');
+    expect(copy).not.toContain('40×');
+  });
 });

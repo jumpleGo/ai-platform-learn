@@ -22,7 +22,7 @@ const PROMO_CTA_GOOSE =
 
 // Вид кнопки в баннере урока — цвета платка таксы, как на бумажной рамке
 const PROMO_CTA_SCARF =
-  'btn-scarf border-2 border-brand-navy font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-scarf-green)] hover:shadow-[0_5px_0_0_var(--color-scarf-green)]';
+  'btn-scarf h-12 border-2 border-brand-navy px-7 text-base font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-scarf-green)] hover:shadow-[0_5px_0_0_var(--color-scarf-green)]';
 
 // Кнопка подписки: открывает быстрый модал оплаты
 function PromoCta({
@@ -105,7 +105,7 @@ export function PromoLessonBanner({
   courseTitle?: string;
 } = {}) {
   return (
-    <div className="banner-marine-frame animate-rise relative mt-2 overflow-hidden rounded-2xl px-5 py-6 sm:px-7">
+    <div className="banner-marine-frame animate-rise relative mt-2 min-h-44 overflow-hidden rounded-2xl px-6 py-8 sm:min-h-48 sm:px-9 sm:py-9">
       {/* такса из баннера уроков: блок должен читаться как оффер, а не как плашка */}
       <Image
         src="/banner-lesson-dachshund.webp"
@@ -113,14 +113,14 @@ export function PromoLessonBanner({
         width={660}
         height={809}
         aria-hidden
-        className="pointer-events-none absolute right-0 bottom-0 hidden w-[130px] select-none sm:block lg:w-[160px]"
+        className="pointer-events-none absolute right-3 bottom-2 hidden h-[calc(100%-1rem)] w-auto max-w-[180px] object-contain object-bottom select-none sm:block lg:right-5 lg:max-w-[210px]"
       />
-      <div className="relative flex flex-wrap items-end justify-between gap-x-8 gap-y-5 sm:pr-36 lg:pr-44">
-        <div className="min-w-0 max-w-sm space-y-1.5">
-          <p className="font-heading text-lg font-extrabold tracking-tight text-brand-navy">
+      <div className="relative flex min-h-28 flex-wrap items-center justify-between gap-x-10 gap-y-6 sm:pr-44 lg:pr-52">
+        <div className="min-w-0 max-w-md space-y-2">
+          <p className="font-heading text-xl font-extrabold tracking-tight text-brand-navy sm:text-2xl">
             {courseTitle ? `Доступ к курсу «${courseTitle}»` : 'Урок открывается подпиской'}
           </p>
-          <p className="text-sm leading-relaxed font-medium text-brand-charcoal/80 text-pretty">
+          <p className="text-base leading-relaxed font-medium text-brand-charcoal/80 text-pretty sm:text-lg">
             Видео и&nbsp;полные материалы открываются сразу после оплаты.
           </p>
         </div>

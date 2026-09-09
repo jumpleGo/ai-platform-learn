@@ -191,7 +191,7 @@ export const COURSE_PAYMENT_CONFIGS: Record<string, CoursePaymentConfig> = {
   'claude-code-agents': {
     courseSlug: 'claude-code-agents',
     courseTitle: 'Claude Code с нуля — свои ИИ-агенты',
-    subtitle: 'Учитесь на своей идее и собираете команду агентов без программирования',
+    subtitle: 'Учитесь на своей идее и создаёте агентов без необходимости писать код вручную',
     tariffs: [
       {
         id: 'agents_month',
@@ -213,8 +213,8 @@ export const COURSE_PAYMENT_CONFIGS: Record<string, CoursePaymentConfig> = {
         id: 'agents_stream',
         title: 'С поддержкой — 3 недели',
         description: 'Программа с личной поддержкой и проверкой заданий',
-        price: 15990,
-        oldPrice: 21990,
+        price: 19990,
+        oldPrice: 24990,
         periodDays: 60,
         months: 2,
         popular: true,
@@ -228,13 +228,13 @@ export const COURSE_PAYMENT_CONFIGS: Record<string, CoursePaymentConfig> = {
         specialOffer: {
           label: 'Спецпредложение',
           title: 'Claude Pro — 1 месяц в подарок',
-          note: 'Начнёте обучение сразу со всеми возможностями Claude Code',
+          note: '',
         },
       },
       {
         id: 'agents_year',
         title: 'Расширенный — 4 недели',
-        description: 'Продвинутая программа с личной поддержкой',
+        description: 'Мультиагентная система и агенты, которые могут работать на сервере',
         price: 27990,
         oldPrice: 37990,
         periodDays: 60,
@@ -243,13 +243,15 @@ export const COURSE_PAYMENT_CONFIGS: Record<string, CoursePaymentConfig> = {
         startDate: '14 сентября',
         features: [
           'Всё из тарифа с поддержкой',
-          'Мультиагентная система и оркестрация',
+          'Свяжете нескольких агентов в одну систему',
+          'Развернёте агентов на сервере для постоянной работы',
+          'Дополнительная неделя на вопросы и доработку системы',
           'Личная поддержка в течение 4 недель',
         ],
         specialOffer: {
           label: 'Спецпредложение',
           title: 'Claude Pro — 1 месяц в подарок',
-          note: 'Начнёте обучение сразу со всеми возможностями Claude Code',
+          note: '',
         },
       },
     ],
