@@ -93,7 +93,7 @@ const RESULTS: readonly LessonQuizResult[] = [
       'ИИ не хватает контекста и чёткого результата. Научим ставить задачу так, чтобы он не угадывал.',
     lessonTitle: 'Промпт-инжиниринг простым языком',
     lessonNumber: 2,
-    href: '/courses/claude-code/lessons/2?source=pain_quiz&utm_source=gelateria&utm_medium=quiz&utm_campaign=free_lesson_match&utm_content=prompting',
+    href: '/courses/claude-code/lessons/2?source=pain_quiz&match=prompting',
   },
   {
     id: 'tokens',
@@ -102,7 +102,7 @@ const RESULTS: readonly LessonQuizResult[] = [
       'ИИ тратит лимиты, когда ищет слишком широко. Покажем, как ограничить задачу и убрать лишнюю работу.',
     lessonTitle: 'Почему лимиты уходят впустую',
     lessonNumber: 3,
-    href: '/courses/claude-code/lessons/3?source=pain_quiz&utm_source=gelateria&utm_medium=quiz&utm_campaign=free_lesson_match&utm_content=tokens',
+    href: '/courses/claude-code/lessons/3?source=pain_quiz&match=tokens',
   },
   {
     id: 'hallucinations',
@@ -111,7 +111,7 @@ const RESULTS: readonly LessonQuizResult[] = [
       'ИИ не умеет вовремя остановиться. Покажем, как снизить количество выдумок с помощью правил и проверок.',
     lessonTitle: 'Почему ИИ выдумывает ответы',
     lessonNumber: 4,
-    href: '/courses/claude-code/lessons/4?source=pain_quiz&utm_source=gelateria&utm_medium=quiz&utm_campaign=free_lesson_match&utm_content=hallucinations',
+    href: '/courses/claude-code/lessons/4?source=pain_quiz&match=hallucinations',
   },
 ];
 

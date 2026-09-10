@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Clock3, Copy, Send, X } from 'lucide-react';
+import { ChevronUp, Clock3, Copy, Send, X } from 'lucide-react';
 import { Lemon } from '@/components/scene/lemon';
 import {
   getLessonQuizResult,
@@ -13,6 +13,7 @@ import { readStoredLessonQuizResult } from '@/components/lesson-quiz';
 import { track } from '@/lib/analytics/track-client';
 import { EVENTS } from '@/lib/analytics/events';
 import { SITE_URL } from '@/lib/site';
+import { useExperiment } from '@/lib/experiments-client';
 
 function formatRemaining(ms: number): string {
   const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
@@ -25,17 +26,31 @@ function formatRemaining(ms: number): string {
 export function LessonQuizMatchModal({
   lessonNumber,
   source,
-  utmContent,
+  match,
 }: {
   lessonNumber: number;
   source?: string;
-  utmContent?: string;
+  match?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [result, setResult] = useState<LessonQuizResult | null>(null);
   const [expiresAt, setExpiresAt] = useState<number | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const [copied, setCopied] = useState(false);
+  // Свёрнутая полоска — только на телефоне: на десктопе карточка стоит в углу и плеер не закрывает
+  const [isMobile, setIsMobile] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  // A/B: control — карточка сразу, compact — узкая полоска, раскрывается по тапу
+  const variant = useExperiment('lesson_quiz_banner', open && isMobile);
+  const compact = variant === 'compact' && isMobile && !expanded;
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 639px)');
+    const sync = () => setIsMobile(media.matches);
+    sync();
+    media.addEventListener('change', sync);
+    return () => media.removeEventListener('change', sync);
+  }, []);
 
   useEffect(() => {
     const isFromQuiz = source === 'pain_quiz';
@@ -43,8 +58,8 @@ export function LessonQuizMatchModal({
     const isStoredValid = Boolean(stored && stored.expiresAt > Date.now());
 
     let matchedResult: LessonQuizResult | null = null;
-    if (utmContent) {
-      matchedResult = getLessonQuizResult(utmContent);
+    if (match) {
+      matchedResult = getLessonQuizResult(match);
     }
     if (!matchedResult && isStoredValid && stored) {
       const candidate = getLessonQuizResult(stored.id);
@@ -67,7 +82,7 @@ export function LessonQuizMatchModal({
       setExpiresAt(exp);
       setOpen(true);
     }
-  }, [lessonNumber, source, utmContent]);
+  }, [lessonNumber, source, match]);
 
   useEffect(() => {
     if (!open || !expiresAt) return;
@@ -81,7 +96,8 @@ export function LessonQuizMatchModal({
     return `${SITE_URL}${result.href}`;
   }, [result]);
 
-  if (!open || !result || !expiresAt) return null;
+  // Вариант ещё не разыгран — ничего не рисуем, иначе на телефоне мигнёт большая карточка
+  if (!open || !result || !expiresAt || (isMobile && !variant)) return null;
 
   const handleClose = () => {
     sessionStorage.setItem(`gelato:quiz-match-dismissed:${lessonNumber}`, '1');
@@ -107,6 +123,46 @@ export function LessonQuizMatchModal({
 
   const telegramText = `Обязательно посмотреть позже 👇\n${result.lessonTitle}`;
   const telegramHref = `https://t.me/share/url?url=${encodeURIComponent(absoluteLessonUrl || window.location.href)}&text=${encodeURIComponent(telegramText)}`;
+
+  if (compact) {
+    return (
+      <aside
+        aria-label="Подборка урока"
+        className="fixed bottom-3 inset-x-3 z-50 animate-rise"
+      >
+        <div className="flex h-12 items-center gap-2 rounded-full border-2 border-brand-navy/30 bg-brand-cream/95 pl-3 pr-1.5 text-brand-charcoal shadow-[0_10px_30px_rgba(16,38,71,0.22)] backdrop-blur-sm">
+          <Lemon className="size-4.5 -rotate-6 shrink-0" />
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="flex min-w-0 flex-1 items-center gap-1.5 text-left text-[13px] font-bold text-brand-navy"
+            aria-expanded={false}
+          >
+            <span className="truncate">Сохранён на {formatRemaining(expiresAt - now).slice(0, 5)}</span>
+            <ChevronUp className="size-3.5 shrink-0 text-brand-navy/60" aria-hidden />
+          </button>
+          <a
+            href={telegramHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={handleTelegramClick}
+            className="btn-goose inline-flex h-9 items-center justify-center gap-1.5 rounded-full border-2 border-brand-navy px-3 text-xs font-extrabold text-brand-navy shadow-[0_2px_0_0_var(--color-goose-red)]"
+          >
+            <Send className="size-3.5" />
+            В Telegram
+          </a>
+          <button
+            type="button"
+            onClick={handleClose}
+            className="flex size-9 shrink-0 items-center justify-center rounded-full text-brand-navy/60 transition-colors hover:bg-brand-navy/10 hover:text-brand-navy"
+            aria-label="Закрыть уведомление"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+      </aside>
+    );
+  }
 
   return (
     <aside

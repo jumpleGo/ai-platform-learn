@@ -242,7 +242,7 @@ export default async function LessonPage({ params, searchParams }: {
       <LessonQuizMatchModal
         lessonNumber={number}
         source={Array.isArray(query.source) ? query.source[0] : query.source}
-        utmContent={Array.isArray(query.utm_content) ? query.utm_content[0] : query.utm_content}
+        match={Array.isArray(query.match) ? query.match[0] : query.match}
       />
       <div className="animate-rise relative space-y-8">
         {/* метка, заголовок и лид — одна смысловая группа, поэтому стоят вплотную */}

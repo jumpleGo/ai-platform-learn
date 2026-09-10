@@ -3,3 +3,4 @@
 ## Скиллы
 - Для любых задач с анимациями и видео используй скилл `remotion-best-practices` (.claude/skills/remotion)
 - Для UI/UX и визуального дизайна фронтенда используй скилл `ui-ux-pro-max` (.claude/skills/ui-ux-pro-max)
+- Для любых спорных продуктовых решений (как лучше сделать элемент, текст, баннер, CTA) используй скилл `ab-testing` (.claude/skills/ab-testing): не угадывать, а заводить A/B-тест, потом сводка через `node scripts/ab-report.mjs`, решение принимает пользователь
