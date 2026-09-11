@@ -5,7 +5,7 @@ export const EVENTS = {
   lessonCompleted: 'lesson_completed',           // props: courseId, lessonId
   paywallViewed: 'paywall_viewed',               // props: courseId, lessonId
   subscribeClicked: 'subscribe_clicked',         // props: place
-  subscriptionActivated: 'subscription_activated', // props: plan, source
+  subscriptionActivated: 'subscription_activated', // props: plan, amount, tariffId, courseSlug, hasSupport, source
   lessonViewed: 'lesson_view',                 // props: lesson_id, source, campaign, device
   videoStarted: 'video_start',                 // props: lesson_id
   video25: 'video_25',                         // props: lesson_id, progress

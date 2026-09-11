@@ -108,6 +108,20 @@ export async function fulfillPayment(paymentId: string | number): Promise<{ succ
         fulfilledAt: now,
         fulfillmentStartedAt: null,
       });
+      // Аккаунта может ещё не быть — шлём на email как distinct_id, чтобы покупка
+      // тарифа с поддержкой не пропадала из аналитики (uid появится после старта потока)
+      try {
+        await trackServer(email, EVENTS.subscriptionActivated, {
+          plan,
+          amount: record.amount,
+          tariffId: record.tariffId,
+          courseSlug: record.courseSlug ?? null,
+          hasSupport: true,
+          source: 'payment',
+        });
+      } catch (err) {
+        console.error('Failed to track support payment fulfillment:', err);
+      }
 
       try {
         await sendSupportStreamEnrollmentEmail({
@@ -192,6 +206,10 @@ export async function fulfillPayment(paymentId: string | number): Promise<{ succ
       try {
         await trackServer(user.uid, EVENTS.subscriptionActivated, {
           plan,
+          amount: record.amount,
+          tariffId: record.tariffId,
+          courseSlug: record.courseSlug ?? null,
+          hasSupport: false,
           periodDays,
           source: 'payment',
         });

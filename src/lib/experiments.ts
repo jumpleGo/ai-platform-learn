@@ -45,6 +45,20 @@ export const EXPERIMENTS = {
     minExposuresPerVariant: 40,
     status: 'running',
   },
+  vibeLandingFreeCta: {
+    key: 'vibe_landing_free_cta',
+    hypothesis:
+      'Гость на лендинге вибкода видит только «К тарифам» и пейволл: из ~50 дошедших до лендингов ' +
+      'курса урок открывают 7 (14%). Первичная кнопка в бесплатный урок (как на лендинге agents) ' +
+      'подняет долю дошедших до lesson_view.',
+    variants: ['control', 'free_lesson'],
+    startedAt: '2026-09-11',
+    pathPrefix: '/courses',
+    primaryMetric: 'lesson_view',
+    secondaryMetrics: ['video_start', 'quiz_started', 'pricing_viewed', 'tariff_selected'],
+    minExposuresPerVariant: 40,
+    status: 'running',
+  },
 } as const satisfies Record<string, Experiment>;
 
 export type ExperimentKey = (typeof EXPERIMENTS)[keyof typeof EXPERIMENTS]['key'];

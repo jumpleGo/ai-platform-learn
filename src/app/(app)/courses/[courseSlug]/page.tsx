@@ -19,6 +19,7 @@ import { RichText } from '@/components/markdown';
 import { Lemon } from '@/components/scene/lemon';
 import { CaseCycle } from '@/components/case-cycle';
 import { BrandLogoRow, LogoStack, BrandLogo } from '@/components/brand-logos';
+import { VibeGuestCta } from '@/components/vibe-guest-cta';
 
 // Курс ищем по slug, но принимаем и id документа — со старых ссылок делаем редирект
 async function findCourse(key: string): Promise<CourseWithLessons | null> {
@@ -275,8 +276,8 @@ export default async function CourseLandingPage({ params }: {
 
             <div className="mt-9 flex flex-wrap items-center gap-3 sm:mt-10">
               {(isVibe || isAgents) && !cont ? (
-                <>
-                  {isAgents && (
+                isAgents ? (
+                  <>
                     <Link
                       href="/courses/claude-code-agents/lessons/1?from=course_landing"
                       className="btn-goose inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy px-6 text-base font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-goose-red)] motion-reduce:hover:translate-y-0"
@@ -284,26 +285,17 @@ export default async function CourseLandingPage({ params }: {
                       Бесплатное введение (2 минуты)
                       <ArrowRight className="size-4" aria-hidden />
                     </Link>
-                  )}
-                  <a
-                    href="#pricing"
-                    className="inline-flex h-12 items-center gap-1.5 rounded-xl border-2 border-brand-navy/25 bg-brand-cream/80 px-5 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
-                  >
-                    К тарифам
-                    <ArrowDown className="size-4" aria-hidden />
-                  </a>
-                  {!isAgents && (
                     <a
-                      href={TELEGRAM_DM}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy/20 bg-card/60 px-5 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
+                      href="#pricing"
+                      className="inline-flex h-12 items-center gap-1.5 rounded-xl border-2 border-brand-navy/25 bg-brand-cream/80 px-5 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
                     >
-                      <Send className="size-4" aria-hidden />
-                      Личка
+                      К тарифам
+                      <ArrowDown className="size-4" aria-hidden />
                     </a>
-                  )}
-                </>
+                  </>
+                ) : (
+                  <VibeGuestCta />
+                )
               ) : (
                 <>
                   <PrimaryCta
