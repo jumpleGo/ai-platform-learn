@@ -101,6 +101,29 @@ async function report(key, exp) {
      group by variant order by variant`,
   );
   const byVariant = Object.fromEntries(rows.map(([v, exposed, ...cs]) => [v, { exposed, counts: cs }]));
+  // Тесты про длину страницы: событий мало, а глубина скролла есть в каждом $pageleave
+  const depth = {};
+  if (exp.reportScrollDepth) {
+    const depthRows = await hogql(
+      key,
+      `select x.variant, round(median(l.depth) * 100, 1) as median_depth, count() as leaves
+       from (
+         select distinct_id, argMin(properties.variant, timestamp) as variant, min(timestamp) as first_seen
+         from events
+         where event = 'experiment_exposed' and properties.experiment = '${exp.key}' and timestamp >= ${since}
+         group by distinct_id
+       ) x
+       inner join (
+         select distinct_id, timestamp, toFloat(properties.$prev_pageview_max_scroll_percentage) as depth
+         from events
+         where event = '$pageleave' and timestamp >= ${since}
+           and properties.$prev_pageview_pathname like '${exp.pathPrefix}%'
+       ) l on l.distinct_id = x.distinct_id
+       where l.timestamp >= x.first_seen
+       group by x.variant`,
+    );
+    for (const [v, median, leaves] of depthRows) depth[v] = { median, leaves };
+  }
   const control = exp.variants[0];
   const c = byVariant[control] ?? { exposed: 0, counts: metrics.map(() => 0) };
   const out = { key: exp.key, status: exp.status, hypothesis: exp.hypothesis, startedAt: exp.startedAt, variants: [] };
@@ -113,6 +136,7 @@ async function report(key, exp) {
     if (v !== control && d.exposed && c.exposed) {
       entry.probBeatsControl = probBeatsControl(c.counts[0], c.exposed, d.counts[0], d.exposed);
     }
+    if (exp.reportScrollDepth) entry.scrollDepth = depth[v] ?? { median: null, leaves: 0 };
     entry.enoughData = d.exposed >= exp.minExposuresPerVariant;
     out.variants.push(entry);
   }
@@ -127,12 +151,16 @@ function printMarkdown(r) {
   console.log(`\n## ${r.key} (${r.status}, с ${r.startedAt})`);
   console.log(`_${r.hypothesis}_\n`);
   const metrics = Object.keys(r.variants[0].metrics);
-  console.log(`| Вариант | Экспозиций | ${metrics.join(' | ')} | P(лучше контроля) |`);
-  console.log(`|---|---|${metrics.map(() => '---').join('|')}|---|`);
+  const withDepth = r.variants.some((v) => v.scrollDepth);
+  const depthHead = withDepth ? ' Долистывание (медиана) |' : '';
+  console.log(`| Вариант | Экспозиций |${depthHead} ${metrics.join(' | ')} | P(лучше контроля) |`);
+  console.log(`|---|---|${withDepth ? '---|' : ''}${metrics.map(() => '---').join('|')}|---|`);
   for (const v of r.variants) {
     const cells = metrics.map((m) => `${v.metrics[m].conversions} (${pct(v.metrics[m].rate)})`);
+    const d = v.scrollDepth;
+    const depthCell = withDepth ? ` ${d && d.median != null ? `${d.median}% (${d.leaves})` : '—'} |` : '';
     const p = v.probBeatsControl == null ? '—' : pct(v.probBeatsControl);
-    console.log(`| ${v.variant}${v.enoughData ? '' : ' ⚠︎ мало данных'} | ${v.exposed} | ${cells.join(' | ')} | ${p} |`);
+    console.log(`| ${v.variant}${v.enoughData ? '' : ' ⚠︎ мало данных'} | ${v.exposed} |${depthCell} ${cells.join(' | ')} | ${p} |`);
   }
   const weak = r.variants.filter((v) => !v.enoughData);
   if (weak.length) console.log('\nДанных пока мало: выводы преждевременны, ждём minExposuresPerVariant экспозиций на вариант.');

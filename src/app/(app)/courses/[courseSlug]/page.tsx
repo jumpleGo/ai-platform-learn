@@ -2,6 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { cookies } from 'next/headers';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { ArrowDown, ArrowRight, ArrowUpRight, ChevronDown, Send } from 'lucide-react';
 import { getPublishedCoursesWithLessons, type CourseWithLessons } from '@/lib/db/courses';
@@ -20,6 +21,8 @@ import { Lemon } from '@/components/scene/lemon';
 import { CaseCycle } from '@/components/case-cycle';
 import { BrandLogoRow, LogoStack, BrandLogo } from '@/components/brand-logos';
 import { VibeGuestCta } from '@/components/vibe-guest-cta';
+import { ExperimentExposure } from '@/components/experiment-exposure';
+import { pickLandingBlocks, type LandingBlock } from '@/lib/landing-blocks';
 
 // Курс ищем по slug, но принимаем и id документа — со старых ссылок делаем редирект
 async function findCourse(key: string): Promise<CourseWithLessons | null> {
@@ -102,10 +105,12 @@ export async function generateMetadata({ params }: {
   };
 }
 
-export default async function CourseLandingPage({ params }: {
+export default async function CourseLandingPage({ params, searchParams }: {
   params: Promise<{ courseSlug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { courseSlug } = await params;
+  const query = await searchParams;
   const course = await findCourse(courseSlug);
   if (!course) notFound();
   const key = courseKey(course);
@@ -133,6 +138,19 @@ export default async function CourseLandingPage({ params }: {
         hint: `Урок ${nextIndex + 1} из ${course.lessons.length}${doneCount ? ` · пройдено ${doneCount}` : ''}`,
       }
     : null;
+  // Тест длины лендинга вайбкода: набор блоков выбираем на сервере по cookie vid,
+  // чтобы страница не моргала полной версией и высота была честной с первого кадра.
+  // Оплатившему (cont) режем нечего — он пришёл за входом в уроки.
+  const forcedBlocks = query.exp_vibe_landing_blocks;
+  const blockTest =
+    key === 'vibecoding' && !cont
+      ? pickLandingBlocks(
+          (await cookies()).get('vid')?.value ?? null,
+          typeof forcedBlocks === 'string' ? forcedBlocks : null,
+        )
+      : null;
+  const shows = (block: LandingBlock) => !blockTest || blockTest.blocks.includes(block);
+
   // Для продаваемых флагманских программ цена и состав должны быть видны до модалки.
   const showTariffs = (isVibe || isAgents) && !cont;
   // Все «Выбрать тариф» ведут к карточкам на странице, модалка остаётся для оплаты
@@ -193,6 +211,7 @@ export default async function CourseLandingPage({ params }: {
 
   return (
     <div className="space-y-24 sm:space-y-32">
+      {blockTest && <ExperimentExposure experimentKey="vibe_landing_blocks" variant={blockTest.variant} />}
       {/* Хиро: оффер, факты и обе кнопки — оплатить или написать лично */}
       <section className="animate-rise relative pt-6 sm:pt-10">
         {/* Обложка обучения стоит справа от текста: без неё правая половина
@@ -354,8 +373,8 @@ export default async function CourseLandingPage({ params }: {
       {/* Для вайбкодинга: техническое доказательство и сравнение хаос/система сразу после хиро */}
       {isVibe && (
         <>
-          <VibeComparisonSection />
-          {landing.caseStudy && (
+          {shows('comparison') && <VibeComparisonSection />}
+          {landing.caseStudy && shows('cycle') && (
             <section className="animate-rise">
               <CaseCycle data={landing.caseStudy} />
             </section>
@@ -364,6 +383,7 @@ export default async function CourseLandingPage({ params }: {
       )}
 
       {/* Блок об авторе */}
+      {shows('author') && (
       <section className="animate-rise relative" id="about">
         <DoodleWord
           text="кто я"
@@ -490,6 +510,7 @@ export default async function CourseLandingPage({ params }: {
           </div>
         </div>
       </section>
+      )}
 
       {/* Для других курсов с caseStudy (если есть) */}
       {!isVibe && landing.caseStudy && (
@@ -684,7 +705,7 @@ export default async function CourseLandingPage({ params }: {
       )}
 
       {/* Кому подойдёт (после результатов) */}
-      {landing.audience.length > 0 && (
+      {landing.audience.length > 0 && shows('audience') && (
         <section className="animate-rise space-y-8">
           <SectionHead
             size="lg"
@@ -795,7 +816,7 @@ export default async function CourseLandingPage({ params }: {
       )}
 
       {/* Программа */}
-      {landing.program.length > 0 && (
+      {landing.program.length > 0 && shows('program') && (
         <section className="animate-rise space-y-8">
           <SectionHead size="lg" title="Программа обучения" />
 
@@ -990,7 +1011,7 @@ export default async function CourseLandingPage({ params }: {
       </section>
 
       {/* Почему мы */}
-      {landing.why.length > 0 && (
+      {landing.why.length > 0 && shows('why') && (
         <section className="animate-rise relative space-y-8">
           <DoodleWord
             text="почему именно мы"
@@ -1069,7 +1090,7 @@ export default async function CourseLandingPage({ params }: {
       )}
 
       {/* Блок «Как проходит обучение» в стиле Вопрос-Ответ (6 пунктов с сомнениями) */}
-      {landing.format.length > 0 && (
+      {landing.format.length > 0 && shows('faq') && (
         <section className="animate-rise space-y-6 pt-4">
           <SectionHead
             size="lg"
