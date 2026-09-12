@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import { Play } from 'lucide-react';
 import { youtubeThumb } from '@/lib/video-url';
 
@@ -12,8 +15,13 @@ export function LessonPreview({
   num: string;
   previewUrl?: string | null;
 }) {
-  const thumb = previewUrl || (id ? youtubeThumb(id) : null);
-  const isYtThumb = !previewUrl && !!id; // кадр YouTube 4:3 — подрезаем масштабом
+  // Своя обложка может отвалиться (сейчас превью лежат в Firebase Storage, и при
+  // выключенном биллинге он отдаёт ошибку вместо картинки). Тогда откатываемся
+  // на кадр из ролика, а если и его нет — на «терминальный» вид.
+  const [ownFailed, setOwnFailed] = useState(false);
+  const own = ownFailed ? null : previewUrl;
+  const thumb = own || (id ? youtubeThumb(id) : null);
+  const isYtThumb = !own && !!id; // кадр YouTube 4:3 — подрезаем масштабом
 
   if (!thumb) {
     // Запасной вид — окно терминала (тематика Claude Code)
@@ -48,6 +56,7 @@ export function LessonPreview({
         src={thumb}
         alt=""
         loading="lazy"
+        onError={() => setOwnFailed(true)}
         className={`size-full object-cover transition-transform duration-300 ${
           isYtThumb ? 'scale-[1.35] group-hover:scale-[1.4]' : 'group-hover:scale-105'
         }`}
