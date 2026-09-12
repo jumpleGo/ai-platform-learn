@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowRight, Send, Sparkles } from 'lucide-react';
 import { getPublishedCoursesWithLessons } from '@/lib/db/courses';
 import { freeLessonCards } from '@/lib/catalog';
+import { localLessonPreview } from '@/lib/free-lessons';
 import { lessonPath } from '@/lib/slug';
 import { TELEGRAM_DM } from '@/lib/site';
 import { Accent, StickerTag, TitleAccent } from '@/components/accent';
@@ -85,7 +86,7 @@ export default async function FreePage({
                   href={lessonPath(lesson.courseKey, lesson.number)}
                   title={lesson.title}
                   note={lesson.description}
-                  imageUrl={lesson.previewImageUrl}
+                  imageUrl={localLessonPreview(lesson.courseKey, lesson.number) ?? lesson.previewImageUrl}
                   ratio="video"
                   bareCover
                   coverCaption={lesson.coverCaption}

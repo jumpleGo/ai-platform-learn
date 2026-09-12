@@ -20,6 +20,21 @@ export type FreeLessonContent = {
   faq: readonly FreeLessonFaq[];
 };
 
+
+// Временные локальные обложки бесплатных уроков. Загруженные через админку превью
+// лежат в Firebase Storage, у которого сейчас отключён биллинг и вместо картинок
+// приходит ошибка. Эти файлы едут вместе с деплоем и ни от чего не зависят;
+// когда бакет оживёт — карту можно снести, ссылки из базы подхватятся сами.
+export const LOCAL_LESSON_PREVIEWS: Record<string, string> = {
+  'claude-code:2': '/previews/claude-code-02.webp', // Общение с ИИ
+  'claude-code:3': '/previews/claude-code-03.webp', // Экономия лимитов
+  'claude-code:4': '/previews/claude-code-04.webp', // Откуда галлюцинации
+};
+
+export function localLessonPreview(courseKey: string, number: number): string | null {
+  return LOCAL_LESSON_PREVIEWS[`${courseKey}:${number}`] ?? null;
+}
+
 const COURSE_SLUG = 'claude-code';
 
 const LESSONS: Record<number, FreeLessonContent> = {

@@ -8,6 +8,7 @@ import { youtubeId } from '@/lib/video-url';
 import { courseKey, lessonPath } from '@/lib/slug';
 import { courseMeta, freeLessonCards, trainingCourses } from '@/lib/catalog';
 import { getCourseLanding } from '@/lib/course-landings';
+import { localLessonPreview } from '@/lib/free-lessons';
 import { TitleAccent } from '@/components/accent';
 import { CourseCarousel } from '@/components/course-carousel';
 import { CoverCard } from '@/components/cover-card';
@@ -333,7 +334,7 @@ export default async function HomePage() {
                   href={lessonPath(lesson.courseKey, lesson.number)}
                   title={lesson.title}
                   note={lesson.description}
-                  imageUrl={lesson.previewImageUrl}
+                  imageUrl={localLessonPreview(lesson.courseKey, lesson.number) ?? lesson.previewImageUrl}
                   badge="Бесплатно"
                   ratio="video"
                   bareCover
