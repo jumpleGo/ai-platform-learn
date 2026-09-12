@@ -50,7 +50,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-10 sm:px-6">{children}</main>
+      <main className="mx-auto min-h-[70svh] w-full max-w-7xl flex-1 px-4 py-10 sm:px-6">{children}</main>
       <SiteFooter />
     </div>
   );

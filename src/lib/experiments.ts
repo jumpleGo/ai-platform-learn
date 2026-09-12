@@ -55,9 +55,11 @@ export const EXPERIMENTS = {
     hypothesis:
       'Гость на лендинге вибкода видит только «К тарифам» и пейволл: из ~50 дошедших до лендингов ' +
       'курса урок открывают 7 (14%). Первичная кнопка в бесплатный урок (как на лендинге agents) ' +
-      'подняет долю дошедших до lesson_view.',
+      'подняет долю дошедших до lesson_view. Перезапущен 13 сентября: до этого кнопка вела ' +
+      'в первый урок другого курса и жребий считался на клиенте, из-за чего кнопок не было ' +
+      'до гидратации — старые данные непригодны.',
     variants: ['control', 'free_lesson'],
-    startedAt: '2026-09-11',
+    startedAt: '2026-09-13',
     pathPrefix: '/courses',
     primaryMetric: 'lesson_view',
     secondaryMetrics: ['video_start', 'quiz_started', 'pricing_viewed', 'tariff_selected'],
@@ -69,13 +71,31 @@ export const EXPERIMENTS = {
     hypothesis:
       'Лендинг вайбкода — 16 949 px (~22 экрана): медиана долистывания 42%, до блока тарифов ' +
       '12 сентября не дошёл никто из семи, при этом читают внимательно (медиана 110 с). ' +
-      'Дело не в содержании, а в длине. Ядро (оффер + результат + тарифы) плюс один опциональный ' +
-      'блок — это 46-51% высоты контроля, и такая страница поднимет долю дошедших до pricing_viewed. ' +
-      'Ступень 1 отвечает и на второй вопрос: какой из семи опциональных блоков стоит своего экрана.',
-    // Контроль — полная страница. Остальные наборы описаны в src/lib/landing-blocks.ts:
-    // ядро плюс один названный вариантом опциональный блок.
-    variants: ['full', 'proof', 'cycle', 'author', 'audience', 'program', 'why', 'faq'],
+      'Дело не в содержании, а в длине. Полную страницу сняли с показа совсем; контроль — голое ядро ' +
+      '(оффер, результат, тарифы, вопросы-ответы), остальные варианты добавляют к нему по одному ' +
+      'опциональному блоку. Вопрос ступени 1: какой блок окупает свой экран ростом pricing_viewed, ' +
+      'а какой только отодвигает тарифы.',
+    // Контроль — `base`, голое ядро. Наборы описаны в src/lib/landing-blocks.ts:
+    // каждый вариант назван по опциональному блоку, который к ядру добавляет.
+    variants: ['base', 'proof', 'cycle', 'author', 'audience', 'program', 'why'],
     startedAt: '2026-09-12',
+    pathPrefix: '/courses/vibecoding',
+    primaryMetric: 'pricing_viewed',
+    secondaryMetrics: ['tariff_selected', 'payment_started', 'lesson_view', 'telegram_click'],
+    minExposuresPerVariant: 60,
+    reportScrollDepth: true,
+    status: 'running',
+  },
+  vibeHeroCopy: {
+    key: 'vibe_hero_copy',
+    hypothesis:
+      'Первый экран лендинга вайбкода говорит метафорой («из няньки в тимлида») и ничего не обещает ' +
+      'по деньгам. Гипотеза: заголовок с конкретными инструментами (skills, линтеры, типы, автотесты) ' +
+      'быстрее объясняет холодному человеку из Threads, о чём курс, а подзаголовок про найм и вилку ' +
+      'от 150 000 ₽ даёт причину читать дальше. Разложено на 2×2, чтобы видеть вклад заголовка ' +
+      'и подзаголовка по отдельности.',
+    variants: ['control', 'keywords', 'salary', 'both'],
+    startedAt: '2026-09-13',
     pathPrefix: '/courses/vibecoding',
     primaryMetric: 'pricing_viewed',
     secondaryMetrics: ['tariff_selected', 'payment_started', 'lesson_view', 'telegram_click'],

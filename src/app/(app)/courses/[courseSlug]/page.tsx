@@ -22,7 +22,14 @@ import { CaseCycle } from '@/components/case-cycle';
 import { BrandLogoRow, LogoStack, BrandLogo } from '@/components/brand-logos';
 import { VibeGuestCta } from '@/components/vibe-guest-cta';
 import { ExperimentExposure } from '@/components/experiment-exposure';
-import { pickLandingBlocks, type LandingBlock } from '@/lib/landing-blocks';
+import { getExperiment, pickVariant } from '@/lib/experiments';
+import {
+  HERO_COPY_COOKIE,
+  LANDING_BLOCKS_COOKIE,
+  pickHeroCopy,
+  pickLandingBlocks,
+  type LandingBlock,
+} from '@/lib/landing-blocks';
 
 // Курс ищем по slug, но принимаем и id документа — со старых ссылок делаем редирект
 async function findCourse(key: string): Promise<CourseWithLessons | null> {
@@ -142,14 +149,36 @@ export default async function CourseLandingPage({ params, searchParams }: {
   // чтобы страница не моргала полной версией и высота была честной с первого кадра.
   // Оплатившему (cont) режем нечего — он пришёл за входом в уроки.
   const forcedBlocks = query.exp_vibe_landing_blocks;
+  const jar = key === 'vibecoding' ? await cookies() : null;
   const blockTest =
-    key === 'vibecoding' && !cont
-      ? pickLandingBlocks(
-          (await cookies()).get('vid')?.value ?? null,
-          typeof forcedBlocks === 'string' ? forcedBlocks : null,
-        )
+    jar && !cont
+      ? pickLandingBlocks({
+          visitorId: jar.get('vid')?.value ?? null,
+          remembered: jar.get(LANDING_BLOCKS_COOKIE)?.value ?? null,
+          forced: typeof forcedBlocks === 'string' ? forcedBlocks : null,
+        })
       : null;
   const shows = (block: LandingBlock) => !blockTest || blockTest.blocks.includes(block);
+  // Тест копии хиро — отдельный жребий, тоже на сутки
+  const forcedHero = query.exp_vibe_hero_copy;
+  const heroTest =
+    jar && !cont
+      ? pickHeroCopy({
+          visitorId: jar.get('vid')?.value ?? null,
+          remembered: jar.get(HERO_COPY_COOKIE)?.value ?? null,
+          forced: typeof forcedHero === 'string' ? forcedHero : null,
+        })
+      : null;
+  const heroCopy = heroTest?.copy ?? null;
+  // Тест кнопки в бесплатный урок: жребий по vid, как и раньше, но считается на сервере
+  const forcedFreeCta = query.exp_vibe_landing_free_cta;
+  const freeCtaExperiment = getExperiment('vibe_landing_free_cta');
+  const freeCtaVariant =
+    jar && !cont
+      ? typeof forcedFreeCta === 'string' && freeCtaExperiment.variants.includes(forcedFreeCta)
+        ? forcedFreeCta
+        : pickVariant(freeCtaExperiment, jar.get('vid')?.value ?? 'anonymous')
+      : null;
 
   // Для продаваемых флагманских программ цена и состав должны быть видны до модалки.
   const showTariffs = (isVibe || isAgents) && !cont;
@@ -212,6 +241,10 @@ export default async function CourseLandingPage({ params, searchParams }: {
   return (
     <div className="space-y-24 sm:space-y-32">
       {blockTest && <ExperimentExposure experimentKey="vibe_landing_blocks" variant={blockTest.variant} />}
+      {heroTest && <ExperimentExposure experimentKey="vibe_hero_copy" variant={heroTest.variant} />}
+      {freeCtaVariant && (
+        <ExperimentExposure experimentKey="vibe_landing_free_cta" variant={freeCtaVariant} />
+      )}
       {/* Хиро: оффер, факты и обе кнопки — оплатить или написать лично */}
       <section className="animate-rise relative pt-6 sm:pt-10">
         {/* Обложка обучения стоит справа от текста: без неё правая половина
@@ -220,7 +253,9 @@ export default async function CourseLandingPage({ params, searchParams }: {
           <div>
             <h1 className="font-heading text-[2.6rem]/[1.04] font-bold tracking-[-0.03em] text-balance text-brand-navy sm:text-[3.4rem]/[1.02]">
               {/* Слово «тимлида» подчёркиваем маркерной линией — как «пользуюсь сам» в блоке автора */}
-              {isAgents ? (
+              {heroCopy ? (
+                nbsp(heroCopy.h1)
+              ) : isAgents ? (
                 <>
                   Создайте своих{' '}
                   <span className="relative inline-block whitespace-nowrap">
@@ -247,7 +282,9 @@ export default async function CourseLandingPage({ params, searchParams }: {
                 : landing.h1}
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-[1.45] text-muted-foreground text-pretty whitespace-pre-line sm:mt-6 sm:text-xl">
-              {isAgents ? (
+              {heroCopy ? (
+                nbsp(heroCopy.lead)
+              ) : isAgents ? (
                 <>
                   Установите Claude Code, научите его понимать{' '}
                   <span className="relative inline-block whitespace-nowrap text-brand-navy">
@@ -313,7 +350,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
                     </a>
                   </>
                 ) : (
-                  <VibeGuestCta />
+                  <VibeGuestCta variant={freeCtaVariant ?? 'control'} />
                 )
               ) : (
                 <>

@@ -6,6 +6,15 @@ import {
   pickHomeVariant,
 } from '@/lib/home-experiment';
 import { parseTestRub } from '@/lib/payments/tariffs';
+import {
+  HERO_COPY_COOKIE,
+  LANDING_BLOCKS_COOKIE,
+  LANDING_BLOCKS_TTL,
+  isHeroVariant,
+  isLandingVariant,
+  rollHeroVariant,
+  rollLandingVariant,
+} from '@/lib/landing-blocks';
 
 // Публичный сайт целиком открыт гостям: витрины, лендинги, бесплатные уроки и юр. документы
 const PUBLIC = [
@@ -35,6 +44,26 @@ export function proxy(req: NextRequest) {
   const remembered = req.cookies.get(HOME_VARIANT_PARAM)?.value;
   const variant = forced ?? (isHomeVariant(remembered) ? remembered : pickHomeVariant(valid ?? vid!));
 
+  // Вариант лендинга вайбкода: жребий бросаем здесь, чтобы запомнить его на сутки
+  // в cookie. Свежий вариант, как и vid, прокидываем в заголовок — иначе первый
+  // рендер его не увидит и человек получил бы один набор блоков, а cookie — другой.
+  const wantsLanding = pathname.startsWith('/courses/vibecoding');
+  const rememberedBlocks = req.cookies.get(LANDING_BLOCKS_COOKIE)?.value;
+  const landingVariant =
+    wantsLanding && !isLandingVariant(rememberedBlocks)
+      ? rollLandingVariant(valid ?? vid!)
+      : null;
+  const rememberedHero = req.cookies.get(HERO_COPY_COOKIE)?.value;
+  const heroVariant =
+    wantsLanding && !isHeroVariant(rememberedHero) ? rollHeroVariant(valid ?? vid!) : null;
+  const extraCookies = [
+    landingVariant && `${LANDING_BLOCKS_COOKIE}=${landingVariant}`,
+    heroVariant && `${HERO_COPY_COOKIE}=${heroVariant}`,
+  ].filter(Boolean);
+  if (extraCookies.length) {
+    headers.set('cookie', [headers.get('cookie'), ...extraCookies].filter(Boolean).join('; '));
+  }
+
   const request = { headers };
   // Сцена — витрина для гостя. Вошедшему главная нужна учебная: на ней его уроки
   // и цель пункта шапки «Моё обучение», а на сцене нет ни того, ни другого.
@@ -48,6 +77,9 @@ export function proxy(req: NextRequest) {
         ? NextResponse.rewrite(new URL(SCENE_PATH, req.url), { request })
         : NextResponse.next({ request });
   if (vid) res.cookies.set('vid', vid, { maxAge: 60 * 60 * 24 * 365, path: '/', sameSite: 'lax' });
+  const stickyCookie = { maxAge: LANDING_BLOCKS_TTL, path: '/', sameSite: 'lax' } as const;
+  if (landingVariant) res.cookies.set(LANDING_BLOCKS_COOKIE, landingVariant, stickyCookie);
+  if (heroVariant) res.cookies.set(HERO_COPY_COOKIE, heroVariant, stickyCookie);
   if (forced) res.cookies.set(HOME_VARIANT_PARAM, forced, { maxAge: 60 * 60 * 24 * 30, path: '/', sameSite: 'lax' });
 
   // сохраняем utm-метки с любого лендинга до момента регистрации
