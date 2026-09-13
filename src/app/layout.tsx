@@ -35,6 +35,8 @@ export const metadata: Metadata = {
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
   alternates: { canonical: "/" },
+  // подтверждение прав в Яндекс.Вебмастере — дублирует файл public/yandex_*.html
+  verification: { yandex: "4e021a1aa1e2c117" },
   openGraph: {
     type: "website",
     siteName: "GELATO",

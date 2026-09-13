@@ -22,6 +22,8 @@ const PUBLIC = [
   '/courses', '/waitlist', '/free', '/faq', '/legal', '/payment',
   // карта сайта, robots и llms.txt должны отдаваться роботам без сессии
   '/sitemap.xml', '/robots.txt', '/llms.txt',
+  // файл подтверждения прав в Яндекс.Вебмастере: лежит в public/, робот ходит без сессии
+  '/yandex_',
 ];
 
 export function proxy(req: NextRequest) {
