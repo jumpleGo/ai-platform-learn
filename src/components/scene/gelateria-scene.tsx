@@ -470,8 +470,12 @@ export function GelateriaScene() {
 
           {/* ── текст на фасаде ── */}
           <div className="scene-copy scene-hero" data-reveal style={{ '--l': X(756), '--r': X(180), '--t': Y(624) } as React.CSSProperties}>
+            {/* Заголовок страницы: в сцене его роль играет вывеска на картинке,
+                текста в разметке не было — для поиска и скринридеров держим его
+                скрытым, иначе у главной просто нет h1. */}
+            <h1 className="sr-only">{COPY.hero.seoTitle}</h1>
             <p className="scene-eyebrow whitespace-pre-line">{COPY.hero.eyebrow}</p>
-            <h1 className="scene-title whitespace-pre-line"><RichText text={COPY.hero.title} /></h1>
+            <p className="scene-title whitespace-pre-line"><RichText text={COPY.hero.title} /></p>
             <div className="scene-note scene-hero-story"><RichText text={COPY.hero.story} /></div>
             <div className="scene-note scene-hero-brand"><RichText text={COPY.hero.brand} /></div>
             <p className="scene-hero-cta">{COPY.hero.cta}</p>

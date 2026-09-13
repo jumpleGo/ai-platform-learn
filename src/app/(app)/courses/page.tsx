@@ -9,9 +9,9 @@ import { CourseQuizBanner } from '@/components/course-quiz';
 import { SectionHead } from '@/components/section-head';
 
 export const metadata: Metadata = {
-  title: 'Наши обучения — программы школы GELATO',
+  title: 'Курсы по работе с ИИ — обучения школы GELATO',
   description:
-    'Обучения GELATO: Claude Code и свои агенты, вайбкодинг с инженерским подходом, ИИ-мультфильмы. Пройдите тест и узнайте, какая программа подойдёт именно вам.',
+    'Программы GELATO под разный уровень: Claude Code с нуля для новичков без опыта, инженерный вайбкодинг для разработчиков и ИИ-мультфильмы. Пройдите тест — подберём подходящую.',
   alternates: { canonical: '/courses' },
 };
 

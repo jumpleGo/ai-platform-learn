@@ -217,12 +217,12 @@ export default async function CourseLandingPage({ params, searchParams }: {
           answer: 'Все 17 уроков курса **открываются целиком со старта потока 14 сентября**. Вы двигаетесь в комфортном для себя темпе. **Доступ к курсу сохраняется на 2 месяца**.',
         },
         {
-          question: 'Подойдёт ли курс, если у меня другой стек или закрытый код?',
-          answer: '**Стек не имеет значения.** Правила репозитория, `CLAUDE.md` и изоляция изменений работают с разными языками. Закрытый рабочий код показывать не нужно: задания можно проходить на отдельном репозитории или пет-проекте.',
+          question: 'Курс привязан к Claude Code?',
+          answer: '**Нет.** Автор показывает процесс на примере Claude Code, но вы можете использовать Codex, Kimi или другой кодовый агент и настраивать свой проект под себя.',
         },
         {
           question: 'Как устроена обратная связь и помощь автора?',
-          answer: 'В тарифе с поддержкой вы получаете **3 недели закрытого чата с личным разбором от Эмиля**. Присылаете код, дифф или скриншот — получаете решение текстом или голосовым.',
+          answer: 'В тарифе с поддержкой у вас есть **3 недели личного чата с Эмилем**. Можно задавать любые вопросы по ходу обучения: если что-то не получается, не работает или вы хотите понять, правильно ли всё сделали.',
         },
         {
           question: 'Не сожгу ли я все лимиты и токены?',
@@ -1162,17 +1162,26 @@ export default async function CourseLandingPage({ params, searchParams }: {
 
             <details className="group rounded-3xl border-2 border-brand-navy/15 bg-card p-5 sm:p-6 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy open:shadow-[0_6px_0_0_rgba(16,38,71,0.1)]">
               <summary className="flex cursor-pointer items-center justify-between gap-4 font-heading text-lg sm:text-xl font-black text-brand-navy list-none select-none">
-                <span>Подойдёт ли курс, если у меня другой стек или закрытый код?</span>
+                <span>Сколько времени занимает обучение?</span>
                 <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-brand-navy/5 border border-brand-navy/10 text-brand-navy transition-transform duration-200 group-open:rotate-180">
                   <ChevronDown className="size-4" />
                 </span>
               </summary>
-              <div className="mt-3.5 border-t border-dashed border-brand-navy/10 pt-3.5 text-[17px] font-medium leading-relaxed sm:text-lg text-brand-charcoal/90 space-y-2">
+              <div className="mt-3.5 border-t border-dashed border-brand-navy/10 pt-3.5 text-[17px] font-medium leading-relaxed sm:text-lg text-brand-charcoal/90">
+                <RichText text="Один урок вместе с практикой занимает примерно **20–40 минут**. Чтобы не торопясь смотреть уроки и сразу повторять всё на своём проекте, заложите **от 6 часов в неделю**." />
+              </div>
+            </details>
+
+            <details className="group rounded-3xl border-2 border-brand-navy/15 bg-card p-5 sm:p-6 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:border-brand-navy open:shadow-[0_6px_0_0_rgba(16,38,71,0.1)]">
+              <summary className="flex cursor-pointer items-center justify-between gap-4 font-heading text-lg sm:text-xl font-black text-brand-navy list-none select-none">
+                <span>Курс привязан к Claude Code?</span>
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-brand-navy/5 border border-brand-navy/10 text-brand-navy transition-transform duration-200 group-open:rotate-180">
+                  <ChevronDown className="size-4" />
+                </span>
+              </summary>
+              <div className="mt-3.5 border-t border-dashed border-brand-navy/10 pt-3.5 text-[17px] font-medium leading-relaxed sm:text-lg text-brand-charcoal/90">
                 <p>
-                  <RichText text="**Стек не имеет значения.** Метод показывает настройку архитектуры ИИ. Вместо TypeScript и Vitest на Python настраиваются `ruff` и `pytest`, на PHP — `PHPStan` и `Pest`, на Go — `golangci-lint` и `go test`. Правила репозитория, `CLAUDE.md` и формат изоляции диффов одинаковы для любого языка." />
-                </p>
-                <p>
-                  <RichText text="**Закрытый рабочий код показывать не нужно.** Вы можете проходить все задания на отдельном учебном репозитории или пет-проекте без риска раскрытия коммерческой тайны. Автор видит только те фрагменты, которые вы сами отправляете в чат разбора." />
+                  <RichText text="**Нет.** Автор показывает процесс на примере Claude Code, но принципы курса не привязаны к конкретной модели или агенту. Вы можете использовать Codex, Kimi или другой инструмент и настраивать свой проект под себя." />
                 </p>
               </div>
             </details>
@@ -1185,7 +1194,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
                 </span>
               </summary>
               <div className="mt-3.5 border-t border-dashed border-brand-navy/10 pt-3.5 text-[17px] font-medium leading-relaxed sm:text-lg text-brand-charcoal/90">
-                <RichText text="В тарифе с поддержкой вы получаете **3 недели закрытого чата с личным разбором от Эмиля**. Застряли на ошибке — присылаете код, получаете решение текстом или голосовым. **Автор видит только то, что вы сами прислали в чат**: фрагменты кода, диффы, скриншоты. Доступ к вашему репозиторию не нужен." />
+                <RichText text="В тарифе с поддержкой у вас есть **3 недели личного чата с Эмилем**. Можно задавать любые вопросы, которые возникают по ходу обучения. Если что-то не получается, непонятно, как поступить, не работает настройка или вы хотите понять, правильно ли всё сделали, — пишете в чат." />
               </div>
             </details>
 
