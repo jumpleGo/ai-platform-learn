@@ -11,6 +11,8 @@ export const TELEGRAM_DM = 'https://t.me/gelato_ai';
 export const TELEGRAM_CHANNEL = 'https://t.me/gelato_ai';
 // Внутренний лендинг курса вайбкодинга
 export const PROGRAM_URL = '/courses/vibecoding';
+// Лендинг курса для новичков: Claude Code с нуля, без опыта в коде
+export const BEGINNER_URL = '/courses/claude-code-agents';
 
 // Курс-хаб бесплатных материалов: его уроки не продаются, а работают входом
 // в воронку. В витрине «Наши обучения» он не участвует.

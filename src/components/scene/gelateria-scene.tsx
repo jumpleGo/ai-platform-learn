@@ -23,7 +23,7 @@ import {
   samplePath,
   scene,
 } from '@/lib/scene';
-import { LEGAL_NAV, PROGRAM_URL } from '@/lib/site';
+import { BEGINNER_URL, LEGAL_NAV, PROGRAM_URL } from '@/lib/site';
 import './scene.css';
 import { RichText } from '@/components/markdown';
 import { LessonQuizDialog } from '@/components/lesson-quiz';
@@ -383,7 +383,7 @@ export function GelateriaScene() {
     <>
       <nav className="scene-nav" ref={navRef} aria-label="Разделы школы">
         <Link href="/free">Бесплатно</Link>
-        <Link href="/courses">Обучения</Link>
+        <Link href={BEGINNER_URL}>Новичкам</Link>
         <Link href={PROGRAM_URL}>IT + вайбкодинг</Link>
       </nav>
 
