@@ -31,7 +31,18 @@ export function PaymentResult({
   const trackedStatuses = useRef(new Set<string>());
 
   useEffect(() => {
-    track(EVENTS.paymentResultViewed, { result: initialResult ?? 'unknown' });
+    let referrerHost: string | null = null;
+    try {
+      referrerHost = document.referrer ? new URL(document.referrer).hostname : null;
+    } catch {
+      // Некорректный Referer не должен мешать странице результата.
+    }
+    const returnedFromTBank = referrerHost === 'pay.tbank.ru' || referrerHost?.endsWith('.pay.tbank.ru');
+    track(EVENTS.paymentResultViewed, {
+      result: initialResult ?? 'unknown',
+      referrerHost,
+      returnedFromTBank,
+    });
   }, [initialResult]);
 
   const checkPayment = useCallback(async () => {

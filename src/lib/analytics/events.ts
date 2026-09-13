@@ -21,7 +21,7 @@ export const EVENTS = {
   pricingViewed: 'pricing_viewed',             // props: courseSlug, place — блок тарифов попал в экран
   tariffSelected: 'tariff_selected',           // props: tariffId, price, courseSlug, place
   paymentStarted: 'payment_started',           // props: tariffId, price, courseSlug — сабмит формы оплаты, не клик по CTA
-  paymentResultViewed: 'payment_result_viewed', // props: result — возврат с платёжной страницы
+  paymentResultViewed: 'payment_result_viewed', // props: result, referrerHost, returnedFromTBank — возврат с платёжной страницы
   paymentStatusChecked: 'payment_status_checked', // props: status, confirmed, courseSlug — только при смене статуса
   experimentExposed: 'experiment_exposed',     // props: experiment, variant — посетитель увидел тестируемый элемент
 } as const;
