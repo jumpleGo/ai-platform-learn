@@ -74,33 +74,54 @@ export function RichText({ text }: { text: string }) {
   return <Inlines tokens={parseInline(text)} />;
 }
 
-export function Markdown({ source, className }: { source: string; className?: string }) {
+// Вариант «read» — для длинных статей блога: крупнее кегль, свободнее интерлиньяж,
+// заголовки крупнее и с большим отбивом сверху. Обычный вариант остаётся компактным:
+// им набраны короткие блоки материалов внутри уроков.
+export function Markdown({ source, className, variant = 'default' }: {
+  source: string;
+  className?: string;
+  variant?: 'default' | 'read';
+}) {
   const blocks = parseBlocks(source);
   if (blocks.length === 0) return null;
+  const read = variant === 'read';
   return (
     <div className={className}>
       {blocks.map((b, i) => {
         switch (b.t) {
           case 'heading': {
-            const cls =
-              b.level === 2
-                ? 'mt-7 mb-2.5 font-heading text-xl font-bold tracking-tight text-balance first:mt-0'
-                : 'mt-5 mb-2 font-heading text-base font-bold tracking-tight first:mt-0';
+            const h2 = read
+              ? 'mt-11 mb-3 font-heading text-2xl font-extrabold tracking-tight text-balance text-brand-navy first:mt-0 sm:text-[1.75rem]'
+              : 'mt-7 mb-2.5 font-heading text-xl font-bold tracking-tight text-balance first:mt-0';
+            const h3 = read
+              ? 'mt-7 mb-2 font-heading text-lg font-bold tracking-tight text-brand-navy first:mt-0'
+              : 'mt-5 mb-2 font-heading text-base font-bold tracking-tight first:mt-0';
+            const cls = b.level === 2 ? h2 : h3;
             return b.level === 2
               ? <h2 key={i} className={cls}><Inlines tokens={parseInline(b.text)} /></h2>
               : <h3 key={i} className={cls}><Inlines tokens={parseInline(b.text)} /></h3>;
           }
           case 'p':
             return (
-              <p key={i} className="mt-3 leading-relaxed text-pretty text-muted-foreground first:mt-0">
+              <p
+                key={i}
+                className={read
+                  ? 'mt-4 text-[1.0625rem]/[1.7] text-pretty text-brand-charcoal/90 first:mt-0 sm:text-[1.125rem]/[1.72]'
+                  : 'mt-3 leading-relaxed text-pretty text-muted-foreground first:mt-0'}
+              >
                 <Inlines tokens={parseInline(b.text)} />
               </p>
             );
           case 'ul':
             return (
-              <ul key={i} className="mt-3 space-y-1.5 first:mt-0">
+              <ul key={i} className={read ? 'mt-4 space-y-2.5 first:mt-0' : 'mt-3 space-y-1.5 first:mt-0'}>
                 {b.items.map((it, j) => (
-                  <li key={j} className="flex gap-2.5 leading-relaxed text-muted-foreground">
+                  <li
+                    key={j}
+                    className={read
+                      ? 'flex gap-3 text-[1.0625rem]/[1.65] text-brand-charcoal/90 sm:text-[1.125rem]/[1.65]'
+                      : 'flex gap-2.5 leading-relaxed text-muted-foreground'}
+                  >
                     <span className="mt-2 size-1.5 shrink-0 rounded-full bg-primary/60" aria-hidden />
                     <span><Inlines tokens={parseInline(it)} /></span>
                   </li>

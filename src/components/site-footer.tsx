@@ -31,6 +31,12 @@ export function SiteFooter() {
                 </Link>
               </li>
             ))}
+            {/* Блог намеренно живёт только здесь: в шапку его не выносим */}
+            <li>
+              <Link href="/blog" className="text-sm text-brand-cream/80 transition-colors hover:text-brand-sky">
+                Блог
+              </Link>
+            </li>
           </ul>
         </nav>
 

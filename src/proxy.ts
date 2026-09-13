@@ -19,7 +19,7 @@ import {
 // Публичный сайт целиком открыт гостям: витрины, лендинги, бесплатные уроки и юр. документы
 const PUBLIC = [
   '/login', '/register', '/r/', '/api/',
-  '/courses', '/waitlist', '/free', '/faq', '/legal', '/payment',
+  '/courses', '/waitlist', '/free', '/faq', '/legal', '/payment', '/blog',
   // карта сайта, robots и llms.txt должны отдаваться роботам без сессии
   '/sitemap.xml', '/robots.txt', '/llms.txt',
   // файл подтверждения прав в Яндекс.Вебмастере: лежит в public/, робот ходит без сессии
