@@ -3,10 +3,12 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { TELEGRAM_DM } from '@/lib/site';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CheckCircle2, CircleX, LoaderCircle, RefreshCw } from 'lucide-react';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { track } from '@/lib/analytics/track-client';
+import { EVENTS } from '@/lib/analytics/events';
 
 type ViewState = 'checking' | 'confirmed' | 'pending' | 'failed' | 'error';
 
@@ -26,6 +28,11 @@ export function PaymentResult({
   const [telegram, setTelegram] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const trackedStatuses = useRef(new Set<string>());
+
+  useEffect(() => {
+    track(EVENTS.paymentResultViewed, { result: initialResult ?? 'unknown' });
+  }, [initialResult]);
 
   const checkPayment = useCallback(async () => {
     if (!orderId) {
@@ -41,6 +48,19 @@ export function PaymentResult({
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Не удалось проверить платёж');
+
+      // Страница опрашивает статус несколько раз, поэтому каждый статус пишем
+      // только один раз. Не передаём orderId: для диагностики достаточно статуса
+      // и курса, а идентификатор заказа не нужен в продуктовой аналитике.
+      const status = String(data.status ?? 'UNKNOWN');
+      if (!trackedStatuses.current.has(status)) {
+        trackedStatuses.current.add(status);
+        track(EVENTS.paymentStatusChecked, {
+          status,
+          confirmed: Boolean(data.confirmed),
+          courseSlug: data.courseSlug ?? null,
+        });
+      }
 
       setCourseSlug(data.courseSlug ?? null);
       setHasSupport(Boolean(data.hasSupport));
