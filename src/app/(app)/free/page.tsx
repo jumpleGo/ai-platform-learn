@@ -13,9 +13,9 @@ import { CoverCard } from '@/components/cover-card';
 import { SectionHead } from '@/components/section-head';
 
 export const metadata: Metadata = {
-  title: 'Бесплатные материалы — уроки про работу с ИИ | GELATO',
+  title: 'Бесплатные уроки про принципы работы с ИИ — GELATO',
   description:
-    'Открытые уроки школы GELATO: как объяснять задачу ИИ, куда уходят токены и лимиты, почему модель выдумывает ответы и как заставить её проверять себя.',
+    'Открытые уроки школы GELATO о том, как устроена работа с ИИ: как объяснить задачу, зачем нужен контекст, куда уходят лимиты и почему модель выдумывает ответы. Принципы работают в любом инструменте.',
   alternates: { canonical: '/free' },
 };
 
@@ -39,11 +39,13 @@ export default async function FreePage({
       <section className="animate-rise pt-6 sm:pt-10">
         <StickerTag tone="yellow">без карты и подписки</StickerTag>
         <h1 className="mt-4 font-heading text-[clamp(2.6rem,7vw,5.25rem)]/[0.98] font-bold tracking-[-0.035em] text-balance text-brand-navy">
-          <TitleAccent>Бесплатные</TitleAccent> материалы
+          <TitleAccent>Бесплатные</TitleAccent> уроки
         </h1>
         {/* подзаголовок — часть заголовка, а не отдельный блок: держим вплотную */}
         <p className="mt-2.5 max-w-2xl text-lg leading-[1.35] text-muted-foreground text-pretty sm:text-xl">
-          Полноценные уроки: смотрите целиком и забирайте конспекты.
+          Про принципы работы с ИИ: как объяснить задачу, зачем нужен контекст
+          и почему модель ошибается. Без привязки к инструменту — работает
+          и в Claude, и в ChatGPT, и в Gemini.
         </p>
 
         {isFromVibe && (
@@ -77,7 +79,7 @@ export default async function FreePage({
           <SectionHead
             title="Смотрите в любом порядке"
             accent="в любом порядке"
-            note="Каждый урок закрывает одну конкретную проблему и работает сам по себе."
+            note="Каждый урок закрывает один принцип и работает сам по себе: порядок не важен."
           />
           <ul className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 xl:grid-cols-3">
             {lessons.map((lesson, i) => (

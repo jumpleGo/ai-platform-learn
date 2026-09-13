@@ -154,7 +154,7 @@ const VIBECODING: CourseLanding = {
     ],
   },
   cta: { label: 'Выбрать тариф', href: PROGRAM_URL },
-  seoTitle: 'Инженерный вайбкодинг — как настроить проект под ИИ, не плодя баги | Gelato',
+  seoTitle: 'Инженерный вайбкодинг — как настроить проект под ИИ, не плодя баги — GELATO',
   seoDescription: 'Как настроить проект под ИИ, не плодя баги: правила репозитория, CLAUDE.md, rules, линтеры, автотесты и агенты. 5 этапов, старт потока 14 сентября.',
 };
 
@@ -222,7 +222,7 @@ const CARTOONS: CourseLanding = {
     ],
   },
   cta: { label: 'Забрать скидку 30%', href: TELEGRAM_DM, hint: 'Откроется телеграм. Ответим лично.' },
-  seoTitle: 'Свой мультик за вечер: курс по ИИ-мультфильмам — Gelato',
+  seoTitle: 'Свой мультик за вечер: курс по ИИ-мультфильмам — GELATO',
   seoDescription: 'Курс по ИИ-анимации без рисования: 8 модулей от идеи до выпуска. Claude и Gemini пишут историю, Nano Banana рисует кадры, Seedance оживляет их. Лист персонажа, консистентные кадры, голос, монтаж. На выходе ваш ролик на минуту для Reels и YouTube. Скидка 30% по предзаписи.',
 };
 
@@ -309,7 +309,7 @@ const AGENTS: CourseLanding = {
     ],
   },
   cta: { label: 'Посмотреть тарифы', href: PROGRAM_URL, hint: 'Цены и состав каждого формата — прямо на странице.' },
-  seoTitle: 'Claude Code с нуля: свои skills, MCP и ИИ-агенты — Gelato',
+  seoTitle: 'Claude Code с нуля: свои skills, MCP и ИИ-агенты — GELATO',
   seoDescription: 'Практический курс по Claude Code для новичков: установка, контекст, CLAUDE.md, skills, MCP, GitHub, Vercel и специализированные агенты. 8 практических уроков и домашние задания на своём проекте.',
 };
 
@@ -351,7 +351,7 @@ export function buildFallbackLanding(course: {
       includes: [],
     },
     cta: { label: 'Написать в телеграм', href: TELEGRAM_DM, hint: 'Ответим лично, без рассылок.' },
-    seoTitle: `${course.title} — обучение Gelato`,
-    seoDescription: course.description || `Обучение «${course.title}» в школе Gelato.`,
+    seoTitle: `${course.title} — обучение в школе GELATO`,
+    seoDescription: course.description || `Обучение «${course.title}» в школе GELATO: практика, личная проверка работ и поддержка.`,
   });
 }

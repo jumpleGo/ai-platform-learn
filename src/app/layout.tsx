@@ -26,18 +26,18 @@ const bips = localFont({
   display: "swap",
 });
 
-const SITE_TITLE = "Claude Code с нуля — собери свою команду ИИ-агентов";
+const SITE_TITLE = "GELATO — школа осмысленной работы с ИИ";
 const SITE_DESCRIPTION =
-  "Курс по Claude Code для тех, кто не программист. Без кода и терминала: учишься ставить задачи словами и собираешь команду ИИ-агентов, которые работают за тебя.";
+  "Школа GELATO учит работать с ИИ по делу: объяснять задачу словами, держать контекст, проверять результат и собирать своих агентов. Бесплатные уроки и обучения с личной проверкой.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://gelato.education"),
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
-  icons: { icon: "/favicon.svg", apple: "/favicon.svg" },
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
-    siteName: "Claude Code с нуля",
+    siteName: "GELATO",
     locale: "ru_RU",
     url: "https://gelato.education",
     title: SITE_TITLE,
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
         url: "/og-gelato.png",
         width: 1200,
         height: 630,
-        alt: "Курс по Claude Code с нуля, пиксельный клодик",
+        alt: "GELATO — школа работы с ИИ",
       },
     ],
   },
@@ -57,6 +57,43 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     images: ["/og-gelato.png"],
   },
+};
+
+// Разметка организации и сайта: по ней Google и ИИ-ассистенты понимают,
+// что GELATO — это школа, чем она занимается и где её искать.
+const SITE_JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": ["EducationalOrganization", "Organization"],
+      "@id": "https://gelato.education/#organization",
+      name: "GELATO",
+      alternateName: "Школа GELATO",
+      url: "https://gelato.education",
+      logo: "https://gelato.education/logo.webp",
+      image: "https://gelato.education/og-gelato.png",
+      description: SITE_DESCRIPTION,
+      inLanguage: "ru-RU",
+      sameAs: ["https://t.me/gelato_ai"],
+      knowsAbout: [
+        "работа с ИИ",
+        "промпт-инжиниринг",
+        "ИИ-агенты",
+        "вайбкодинг",
+        "Claude Code",
+        "ИИ-анимация",
+      ],
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://gelato.education/#website",
+      url: "https://gelato.education",
+      name: "GELATO",
+      description: SITE_DESCRIPTION,
+      inLanguage: "ru-RU",
+      publisher: { "@id": "https://gelato.education/#organization" },
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -70,6 +107,12 @@ export default function RootLayout({
       className={`${manrope.variable} ${bips.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(SITE_JSON_LD).replace(/</g, "\\u003c"),
+          }}
+        />
         <NavigationProgress />
         <PostHogProvider>
           <PaymentModalProvider>{children}</PaymentModalProvider>

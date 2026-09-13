@@ -10,7 +10,7 @@ import { DoodleWord } from '@/components/doodle-decor';
 import { SectionHead } from '@/components/section-head';
 
 export const metadata: Metadata = {
-  title: 'Вопрос-ответ — обучение работе с ИИ | GELATO',
+  title: 'Вопрос-ответ про обучение работе с ИИ — GELATO',
   description:
     'Ответы на вопросы про обучения GELATO: кому подойдёт, как проходит, сколько стоит, чем отличается от больших платформ, возврат и корпоративный доступ.',
   alternates: { canonical: '/faq' },

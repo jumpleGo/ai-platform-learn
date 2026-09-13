@@ -102,8 +102,8 @@ function freeLessonJsonLd({
       '@type': 'Course',
       '@id': courseSchemaId,
       name: courseTitle,
-      description: 'Практическая программа Gelato Dev о системной и проверяемой AI-разработке на реальном проекте.',
-      provider: { '@type': 'Organization', name: 'Gelato Dev', url: `${SITE_URL}/courses/vibecoding` },
+      description: 'Практическая программа школы GELATO о системной и проверяемой работе с ИИ на реальном проекте.',
+      provider: { '@type': 'Organization', name: 'GELATO', url: SITE_URL },
     },
     {
       '@type': 'LearningResource',
