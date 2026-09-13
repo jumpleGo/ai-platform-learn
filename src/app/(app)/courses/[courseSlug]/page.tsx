@@ -257,9 +257,9 @@ export default async function CourseLandingPage({ params, searchParams }: {
                 nbsp(heroCopy.h1)
               ) : isAgents ? (
                 <>
-                  Создайте своих{' '}
+                  Автоматизируйте{' '}
                   <span className="relative inline-block whitespace-nowrap">
-                    ИИ-агентов
+                    свою работу
                     <DoodleUnderline color="var(--color-goose-red)" className="w-full" />
                   </span>{' '}
                   <br />в Claude Code —{' '}
@@ -286,15 +286,15 @@ export default async function CourseLandingPage({ params, searchParams }: {
                 nbsp(heroCopy.lead)
               ) : isAgents ? (
                 <>
-                  Установите Claude Code, научите его понимать{' '}
+                  Установите Claude Code и научитесь{' '}
                   <span className="relative inline-block whitespace-nowrap text-brand-navy">
-                    контекст вашего проекта
+                    автоматизировать
                     <DoodleUnderline thin color="var(--color-scarf-green)" className="opacity-70" />
                   </span>{' '}
-                  и создайте агентов под повторяющиеся задачи.{`\n`}
-                  Код вручную писать не придётся — вы разберётесь, где лежат инструкции и{' '}
+                  свою работу.{`\n`}
+                  А также научитесь создавать своих агентов{' '}
                   <span className="relative inline-block whitespace-nowrap text-brand-navy">
-                    как проверять результат
+                    под любую задачу
                     <DoodleUnderline thin color="var(--color-goose-red)" className="opacity-70" />
                   </span>
                   .
@@ -334,19 +334,21 @@ export default async function CourseLandingPage({ params, searchParams }: {
               {(isVibe || isAgents) && !cont ? (
                 isAgents ? (
                   <>
-                    <Link
-                      href="/courses/claude-code-agents/lessons/1?from=course_landing"
+                    <a
+                      href="#testimonials"
                       className="btn-goose inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy px-6 text-base font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-goose-red)] motion-reduce:hover:translate-y-0"
                     >
-                      Бесплатное введение (2 минуты)
-                      <ArrowRight className="size-4" aria-hidden />
-                    </Link>
-                    <a
-                      href="#pricing"
-                      className="inline-flex h-12 items-center gap-1.5 rounded-xl border-2 border-brand-navy/25 bg-brand-cream/80 px-5 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
-                    >
-                      К тарифам
+                      Посмотреть отзывы
                       <ArrowDown className="size-4" aria-hidden />
+                    </a>
+                    <a
+                      href={TELEGRAM_DM}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy/25 bg-brand-cream/80 px-5 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
+                    >
+                      <Send className="size-4" aria-hidden />
+                      Написать в Telegram
                     </a>
                   </>
                 ) : (
@@ -375,7 +377,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
               )}
             </div>
             {(cont?.hint ?? landing.cta.hint) && (
-              <p className="mt-2.5 text-xs text-muted-foreground">
+              <p className="mt-2.5 text-xs text-muted-foreground whitespace-pre-line">
                 {cont?.hint ?? landing.cta.hint}
               </p>
             )}
@@ -482,7 +484,8 @@ export default async function CourseLandingPage({ params, searchParams }: {
                 </p>
               </div>
 
-              {/* Плагины автора с гитхабом */}
+              {/* На лендинге для новичков плагины не нужны: они уводят от понятного первого шага. */}
+              {!isAgents && (
               <div className="pt-2">
                 <div className="text-xs font-mono font-black uppercase tracking-wider text-brand-navy/60 mb-2.5">
                   Мои opensource инструменты:
@@ -543,6 +546,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
                   </a>
                 </div>
               </div>
+              )}
             </div>
           </div>
         </div>
@@ -635,7 +639,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
           </div>
 
           {/* Промежуточный сочный CTA после результатов */}
-          {!cont && (
+          {!cont && !isAgents && (
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border-2 border-brand-navy/15 bg-brand-forest/10 p-5 sm:p-6">
               <div>
                 <h4 className="font-heading text-lg font-extrabold text-brand-navy">
@@ -703,6 +707,51 @@ export default async function CourseLandingPage({ params, searchParams }: {
               </article>
             ))}
           </div>
+        </section>
+      )}
+
+      {landing.testimonial && (
+        <section id="testimonials" className="animate-rise relative isolate scroll-mt-24 overflow-visible rounded-3xl border-2 border-brand-navy bg-brand-yellow p-6 shadow-[0_7px_0_0_rgba(16,38,71,0.18)] sm:p-8">
+          <DoodleWord
+            text={landing.testimonial.label}
+            color="var(--color-brand-red)"
+            className="z-50 -top-5 right-5 text-xl -rotate-6 sm:right-9 sm:text-2xl"
+          />
+          <div className="max-w-3xl border-b-2 border-brand-navy/20 pb-6">
+            <p className="font-mono text-xs font-black uppercase tracking-wider text-brand-red">
+              Отзывы
+            </p>
+            <h2 className="mt-2 font-heading text-3xl font-black leading-none text-brand-navy sm:text-5xl">
+              {landing.testimonial.title}
+            </h2>
+            {landing.testimonial.note && (
+              <p className="mt-3 text-base font-medium leading-relaxed text-brand-charcoal/85 sm:text-lg">
+                {landing.testimonial.note}
+              </p>
+            )}
+          </div>
+          <div className="mt-7 grid gap-5 sm:grid-cols-2">
+            {landing.testimonial.quotes.map((quote, index) => (
+              <blockquote
+                key={quote}
+                className={`relative rounded-2xl border-2 border-brand-navy bg-card px-5 pb-5 pt-10 text-lg font-bold leading-relaxed text-brand-navy shadow-[0_4px_0_0_rgba(16,38,71,0.14)] sm:text-xl ${index % 2 === 0 ? 'sm:-rotate-1' : 'sm:rotate-1'}`}
+              >
+                <span className="absolute left-5 top-3 font-marker text-5xl leading-none text-brand-red" aria-hidden>“</span>
+                «{quote}»
+              </blockquote>
+            ))}
+          </div>
+          {!cont && (
+            <div className="mt-8 flex justify-center">
+              <a
+                href="#pricing"
+                className="btn-goose inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy px-6 text-base font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-goose-red)] motion-reduce:hover:translate-y-0"
+              >
+                Посмотреть тарифы
+                <ArrowDown className="size-4" aria-hidden />
+              </a>
+            </div>
+          )}
         </section>
       )}
 
