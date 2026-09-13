@@ -129,8 +129,23 @@ function freeLessonJsonLd({
       embedUrl: `${SITE_URL}/api/player/${courseId}/${lessonDocumentId}`,
       inLanguage: 'ru',
       isFamilyFriendly: true,
+      // текстовая версия урока: по ней ИИ-ассистенты понимают содержание ролика
+      transcript: content.article,
     },
   ];
+  // FAQPage — самая результативная разметка для попадания в ИИ-ответы и расширенные
+  // сниппеты, поэтому вопросы урока отдаём отдельным узлом графа
+  if (content.faq.length) {
+    graph.push({
+      '@type': 'FAQPage',
+      '@id': `${canonical}#faq`,
+      mainEntity: content.faq.map((item) => ({
+        '@type': 'Question',
+        name: item.question,
+        acceptedAnswer: { '@type': 'Answer', text: item.answer },
+      })),
+    });
+  }
   return { '@context': 'https://schema.org', '@graph': graph };
 }
 

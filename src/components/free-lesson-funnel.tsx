@@ -60,6 +60,17 @@ export function FreeLessonAfterVideo({ content, materials, ctaHref, fromLanding 
         </ul>
       </section>
 
+      {content.article && (
+        <article aria-labelledby="lesson-article" className="max-w-3xl">
+          <h2 id="lesson-article" className="font-heading text-xl sm:text-2xl font-extrabold tracking-tight text-brand-navy text-balance">
+            Текстовая версия урока
+          </h2>
+          {/* Разбор из видео словами: то, что читают поисковики и ИИ-ассистенты —
+              видео они не смотрят, и без этого блока страница для них пустая. */}
+          <Markdown source={content.article} className="mt-4" />
+        </article>
+      )}
+
       {materials.trim() && (
         <details open className="group rounded-2xl border border-border bg-card/60 px-5 py-4 sm:px-6">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-bold marker:content-none sm:text-lg">
