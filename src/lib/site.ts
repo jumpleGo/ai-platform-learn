@@ -29,6 +29,7 @@ export const NAV: readonly NavItem[] = [
   { href: '/#about', label: 'О нас' },
   { href: '/free', label: 'Бесплатные материалы' },
   { href: '/courses', label: 'Наши обучения' },
+  { href: '/reviews', label: 'Отзывы' },
   { href: '/faq', label: 'Вопрос-ответ' },
 ];
 

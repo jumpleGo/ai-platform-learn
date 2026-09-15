@@ -741,6 +741,14 @@ export default async function CourseLandingPage({ params, searchParams }: {
               </blockquote>
             ))}
           </div>
+          <div className="mt-6 flex justify-center">
+            <Link
+              href="/reviews"
+              className="font-mono text-sm font-bold text-brand-navy underline underline-offset-4 hover:text-brand-red"
+            >
+              Все отзывы учеников →
+            </Link>
+          </div>
           {!cont && (
             <div className="mt-8 flex justify-center">
               <a
