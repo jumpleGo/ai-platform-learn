@@ -36,7 +36,7 @@ describe('подбор открытого урока по боли', () => {
       const url = new URL(result.href, 'https://gelato.education');
       expect(url.pathname).toBe(`/courses/claude-code/lessons/${result.lessonNumber}`);
       expect(url.searchParams.get('source')).toBe('pain_quiz');
-      expect(url.searchParams.get('utm_source')).toBe('gelateria');
+      expect(url.searchParams.get('match')).toBe(result.id);
     }
   });
 

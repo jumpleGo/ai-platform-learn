@@ -34,5 +34,5 @@ export const adminDb = lazy(() => getFirestore(getOrCreateApp()));
 export const adminStorage = lazy(() => getStorage(getOrCreateApp()));
 
 export const storageBucketName =
-  process.env.FIREBASE_STORAGE_BUCKET ??
+  (process.env.FIREBASE_STORAGE_BUCKET?.trim() || null) ??
   `${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}.firebasestorage.app`;
