@@ -6,6 +6,7 @@
 import { PROGRAM_URL, TELEGRAM_DM } from '@/lib/site';
 import { nbspDeep } from '@/lib/typography';
 import { reviewQuotes } from '@/lib/reviews';
+import { getStreamStartDate } from '@/lib/payments/stream-schedule';
 
 export type Fact = { value: string; label: string };
 // Ключи иконок для схемы цикла — рисуются через LandingIcon
@@ -154,12 +155,15 @@ const VIBECODING: CourseLanding = {
   price: {
     value: 'Форматы участия',
     note: '',
-    includes: [
-      'Старт 14 сентября (доступ ко всем 17 урокам на 2 месяца)',
-      'Готовые шаблоны CLAUDE.md, rules, skills, линтеров и тестов',
-      'Практика на своём проекте — рабочем, личном или пет-проекте',
-      'Тариф «С поддержкой»: проверка домашних заданий и 3 недели ответов на вопросы + Claude Pro на 1 месяц в подарок',
-    ],
+    get includes() {
+      const date = getStreamStartDate();
+      return [
+        `Старт ${date} (доступ ко всем 17 урокам на 2 месяца)`,
+        'Готовые шаблоны CLAUDE.md, rules, skills, линтеров и тестов',
+        'Практика на своём проекте — рабочем, личном или пет-проекте',
+        'Тариф «С поддержкой»: проверка домашних заданий и 3 недели ответов на вопросы + Claude Pro на 1 месяц в подарок',
+      ];
+    },
   },
   cta: { label: 'Выбрать тариф', href: PROGRAM_URL },
   seoTitle: 'Инженерный вайбкодинг для разработчиков и вайбкодеров — GELATO',

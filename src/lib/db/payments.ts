@@ -2,6 +2,7 @@ import { adminAuth, adminDb } from '@/lib/firebase/admin';
 import { findUserByEmail } from '@/lib/db/users';
 import { applyGrantToUser, savePendingGrant, normalizeEmail } from '@/lib/db/grants';
 import { sendSelfPacedAccessEmail, sendSupportStreamEnrollmentEmail } from '@/lib/email/mailer';
+import { getStreamStartDate } from '@/lib/payments/stream-schedule';
 import { EVENTS } from '@/lib/analytics/events';
 import { trackServer } from '@/lib/analytics/posthog-server';
 
@@ -97,7 +98,7 @@ export async function fulfillPayment(paymentId: string | number): Promise<{ succ
   const periodDays = record.periodDays || 30;
   const hasSupport = Boolean(record.hasSupport);
   const telegram = record.telegram ?? null;
-  const startDate = record.startDate || '14 сентября';
+  const startDate = record.startDate || getStreamStartDate();
 
   try {
     // СЛУЧАЙ 1: ТАРИФ С ПОДДЕРЖКОЙ (Поток с сопровождением)

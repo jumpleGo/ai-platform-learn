@@ -11,6 +11,7 @@ import { getCompletedLessonIds } from '@/lib/db/progress';
 import { getSession } from '@/lib/session';
 import { hasCourseAccess } from '@/lib/access';
 import { buildFallbackLanding, getCourseLanding, type CourseLanding } from '@/lib/course-landings';
+import { getStreamStartDate } from '@/lib/payments/stream-schedule';
 import { courseKey, lessonPath } from '@/lib/slug';
 import { SITE_URL, TELEGRAM_DM } from '@/lib/site';
 import { nbsp } from '@/lib/typography';
@@ -125,6 +126,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
   const landing = landingFor(course);
   const isVibe = key === 'it-vibecoding' || key === 'vibecoding';
   const isAgents = key === 'claude-code-agents';
+  const streamStartDate = getStreamStartDate();
 
   const session = await getSession();
   const [sub, completed] = await Promise.all([
@@ -214,7 +216,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
     : [
         {
           question: 'Как и когда открывается доступ к материалам?',
-          answer: 'Все 17 уроков курса **открываются целиком со старта потока 14 сентября**. Вы двигаетесь в комфортном для себя темпе. **Доступ к курсу сохраняется на 2 месяца**.',
+          answer: `Все 17 уроков курса **открываются целиком со старта потока ${streamStartDate}**. Вы двигаетесь в комфортном для себя темпе. **Доступ к курсу сохраняется на 2 месяца**.`,
         },
         {
           question: 'Курс привязан к Claude Code?',
@@ -648,7 +650,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
                 <p className="mt-1 text-base font-medium leading-relaxed text-brand-charcoal/80 sm:text-lg">
                   {isAgents
                     ? '15 минут · без оплаты · контекст, постановка задачи и проверка ответа'
-                    : 'Старт потока 14 сентября · Первый чистый коммит в первый день · Возврат 100% в первые 2 дня'}
+                    : `Старт потока ${streamStartDate} · Первый чистый коммит в первый день · Возврат 100% в первые 2 дня`}
                 </p>
               </div>
               <div className="flex flex-col items-center gap-2 sm:items-end">
@@ -1213,7 +1215,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
                 </span>
               </summary>
               <div className="mt-3.5 border-t border-dashed border-brand-navy/10 pt-3.5 text-[17px] font-medium leading-relaxed sm:text-lg text-brand-charcoal/90">
-                <RichText text="Все 17 уроков курса **открываются целиком со старта потока 14 сентября**. Вы двигаетесь в комфортном для себя темпе без искусственных задержек. **Доступ к курсу сохраняется на 2 месяца**." />
+                <RichText text={`Все 17 уроков курса **открываются целиком со старта потока ${streamStartDate}**. Вы двигаетесь в комфортном для себя темпе без искусственных задержек. **Доступ к курсу сохраняется на 2 месяца**.`} />
               </div>
             </details>
 

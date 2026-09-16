@@ -8,6 +8,7 @@ import {
   getCoursePaymentConfig,
   parseTestRub,
 } from '../src/lib/payments/tariffs';
+import { getStreamStartDate } from '../src/lib/payments/stream-schedule';
 
 describe('T-Bank Token Generation', () => {
   it('generates deterministic SHA256 signature based on sorted keys', () => {
@@ -96,7 +97,7 @@ describe('Tariffs configuration', () => {
   it('тариф с поддержкой вайбкодинга всегда идёт по спеццене', () => {
     const promoTariff = getTariffById('vibecoding_stream', 'it-vibecoding');
     expect(promoTariff?.price).toBe(19900);
-    expect(promoTariff?.features).toContain('Старт потока 14 сентября');
+    expect(promoTariff?.features).toContain(`Старт потока ${getStreamStartDate()}`);
     expect(getTariffsForCourse('it-vibecoding').find((t) => t.id === 'vibecoding_stream')?.price).toBe(19900);
   });
 });
@@ -135,7 +136,7 @@ describe('Tariff Support and Enrollment logic', () => {
   it('корректно размечает тарифы с личной поддержкой и самостоятельные', () => {
     const stream = getTariffById('vibecoding_stream', 'it-vibecoding');
     expect(stream?.hasSupport).toBe(true);
-    expect(stream?.startDate).toBe('14 сентября');
+    expect(stream?.startDate).toBe(getStreamStartDate());
 
     const selfPaced = getTariffById('vibecoding_month', 'it-vibecoding');
     expect(selfPaced?.hasSupport).toBe(false);

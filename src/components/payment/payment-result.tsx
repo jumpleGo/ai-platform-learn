@@ -9,6 +9,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { track } from '@/lib/analytics/track-client';
 import { EVENTS } from '@/lib/analytics/events';
+import { getStreamStartDate } from '@/lib/payments/stream-schedule';
 
 type ViewState = 'checking' | 'confirmed' | 'pending' | 'failed' | 'error';
 
@@ -140,13 +141,13 @@ export function PaymentResult({
                 Вы записаны на поток!
               </h1>
               <p className="mt-3 text-sm sm:text-base leading-relaxed text-brand-charcoal/80 text-pretty">
-                Оплата прошла успешно. Доступ откроется в день старта программы (<strong>{startDate || '14 сентября'}</strong>). Перед стартом мы свяжемся с вами в Telegram и добавим в закрытый чат потока.
+                Оплата прошла успешно. Доступ откроется в день старта программы (<strong>{startDate || getStreamStartDate()}</strong>). Перед стартом мы свяжемся с вами в Telegram и добавим в закрытый чат потока.
               </p>
 
               <div className="my-6 rounded-2xl border-2 border-brand-navy/10 bg-brand-cream/60 p-4 text-left text-sm space-y-2 font-medium">
                 <div className="flex justify-between items-center text-brand-navy">
                   <span className="text-brand-charcoal/60">Старт потока:</span>
-                  <span className="font-extrabold text-brand-red">{startDate || '14 сентября'}</span>
+                  <span className="font-extrabold text-brand-red">{startDate || getStreamStartDate()}</span>
                 </div>
                 {telegram && (
                   <div className="flex justify-between items-center text-brand-navy">

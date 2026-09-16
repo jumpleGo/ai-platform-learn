@@ -1,5 +1,6 @@
 import 'server-only';
 import nodemailer from 'nodemailer';
+import { getStreamStartDate } from '@/lib/payments/stream-schedule';
 
 const SMTP_HOST = process.env.SMTP_HOST || '';
 const SMTP_PORT = Number(process.env.SMTP_PORT) || 2525;
@@ -160,13 +161,13 @@ export async function sendSelfPacedAccessEmail({
 
 /**
  * Письмо для тарифов с поддержкой («Поток с сопровождением»):
- * Подтверждаем оплату места, фиксируем Telegram, указываем дату старта (14 сентября)
+ * Подтверждаем оплату места, фиксируем Telegram, указываем дату старта
  * и сообщаем, что свяжемся в Telegram перед стартом.
  */
 export async function sendSupportStreamEnrollmentEmail({
   to,
   planName,
-  startDate = '14 сентября',
+  startDate = getStreamStartDate(),
   telegram,
 }: {
   to: string;

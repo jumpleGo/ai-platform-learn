@@ -1,3 +1,5 @@
+import { getStreamStartDate } from './stream-schedule';
+
 export interface Tariff {
   id: string;
   title: string;
@@ -79,60 +81,66 @@ export const DEFAULT_TARIFFS: Tariff[] = [
 
 export const TARIFFS = DEFAULT_TARIFFS;
 
-const VIBECODING_PAYMENT_CONFIG: CoursePaymentConfig = {
-  courseSlug: 'it-vibecoding',
-  courseTitle: 'ИИ для вайбкодеров и программистов (Инженерный вайбкодинг)',
-  subtitle: 'Старт потока 14 сентября · Типы, тесты, линтер, CLAUDE.md и агент-ревьюер для вашего проекта',
-  tariffs: [
-    {
-      id: 'vibecoding_month',
-      title: 'Самостоятельно',
-      description: 'Вся программа курса и шаблоны для самостоятельной настройки',
-      price: 7900,
-      oldPrice: 10900,
-      periodDays: 60,
-      months: 2,
-      hasSupport: false,
-      features: [
-        'Доступ на 2 месяца ко всем 17 урокам',
-        'Практика на своём проекте: рабочем, личном или пет-проекте',
-        'Шаблоны CLAUDE.md, rules, skills, конфигов линтеров и тестов',
-      ],
-      excludedFeatures: ['Без проверки домашних заданий и личного чата'],
-    },
-    {
-      id: 'vibecoding_stream',
-      title: 'С поддержкой Эмиля',
-      description: 'Старт 14 сентября: 3 недели практики с личной поддержкой',
-      price: 19900,
-      oldPrice: 27900,
-      periodDays: 60,
-      months: 2,
-      popular: true,
-      hasSupport: true,
-      startDate: '14 сентября',
-      features: [
-        'Старт потока 14 сентября',
-        'Длительность 3 недели · доступ на 2 месяца ко всем 17 урокам',
-        'Ответы на любые вопросы, которые возникают в процессе обучения',
-        'Проверка домашних заданий',
-        'Помощь, если что-то не работает, непонятно или нужна проверка решения',
-        '3 недели личной поддержки Эмиля в Telegram',
-        'Практика на вашем проекте — рабочем, личном или пет-проекте',
-      ],
-      specialOffer: {
-        label: 'Спецпредложение',
-        title: 'Claude Pro на месяц в подарок',
-        note: 'Оплачиваю Claude Pro на 1 месяц. Докупать ничего не нужно.',
+export function buildVibecodingPaymentConfig(startDate: string = getStreamStartDate()): CoursePaymentConfig {
+  return {
+    courseSlug: 'it-vibecoding',
+    courseTitle: 'ИИ для вайбкодеров и программистов (Инженерный вайбкодинг)',
+    subtitle: `Старт потока ${startDate} · Типы, тесты, линтер, CLAUDE.md и агент-ревьюер для вашего проекта`,
+    tariffs: [
+      {
+        id: 'vibecoding_month',
+        title: 'Самостоятельно',
+        description: 'Вся программа курса и шаблоны для самостоятельной настройки',
+        price: 7900,
+        oldPrice: 10900,
+        periodDays: 60,
+        months: 2,
+        hasSupport: false,
+        features: [
+          'Доступ на 2 месяца ко всем 17 урокам',
+          'Практика на своём проекте: рабочем, личном или пет-проекте',
+          'Шаблоны CLAUDE.md, rules, skills, конфигов линтеров и тестов',
+        ],
+        excludedFeatures: ['Без проверки домашних заданий и личного чата'],
       },
-    },
-  ],
-};
+      {
+        id: 'vibecoding_stream',
+        title: 'С поддержкой Эмиля',
+        description: `Старт ${startDate}: 3 недели практики с личной поддержкой`,
+        price: 19900,
+        oldPrice: 27900,
+        periodDays: 60,
+        months: 2,
+        popular: true,
+        hasSupport: true,
+        startDate,
+        features: [
+          `Старт потока ${startDate}`,
+          'Длительность 3 недели · доступ на 2 месяца ко всем 17 урокам',
+          'Ответы на любые вопросы, которые возникают в процессе обучения',
+          'Проверка домашних заданий',
+          'Помощь, если что-то не работает, непонятно или нужна проверка решения',
+          '3 недели личной поддержки Эмиля в Telegram',
+          'Практика на вашем проекте — рабочем, личном или пет-проекте',
+        ],
+        specialOffer: {
+          label: 'Спецпредложение',
+          title: 'Claude Pro на месяц в подарок',
+          note: 'Оплачиваю Claude Pro на 1 месяц. Докупать ничего не нужно.',
+        },
+      },
+    ],
+  };
+}
 
 // Кастомные тарифы и контент под каждый конкретный курс
 export const COURSE_PAYMENT_CONFIGS: Record<string, CoursePaymentConfig> = {
-  'it-vibecoding': VIBECODING_PAYMENT_CONFIG,
-  vibecoding: VIBECODING_PAYMENT_CONFIG,
+  get 'it-vibecoding'() {
+    return buildVibecodingPaymentConfig();
+  },
+  get vibecoding() {
+    return buildVibecodingPaymentConfig();
+  },
   'ai-cartoons': {
     courseSlug: 'ai-cartoons',
     courseTitle: 'Свой мультик за вечер (ИИ-мультфильмы)',
