@@ -98,7 +98,8 @@ export async function fulfillPayment(paymentId: string | number): Promise<{ succ
   const periodDays = record.periodDays || 30;
   const hasSupport = Boolean(record.hasSupport);
   const telegram = record.telegram ?? null;
-  const startDate = record.startDate || getStreamStartDate();
+  // Для курса Claude Code старт потока в письме не упоминаем — он идёт без фиксированной даты
+  const startDate = record.courseSlug === 'claude-code-agents' ? null : record.startDate || getStreamStartDate();
 
   try {
     // СЛУЧАЙ 1: ТАРИФ С ПОДДЕРЖКОЙ (Поток с сопровождением)

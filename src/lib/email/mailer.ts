@@ -1,6 +1,5 @@
 import 'server-only';
 import nodemailer from 'nodemailer';
-import { getStreamStartDate } from '@/lib/payments/stream-schedule';
 
 const SMTP_HOST = process.env.SMTP_HOST || '';
 const SMTP_PORT = Number(process.env.SMTP_PORT) || 2525;
@@ -167,12 +166,12 @@ export async function sendSelfPacedAccessEmail({
 export async function sendSupportStreamEnrollmentEmail({
   to,
   planName,
-  startDate = getStreamStartDate(),
+  startDate,
   telegram,
 }: {
   to: string;
   planName: string;
-  startDate?: string;
+  startDate?: string | null;
   telegram?: string | null;
 }): Promise<boolean> {
   const tgDisplay = telegram ? telegram : 'уточним при связи';
@@ -223,10 +222,15 @@ export async function sendSupportStreamEnrollmentEmail({
           <span class="label">Формат:</span>
           <span class="value">С личной поддержкой Эмиля</span>
         </div>
+        ${
+          startDate
+            ? `
         <div class="row">
           <span class="label">Старт потока:</span>
           <span class="value"><span class="highlight">${startDate}</span></span>
-        </div>
+        </div>`
+            : ''
+        }
         <div class="row">
           <span class="label">Ваш Telegram:</span>
           <span class="value">${tgDisplay}</span>
@@ -240,7 +244,7 @@ export async function sendSupportStreamEnrollmentEmail({
       <div class="timeline-card">
         <div class="timeline-title">📣 Как пройдёт запуск:</div>
         <ol class="timeline-list">
-          <li>Перед стартом (<strong>${startDate}</strong>) мы напишем вам в Telegram и добавим в закрытый чат участников потока.</li>
+          <li>${startDate ? `Перед стартом (<strong>${startDate}</strong>) мы` : 'Скоро мы'} напишем вам в Telegram и добавим в закрытый чат участников потока.</li>
           <li>В день старта мы откроем доступ на платформе ко всем урокам и материалам.</li>
           <li>В подарок включён 1 месяц <strong>Claude Pro</strong> — докупать ничего не нужно.</li>
         </ol>
@@ -262,7 +266,9 @@ export async function sendSupportStreamEnrollmentEmail({
 
   return sendEmail({
     to,
-    subject: `🍦 Вы записаны на поток: ${planName} (старт ${startDate})`,
+    subject: startDate
+      ? `🍦 Вы записаны на поток: ${planName} (старт ${startDate})`
+      : `🍦 Вы записаны на поток: ${planName}`,
     html,
   });
 }
