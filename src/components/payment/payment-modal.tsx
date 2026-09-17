@@ -467,6 +467,15 @@ export function PaymentModal({
                 <Image src="/payments/tpay.svg" alt="Т-Банк" width={24} height={14} className="h-3.5 w-auto" />
                 <Image src="/payments/SberPay.webp" alt="SberPay" width={28} height={14} className="h-3 w-auto" />
               </div>
+
+              <a
+                href="https://t.me/rrotatew"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-center text-sm text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
+              >
+                Оплатить не банковской картой
+              </a>
           </form>
         </div>
       </div>
