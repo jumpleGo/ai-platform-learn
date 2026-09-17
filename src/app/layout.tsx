@@ -7,6 +7,7 @@ import { PostHogProvider } from "@/lib/analytics/posthog-client";
 import { InlineTextEditor } from "@/components/dev/inline-text-editor";
 import { PaymentModalProvider } from "@/components/payment/payment-modal-context";
 import { YandexMetrika } from "@/components/yandex-metrika";
+import { TikTokPixel } from "@/components/tiktok-pixel";
 import "./globals.css";
 
 // Вся типографика на двух гарнитурах, обе с кириллицей.
@@ -126,6 +127,7 @@ export default function RootLayout({
         <Toaster />
         {process.env.NODE_ENV === "development" ? <InlineTextEditor /> : null}
         {process.env.NODE_ENV === "production" ? <YandexMetrika /> : null}
+        {process.env.NODE_ENV === "production" ? <TikTokPixel /> : null}
       </body>
     </html>
   );
