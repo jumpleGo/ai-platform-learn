@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { notFound, permanentRedirect } from 'next/navigation';
-import { ArrowDown, ArrowRight, ArrowUpRight, ChevronDown, Send } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUpRight, Check, ChevronDown, Gift, GraduationCap, Laptop, Lightbulb, Repeat, Send } from 'lucide-react';
 import { getPublishedCoursesWithLessons, type CourseWithLessons } from '@/lib/db/courses';
 import { getSubscription } from '@/lib/db/subscriptions';
 import { getCompletedLessonIds } from '@/lib/db/progress';
@@ -23,6 +23,7 @@ import { CaseCycle } from '@/components/case-cycle';
 import { BrandLogoRow, LogoStack, BrandLogo } from '@/components/brand-logos';
 import { VibeGuestCta } from '@/components/vibe-guest-cta';
 import { ExperimentExposure } from '@/components/experiment-exposure';
+import { TestimonialCarousel } from '@/components/testimonial-carousel';
 import { getExperiment, pickVariant } from '@/lib/experiments';
 import {
   HERO_COPY_COOKIE,
@@ -31,6 +32,22 @@ import {
   pickLandingBlocks,
   type LandingBlock,
 } from '@/lib/landing-blocks';
+
+// Вход в воронку для новичка: уроки курса-хаба открыты без оплаты
+const FREE_LESSON_HREF = '/courses/claude-code/lessons/1?from=course_landing';
+
+// Подпись приходит с неразрывными пробелами — сравниваем по обычному тексту
+function isGiftLabel(label: string): boolean {
+  return label.replaceAll('\u00a0', ' ') === 'В подарок';
+}
+
+// Иконка требования по его подписи
+const REQUIREMENT_ICONS: Record<string, typeof Laptop> = {
+  'Компьютер': Laptop,
+  'Идея': Lightbulb,
+  'Опыт': GraduationCap,
+  'Практика': Repeat,
+};
 
 // Курс ищем по slug, но принимаем и id документа — со старых ссылок делаем редирект
 async function findCourse(key: string): Promise<CourseWithLessons | null> {
@@ -205,8 +222,16 @@ export default async function CourseLandingPage({ params, searchParams }: {
           answer: 'Вы настроите помощника, который пишет в вашем стиле, **создадите свой сайт и опубликуете его в интернете — ссылку сможет открыть любой человек**. Затем подключите к Claude внешний сервис и соберёте отдельных агентов под свои повторяющиеся задачи.',
         },
         {
+          question: 'Сколько времени это занимает?',
+          answer: '**Около 3-4 часов в неделю.** Урок идёт 20-30 минут, остальное — практика на своей задаче. Уроки открыты сразу, поэтому темп вы выбираете сами: можно пройти всё за две недели, можно растянуть на два месяца.',
+        },
+        {
+          question: 'Что будет, когда закончатся 2 месяца доступа?',
+          answer: 'Закроются только уроки и конспекты на платформе. **Всё, что вы сделали за курс, остаётся у вас**: настроенный Claude Code, файлы проекта, скиллы, агенты и опубликованный сайт. Они лежат на вашем компьютере и в ваших аккаунтах, а не на платформе.',
+        },
+        {
           question: 'Как устроена поддержка?',
-          answer: 'В зависимости от тарифа вы получаете **3 или 4 недели личной поддержки**. Можно прислать вопрос, скриншот или запись экрана: автор поможет найти причину ошибки и поправить настройку. В самостоятельном тарифе поддержки нет.',
+          answer: 'Это **личный чат с автором в Telegram: 3 недели на тарифе с поддержкой, 4 недели на расширенном**. Можно прислать вопрос, скриншот или запись экрана — автор поможет найти причину ошибки и поправить настройку, а также проверит домашние задания. В самостоятельном тарифе поддержки нет.',
         },
         {
           question: 'Какие дополнительные расходы понадобятся?',
@@ -336,9 +361,16 @@ export default async function CourseLandingPage({ params, searchParams }: {
               {(isVibe || isAgents) && !cont ? (
                 isAgents ? (
                   <>
+                    <Link
+                      href={FREE_LESSON_HREF}
+                      className="btn-goose inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy px-6 text-base font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-goose-red)] motion-reduce:hover:translate-y-0"
+                    >
+                      Начать с бесплатного урока
+                      <ArrowRight className="size-4" aria-hidden />
+                    </Link>
                     <a
                       href="#testimonials"
-                      className="btn-goose inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy px-6 text-base font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-goose-red)] motion-reduce:hover:translate-y-0"
+                      className="inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy/25 bg-brand-cream/80 px-5 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
                     >
                       Посмотреть отзывы
                       <ArrowDown className="size-4" aria-hidden />
@@ -446,7 +478,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
               <div className="flex flex-col sm:items-center">
                 <span className="font-marker text-xl sm:text-2xl text-brand-navy leading-none">Эмиль</span>
                 <span className="mt-0.5 font-mono text-[10px] font-black uppercase tracking-wider text-brand-forest">
-                  Внедряю ИИ в разработку
+                  Ваш личный репетитор
                 </span>
                 <div className="mt-2 flex items-center gap-1.5">
                   <a
@@ -645,38 +677,21 @@ export default async function CourseLandingPage({ params, searchParams }: {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border-2 border-brand-navy/15 bg-brand-forest/10 p-5 sm:p-6">
               <div>
                 <h4 className="font-heading text-lg font-extrabold text-brand-navy">
-                  {isAgents ? 'Хотите сначала разобраться, как давать ИИ задачи?' : 'Хотите так настроить свой проект под ИИ?'}
+                  Хотите так настроить свой проект под ИИ?
                 </h4>
                 <p className="mt-1 text-base font-medium leading-relaxed text-brand-charcoal/80 sm:text-lg">
-                  {isAgents
-                    ? '15 минут · без оплаты · контекст, постановка задачи и проверка ответа'
-                    : `Старт потока ${streamStartDate} · Первый чистый коммит в первый день · Возврат 100% в первые 2 дня`}
+                  {`Старт потока ${streamStartDate} · Первый чистый коммит в первый день · Возврат 100% в первые 2 дня`}
                 </p>
               </div>
               <div className="flex flex-col items-center gap-2 sm:items-end">
-                {isAgents ? (
-                  <Link
-                    href="/courses/claude-code-agents/lessons/1?from=course_landing"
-                    className="btn-goose inline-flex h-12 shrink-0 items-center justify-center gap-1.5 rounded-xl border-2 border-brand-navy px-5 text-base font-extrabold text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_0_0_var(--color-goose-red)]"
-                  >
-                    Посмотреть бесплатное введение
-                    <ArrowRight className="size-4" aria-hidden />
-                  </Link>
-                ) : (
-                  <PrimaryCta
-                    cont={cont}
-                    cta={{ label: landing.cta.label, href: landing.cta.href, hint: '' }}
-                    pricingHref={pricingHref}
-                    courseSlug={key}
-                    courseTitle={course.title}
-                    className="btn-goose inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl border-2 border-brand-navy px-5 text-sm font-extrabold text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_0_0_var(--color-goose-red)]"
-                  />
-                )}
-                {isAgents && (
-                  <Link href="#pricing" className="text-sm font-bold text-brand-navy/70 underline underline-offset-4 hover:text-brand-navy sm:text-base">
-                    Или сразу сравнить тарифы
-                  </Link>
-                )}
+                <PrimaryCta
+                  cont={cont}
+                  cta={{ label: landing.cta.label, href: landing.cta.href, hint: '' }}
+                  pricingHref={pricingHref}
+                  courseSlug={key}
+                  courseTitle={course.title}
+                  className="btn-goose inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl border-2 border-brand-navy px-5 text-sm font-extrabold text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_0_0_var(--color-goose-red)]"
+                />
               </div>
             </div>
           )}
@@ -685,13 +700,13 @@ export default async function CourseLandingPage({ params, searchParams }: {
 
       {landing.examples && landing.examples.length > 0 && (
         <section className="animate-rise space-y-8">
-          <div className="grid gap-5 border-b-2 border-brand-navy/10 pb-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+          <div className="grid gap-5 pb-1 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
             <SectionHead
               size="lg"
               title="Что может быть на выходе"
               accent="на выходе"
             />
-            <div className="grid w-fit grid-cols-[auto_8.5rem] items-center gap-3 border-l-4 border-brand-yellow pl-4 sm:justify-self-end">
+            <div className="hidden w-fit grid-cols-[auto_8.5rem] items-center gap-3 border-l-4 border-brand-yellow pl-4 sm:grid sm:justify-self-end">
               <span className="font-marker text-6xl leading-none text-brand-red sm:text-7xl">99+</span>
               <span className="text-base font-bold leading-tight text-brand-navy sm:text-lg">других идей под вашу работу</span>
             </div>
@@ -708,6 +723,10 @@ export default async function CourseLandingPage({ params, searchParams }: {
                 </div>
               </article>
             ))}
+          </div>
+          <div className="grid w-fit grid-cols-[auto_8.5rem] items-center gap-3 border-l-4 border-brand-yellow pl-4 sm:hidden">
+            <span className="font-marker text-6xl leading-none text-brand-red">99+</span>
+            <span className="text-base font-bold leading-tight text-brand-navy">других идей под вашу работу</span>
           </div>
         </section>
       )}
@@ -732,17 +751,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
               </p>
             )}
           </div>
-          <div className="mt-7 grid gap-5 sm:grid-cols-2">
-            {landing.testimonial.quotes.map((quote, index) => (
-              <blockquote
-                key={quote}
-                className={`relative rounded-2xl border-2 border-brand-navy bg-card px-5 pb-5 pt-10 text-lg font-bold leading-relaxed text-brand-navy shadow-[0_4px_0_0_rgba(16,38,71,0.14)] sm:text-xl ${index % 2 === 0 ? 'sm:-rotate-1' : 'sm:rotate-1'}`}
-              >
-                <span className="absolute left-5 top-3 font-marker text-5xl leading-none text-brand-red" aria-hidden>“</span>
-                «{quote}»
-              </blockquote>
-            ))}
-          </div>
+          <TestimonialCarousel quotes={landing.testimonial.quotes} />
           <div className="mt-6 flex justify-center">
             <Link
               href="/reviews"
@@ -800,14 +809,50 @@ export default async function CourseLandingPage({ params, searchParams }: {
         </section>
       )}
 
-      {/* Кому подойдёт (после результатов) */}
-      {landing.audience.length > 0 && shows('audience') && (
-        <section className="animate-rise space-y-8">
+      {/* Кому подойдёт: у курса новичков — короткий список без карточек */}
+      {landing.audience.length > 0 && shows('audience') && isAgents && (
+        <section className="animate-rise space-y-5 sm:space-y-8">
+          <SectionHead size="lg" title="Кому подойдёт" accent="подойдёт" />
+
+          <ul className="divide-y-2 divide-dashed divide-brand-navy/10 rounded-2xl border-2 border-brand-navy bg-card px-4 py-1 shadow-[0_5px_0_0_rgba(16,38,71,0.12)] sm:grid sm:grid-cols-2 sm:gap-x-8 sm:divide-y-0 sm:px-6 sm:py-4">
+            {landing.audience.map((item) => (
+              <li key={item.title} className="flex gap-3 py-3.5 sm:py-3">
+                <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-brand-forest/15 text-brand-forest">
+                  <Check className="size-3.5" aria-hidden strokeWidth={3} />
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-heading text-[17px] font-black leading-tight text-brand-navy sm:text-xl">{item.title}</span>
+                  <span className="mt-1 block text-[14px] font-medium leading-snug text-brand-charcoal/80 text-pretty sm:text-base">
+                    <RichText text={item.note} />
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          {!cont && (
+            <div className="flex justify-center pt-1">
+              <PrimaryCta
+                cont={cont}
+                cta={{ label: landing.cta.label, href: landing.cta.href, hint: '' }}
+                pricingHref={pricingHref}
+                courseSlug={key}
+                courseTitle={course.title}
+                className="btn-scarf inline-flex h-12 items-center justify-center gap-2 rounded-2xl border-2 border-brand-navy px-8 text-base font-extrabold text-brand-navy shadow-[0_4px_0_0_var(--color-scarf-green)] transition-all hover:-translate-y-0.5 hover:shadow-[0_6px_0_0_var(--color-scarf-green)]"
+              />
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Кому подойдёт: карточки остальных лендингов */}
+      {landing.audience.length > 0 && shows('audience') && !isAgents && (
+        <section className="animate-rise space-y-5 sm:space-y-8">
           <SectionHead
             size="lg"
             title="Кому подойдёт"
           />
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-5">
             {landing.audience.map((item, idx) => {
               // Две выделенные карточки — вайбкодеры и разработчики — стоят рядом в первом ряду,
               // у каждой своя полоска и маркерная надпись
@@ -830,7 +875,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
                     />
 
                     <div
-                      className="group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border-2 border-brand-navy p-6 sm:p-7 shadow-[0_6px_0_0_rgba(16,38,71,0.12)] transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_rgba(16,38,71,0.18)]"
+                      className="group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border-2 border-brand-navy px-4 py-3.5 shadow-[0_6px_0_0_rgba(16,38,71,0.12)] sm:p-7 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_rgba(16,38,71,0.18)]"
                       style={{ backgroundColor: accent.bg }}
                     >
                       {/* Верхняя фирменная полоска с пляжного зонтика в цвете карточки */}
@@ -842,15 +887,15 @@ export default async function CourseLandingPage({ params, searchParams }: {
                       />
 
                       <div className="pt-2">
-                        <div className="flex items-center justify-between border-b-2 border-brand-navy/15 pb-3.5">
-                          <h3 className="font-heading text-xl sm:text-2xl font-black text-brand-navy">
+                        <div className="flex items-center justify-between border-b-2 border-brand-navy/15 pb-2.5 sm:pb-3.5">
+                          <h3 className="font-heading text-lg font-black text-brand-navy sm:text-2xl">
                             {item.title}
                           </h3>
                           <span className="font-marker text-3xl leading-none text-brand-navy">
                             0{idx + 1}
                           </span>
                         </div>
-                        <div className="mt-3.5 text-[17px] sm:text-lg font-bold leading-relaxed text-brand-navy/90 text-pretty">
+                        <div className="mt-2.5 text-[15px] font-bold leading-snug text-brand-navy/90 text-pretty sm:mt-3.5 sm:text-lg sm:leading-relaxed">
                           <RichText text={item.note} />
                         </div>
                       </div>
@@ -862,18 +907,18 @@ export default async function CourseLandingPage({ params, searchParams }: {
               return (
                 <div
                   key={item.title}
-                  className="group relative flex flex-col justify-between rounded-3xl border-2 border-brand-navy/15 bg-card p-6 sm:p-7 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] transition-all hover:-translate-y-0.5 hover:border-brand-navy hover:shadow-[0_6px_0_0_rgba(16,38,71,0.12)]"
+                  className="group relative flex flex-col justify-between rounded-3xl border-2 border-brand-navy/15 bg-card px-4 py-3.5 shadow-[0_4px_0_0_rgba(16,38,71,0.06)] sm:p-7 transition-all hover:-translate-y-0.5 hover:border-brand-navy hover:shadow-[0_6px_0_0_rgba(16,38,71,0.12)]"
                 >
                   <div>
-                    <div className="flex items-center justify-between border-b-2 border-brand-navy/10 pb-3.5">
-                      <h3 className="font-heading text-2xl font-black text-brand-navy sm:text-3xl">
+                    <div className="flex items-center justify-between border-b-2 border-brand-navy/10 pb-2 sm:pb-3.5">
+                      <h3 className="font-heading text-lg font-black text-brand-navy sm:text-3xl">
                         {item.title}
                       </h3>
-                      <span className="font-marker text-3xl leading-none text-brand-forest">
+                      <span className="font-marker text-2xl leading-none text-brand-forest sm:text-3xl">
                         0{idx + 1}
                       </span>
                     </div>
-                    <div className="mt-3.5 text-lg font-medium leading-relaxed text-brand-charcoal/90 text-pretty sm:text-xl">
+                    <div className="mt-2 text-[15px] font-medium leading-snug text-brand-charcoal/90 text-pretty sm:mt-3.5 sm:text-xl sm:leading-relaxed">
                       <RichText text={item.note} />
                     </div>
                   </div>
@@ -897,16 +942,67 @@ export default async function CourseLandingPage({ params, searchParams }: {
         </section>
       )}
 
-      {landing.requirements && landing.requirements.length > 0 && (
-        <section className="animate-rise space-y-8">
-          <SectionHead size="lg" title="Что нужно для старта" />
-          <dl className="divide-y-2 divide-dashed divide-brand-navy/10 border-y-2 border-dashed border-brand-navy/10">
-            {landing.requirements.map((item) => (
-              <div key={item.label} className={`grid gap-1 py-4 sm:grid-cols-[10rem_1fr] sm:items-baseline sm:gap-8 sm:py-5 ${item.label === 'В подарок' ? 'my-2 rounded-2xl bg-brand-yellow px-5 sm:px-6' : ''}`}>
-                <dt className={`font-mono text-sm font-black uppercase tracking-wider ${item.label === 'В подарок' ? 'text-brand-red' : 'text-brand-navy/55'}`}>{item.label}</dt>
-                <dd className="font-heading text-xl font-black leading-snug text-brand-navy sm:text-2xl">{item.value}</dd>
+      {/* Что нужно для старта: у курса новичков это ответ на «а я потяну?» —
+          четыре иконки вместо простыни строк, подарок отдельной плашкой */}
+      {landing.requirements && landing.requirements.length > 0 && isAgents && (
+        <section className="animate-rise space-y-5 sm:space-y-8">
+          <SectionHead size="lg" title="Что нужно для старта" accent="для старта" />
+          <div className="space-y-3 sm:space-y-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+              {landing.requirements
+                .filter((item) => !isGiftLabel(item.label))
+                .map((item) => {
+                  const Icon = REQUIREMENT_ICONS[item.label.replaceAll('\u00a0', ' ')] ?? Laptop;
+                  return (
+                    <div
+                      key={item.label}
+                      className="flex flex-col rounded-2xl border-2 border-brand-navy bg-card p-4 shadow-[0_4px_0_0_rgba(16,38,71,0.12)] sm:p-5"
+                    >
+                      <span className="flex size-9 items-center justify-center rounded-xl bg-brand-yellow text-brand-navy sm:size-10">
+                        <Icon className="size-5" aria-hidden />
+                      </span>
+                      <span className="mt-3 font-heading text-lg font-black leading-none text-brand-navy sm:text-xl">
+                        {item.label}
+                      </span>
+                      <span className="mt-1.5 text-[14px] font-medium leading-snug text-brand-charcoal/80 text-pretty sm:text-[15px]">
+                        {item.value}
+                      </span>
+                    </div>
+                  );
+                })}
+            </div>
+
+            {landing.requirements.filter((item) => isGiftLabel(item.label)).map((item) => (
+              <div
+                key={item.label}
+                className="flex items-center gap-3 rounded-2xl border-2 border-brand-navy bg-brand-yellow px-4 py-3.5 shadow-[0_4px_0_0_rgba(16,38,71,0.12)] sm:gap-4 sm:px-6 sm:py-4"
+              >
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border-2 border-brand-navy/20 bg-brand-cream text-brand-red sm:size-10">
+                  <Gift className="size-5" aria-hidden />
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-mono text-xs font-black uppercase tracking-wider text-brand-red">{item.label}</span>
+                  <span className="mt-0.5 block font-heading text-base font-black leading-snug text-brand-navy sm:text-xl">{item.value}</span>
+                </span>
               </div>
             ))}
+          </div>
+        </section>
+      )}
+
+      {landing.requirements && landing.requirements.length > 0 && !isAgents && (
+        <section className="animate-rise space-y-5 sm:space-y-8">
+          <SectionHead size="lg" title="Что нужно для старта" />
+          <dl className="divide-y-2 divide-dashed divide-brand-navy/10 border-y-2 border-dashed border-brand-navy/10">
+            {landing.requirements.map((item) => {
+              const isGift = isGiftLabel(item.label);
+              return (
+              <div key={item.label} className={`grid gap-0.5 py-2.5 sm:grid-cols-[10rem_1fr] sm:items-baseline sm:gap-8 sm:py-5 ${isGift ? 'my-1.5 rounded-2xl bg-brand-yellow px-4 sm:my-2 sm:px-6' : ''}`}>
+                <dt className={`font-mono text-xs font-black uppercase tracking-wider sm:text-sm ${isGift ? 'text-brand-red' : 'text-brand-navy/55'}`}>{item.label}</dt>
+                <dd className="font-heading text-base font-black leading-snug text-brand-navy sm:text-2xl">{item.value}</dd>
+              </div>
+              );
+            })}
           </dl>
         </section>
       )}
@@ -918,7 +1014,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
 
           {/* Условия участия рядом с программой: нагрузка, сроки, домашки, подписки */}
           {landing.terms && landing.terms.length > 0 && (
-            <dl className={isAgents ? 'grid border-y-2 border-brand-navy/10 py-6 sm:grid-cols-3 sm:py-7' : 'divide-y-2 divide-dashed divide-brand-navy/10 border-y-2 border-dashed border-brand-navy/10'}>
+            <dl className={isAgents ? 'grid border-t-2 border-brand-navy/10 pb-1 pt-6 sm:grid-cols-3 sm:py-7' : 'divide-y-2 divide-dashed divide-brand-navy/10 border-y-2 border-dashed border-brand-navy/10'}>
               {landing.terms.map((t) => (
                 <div key={t.label} className={isAgents ? 'flex flex-col items-center border-t-2 border-brand-navy/10 px-5 py-5 text-center first:border-t-0 sm:border-l-2 sm:border-t-0 sm:py-1 sm:first:border-l-0' : 'grid grid-cols-1 gap-x-8 gap-y-1 py-4 sm:grid-cols-[12rem_1fr] sm:items-baseline sm:py-5'}>
                   <dt className={isAgents ? 'font-marker text-5xl leading-none text-brand-navy sm:text-6xl' : 'font-mono text-xs font-black uppercase tracking-wider text-brand-navy/55 sm:text-sm'}>{t.label}</dt>

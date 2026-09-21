@@ -4,7 +4,10 @@ import { nbspDeep } from '@/lib/typography';
 
 export type ReviewCourse = { slug: string; title: string };
 
-export type Review = { course: string; text: string };
+// author и role — подпись под отзывом: имя и род занятий человека. Анонимные
+// отзывы читаются как выдуманные, поэтому подпись выводится, как только она есть.
+// TODO: заполнить по согласованию с ученицами — без согласия подпись не ставим.
+export type Review = { course: string; text: string; author?: string; role?: string };
 
 export const REVIEW_COURSES: readonly ReviewCourse[] = [
   { slug: 'claude-code-agents', title: 'Claude Code с нуля' },
@@ -27,6 +30,10 @@ const REVIEWS_RAW: readonly Review[] = [
 // В тексте лендингов nbsp расставляется на выходе, здесь — так же
 export const REVIEWS: readonly Review[] = nbspDeep(REVIEWS_RAW);
 
-export function reviewQuotes(courseSlug: string): readonly string[] {
-  return REVIEWS_RAW.filter((r) => r.course === courseSlug).map((r) => r.text);
+export type ReviewQuote = { text: string; author?: string; role?: string };
+
+export function reviewQuotes(courseSlug: string): readonly ReviewQuote[] {
+  return REVIEWS_RAW
+    .filter((r) => r.course === courseSlug)
+    .map(({ text, author, role }) => ({ text, author, role }));
 }
