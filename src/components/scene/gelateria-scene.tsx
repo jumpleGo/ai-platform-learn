@@ -3,7 +3,7 @@
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 import Link from 'next/link';
-import { Sparkles } from 'lucide-react';
+import { Code2, Gift, Sparkles, Sprout } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Lemon } from './lemon';
 import {
@@ -24,6 +24,7 @@ import {
   scene,
 } from '@/lib/scene';
 import { BEGINNER_URL, LEGAL_NAV, PROGRAM_URL } from '@/lib/site';
+import { nbsp } from '@/lib/typography';
 import './scene.css';
 import { RichText } from '@/components/markdown';
 import { LessonQuizDialog } from '@/components/lesson-quiz';
@@ -90,8 +91,20 @@ function setText(el: HTMLElement, value: string): boolean {
 // вместить всё, и только если даже мельче не влезает — режем по предложениям.
 const FIT_STEPS = [0.94, 0.88, 0.82];
 
-export function GelateriaScene() {
+// Вариант offer теста home_offer: оффер на первом экране и карточки курсов
+// с ценой-от. null — контроль, сцена как есть.
+export type SceneOffer = { prices: { agents: number; vibecoding: number } };
+
+// Карточки курсов: адрес, иконка и цена по id из COPY.courses
+const COURSE_CARDS: Record<string, { href: string; icon: typeof Sprout; price: (o: SceneOffer) => string }> = {
+  'claude-code-agents': { href: BEGINNER_URL, icon: Sprout, price: (o) => `от ${o.prices.agents.toLocaleString('ru-RU')} ₽` },
+  vibecoding: { href: PROGRAM_URL, icon: Code2, price: (o) => `от ${o.prices.vibecoding.toLocaleString('ru-RU')} ₽` },
+  free: { href: '/free', icon: Gift, price: () => 'бесплатно' },
+};
+
+export function GelateriaScene({ offer = null }: { offer?: SceneOffer | null }) {
   const stageRef = useRef<HTMLDivElement>(null);
+  const lenisRef = useRef<Lenis | null>(null);
   const rollRef = useRef<HTMLDivElement>(null);
   const hitRef = useRef<HTMLDivElement>(null);
   const finaleBtnRef = useRef<HTMLButtonElement>(null);
@@ -106,6 +119,7 @@ export function GelateriaScene() {
   useEffect(() => {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const lenis = new Lenis({ duration: 1.1, wheelMultiplier: 0.9, touchMultiplier: 1.6 });
+    lenisRef.current = lenis;
     let raf = requestAnimationFrame(function tick(time) {
       lenis.raf(time);
       raf = requestAnimationFrame(tick);
@@ -113,6 +127,7 @@ export function GelateriaScene() {
     return () => {
       cancelAnimationFrame(raf);
       lenis.destroy();
+      lenisRef.current = null;
     };
   }, []);
 
@@ -140,7 +155,8 @@ export function GelateriaScene() {
     const reveals = Array.from(stage.querySelectorAll('[data-reveal]'));
     // На телефоне первый смысловой блок — точка входа в историю, поэтому он
     // виден сразу. Остальная сцена по-прежнему раскрывается после скролла.
-    if (matchMedia('(max-width: 700px)').matches) {
+    // Оффер с кнопками — тоже: он и есть витрина, прятать его до скролла нельзя.
+    if (offer || matchMedia('(max-width: 700px)').matches) {
       stage.querySelector('.scene-hero')?.setAttribute('data-in', '');
     }
     let armed = false;
@@ -260,7 +276,7 @@ export function GelateriaScene() {
       removeEventListener('wheel', onScroll);
       removeEventListener('resize', onScroll);
     };
-  }, [acc]);
+  }, [acc, offer]);
 
   // Текста в свободной зоне рисунка может не хватить — на узком экране особенно.
   // Тогда лишнее обрезается по последнему законченному предложению, а блок
@@ -469,16 +485,61 @@ export function GelateriaScene() {
           </div>
 
           {/* ── текст на фасаде ── */}
-          <div className="scene-copy scene-hero" data-reveal style={{ '--l': X(756), '--r': X(180), '--t': Y(624) } as React.CSSProperties}>
+          <div
+            className={`scene-copy scene-hero${offer ? ' scene-hero--offer' : ''}`}
+            data-reveal
+            style={{ '--l': X(756), '--r': X(180), '--t': Y(624) } as React.CSSProperties}
+          >
             {/* Заголовок страницы: в сцене его роль играет вывеска на картинке,
                 текста в разметке не было — для поиска и скринридеров держим его
                 скрытым, иначе у главной просто нет h1. */}
             <h1 className="sr-only">{COPY.hero.seoTitle}</h1>
-            <p className="scene-eyebrow whitespace-pre-line">{COPY.hero.eyebrow}</p>
-            <p className="scene-title whitespace-pre-line"><RichText text={COPY.hero.title} /></p>
-            <div className="scene-note scene-hero-story"><RichText text={COPY.hero.story} /></div>
-            <div className="scene-note scene-hero-brand"><RichText text={COPY.hero.brand} /></div>
-            <p className="scene-hero-cta">{COPY.hero.cta}</p>
+            {offer ? (
+              <>
+                {/* Оффер вместо атмосферы: что за школа и два действия сразу */}
+                <p className="scene-eyebrow">{COPY.offer.eyebrow}</p>
+                <p className="scene-title">{COPY.offer.title}</p>
+                <div className="scene-offer-actions">
+                  <button
+                    type="button"
+                    className="scene-btn scene-btn--solid"
+                    onClick={() => {
+                      track(EVENTS.quizStarted, { place: 'scene_offer' });
+                      setQuizOpen(true);
+                    }}
+                  >
+                    <span className="scene-btn-label">
+                      <Sparkles className="size-4" aria-hidden />
+                      {COPY.offer.quiz}
+                    </span>
+                  </button>
+                  <a
+                    href="#courses"
+                    className="scene-btn scene-btn--outline"
+                    onClick={(event) => {
+                      track(EVENTS.homeCourseClicked, { course: 'catalog', place: 'scene_offer' });
+                      const target = document.getElementById('courses');
+                      if (!target) return;
+                      event.preventDefault();
+                      // Lenis перехватывает колесо, поэтому к якорю едем через него;
+                      // без него (reduced motion) — обычным scrollIntoView
+                      if (lenisRef.current) lenisRef.current.scrollTo(target, { offset: -innerHeight * 0.2 });
+                      else target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
+                  >
+                    <span className="scene-btn-label">{COPY.offer.courses}</span>
+                  </a>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="scene-eyebrow whitespace-pre-line">{COPY.hero.eyebrow}</p>
+                <p className="scene-title whitespace-pre-line"><RichText text={COPY.hero.title} /></p>
+                <div className="scene-note scene-hero-story"><RichText text={COPY.hero.story} /></div>
+                <div className="scene-note scene-hero-brand"><RichText text={COPY.hero.brand} /></div>
+                <p className="scene-hero-cta">{COPY.hero.cta}</p>
+              </>
+            )}
           </div>
 
           <div
@@ -583,15 +644,54 @@ export function GelateriaScene() {
             <p className="scene-kicker">{COPY.pains.note}</p>
           </div>
 
-          <div
-            className="scene-copy scene-side-note"
-            data-plate
-            data-reveal
-            style={{ '--l': X(950), '--r': X(72), '--t': Y(4860) } as React.CSSProperties}
-          >
-            <h3 className="scene-card-title">{COPY.painsSide.title}</h3>
-            <p className="scene-card-note">{COPY.painsSide.note}</p>
-          </div>
+          {offer ? (
+            // Карточки курсов с ценой-от на месте плашки «Новичкам»: левый край
+            // отодвинут от тропинки (x≈950), по которой катится лимон
+            <div
+              id="courses"
+              className="scene-copy scene-course-cards"
+              data-reveal
+              style={{ '--l': X(980), '--r': X(72), '--t': Y(4860) } as React.CSSProperties}
+            >
+              <p className="scene-eyebrow">{COPY.courses.eyebrow}</p>
+              <h2 className="scene-title">{COPY.courses.title}</h2>
+              <div className="scene-course-list">
+                {COPY.courses.items.map((item, i) => {
+                  const card = COURSE_CARDS[item.id];
+                  const Icon = card.icon;
+                  return (
+                    <Link
+                      key={item.id}
+                      href={card.href}
+                      className="scene-course-card"
+                      data-reveal
+                      style={{ '--d': `${i * 0.1}s` } as React.CSSProperties}
+                      onClick={() => track(EVENTS.homeCourseClicked, { course: item.id, place: 'scene_cards' })}
+                    >
+                      <span className="scene-course-icon" data-course={item.id} aria-hidden>
+                        <Icon />
+                      </span>
+                      <span className="scene-course-text">
+                        <span className="scene-course-title">{item.title}</span>
+                        <span className="scene-course-note">{item.note}</span>
+                      </span>
+                      <span className="scene-course-price">{nbsp(card.price(offer))}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div
+              className="scene-copy scene-side-note"
+              data-plate
+              data-reveal
+              style={{ '--l': X(950), '--r': X(72), '--t': Y(4860) } as React.CSSProperties}
+            >
+              <h3 className="scene-card-title">{COPY.painsSide.title}</h3>
+              <p className="scene-card-note">{COPY.painsSide.note}</p>
+            </div>
+          )}
 
           {/* ── море: кораблик уплывает за скроллом ── */}
           <div
@@ -613,16 +713,19 @@ export function GelateriaScene() {
             </picture>
           </div>
 
-          <div
-            className="scene-copy scene-water-copy"
-            data-plate
-            data-reveal
-            style={{ '--l': X(90), '--r': X(1020), '--t': Y(5500) } as React.CSSProperties}
-          >
-            <p className="scene-eyebrow">{COPY.water.eyebrow}</p>
-            <h2 className="scene-title">{COPY.water.title}</h2>
-            <p className="scene-note">{COPY.water.note}</p>
-          </div>
+          {/* В варианте offer «IT + вайбкодинг» живёт карточкой курса выше */}
+          {!offer && (
+            <div
+              className="scene-copy scene-water-copy"
+              data-plate
+              data-reveal
+              style={{ '--l': X(90), '--r': X(1020), '--t': Y(5500) } as React.CSSProperties}
+            >
+              <p className="scene-eyebrow">{COPY.water.eyebrow}</p>
+              <h2 className="scene-title">{COPY.water.title}</h2>
+              <p className="scene-note">{COPY.water.note}</p>
+            </div>
+          )}
 
           {/* ── лимон прыгает на кораблик, отскакивает и летит бить кнопку ──
               позиция считается из того же «focus», что и катящийся лимон

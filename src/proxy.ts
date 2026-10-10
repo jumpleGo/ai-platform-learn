@@ -84,7 +84,9 @@ export function proxy(req: NextRequest) {
     : !isPublic && !authed
       ? NextResponse.redirect(new URL('/login', req.url))
       : pathname === '/' && variant === 'scene' && !authed
-        ? NextResponse.rewrite(new URL(SCENE_PATH, req.url), { request })
+        // query главной едет вместе с рерайтом: по ней страница сцены читает
+        // принудительный вариант своего теста (?exp_home_offer=…)
+        ? NextResponse.rewrite(new URL(`${SCENE_PATH}${req.nextUrl.search}`, req.url), { request })
         : NextResponse.next({ request });
   if (vid) res.cookies.set('vid', vid, { maxAge: 60 * 60 * 24 * 365, path: '/', sameSite: 'lax' });
   if (pairsVariant) {

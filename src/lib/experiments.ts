@@ -205,6 +205,26 @@ export const EXPERIMENTS = {
     minExposuresPerVariant: 100,
     status: 'running',
   },
+  homeOffer: {
+    key: 'home_offer',
+    hypothesis:
+      'Главная-сцена: 72% долистывают до конца, но 24% уходят раньше 3 с — первые два экрана ' +
+      'атмосфера без оффера («дыхание замедляется», «лимоны против чумы»), что за школа — видно ' +
+      'только на третьем. Главный CTA «Пройди наш тест» стоит на ~95% высоты и всё равно собирает ' +
+      '31 клик из 181; квиз начинают 14% (27 из 193 входов), заканчивают 79%, и именно квиз → урок → ' +
+      'Telegram даёт самые тёплые сессии. Курсы — текстовые плашки без цен: 74% уходят, не увидев ' +
+      'ни одной цены. Вариант offer: на первом экране одна строка «что это за школа» и две кнопки ' +
+      '(тест за минуту, курсы), а вместо плашек «Новичкам»/«IT + вайбкодинг» — три карточки курсов ' +
+      'с иконкой и ценой-от. Ожидание: quiz_started с 14% до 20%+, не уронив долистывание.',
+    variants: ['control', 'offer'],
+    startedAt: '2026-10-11',
+    pathPrefix: '/',
+    primaryMetric: 'quiz_started',
+    secondaryMetrics: ['home_course_click', 'pricing_viewed', 'lesson_view', 'telegram_click'],
+    minExposuresPerVariant: 100,
+    reportScrollDepth: true,
+    status: 'running',
+  },
 } as const satisfies Record<string, Experiment>;
 
 export type ExperimentKey = (typeof EXPERIMENTS)[keyof typeof EXPERIMENTS]['key'];

@@ -25,4 +25,5 @@ export const EVENTS = {
   paymentStatusChecked: 'payment_status_checked', // props: status, confirmed, courseSlug — только при смене статуса
   experimentExposed: 'experiment_exposed',     // props: experiment, variant — посетитель увидел тестируемый элемент
   leadSubmitted: 'lead_submitted',             // props: courseSlug, place, type — оставил контакт в форме «пришлю программу»
+  homeCourseClicked: 'home_course_click',      // props: course, place — клик по карточке курса или «Курсы» на главной
 } as const;
