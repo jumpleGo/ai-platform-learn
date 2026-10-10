@@ -2,9 +2,8 @@ import React from 'react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { cookies } from 'next/headers';
 import { notFound, permanentRedirect } from 'next/navigation';
-import { ArrowDown, ArrowRight, ArrowUpRight, Check, ChevronDown, Gift, GraduationCap, Laptop, Lightbulb, Repeat, Send } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUpRight, CalendarDays, Check, ChevronDown, Gift, GraduationCap, Laptop, Lightbulb, Repeat, Send, ShieldCheck, Wallet } from 'lucide-react';
 import { getPublishedCoursesWithLessons, type CourseWithLessons } from '@/lib/db/courses';
 import { getSubscription } from '@/lib/db/subscriptions';
 import { getCompletedLessonIds } from '@/lib/db/progress';
@@ -12,6 +11,7 @@ import { getSession } from '@/lib/session';
 import { hasCourseAccess } from '@/lib/access';
 import { buildFallbackLanding, getCourseLanding, type CourseLanding } from '@/lib/course-landings';
 import { getStreamStartDate } from '@/lib/payments/stream-schedule';
+import { getTariffsForCourse } from '@/lib/payments/tariffs';
 import { courseKey, lessonPath } from '@/lib/slug';
 import { SITE_URL, TELEGRAM_DM } from '@/lib/site';
 import { nbsp } from '@/lib/typography';
@@ -22,16 +22,8 @@ import { Lemon } from '@/components/scene/lemon';
 import { CaseCycle } from '@/components/case-cycle';
 import { BrandLogoRow, LogoStack, BrandLogo } from '@/components/brand-logos';
 import { VibeGuestCta } from '@/components/vibe-guest-cta';
-import { ExperimentExposure } from '@/components/experiment-exposure';
 import { TestimonialCarousel } from '@/components/testimonial-carousel';
-import { getExperiment, pickVariant } from '@/lib/experiments';
-import {
-  HERO_COPY_COOKIE,
-  LANDING_BLOCKS_COOKIE,
-  pickHeroCopy,
-  pickLandingBlocks,
-  type LandingBlock,
-} from '@/lib/landing-blocks';
+import { VIBE_GUEST_BLOCKS, type LandingBlock } from '@/lib/landing-blocks';
 
 // Вход в воронку для новичка: уроки курса-хаба открыты без оплаты
 const FREE_LESSON_HREF = '/courses/claude-code/lessons/1?from=course_landing';
@@ -164,45 +156,19 @@ export default async function CourseLandingPage({ params, searchParams }: {
         hint: `Урок ${nextIndex + 1} из ${course.lessons.length}${doneCount ? ` · пройдено ${doneCount}` : ''}`,
       }
     : null;
-  // Тест длины лендинга вайбкода: набор блоков выбираем на сервере по cookie vid,
-  // чтобы страница не моргала полной версией и высота была честной с первого кадра.
+  // Состав лендинга вайбкода для гостя зафиксирован по итогам A/B-теста длины.
   // Оплатившему (cont) режем нечего — он пришёл за входом в уроки.
-  const forcedBlocks = query.exp_vibe_landing_blocks;
-  const jar = key === 'vibecoding' ? await cookies() : null;
-  const blockTest =
-    jar && !cont
-      ? pickLandingBlocks({
-          visitorId: jar.get('vid')?.value ?? null,
-          remembered: jar.get(LANDING_BLOCKS_COOKIE)?.value ?? null,
-          forced: typeof forcedBlocks === 'string' ? forcedBlocks : null,
-        })
-      : null;
-  const shows = (block: LandingBlock) => !blockTest || blockTest.blocks.includes(block);
-  // Тест копии хиро — отдельный жребий, тоже на сутки
-  const forcedHero = query.exp_vibe_hero_copy;
-  const heroTest =
-    jar && !cont
-      ? pickHeroCopy({
-          visitorId: jar.get('vid')?.value ?? null,
-          remembered: jar.get(HERO_COPY_COOKIE)?.value ?? null,
-          forced: typeof forcedHero === 'string' ? forcedHero : null,
-        })
-      : null;
-  const heroCopy = heroTest?.copy ?? null;
-  // Тест кнопки в бесплатный урок: жребий по vid, как и раньше, но считается на сервере
-  const forcedFreeCta = query.exp_vibe_landing_free_cta;
-  const freeCtaExperiment = getExperiment('vibe_landing_free_cta');
-  const freeCtaVariant =
-    jar && !cont
-      ? typeof forcedFreeCta === 'string' && freeCtaExperiment.variants.includes(forcedFreeCta)
-        ? forcedFreeCta
-        : pickVariant(freeCtaExperiment, jar.get('vid')?.value ?? 'anonymous')
-      : null;
+  const guestBlocks = key === 'vibecoding' && !cont ? VIBE_GUEST_BLOCKS : null;
+  const shows = (block: LandingBlock) => !guestBlocks || guestBlocks.includes(block);
 
   // Для продаваемых флагманских программ цена и состав должны быть видны до модалки.
   const showTariffs = (isVibe || isAgents) && !cont;
   // Все «Выбрать тариф» ведут к карточкам на странице, модалка остаётся для оплаты
   const pricingHref = showTariffs ? '#pricing' : undefined;
+  // Цена-от для первого экрана: после неё смотревшие тарифы уходили молча, а до неё
+  // половина посетителей просто не доскролливала — пусть порядок цены виден сразу
+  const minPrice = isVibe ? Math.min(...getTariffsForCourse(key).map((t) => t.price)) : null;
+  const guarantee = isVibe ? landing.why.find((w) => w.title.startsWith('Гарантия')) : undefined;
   const faqItems = isAgents
     ? [
         {
@@ -267,22 +233,20 @@ export default async function CourseLandingPage({ params, searchParams }: {
 
   return (
     <div className="space-y-24 sm:space-y-32">
-      {blockTest && <ExperimentExposure experimentKey="vibe_landing_blocks" variant={blockTest.variant} />}
-      {heroTest && <ExperimentExposure experimentKey="vibe_hero_copy" variant={heroTest.variant} />}
-      {freeCtaVariant && (
-        <ExperimentExposure experimentKey="vibe_landing_free_cta" variant={freeCtaVariant} />
-      )}
       {/* Хиро: оффер, факты и обе кнопки — оплатить или написать лично */}
       <section className="animate-rise relative pt-6 sm:pt-10">
         {/* Обложка обучения стоит справа от текста: без неё правая половина
             первого экрана пустовала. */}
         <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-14">
           <div>
+            {isVibe && !cont && (
+              <p className="mb-4 font-mono text-xs font-black uppercase tracking-wider text-brand-red sm:text-sm">
+                {nbsp('Для вайбкодеров и разработчиков с проектом')}
+              </p>
+            )}
             <h1 className="font-heading text-[2.6rem]/[1.04] font-bold tracking-[-0.03em] text-balance text-brand-navy sm:text-[3.4rem]/[1.02]">
               {/* Слово «тимлида» подчёркиваем маркерной линией — как «пользуюсь сам» в блоке автора */}
-              {heroCopy ? (
-                nbsp(heroCopy.h1)
-              ) : isAgents ? (
+              {isAgents ? (
                 <>
                   Автоматизируйте{' '}
                   <span className="relative inline-block whitespace-nowrap">
@@ -298,7 +262,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
               ) : landing.h1.includes('тимлида')
                 ? landing.h1.split('тимлида').map((part, i, arr) => (
                     <React.Fragment key={i}>
-                      {part}
+                      {nbsp(part)}
                       {i < arr.length - 1 && (
                         <span className="relative inline-block whitespace-nowrap">
                           тимлида
@@ -309,9 +273,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
                 : landing.h1}
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-[1.45] text-muted-foreground text-pretty whitespace-pre-line sm:mt-6 sm:text-xl">
-              {heroCopy ? (
-                nbsp(heroCopy.lead)
-              ) : isAgents ? (
+              {isAgents ? (
                 <>
                   Установите Claude Code и научитесь{' '}
                   <span className="relative inline-block whitespace-nowrap text-brand-navy">
@@ -386,7 +348,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
                     </a>
                   </>
                 ) : (
-                  <VibeGuestCta variant={freeCtaVariant ?? 'control'} />
+                  <VibeGuestCta />
                 )
               ) : (
                 <>
@@ -410,6 +372,22 @@ export default async function CourseLandingPage({ params, searchParams }: {
                 </>
               )}
             </div>
+            {isVibe && !cont && minPrice && (
+              <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2.5 text-[15px] font-bold text-brand-navy">
+                <li className="inline-flex items-center gap-2">
+                  <Wallet className="size-4.5 text-brand-red" aria-hidden />
+                  {`от ${minPrice.toLocaleString('ru-RU')} ₽`}
+                </li>
+                <li className="inline-flex items-center gap-2">
+                  <CalendarDays className="size-4.5 text-brand-red" aria-hidden />
+                  {nbsp(`старт ${streamStartDate}`)}
+                </li>
+                <li className="inline-flex items-center gap-2">
+                  <ShieldCheck className="size-4.5 text-brand-forest" aria-hidden />
+                  {nbsp('возврат в первые 2 дня')}
+                </li>
+              </ul>
+            )}
             {(cont?.hint ?? landing.cta.hint) && (
               <p className="mt-2.5 text-xs text-muted-foreground whitespace-pre-line">
                 {cont?.hint ?? landing.cta.hint}
@@ -1131,6 +1109,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
               courseSlug={key}
               courseTitle={course.title}
               footnote={nbsp('\n')}
+              guarantee={guarantee?.note.replace(/\*\*/g, '')}
             />
           </>
         )}

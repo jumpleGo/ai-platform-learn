@@ -13,8 +13,8 @@ import {
 import { clientAuth } from '@/lib/firebase/client';
 import { track } from '@/lib/analytics/track-client';
 import { EVENTS } from '@/lib/analytics/events';
-import { useVibePriceTimer } from '@/lib/payments/vibe-timer-client';
-import { Clock } from 'lucide-react';
+import { Globe } from 'lucide-react';
+import { FOREIGN_PAYMENT_URL } from '@/lib/site';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -53,7 +53,6 @@ export function PaymentModal({
     }
   }, []);
 
-  const vibeTimer = useVibePriceTimer();
   const courseConfig = getCoursePaymentConfig(courseSlug);
   // Мемоизируем: иначе новый массив на каждом рендере сбрасывал выбранный тариф через эффект ниже
   const tariffs = useMemo(
@@ -272,7 +271,6 @@ export function PaymentModal({
                 <div className="grid grid-cols-1 gap-2">
                   {tariffs.map((t) => {
                     const isSelected = selectedTariff.id === t.id;
-                    const isVibeStream = t.id === 'vibecoding_stream';
                     const displayPrice = getTariffPrice(t);
                     return (
                       <button
@@ -294,12 +292,6 @@ export function PaymentModal({
                             {t.popular && (
                               <span className="text-[11px] font-bold text-brand-red">
                                 Выбор большинства
-                              </span>
-                            )}
-                            {isVibeStream && vibeTimer.mounted && (
-                              <span className="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-brand-red bg-brand-red/10 border border-brand-red/25 px-1.5 py-0.5 rounded">
-                                <Clock className="size-3" aria-hidden />
-                                <span>{vibeTimer.formattedTime}</span>
                               </span>
                             )}
                           </div>
@@ -468,13 +460,20 @@ export function PaymentModal({
                 <Image src="/payments/SberPay.webp" alt="SberPay" width={28} height={14} className="h-3 w-auto" />
               </div>
 
+              {/* Больше 80% смотрящих цены живут не в России, а все трое, кто открыл
+                  модалку в октябре, закрыли её на российских платёжках — запасной путь
+                  должен быть видимой кнопкой, а не серой строкой */}
               <a
-                href="https://t.me/rrotatew"
+                href={FOREIGN_PAYMENT_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block text-center text-sm text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
+                onClick={() =>
+                  track(EVENTS.telegramClicked, { cta_position: 'payment_modal_foreign', courseSlug })
+                }
+                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-brand-navy/25 bg-brand-cream/70 px-4 py-2.5 text-center text-[15px] font-bold leading-snug text-brand-navy transition-colors hover:border-brand-navy/60"
               >
-                Оплатить не банковской картой
+                <Globe className="size-4 shrink-0" aria-hidden />
+                Карта не российская? Оплатить через Telegram
               </a>
           </form>
         </div>

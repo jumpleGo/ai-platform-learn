@@ -1,0 +1,270 @@
+== по дням: сессии / вход / одностраничные / >1 страницы / медиана длит
+2026-09-15 7 single 6 multi 1 med 4 top entry /courses/vibecoding:4 /:2 /free:1
+2026-09-16 45 single 40 multi 5 med 1 top entry /:44 /reviews:1
+2026-09-17 2595 single 2353 multi 242 med 7 top entry /courses/claude-code-agents:2412 /courses/vibecoding:103 /:52
+2026-09-18 409 single 272 multi 137 med 5 top entry /courses/claude-code-agents:214 /courses/vibecoding:178 /:11
+2026-09-19 22 single 20 multi 2 med 1 top entry /courses/claude-code-agents:7 /courses/vibecoding:6 /:6
+2026-09-20 3 single 2 multi 1 med 0 top entry /courses/claude-code-agents/lessons/2:1 /blog/what-is-dominance:1 /courses/claude-code-agents:1
+2026-09-21 17 single 10 multi 7 med 47 top entry /:5 /courses/vibecoding:3 /blog:2
+2026-09-22 7 single 5 multi 2 med 1 top entry /courses/claude-code-agents:2 /blog:2 /:2
+2026-09-23 6 single 6 multi 0 med 82 top entry /:4 /promo/mfz-game:1 /blog/kuda-uhodyat-limity-ii:1
+2026-09-24 1 single 1 multi 0 med 0 top entry /blog/telegram-gifts:1
+2026-09-25 11 single 10 multi 1 med 1 top entry /:8 /blog/kuda-uhodyat-limity-ii:1 /courses/vibecoding:1
+2026-09-26 7 single 6 multi 1 med 9 top entry /:4 /news/legal-crypto:1 /news/papakha-gift-itogi:1
+2026-09-27 5 single 4 multi 1 med 54 top entry /:3 /news/papakha-gift:1 /news/ufc-mystery-box-telegram:1
+2026-09-28 8 single 7 multi 1 med 5 top entry /:3 /courses/claude-code-agents:3 /courses/vibecoding:1
+2026-09-29 27 single 17 multi 10 med 49 top entry /:22 /courses/vibecoding:4 /courses/claude-code-agents:1
+2026-09-30 1674 single 1361 multi 313 med 16 top entry /guide:1069 /courses/vibecoding:484 /:113
+2026-10-01 215 single 184 multi 31 med 1 top entry /guide:188 /courses/vibecoding:19 /:7
+2026-10-02 85 single 74 multi 11 med 29 top entry /courses/vibecoding:64 /guide:4 /free:2
+2026-10-03 63 single 46 multi 17 med 42 top entry /courses/vibecoding:61 /:1 /login:1
+2026-10-04 92 single 70 multi 22 med 46 top entry /courses/vibecoding:87 /courses/claude-code/lessons/4:2 /charts:1
+2026-10-05 50 single 46 multi 4 med 28 top entry /courses/vibecoding:47 /:2 /news/papakha-gift-itogi:1
+2026-10-06 42 single 28 multi 14 med 38 top entry /courses/vibecoding:37 /:3 /courses/claude-code/lessons/4:1
+2026-10-07 25 single 16 multi 9 med 27 top entry /courses/vibecoding:12 /:10 /blog/kuda-uhodyat-limity-ii:1
+2026-10-08 15 single 7 multi 8 med 57 top entry /:15
+2026-10-09 11 single 8 multi 3 med 33 top entry /:8 /courses/claude-code-agents:1 /courses:1
+2026-10-10 10 single 8 multi 2 med 46 top entry /:10
+
+== с 29.09: всего 2309
+entry [
+  [ '/guide', 1261 ],
+  [ '/courses/vibecoding', 815 ],
+  [ '/', 193 ],
+  [ '/courses/claude-code/lessons/4', 9 ],
+  [ '/courses/claude-code-agents', 4 ],
+  [ '/courses', 4 ],
+  [ '/free', 3 ],
+  [ '/blog', 3 ],
+  [ '/news/papakha-gift-itogi', 3 ],
+  [ '/courses/claude-code/lessons/2', 2 ],
+  [ '/blog/kuda-uhodyat-limity-ii', 2 ],
+  [ '/courses/O9aFw3KZqEFyGxnJB8fX/lessons/CY4AYMjQMSbND8TUYSFQ', 1 ],
+  [ '/faq', 1 ],
+  [ '/courses/claude-code/lessons/3', 1 ],
+  [ '/blog/ai-komanda-kak-realnaya-komanda', 1 ]
+]
+exit [
+  [ '/guide', 1202 ],
+  [ '/courses/vibecoding', 836 ],
+  [ '/', 150 ],
+  [ '/courses/claude-code/lessons/4', 31 ],
+  [ '/free', 25 ],
+  [ '/courses', 15 ],
+  [ '/courses/claude-code-agents', 10 ],
+  [ '/courses/claude-code/lessons/2', 10 ],
+  [ '/courses/claude-code/lessons/3', 6 ],
+  [ '/courses/ai-cartoons', 3 ],
+  [ '/faq', 3 ],
+  [ '/blog', 3 ],
+  [ '/news/papakha-gift-itogi', 3 ],
+  [ '/login', 2 ],
+  [ '/courses/claude-code/lessons/1', 2 ]
+]
+entry->exit [
+  [ '/guide => /guide', 1160 ],
+  [ '/courses/vibecoding => /courses/vibecoding', 727 ],
+  [ '/ => /', 143 ],
+  [ '/guide => /courses/vibecoding', 97 ],
+  [ '/courses/vibecoding => /guide', 42 ],
+  [ '/courses/vibecoding => /courses/claude-code/lessons/4', 19 ],
+  [ '/courses/vibecoding => /free', 13 ],
+  [ '/ => /courses/vibecoding', 11 ],
+  [ '/ => /free', 10 ],
+  [ '/ => /courses', 9 ],
+  [
+    '/courses/claude-code/lessons/4 => /courses/claude-code/lessons/4',
+    7
+  ],
+  [ '/ => /courses/claude-code/lessons/2', 6 ],
+  [ '/ => /courses/claude-code-agents', 5 ],
+  [ '/courses/claude-code-agents => /courses/claude-code-agents', 4 ],
+  [ '/courses/vibecoding => /', 4 ],
+  [ '/ => /courses/claude-code/lessons/3', 3 ],
+  [ '/courses/vibecoding => /courses', 3 ],
+  [ '/guide => /courses/claude-code/lessons/4', 3 ],
+  [ '/courses => /courses', 3 ],
+  [ '/blog => /blog', 3 ]
+]
+paths [
+  [ '/guide > /courses/vibecoding', 111 ],
+  [ '/guide', 73 ],
+  [ '/courses/vibecoding > /guide', 43 ],
+  [ '/courses/vibecoding > /courses/claude-code/lessons/4', 32 ],
+  [ '/courses/vibecoding', 25 ],
+  [ '/courses/vibecoding > /free', 22 ],
+  [ '/ > /free', 13 ],
+  [ '/ > /courses', 12 ],
+  [ '/ > /courses/vibecoding', 11 ],
+  [
+    '/guide > /courses/vibecoding > /courses/claude-code/lessons/4',
+    8
+  ],
+  [ '/ > /courses/claude-code/lessons/2', 6 ],
+  [ '/', 6 ],
+  [ '/ > /free > /courses', 5 ],
+  [ '/courses/vibecoding > /free > /courses', 5 ],
+  [ '/ > /courses/claude-code-agents', 3 ],
+  [
+    '/ > /free > /courses/claude-code-agents > /courses/vibecoding',
+    3
+  ],
+  [ '/ > /courses > /free', 3 ],
+  [ '/courses/vibecoding > /', 3 ],
+  [ '/ > /courses/claude-code/lessons/3', 2 ],
+  [ '/courses/vibecoding > /free > /courses/claude-code/lessons/3', 2 ],
+  [ '/courses/vibecoding > / > /free', 2 ],
+  [ '/ > /courses/claude-code/lessons/4', 2 ],
+  [ '/courses/vibecoding > /free > /faq', 2 ],
+  [ '/ > /login', 1 ],
+  [
+    '/ > /courses/vibecoding > /free > /courses/claude-code/lessons/2',
+    1
+  ],
+  [ '/ > /courses/claude-code/lessons/3 > /courses/vibecoding', 1 ],
+  [ '/ > /free > /courses > /courses/claude-code-agents', 1 ],
+  [ '/ > /free > /courses/claude-code/lessons/2', 1 ],
+  [ '/ > /courses > /courses/claude-code/lessons/2', 1 ],
+  [
+    '/ > /courses/claude-code-agents > /courses > /courses/ai-cartoons',
+    1
+  ]
+]
+dev [ [ 'Mobile', 2221 ], [ 'Desktop', 73 ], [ 'Tablet', 15 ] ] cc [
+  [ 'DE', 360 ],
+  [ 'NL', 299 ],
+  [ 'US', 203 ],
+  [ 'RU', 140 ],
+  [ 'KZ', 103 ],
+  [ 'GB', 90 ],
+  [ 'PL', 82 ],
+  [ 'FI', 82 ]
+]
+
+/guide: entries 1261, single-page 1065, med dur 1s, p75 73s, scroll med 1.00 n=799, scroll<25% 278, >75% 521, clicked 175
+ next pages [ [ '/courses/vibecoding', 113 ], [ '/guide', 83 ] ]
+ events [
+  [ 'pricing_viewed', 54 ],
+  [ 'lesson_view', 9 ],
+  [ 'lesson_cta_click', 3 ],
+  [ 'video_start', 2 ],
+  [ 'video_25', 2 ],
+  [ 'video_50', 2 ],
+  [ 'video_75', 1 ],
+  [ 'video_90', 1 ],
+  [ 'video_complete', 1 ],
+  [ 'subscribe_clicked', 1 ]
+]
+ top clicks [
+  [
+    'CLICK a "нажмите сюда" ->/files/gelato-free-tokens-guide.pdf',
+    144
+  ]
+]
+
+/courses/vibecoding: entries 815, single-page 661, med dur 40s, p75 72s, scroll med 0.52 n=462, scroll<25% 105, >75% 139, clicked 214
+ next pages [
+  [ '/guide', 43 ],
+  [ '/courses/claude-code/lessons/4', 38 ],
+  [ '/courses/vibecoding', 35 ],
+  [ '/free', 27 ],
+  [ '/', 5 ],
+  [ '/reviews', 2 ],
+  [ '/courses', 2 ],
+  [ '/faq', 2 ]
+]
+ events [
+  [ 'pricing_viewed', 373 ],
+  [ 'lesson_view', 43 ],
+  [ 'lesson_cta_click', 11 ],
+  [ 'video_start', 10 ],
+  [ 'home_view', 8 ],
+  [ 'video_25', 6 ],
+  [ 'video_50', 6 ],
+  [ 'video_75', 5 ],
+  [ 'video_90', 4 ],
+  [ 'video_complete', 4 ]
+]
+ top clicks [
+  [ 'CLICK a "К тарифам"', 65 ],
+  [ 'CLICK svg', 50 ],
+  [ 'CLICK a "Смотреть бесплатный урок"', 40 ],
+  [ 'CLICK a "Выбрать тариф"', 28 ],
+  [ 'CLICK a "Бесплатные материалы"', 27 ],
+  [ 'CLICK svg ->#pricing', 25 ],
+  [ 'CLICK button', 23 ],
+  [ 'CLICK span', 15 ],
+  [ 'CLICK a "Личка"', 15 ],
+  [ 'CLICK summary', 11 ],
+  [ 'CLICK a "Бесплатные материалы" ->/free', 10 ],
+  [ 'CLICK path', 9 ]
+]
+
+/: entries 193, single-page 106, med dur 46s, p75 96s, scroll med 1.00 n=90, scroll<25% 15, >75% 67, clicked 91
+ next pages [
+  [ '/free', 26 ],
+  [ '/courses', 18 ],
+  [ '/', 12 ],
+  [ '/courses/vibecoding', 11 ],
+  [ '/courses/claude-code/lessons/2', 8 ],
+  [ '/courses/claude-code-agents', 6 ],
+  [ '/courses/claude-code/lessons/3', 3 ],
+  [ '/courses/claude-code/lessons/4', 2 ]
+]
+ events [
+  [ 'home_view', 182 ],
+  [ 'quiz_started', 27 ],
+  [ 'quiz_completed', 21 ],
+  [ 'lesson_view', 21 ],
+  [ 'pricing_viewed', 18 ],
+  [ 'session_start', 9 ],
+  [ 'instrument_opened', 7 ],
+  [ 'timeframe_changed', 5 ],
+  [ 'telegram_click', 5 ],
+  [ 'favorites_list_switched', 3 ]
+]
+ top clicks [
+  [ 'CLICK button', 37 ],
+  [ 'CLICK a "Бесплатно" ->/free', 34 ],
+  [ 'CLICK span "Пройти тест"', 23 ],
+  [ 'CLICK select', 19 ],
+  [ 'CLICK a "IT + вайбкодинг" ->/courses/vibecoding', 17 ],
+  [ 'CLICK a "Загляни сюда! Наши обучения" ->/courses', 14 ],
+  [ 'CLICK a "Новичкам" ->/courses/claude-code-agents', 12 ],
+  [ 'CLICK button "Пройти тест"', 8 ],
+  [ 'CLICK a "Посмотреть обучения"', 7 ],
+  [ 'CLICK div', 7 ],
+  [ 'CLICK span "ИИ неправильно понимает задачу"', 7 ],
+  [ 'CLICK a "Открыть терминал" ->/charts/coin', 6 ]
+]
+
+/free: entries 3, single-page 2, med dur 1s, p75 22s, scroll med 0.63 n=1, scroll<25% 0, >75% 0, clicked 1
+ next pages [ [ '/', 1 ] ]
+ events [ [ 'home_view', 1 ] ]
+ top clicks [ [ 'CLICK img ->/', 1 ] ]
+
+/courses/claude-code/lessons/4: entries 9, single-page 6, med dur 9s, p75 74s, scroll med 1.00 n=8, scroll<25% 3, >75% 5, clicked 2
+ next pages [
+  [ '/courses/vibecoding', 1 ],
+  [ '/free', 1 ],
+  [ '/courses/claude-code/lessons/4', 1 ]
+]
+ events [
+  [ 'lesson_view', 8 ],
+  [ 'lesson_cta_click', 1 ],
+  [ 'pricing_viewed', 1 ],
+  [ 'video_start', 1 ],
+  [ 'video_25', 1 ],
+  [ 'video_50', 1 ],
+  [ 'video_75', 1 ],
+  [ 'home_view', 1 ]
+]
+ top clicks [
+  [ 'CLICK font "Tasdiqlash tizimini qanday yaratishni tushuning"', 1 ],
+  [ 'CLICK a "Бесплатные материалы"', 1 ]
+]
+
+/courses: entries 4, single-page 3, med dur 0s, p75 68s, scroll med 1.00 n=1, scroll<25% 0, >75% 1, clicked 0
+ next pages [ [ '/', 1 ] ]
+ events [ [ 'home_view', 1 ] ]
+ top clicks []

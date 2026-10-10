@@ -6,6 +6,8 @@ export const SITE_URL = 'https://gelato.education';
 
 // Личка — сюда ведут все кнопки «написать»: продажи идут через диалог, не через корзину
 export const TELEGRAM_DM = 'https://t.me/gelato_ai';
+// Оплата из-за рубежа и не банковской картой: личка автора, он присылает способ оплаты
+export const FOREIGN_PAYMENT_URL = 'https://t.me/rrotatew';
 // Канал школы: анонсы, бесплатные разборы. Поменять на реальный хендл канала,
 // пока стоит та же ссылка, что и в личку — чтобы не вести в пустоту.
 export const TELEGRAM_CHANNEL = 'https://t.me/gelato_ai';

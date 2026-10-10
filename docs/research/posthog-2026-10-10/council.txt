@@ -1,0 +1,237 @@
+WARNING council[openrouter] minimax/minimax-m3:free недоступна: openrouter minimax/minimax-m3:free http 404: {"error":{"message":"This model is unavailable for free. The paid version is available now - use this slug instead: minimax/minimax-m3","code":404},"user_id":"user_3EdaDXt4Rh9HW3yr8Tr9UU4ejZP"}
+WARNING council[openrouter] minimax/minimax-m2.7:free недоступна: openrouter minimax/minimax-m2.7:free http 404: {"error":{"message":"This model is unavailable for free. The paid version is available now - use this slug instead: minimax/minimax-m2.7","code":404},"user_id":"user_3EdaDXt4Rh9HW3yr8Tr9UU4ejZP"}
+WARNING council[minimax] попытка 1 не удалась: openrouter: модели голоса больше не отдаются (404/402): openrouter minimax/minimax-m2.7:free http 404: {"error":{"message":"This model is unavailable for free. The paid version is available now - use this slug instead: minimax/minimax-m2.7","code":404},"user_id":"user_3EdaDXt4Rh9HW3yr8Tr9UU4ejZP"}
+WARNING council[minimax] недоступен: minimax провалился после ретраев: openrouter: модели голоса больше не отдаются (404/402): openrouter minimax/minimax-m2.7:free http 404: {"error":{"message":"This model is unavailable for free. The paid version is available now - use this slug instead: minimax/minimax-m2.7","code":404},"user_id":"user_3EdaDXt4Rh9HW3yr8Tr9UU4ejZP"}
+WARNING council[gemini] попытка 1 не удалась: gemini cli rc=1: Error authenticating: IneligibleTierError: This client is no longer supported for Gemini Code Assist for individuals. To continue using Gemini, please migrate to the Antigravity suite of products: https://antigravity.google     at throwIneligibleOrProjectIdError (file:///opt/homebrew/lib/node_module
+WARNING council[codex] попытка 1 не удалась: codex cli rc=1: Reading additional input from stdin...
+WARNING council[codex] попытка 2 не удалась: codex cli rc=1: Reading additional input from stdin...
+WARNING council[gemini] попытка 2 не удалась: gemini cli rc=1: Error authenticating: IneligibleTierError: This client is no longer supported for Gemini Code Assist for individuals. To continue using Gemini, please migrate to the Antigravity suite of products: https://antigravity.google     at throwIneligibleOrProjectIdError (file:///opt/homebrew/lib/node_module
+WARNING council[codex] попытка 3 не удалась: codex cli rc=1: Reading additional input from stdin...
+WARNING council[codex] недоступен: codex провалился после ретраев: codex cli rc=1: Reading additional input from stdin...
+WARNING council[gemini] попытка 3 не удалась: gemini cli rc=1: Error authenticating: IneligibleTierError: This client is no longer supported for Gemini Code Assist for individuals. To continue using Gemini, please migrate to the Antigravity suite of products: https://antigravity.google     at throwIneligibleOrProjectIdError (file:///opt/homebrew/lib/node_module
+WARNING council[gemini] недоступен: gemini провалился после ретраев: gemini cli rc=1: Error authenticating: IneligibleTierError: This client is no longer supported for Gemini Code Assist for individuals. To continue using Gemini, please migrate to the Antigravity suite of products: https://antigravity.google     at throwIneligibleOrProjectIdError (file:///opt/homebrew/lib/node_module
+WARNING council[openrouter] dots-studio/dots-3-note-preview:free недоступна: openrouter dots-studio/dots-3-note-preview:free http 400: {"error":{"message":"Provider returned error","code":400,"metadata":{"raw":"{\"code\":400,\"msg\":\"bad request\",\"request_id\":\"c8d23ab5-144f-4e96-adec-0edeeff448d3\"}","provider_name":"AtlasCloud"
+WARNING council[dots] попытка 1 не удалась: openrouter: все модели голоса недоступны: openrouter dots-studio/dots-3-note-preview:free http 400: {"error":{"message":"Provider returned error","code":400,"metadata":{"raw":"{\"code\":400,\"msg\":\"bad request\",\"request_id\":\"c8d23ab5-144f-4e96-adec-0edeeff448d3\"}","provider_name":"AtlasCloud"
+WARNING council[openrouter] dots-studio/dots-3-note-preview:free недоступна: openrouter dots-studio/dots-3-note-preview:free http 400: {"error":{"message":"Provider returned error","code":400,"metadata":{"raw":"{\"code\":400,\"msg\":\"bad request\",\"request_id\":\"4d83556e-e906-4e43-9d14-8627a589cc04\"}","provider_name":"AtlasCloud"
+WARNING council[dots] попытка 2 не удалась: openrouter: все модели голоса недоступны: openrouter dots-studio/dots-3-note-preview:free http 400: {"error":{"message":"Provider returned error","code":400,"metadata":{"raw":"{\"code\":400,\"msg\":\"bad request\",\"request_id\":\"4d83556e-e906-4e43-9d14-8627a589cc04\"}","provider_name":"AtlasCloud"
+WARNING council[openrouter] nvidia/nemotron-3-super-120b-a12b:free недоступна: openrouter nvidia/nemotron-3-super-120b-a12b:free: пустой ответ
+########## ЗАСЕДАНИЕ 1 — обратная связь и решение ##########
+
+===== gemini =====
+(недоступен / ошибка)
+
+===== codex =====
+(недоступен / ошибка)
+
+===== deepseek =====
+Коллеги, вот мой независимый анализ.
+
+**1. Согласен ли с приоритетами?**
+Нет, порядок ошибочный. Аналитики начинают с платежей, хотя проблема не в способе оплаты, а в полном отсутствии желания платить. Ни один человек не дошёл даже до попытки оплаты. Приоритеты должны быть: сначала создать спрос и доверие, потом устранять технические барьеры.
+
+**2. Что упустили аналитики?**
+Они переоценили технические правки и недооценили маркетинговую проблему.
+- **Главная ошибка:** Лендинг не продает. Первый экран — 11 строк инженерного текста, нет ясного предложения, целевой аудитории, ценности. Цена — это боль, а не мотиватор. 70% уходят после её просмотра, потому что не увидели «за что платить».
+- **Ключевое упущение:** Трафик из Instagram холодный. Переход по ссылке в профиле — это слабый интент. Нет прогова, контакты не собираются. Бесплатный урок (9% переходов) — единственное, что работает, но его CTA ведет обратно на провальный лендинг.
+
+**3. Главная стратегическая развилка**
+При таком холодном трафике и нулевой конверсии продавать «в лоб» с лендинга — самоубийство. Нужен прогрев.
+**Мой совет:** Срочно перейти на модель лидогенерации. Бесплатный урок — это актив, но его нужно вести не на лендинг, а в воронку прогрева (Telegram-бот / email-рассылка). Цель — собрать контакт и строить доверительные отношения, а не пытаться продать с одной сессии.
+
+**4. Мой топ-5 действий на 2 недели**
+1.  **Переделать первый экран лендинга.** Ясно сформулировать выгоду, для кого курс, цену. Убрать инженерный жаргон. Убрать «вечный» таймер, убивающий доверие. *(Ожидаемый эффект: рост доходимости до цен и снижение оттока).*
+2.  **Превратить /guide в ленд-пейдж для лидогенерации.** Убрать авторедирект, добавить форму сбора Telegram/email для доступа к гайду, предложить следующий шаг (бесплатный урок). *(Эффект: начало сбора базы для прогрева).*
+3.  **Настроить простейшую воронку прогрева.** После бесплатного урока вести не на продажу, а в Telegram-канал/бот с полезным контентом про ИИ-разработку. Через 2-3 дня делать мягкое предложение. *(Эффект: переход к продажам через доверие).*
+4.  **Починить все критичные баги:** ссылку «Личка» (вести в ЛС), редиректную петлю на /guide, отображение на узких экранах. *(Эффект: устранение раздражения и потери потенциальных лидов).*
+5.  **Добавить социальные доказательства.** Хотя бы 2-3 кейса/отзыва на лендинг. Блок автора сделать обязательным. *(Эффект: рост доверия и снижение восприятия риска).*
+
+Платежи для зарубежья и CDN — важны, но вторичны. Сначала нужно создать продукт, который хотят купить.
+
+===== minimax =====
+(недоступен / ошибка)
+
+===== nemotron =====
+**Согласие с приоритетом аналитиков – частичное.**  
+1️⃣ Оплата для зарубежья – действительно критична, но без сбора контакта она остаётся «мёртвой точкой». Сначала нужен механизм захвата leads (Telegram‑бот/email), иначе иностранные пользователи просто уходят после просмотра цены.  
+2️⃣ /guide → нормальная страница – верно, но необходимо сразу добавить CTA к бесплатному уроку и триггер ретаргетинга (например, pixel‑событие).  
+3️⃣ Исправить «Личку» – обязательно, однако ссылка должна вести в личный диалог **с предзаполненным шапкой** (например, «Интересует курс vibecoding»), иначе диалог будет холодным.  
+4️⃣ Лендинг – первый экран нужно переделать под «результат + для кого + цена», но без A/B‑потерей: оставить только проверенный вариант (hero + program) и добавить социальное доказательство (отзывы, кейсы).  
+5️⃣ Бесплатный урок как демо – полезно, но только после того, как пользователь оставит контакт; иначе просмотр остаётся одноразовым.  
+6️⃣ Аналитика – добавление событий скачивания гайда, telegram_click и UTM обязательны, однако сейчас более важно настроить **server‑side tracking** (например, через Stripe webhook) чтобы не терять конверсии из‑за iOS‑ограничений.  
+7️⃣ Скорость – CDN/ISR помогут, но основная потеря происходит не из‑за TTFB, а из‑за плохого первого экрана и отсутствия доверия.
+
+**Что аналитики упустили / где ошиблись**  
+- **Сегментация трафика:** >80% смотрящих цены – зарубежная диаспора, но аналитики считают, что достаточно просто показать цены в €/$; на деле нужен локализованный доверительный сигнал (отзывы на языке, примеры кейсов из их страны).  
+- **Петля редиректа в PDF:** они предлагают убрать её, но не заметили, что на Android пользователи просто зависают на белом экране – нужен fallback на обычную страницу
+
+===== dots =====
+**Решение/Ответ:**
+
+Не согласен с порядком приоритетов. Аналитики ошибаются в фундаментальном подходе, пытаясь "починить" лендинг, но не видят главной проблемы: **попытка прямой продажи сложного продукта с ходу при отсутствии прогрева и контакта.** Их план — это набор тактических исправлений, а не стратегия.
+
+**Обоснование:**
+
+1.  **Ключевая ошибка аналитиков:** Они интерпретируют данные как "проблемы на лендинге", но сам лендинг — это симптом. Проблема в отсутствии воронки. Люди приходят с интересом (гайд, урок), но их не перехватывают, не вовлекают и не прогревают. Статистика "0 оплат" — это закономерный результат, а не аномалия.
+2.  **Упущено:** Аналитики полностью игнорируют **психологию покупки**. Целевая аудитория — технарь, скептик. Она не купит курс за 19 900 ₽ после одного экрана. Нужна доверительная коммуникация.
+3.  **Развилка:** Однозначно рекомендую **прогрев через Telegram-бот**. Прямая продажа с лендинга в таких условиях (мобильный трафик, высокий отток) обречена на провал. Трамплин — из гайда в бота, где можно дать больше ценности и затем предложить курс в диалоге.
+
+**Риски и внимание:**
+*   **Риск задержки:** Люди уходят навсегда, если не перехватить их в первый же контакт.
+*   **Риск перегрузки:** Основатель — один человек. Автоматизация через бота критична.
+*   **На что обратить:** Измерять не клики, а **конверсию в контакт** и **конверсию в продажу из диалога**. Остальные метрики вторичны.
+
+**Мой приоритетный план (топ-5 на 2 недели):**
+
+1.  **Немедленно исправить Telegram-ссылку** на бота (личный диалог) и добавить её повсюду (в гайд, лендинг, урок). Это единственный канал с высокой вовлечённостью (27 кликов vs 3 на "Оформить").
+2.  **Перезапустить /guide:** Кнопка "Скачать PDF" + **обязательный сбор Telegram/email**. Вместо редиректа — страница с текстом и кнопками: "Скачать PDF", "Бесплатный урок", "Перейти в Telegram-бот за консультацией". Цель — получить контакт.
+3.  **
+
+===== cohere =====
+**Решение / Ответ**
+1️⃣ Сначала исправить /guide — заменить редирект на целевую страницу с кнопкой «Скачать PDF», обязательной формой контакта (Telegram-бот/Email) и прозрачной дорожной картой курса. Убрать петлю редиректа, которая бьёт по конверсии на Android.
+2️⃣ Починить Telegram-ссылку «Личка», чтобы она вела в личный диалог, а не в канал. Сделать Telegram-бота основным каналом для сбора контактов и теплой выдачи.
+3️⃣ Переработать лендинг курса: hero-блок с выгодой + «для кого» + чёткой ценой (7 900 ₽), убрать вечный таймер, зафиксировать winning A/B (блок «program»). Добавить авторские блок, отзывы, гарантии, удалить лишние A/B.
+4️⃣ Запустить гео-тарификацию с кнопкой «Оплатить из-за рубежа» (Stripe/Paddle) и прятать российские логотипы для не-RF.
+5️⃣ Запустить мини-лендинг бесплатного урока с превью-плеером, CTA после 25 % просмотра и ссылкой на тарифы.
+
+**Ключевые соображения**
+- >80 % трафика — русскоязычная диаспора вне РФ → безнадёжно продавать только в рублях.
+- Мобильный Android-браузер не показывает PDF → контактная форма критически важна.
+- Текущие CTA («Оформить») работают только на российские платежи → надо переводить зарубежных посетителей.
+
+**Риски и на что обратить внимание**
+- Сбор контактов может спровоцировать GDPR-жалобы; используйте явное согласие и легкую отмену подписки.
+- Уход от российской платежной системы может снизить конверсию для внутреннего рынка; предложите альтернативу «счёт от автора».
+- Добавление новых каналов (бота, Telegram) увеличивает нагрузку на одного разработчика → планируйте автоматизацию и поддержку.
+
+########## ЗАСЕДАНИЕ 2 — обновление мнения и голос ##########
+
+===== deepseek =====
+**ИТОГ:** Стратегический приоритет — немедленный переход от прямой продажи к модели лидогенерации и прогрева через Telegram-бот, параллельно исправляя критические барьеры.
+
+**Согласен:**
+1.  **С критикой аналитиков коллегами.** Их план — тактический, а не стратегический. Попытка продать сложный курс «в лоб» холодному трафику из Instagram при нулевом доверии обречена. Данные это подтверждают: 70% отток после цены и 27 кликов в Telegram (в 9 раз больше, чем на оплату) кричат о потребности в диалоге, а не в исправленной платежке.
+2.  **С первоочередными исправлениями.** Рекдиректная петля /guide и сломанная ссылка «Личка» — это не баги, а дыры в воронке, через которые утекают потенциальные клиенты. Их нужно починить в первую очередь.
+
+**Не согласен:**
+1.  **С приоритетом оплаты для зарубежья на первое место.** Это решение для проблемы, которой еще не существует. Пока нет ни одного человека, который дошел до оплаты и уперся в невозможность платить. Сначала нужно создать желание и доверие, чтобы кто-то вообще захотел оплатить. Без базы лендов техническая возможность оплаты бесполезна.
+2.  **С переоценкой A/B-тестов лендинга.** В текущих условиях (холодный трафик, нулевой прогрев) оптимизация элементов hero-блока даст мизерный эффект. Главный выигрыш — не в подборе «выигрышного» текста, а в фундаментальном изменении пути пользователя: с холодного лендинга на теплый диалог.
+
+**Мой топ-5 на 2 недели:**
+1.  **Исправить «Личку» и превратить /guide в ленд-пейдж для сбора контактов.** Убрать редирект, добавить форму подписки (Telegram/email) на гайд, предложить следующий шаг — бесплатный урок или бота.
+2.  **Настроить простейшего Telegram-бота для прогрева.** Автоматизированная цепочка после подписки: гайд → полезный контент про ИИ → мягкое предложение урока. Это сразу начнет строить доверие.
+3.  **Переделать первый экран лендинга.** Ясное ценностное предложение, для кого, цена. Убрать инженерный жаргон и «вечный» таймер. Добавить социальные доказательства (2-3 отзыва).
+4.  **Настроить корректную аналитику прогрева.** События подписки в боте, просмотра уроков, конверсии из диалога в продажу. Это покажет реальную эффективность.
+5.  **Добавить кнопку «Оплата из-за рубежа».** Как часть финального шага, после того как воронка прогрева начнет генерировать заинтересованных лидов.
+
+===== nemotron =====
+ИТОГ: Сначала построить систему захвата контактов и прогрева через Telegram‑бота, а только потом улучшать оплату и лендинг.  
+
+Дальше: с чем согласился — аналитики правы, что нужно исправить /guide (убрать редирект, добавить форму контакта и CTA к уроку), починить ссылку «Личка» (вести в личный диалог), переработать первый экран лендинга (выгода + для кого + цена, удалить вечный таймер, зафиксировать winning A/B‑вариант, добавить отзывы/гарантии) и добавить социальное доказательство.  
+С чем НЕ согласен — приоритет платежей для зарубежья и CDN/скорости: без собранных лидов эти улучшения тратят ресурсы, поскольку >80 % трафика — холодный и не готов к оплате. Также аналитики переоценивают значение бесплатного урока как демо: без предварительного захвата контакта просмотр урока остаётся одноразовым.  
+Главная стратегическая развилка — прогрев через Telegram‑бот/email, а не прямая продажа с лендинга.  
+Топ‑5 действий на 2 недели:  
+1. Переделать /guide в ленд‑пейдж лидогенерации (форма Telegram/email + CTA к бесплатному уроку).  
+2. Спростить и автоматизировать Telegram‑бота: после бесплатного урока вести в бот с полезным контентом и мягким предложением курса.  
+3. Переработать первый экран лендинга (четкое УТП, для кого, цена, отзывы, без таймера).  
+4. Добавить событие скачивания гайда и telegram_click во все TG‑ссылки для измерения захвата лидов.  
+5. Установить простую сервер‑side проверку оплаты через Stripe webhook, но оставить её как второй этап после получения первых лидов.  
+Ожидаемый эффект: рост контакта → доверия → первых продаж за счёт прогрева, а не просто исправление технических деталей.
+
+===== dots =====
+**ИТОГ:** Стратегия — немедленный переход на сбор контактов и прогрев через Telegram-бот, отказ от прямой продажи с лендинга как главной цели.
+
+**Согласен:**
+С приоритетом оплаты для зарубежья — это критично, но не на первом месте. Согласен с исправлением /guide и «Лички» — это быстрые победы. Согласен с переделкой лендинга: нужна ясная выгода, социальные доказательства, устранение доверия разрушителей (таймер, инженерный текст).
+
+**НЕ согласен и почему:**
+Аналитики упустили фундаментальную проблему: **продавать «в лоб» при таком трафике и 0 конверсиях — бессмысленно**. Их план — набор тактических исправлений, а не стратегия. Они считают, что "починив лендинг", мы получим продажи. Но лендинг — это симптом, а не причина. Причина — отсутствие воронки. Люди приходят с интересом (гайд, урок), но их не перехватывают, не вовлекают, не прогревают. Статистика "0 оплат" — закономерный результат.
+
+**Что упустили:**
+1.  **Психологию покупки.** Целевая аудитория — технарь, скептик. Он не купит курс за 19 900 ₽ после одного экрана. Нужна доверительная коммуникация.
+2.  **Сегментацию и локализацию.** >80% трафика — русскоязычная диаспора. Просто показать цены в €/$ недостаточно. Нужны локализованные доверительные сигналы (отзывы, кейсы из их стран).
+3.  **Технические барьеры на Android.** Проблема с PDF — не просто "петля редиректа", а полная неработоспособность для 565 сессий. Это критическая утечка.
+4.  **Авторитет и социальные доказательства.** Отсутствие отзывов и блока автора — главный разрушитель доверия. Аналитики предложили добавить, но не оценили их критичность.
+
+**Главная стратегическая развилка:**
+Однозначно — **прогрев через Telegram-бот**. Прямая продажа с лендинга в таких условиях (холодный трафик, мобильные пользователи, высокий отток) обречена на провал. Трамплин — из гайда в бота, где можно дать больше ценности и затем предложить курс в диалоге.
+
+**Топ-5 действий на 2 недели:**
+
+1.  **Немедленно исправить Telegram-ссылку**
+
+===== cohere =====
+**1. Приоритет – перестроить по воронке, а не по платежам**
+Я **попрошу переставить** в список приоритетов действия аналитиков по порядку:
+
+1️⃣ **Сбор контактов и прогрев** (переработка /guide + исправление Telegram-ссылки)  
+2️⃣ **Переделка лендинга курса** (результат + аудитория + цена, без таймера, с социальным доказательством)  
+3️⃣ **Оплата для зарубежья** (гео-тарификация, кнопка «Оплатить из-за рубежа»)  
+4️⃣ **Фиксация технических баги и аналитика** (включая server‑side tracking, fallback для Android)  
+5️⃣ **Оптимизация скорости и кэширования** (CDN/ISR, ISR для лендингов)
+
+Почему? Вся статистика говорит об одном: люди нигде не оставляют контакты → нет базы для прогрева → нулевая конверсия в оплату. Устроить платежную систему первым – это «продать ледяному человеку». Сначала надо построить доверие (и канал теплых контактов), потом уж создавать paywall и мульти-валюту.
+
+---
+
+**2. Что аналитики упустили / интерпретировали неправильно**
+
+| Пропущенная точка | Объяснение |
+|----------------|-------------|
+| **Истинная ценность /guide** – он уже должен быть *lead‑магнитом*, но аналитики предлагали лишь «убрать редирект». Его цель – собрать email/Telegram, а не дать PDF сразу. |
+| **Холодный гео‑трефффик** – >80 % просматривающих цены – русскоязычная диаспора за границей. Отечественные логотипы и один рублёвый ценник (“только для РФ”) отбивают у них желание покупать; нужна *локализованная* цена (e.g., €79) **и** отзыв на местном языке. |
+| **Мобильная vs десктопная петля** – на Android‑бразузер PDF не отображается; авторы назвали это «багом на узких экранах», но проблема в *отсутствии резервной страницы*, которая должна взять контакт, прежде чем показывать PDF. |
+| **Таймер спеццены** – 24‑часовой таймер **снижает доверие**, особенно у скептиков-технарей. Он создает ощущение искусственного давления, но решение – это не «оставить таймер», а создать социальное доказательство. |
+| **Статистика бесплатного урока** – аналитики смотрят только на 9 % переходов; они не заметили, что **
+
+########## РЕШЕНИЕ СОВЕТА ########## (синтез: nemotron)
+Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - Role: "Secretary of the Model Council" (Секретарь совета моделей)
+   - Task: Summarize final votes from participants of the 2nd meeting into a formal "Solution of the Council" (РЕШЕНИЕ СОВЕТА)
+   - Input: Final votes from 4 participants (Participant 1, 2, 3, 4), each starting with "ИТОГ:" (RESULT:)
+   - Format requirements (strict, Russian, concise, to the point):
+     - РЕШЕНИЕ СОВЕТА:
+       - - ...
+     - ОБОСНОВАНИЕ (что поддержало большинство):
+       - - ...
+     - ОСТАВШИЕСЯ РАЗНОГЛАСИЕ (если их нет — напиши «нет»):
+       - - ...
+   - Also includes the actual "FINAL VOTES OF PARTICIPANTS" section with detailed comments from each participant.
+
+2.  **Deconstruct Participant Votes to Extract Consensus & Dissent:**
+   I need to read all 4 participants' "ИТОГ:" and their agreements/disagreements, then synthesize what the majority supports and what remains dissenting.
+
+   Let's extract key points from each:
+
+   **Participant 1:**
+   - ИТОГ: Strategic priority — immediate transition from direct sales to lead generation & warming via Telegram bot, parallel fixing of critical barriers.
+   - Agrees with:
+     * Analysts' criticism: Their plan is tactical, not strategic; selling a complex course "head-on" to cold IG traffic with zero trust is doomed. Data shows 70% attrition after price, 27 clicks in Telegram (9x more than payment) - need dialogue, not fixed payment.
+     * Priority fixes: Redirect loop /guide and broken "Lichka" link are holes leaking potential clients; fix first.
+   - Disagrees with:
+     * Priority for overseas payments first: No one has reached payment yet who couldn't pay; need desire/trust first; without lead base, payment tech is useless.
+     * Overrating A/B tests of landing page: In current conditions (cold traffic, zero warming), optimizing hero block elements gives minimal effect; main win is fundamental change of user path: from cold landing to warm dialogue.
+   - Top-5 for 2 weeks:
+     1. Fix "Lichka" / guide into landing page for contact collection. Add subscription form (TG/email), offer next step - free lesson or bot.
+     2. Set up simplest Telegram bot for warming. Auto-chain after subs: guide -> useful AI content -> soft course offer.
+     3. Redesign first landing screen. Clear value proposition, for whom, price. Remove jargon, "eternal" timer. Add social proof (2-3 reviews).
+     4. Set up proper warming analytics. Subscription events in bot, lesson views, conversion from dialogue to sale.
+     5. Add "Payment from abroad" button. As part of final step, after warming funnel starts generating interested leads.
+
+   **Participant 2:**
+   - ИТОГ: First build contact capture and warming system via Telegram bot, then improve payment and landing.
+   - Agrees with:
+     * Analysts right about fixing /guide (remove redirect, add contact form and CTA to lesson), fix "Lichka" link (lead to personal chat), redesign first landing screen (benefit + for whom + price, remove eternal timer, fix winning A/B variant, add reviews/guarantees), add social proof.
+   - Disagrees with:
+     * Priority of payments for overseas and CDN/speed: Without collected leads, these improvements waste resources since >80% traffic is cold and not ready to pay.
+     * Analysts overvalue free lesson as demo: Without prior contact capture, lesson view is one-off.
+   - Main strategic fork: Warming via Telegram-bot/email, not direct sale from landing.
+   - Top-5 actions 2 weeks:
+     1. Redesign /guide into lead-gen landing (TG/email form + CTA to free lesson).
+     2. Set up and automate Telegram bot: after free lesson, lead bot with useful content and soft course offer.
+     3. Redesign first landing screen (clear UTP, for whom, price, reviews, no timer).
+     4. Add event tracking: guide download and telegram_click in all TG links for measuring lead capture.
+     5. Set up simple server-side payment check via Stripe webhook, but leave as second stage after first leads.
+   - Expected effect: contact growth -> trust -> first sales via

@@ -48,7 +48,10 @@ export const EXPERIMENTS = {
     primaryMetric: 'video_start',
     secondaryMetrics: ['video_25', 'telegram_click', 'lesson_cta_click'],
     minExposuresPerVariant: 40,
-    status: 'running',
+    status: 'done',
+    winner: 'compact',
+    decisionNote:
+      '2026-10-10, решение передано агенту пользователем: compact 2 video_start из 11 против 0 из 11, lesson_cta_click 3 против 0 (P=89%). Данных мало, но контроль закрывает плеер на телефоне — это UX-дефект, оставляем compact.',
   },
   vibeLandingFreeCta: {
     key: 'vibe_landing_free_cta',
@@ -64,7 +67,10 @@ export const EXPERIMENTS = {
     primaryMetric: 'lesson_view',
     secondaryMetrics: ['video_start', 'quiz_started', 'pricing_viewed', 'tariff_selected'],
     minExposuresPerVariant: 40,
-    status: 'running',
+    status: 'done',
+    winner: 'free_lesson',
+    decisionNote:
+      '2026-10-10, решение передано агенту пользователем. Без TikTok-трафика 17–19.09 и тестов, по пользователям: lesson_view 11,5% (53/460) против 1,5% (7/482), целевые действия 15,4% против 7,9%, pricing_viewed 45,9% против 47,3% — тарифы не теряем.',
   },
   vibeLandingBlocks: {
     key: 'vibe_landing_blocks',
@@ -84,7 +90,10 @@ export const EXPERIMENTS = {
     secondaryMetrics: ['tariff_selected', 'payment_started', 'lesson_view', 'telegram_click'],
     minExposuresPerVariant: 60,
     reportScrollDepth: true,
-    status: 'running',
+    status: 'done',
+    winner: 'cycle',
+    decisionNote:
+      '2026-10-10, решение передано агенту пользователем. Без TikTok-трафика, по пользователям: pricing_viewed base 51%, proof 52%, cycle 50%, why 53% — неразличимы; author 45%, audience 42%, program 33% — проигрывают (program значимо). По досмотру лидирует cycle: медиана времени 58 с против 45 с у base, медиана долистывания 0,62 против 0,54, до конца страницы 23% против 19%. Берём cycle: тарифы не отодвигает, а блок-схему реально смотрят.',
   },
   vibeHeroCopy: {
     key: 'vibe_hero_copy',
@@ -101,7 +110,10 @@ export const EXPERIMENTS = {
     secondaryMetrics: ['tariff_selected', 'payment_started', 'lesson_view', 'telegram_click'],
     minExposuresPerVariant: 60,
     reportScrollDepth: true,
-    status: 'running',
+    status: 'done',
+    winner: 'control',
+    decisionNote:
+      '2026-10-10, решение передано агенту пользователем. Без TikTok-трафика, по пользователям: pricing_viewed control 50,7%, keywords 48,6%, salary 48,6%, both 38,1% (проигрывает). control, keywords и salary неразличимы — оставляем control как самый простой.',
   },
   vibeLandingPairs: {
     key: 'vibe_landing_pairs',

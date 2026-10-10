@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Check, Clock, Gift, X } from 'lucide-react';
+import { ArrowUpRight, Check, Gift, Globe, ShieldCheck, X } from 'lucide-react';
 import { getTariffsForCourse } from '@/lib/payments/tariffs';
-import { useVibePriceTimer } from '@/lib/payments/vibe-timer-client';
 import { track } from '@/lib/analytics/track-client';
 import { EVENTS } from '@/lib/analytics/events';
 import { CourseBuyButton } from '@/components/payment/course-buy-button';
+import { FOREIGN_PAYMENT_URL } from '@/lib/site';
+import { nbsp } from '@/lib/typography';
 
 // Тарифы прямо на лендинге: цена, состав и подарок видны до открытия модалки.
 // Исследование показало, что до блока форматов доходят, а решение принять не могут —
@@ -16,13 +17,15 @@ export function TariffCards({
   courseTitle,
   // Общие условия под карточками: срок доступа, подписки и т.п.
   footnote,
+  // Гарантия возврата — рядом с ценой, а не в блоке, который видит один из семи
+  guarantee,
 }: {
   courseSlug: string;
   courseTitle: string;
   footnote?: string;
+  guarantee?: string;
 }) {
   const tariffs = getTariffsForCourse(courseSlug);
-  const timer = useVibePriceTimer();
   const rootRef = useRef<HTMLDivElement>(null);
 
   // Показ цены — отдельное событие воронки: клики по кнопкам его не заменяют
@@ -47,7 +50,6 @@ export function TariffCards({
       <div className={`grid grid-cols-1 gap-5 md:grid-cols-2 ${tariffs.length > 2 ? 'xl:grid-cols-3' : ''}`}>
         {tariffs.map((t) => {
           const isHero = Boolean(t.popular);
-          const showTimer = t.specialOffer && timer.mounted;
           return (
             <div key={t.id} className="relative">
               <div
@@ -95,19 +97,6 @@ export function TariffCards({
                     )}
                   </div>
                   <p className="mt-2 text-lg font-medium leading-relaxed text-brand-charcoal/75 text-pretty">{t.description}</p>
-
-                  {/* Таймер стоит только рядом с ценой, к которой относится */}
-                  {showTimer && (
-                    <div className="mt-3 inline-flex items-center gap-2 rounded-xl border-2 border-brand-navy/20 bg-brand-cream px-3 py-1.5">
-                      <Clock className="size-3.5 text-brand-red" aria-hidden />
-                      <span className="font-heading text-xs font-black text-brand-navy">
-                        Спеццена ещё{' '}
-                        <span className="ml-0.5 rounded-md border border-brand-red/20 bg-brand-red/10 px-1.5 py-0.5 font-mono text-xs font-black text-brand-red tabular-nums">
-                          {timer.formattedTime}
-                        </span>
-                      </span>
-                    </div>
-                  )}
 
                   <ul className="mt-5 space-y-3 text-lg font-medium leading-snug text-brand-charcoal/90 sm:text-xl">
                     {t.features.map((f) => (
@@ -158,6 +147,40 @@ export function TariffCards({
             </div>
           );
         })}
+      </div>
+      {/* Под карточками — то, что снимает два главных стопора после цены:
+          «а если не подойдёт» и «как платить не российской картой» */}
+      <div className={`grid grid-cols-1 gap-3 ${guarantee ? 'md:grid-cols-2' : ''}`}>
+        {guarantee && (
+          <div className="flex items-start gap-3.5 rounded-2xl border-2 border-brand-forest/25 bg-brand-forest/10 p-4 sm:p-5">
+            <ShieldCheck className="mt-0.5 size-6 shrink-0 text-brand-forest" aria-hidden />
+            <div>
+              <p className="font-heading text-lg font-black leading-tight text-brand-navy">Гарантия возврата</p>
+              <p className="mt-1 text-base font-medium leading-snug text-brand-charcoal/80 text-pretty">{nbsp(guarantee)}</p>
+            </div>
+          </div>
+        )}
+        <div className="flex flex-col gap-3 rounded-2xl border-2 border-brand-navy/15 bg-brand-cream/70 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+          <div className="flex items-start gap-3.5">
+            <Globe className="mt-0.5 size-6 shrink-0 text-brand-navy" aria-hidden />
+            <div>
+              <p className="font-heading text-lg font-black leading-tight text-brand-navy">Живёте не в России?</p>
+              <p className="mt-1 text-base font-medium leading-snug text-brand-charcoal/80 text-pretty">
+                {nbsp('Оплатить можно и не российской картой — напишите, подскажу удобный способ.')}
+              </p>
+            </div>
+          </div>
+          <a
+            href={FOREIGN_PAYMENT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => track(EVENTS.telegramClicked, { cta_position: 'pricing_foreign', courseSlug })}
+            className="inline-flex h-12 shrink-0 items-center justify-center gap-1.5 rounded-xl border-2 border-brand-navy bg-card px-5 text-[15px] font-extrabold text-brand-navy shadow-[0_3px_0_0_rgba(16,38,71,0.25)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_rgba(16,38,71,0.35)] motion-reduce:hover:translate-y-0"
+          >
+            Оплата из-за рубежа
+            <ArrowUpRight className="size-4" aria-hidden />
+          </a>
+        </div>
       </div>
       {footnote && (
         <p className="text-sm leading-relaxed text-muted-foreground text-pretty">{footnote}</p>

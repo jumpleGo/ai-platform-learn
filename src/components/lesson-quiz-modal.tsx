@@ -13,7 +13,6 @@ import { readStoredLessonQuizResult } from '@/components/lesson-quiz';
 import { track } from '@/lib/analytics/track-client';
 import { EVENTS } from '@/lib/analytics/events';
 import { SITE_URL } from '@/lib/site';
-import { useExperiment } from '@/lib/experiments-client';
 
 function formatRemaining(ms: number): string {
   const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
@@ -40,9 +39,9 @@ export function LessonQuizMatchModal({
   // Свёрнутая полоска — только на телефоне: на десктопе карточка стоит в углу и плеер не закрывает
   const [isMobile, setIsMobile] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  // A/B: control — карточка сразу, compact — узкая полоска, раскрывается по тапу
-  const variant = useExperiment('lesson_quiz_banner', open && isMobile);
-  const compact = variant === 'compact' && isMobile && !expanded;
+  // На телефоне — узкая полоска, раскрывается по тапу: полная карточка закрывала плеер
+  // (тест lesson_quiz_banner закрыт 2026-10-10 в пользу compact)
+  const compact = isMobile && !expanded;
 
   useEffect(() => {
     const media = window.matchMedia('(max-width: 639px)');
@@ -96,8 +95,7 @@ export function LessonQuizMatchModal({
     return `${SITE_URL}${result.href}`;
   }, [result]);
 
-  // Вариант ещё не разыгран — ничего не рисуем, иначе на телефоне мигнёт большая карточка
-  if (!open || !result || !expiresAt || (isMobile && !variant)) return null;
+  if (!open || !result || !expiresAt) return null;
 
   const handleClose = () => {
     sessionStorage.setItem(`gelato:quiz-match-dismissed:${lessonNumber}`, '1');
