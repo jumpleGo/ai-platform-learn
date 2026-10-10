@@ -4,13 +4,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { notFound, permanentRedirect } from 'next/navigation';
-import { ArrowDown, ArrowRight, ArrowUpRight, CalendarDays, Check, ChevronDown, Gift, GraduationCap, Laptop, Lightbulb, Repeat, Send, ShieldCheck, Wallet } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUpRight, CalendarDays, Check, ChevronDown, Gift, GraduationCap, Laptop, Lightbulb, Repeat, Rocket, Send, ShieldCheck, Wallet } from 'lucide-react';
 import { getPublishedCoursesWithLessons, type CourseWithLessons } from '@/lib/db/courses';
 import { getSubscription } from '@/lib/db/subscriptions';
 import { getCompletedLessonIds } from '@/lib/db/progress';
 import { getSession } from '@/lib/session';
 import { hasCourseAccess } from '@/lib/access';
-import { buildFallbackLanding, getCourseLanding, type CourseLanding } from '@/lib/course-landings';
+import { buildFallbackLanding, getCourseLanding, OFFER_REFUND_GUARANTEE, type CourseLanding } from '@/lib/course-landings';
 import { getStreamStartDate } from '@/lib/payments/stream-schedule';
 import { getTariffsForCourse } from '@/lib/payments/tariffs';
 import { courseKey, lessonPath } from '@/lib/slug';
@@ -26,6 +26,7 @@ import { VibeGuestCta } from '@/components/vibe-guest-cta';
 import { ExperimentExposure } from '@/components/experiment-exposure';
 import { TestimonialCarousel } from '@/components/testimonial-carousel';
 import { LANDING_PAIRS_COOKIE, pickLandingPairs, type LandingBlock } from '@/lib/landing-blocks';
+import { AGENTS_BLOCKS_COOKIE, pickAgentsBlocks, type AgentsLandingBlock } from '@/lib/landing-blocks';
 
 // Вход в воронку для новичка: уроки курса-хаба открыты без оплаты
 const FREE_LESSON_HREF = '/courses/claude-code/lessons/1?from=course_landing';
@@ -171,6 +172,19 @@ export default async function CourseLandingPage({ params, searchParams }: {
       })
     : null;
   const shows = (block: LandingBlock) => !pairsTest || pairsTest.blocks.includes(block);
+  // Тест длины лендинга новичков: набор блоков выбираем на сервере по cookie vid,
+  // чтобы страница не моргала полной версией и высота была честной с первого кадра.
+  // Оплатившему (cont) показываем всё.
+  const forcedAgentsBlocks = query.exp_agents_landing_blocks;
+  const agentsJar = isAgents && !cont ? await cookies() : null;
+  const agentsTest = agentsJar
+    ? pickAgentsBlocks({
+        visitorId: agentsJar.get('vid')?.value ?? null,
+        remembered: agentsJar.get(AGENTS_BLOCKS_COOKIE)?.value ?? null,
+        forced: typeof forcedAgentsBlocks === 'string' ? forcedAgentsBlocks : null,
+      })
+    : null;
+  const showsAgents = (block: AgentsLandingBlock) => !agentsTest || agentsTest.blocks.includes(block);
 
   // Для продаваемых флагманских программ цена и состав должны быть видны до модалки.
   const showTariffs = (isVibe || isAgents) && !cont;
@@ -180,6 +194,9 @@ export default async function CourseLandingPage({ params, searchParams }: {
   // половина посетителей просто не доскролливала — пусть порядок цены виден сразу
   const minPrice = isVibe ? Math.min(...getTariffsForCourse(key).map((t) => t.price)) : null;
   const guarantee = isVibe ? landing.why.find((w) => w.title.startsWith('Гарантия')) : undefined;
+  // У новичков та же логика: цена-от из тарифов курса, гарантия — из общей оферты
+  const agentsMinPrice = isAgents ? Math.min(...getTariffsForCourse(key).map((t) => t.price)) : null;
+  const agentsGuarantee = isAgents ? OFFER_REFUND_GUARANTEE : undefined;
   const faqItems = isAgents
     ? [
         {
@@ -245,6 +262,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
   return (
     <div className="space-y-24 sm:space-y-32">
       {pairsTest && <ExperimentExposure experimentKey="vibe_landing_pairs" variant={pairsTest.variant} />}
+      {agentsTest && <ExperimentExposure experimentKey="agents_landing_blocks" variant={agentsTest.variant} />}
       {/* Хиро: оффер, факты и обе кнопки — оплатить или написать лично */}
       <section className="animate-rise relative pt-6 sm:pt-10">
         {/* Обложка обучения стоит справа от текста: без неё правая половина
@@ -254,6 +272,12 @@ export default async function CourseLandingPage({ params, searchParams }: {
             {isVibe && !cont && (
               <p className="mb-4 font-mono text-xs font-black uppercase tracking-wider text-brand-red sm:text-sm">
                 {nbsp('Для вайбкодеров и разработчиков с проектом')}
+              </p>
+            )}
+            {/* Главное возражение новичка — «я не программист» — снимаем ещё до заголовка */}
+            {isAgents && !cont && (
+              <p className="mb-4 font-mono text-xs font-black uppercase tracking-wider text-brand-red sm:text-sm">
+                {nbsp('Для новичков: опыт программирования не нужен')}
               </p>
             )}
             <h1 className="font-heading text-[2.6rem]/[1.04] font-bold tracking-[-0.03em] text-balance text-brand-navy sm:text-[3.4rem]/[1.02]">
@@ -400,6 +424,24 @@ export default async function CourseLandingPage({ params, searchParams }: {
                 </li>
               </ul>
             )}
+            {/* Те же факты для новичков: цена-от, старт без ожидания потока, возврат по оферте.
+                Срок доступа не дублируем — он уже стоит в полоске фактов ниже. */}
+            {isAgents && !cont && agentsMinPrice && (
+              <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2.5 text-[15px] font-bold text-brand-navy">
+                <li className="inline-flex items-center gap-2">
+                  <Wallet className="size-4.5 text-brand-red" aria-hidden />
+                  {`от ${agentsMinPrice.toLocaleString('ru-RU')} ₽`}
+                </li>
+                <li className="inline-flex items-center gap-2">
+                  <Rocket className="size-4.5 text-brand-red" aria-hidden />
+                  {nbsp('старт сразу после оплаты')}
+                </li>
+                <li className="inline-flex items-center gap-2">
+                  <ShieldCheck className="size-4.5 text-brand-forest" aria-hidden />
+                  {nbsp('возврат в первые 2 дня')}
+                </li>
+              </ul>
+            )}
             {(cont?.hint ?? landing.cta.hint) && (
               <p className="mt-2.5 text-xs text-muted-foreground whitespace-pre-line">
                 {cont?.hint ?? landing.cta.hint}
@@ -446,7 +488,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
       )}
 
       {/* Блок об авторе */}
-      {shows('author') && (
+      {shows('author') && showsAgents('author') && (
       <section className="animate-rise relative" id="about">
         <DoodleWord
           text="кто я"
@@ -688,7 +730,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
         </section>
       )}
 
-      {landing.examples && landing.examples.length > 0 && (
+      {landing.examples && landing.examples.length > 0 && showsAgents('examples') && (
         <section className="animate-rise space-y-8">
           <div className="grid gap-5 pb-1 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
             <SectionHead
@@ -721,7 +763,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
         </section>
       )}
 
-      {landing.testimonial && (
+      {landing.testimonial && showsAgents('testimonials') && (
         <section id="testimonials" className="animate-rise relative isolate scroll-mt-24 overflow-visible rounded-3xl border-2 border-brand-navy bg-brand-yellow p-6 shadow-[0_7px_0_0_rgba(16,38,71,0.18)] sm:p-8">
           <DoodleWord
             text={landing.testimonial.label}
@@ -800,7 +842,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
       )}
 
       {/* Кому подойдёт: у курса новичков — короткий список без карточек */}
-      {landing.audience.length > 0 && shows('audience') && isAgents && (
+      {landing.audience.length > 0 && shows('audience') && isAgents && showsAgents('audience') && (
         <section className="animate-rise space-y-5 sm:space-y-8">
           <SectionHead size="lg" title="Кому подойдёт" accent="подойдёт" />
 
@@ -934,7 +976,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
 
       {/* Что нужно для старта: у курса новичков это ответ на «а я потяну?» —
           четыре иконки вместо простыни строк, подарок отдельной плашкой */}
-      {landing.requirements && landing.requirements.length > 0 && isAgents && (
+      {landing.requirements && landing.requirements.length > 0 && isAgents && showsAgents('requirements') && (
         <section className="animate-rise space-y-5 sm:space-y-8">
           <SectionHead size="lg" title="Что нужно для старта" accent="для старта" />
           <div className="space-y-3 sm:space-y-4">
@@ -998,7 +1040,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
       )}
 
       {/* Программа */}
-      {landing.program.length > 0 && shows('program') && (
+      {landing.program.length > 0 && shows('program') && showsAgents('program') && (
         <section className="animate-rise space-y-8">
           <SectionHead size="lg" title="Программа обучения" />
 
@@ -1121,7 +1163,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
               courseSlug={key}
               courseTitle={course.title}
               footnote={nbsp('\n')}
-              guarantee={guarantee?.note.replace(/\*\*/g, '')}
+              guarantee={guarantee?.note.replace(/\*\*/g, '') ?? agentsGuarantee}
             />
           </>
         )}
@@ -1194,7 +1236,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
       </section>
 
       {/* Почему мы */}
-      {landing.why.length > 0 && shows('why') && (
+      {landing.why.length > 0 && shows('why') && showsAgents('why') && (
         <section className="animate-rise relative space-y-8">
           <DoodleWord
             text="почему именно мы"
@@ -1273,7 +1315,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
       )}
 
       {/* Блок «Как проходит обучение» в стиле Вопрос-Ответ (6 пунктов с сомнениями) */}
-      {landing.format.length > 0 && shows('faq') && (
+      {landing.format.length > 0 && shows('faq') && showsAgents('faq') && (
         <section className="animate-rise space-y-6 pt-4">
           <SectionHead
             size="lg"

@@ -148,6 +148,27 @@ export const EXPERIMENTS = {
     reportScrollDepth: true,
     status: 'planned',
   },
+  agentsLandingBlocks: {
+    key: 'agents_landing_blocks',
+    hypothesis:
+      'Лендинг новичков (claude-code-agents) — 15 977 px, ~19 экранов на 390 px, а трафик на 96% ' +
+      'мобильный из Instagram. Собственных поведенческих данных по нему почти нет: единственный ' +
+      'всплеск 17–19.09 — мусорная TikTok-реклама (2314 из 2372 уходов при скролле 0). ' +
+      'На лендинге вайбкода тест длины показал: голое ядро не уступает длинной странице по ' +
+      'pricing_viewed (51% против 50–53%), а блоки перед тарифами режут доходимость ' +
+      '(program 33%, audience 42%). Гипотеза: ядро из оффера, результата, примеров, отзывов, ' +
+      'тарифов и вопросов-ответов поднимет pricing_viewed с ~46% (средняя доходимость по лендингам ' +
+      '29.09–10.10) до 55%+, не уронив lesson_view и telegram_click.',
+    // Контроль — текущая полная страница, `core` — ядро. Наборы в src/lib/landing-blocks.ts
+    variants: ['control', 'core'],
+    startedAt: '2026-10-10',
+    pathPrefix: '/courses/claude-code-agents',
+    primaryMetric: 'pricing_viewed',
+    secondaryMetrics: ['lesson_view', 'tariff_selected', 'telegram_click'],
+    minExposuresPerVariant: 60,
+    reportScrollDepth: true,
+    status: 'running',
+  },
 } as const satisfies Record<string, Experiment>;
 
 export type ExperimentKey = (typeof EXPERIMENTS)[keyof typeof EXPERIMENTS]['key'];

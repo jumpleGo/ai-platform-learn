@@ -331,6 +331,12 @@ const AGENTS: CourseLanding = {
   seoDescription: 'Курс по Claude Code для тех, кто не программист: установка, терминал, контекст, skills, MCP и свои ИИ-агенты. Объясняем с самого начала, код писать не придётся. 8 уроков с проверкой домашних.',
 };
 
+// Условия возврата общие для всех программ платформы — из публичной оферты
+// (src/app/(app)/legal/offer/page.tsx, раздел «Возврат средств»): запрос в Telegram
+// в первые два дня с момента выдачи доступа, возврат в полном объёме.
+export const OFFER_REFUND_GUARANTEE =
+  'Не подошло — возвращаем полную стоимость: напишите в Telegram в первые 2 дня с момента выдачи доступа.';
+
 const LANDINGS: Record<string, CourseLanding> = {
   'it-vibecoding': VIBECODING,
   vibecoding: VIBECODING,

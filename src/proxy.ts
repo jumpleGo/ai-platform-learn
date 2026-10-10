@@ -11,6 +11,10 @@ import {
   LANDING_PAIRS_TTL,
   isPairsVariant,
   rollPairsVariant,
+  AGENTS_BLOCKS_COOKIE,
+  AGENTS_BLOCKS_TTL,
+  isAgentsLandingVariant,
+  rollAgentsLandingVariant,
 } from '@/lib/landing-blocks';
 
 // Публичный сайт целиком открыт гостям: витрины, лендинги, бесплатные уроки и юр. документы
@@ -54,6 +58,22 @@ export function proxy(req: NextRequest) {
     headers.set('cookie', [headers.get('cookie'), `${LANDING_PAIRS_COOKIE}=${pairsVariant}`].filter(Boolean).join('; '));
   }
 
+  // Вариант лендинга новичков: жребий бросаем здесь, чтобы запомнить его на сутки
+  // в cookie. Свежий вариант, как и vid, прокидываем в заголовок — иначе первый
+  // рендер его не увидит и человек получил бы один набор блоков, а cookie — другой.
+  const wantsAgentsLanding = pathname.startsWith('/courses/claude-code-agents');
+  const rememberedAgentsBlocks = req.cookies.get(AGENTS_BLOCKS_COOKIE)?.value;
+  const agentsLandingVariant =
+    wantsAgentsLanding && !isAgentsLandingVariant(rememberedAgentsBlocks)
+      ? rollAgentsLandingVariant(valid ?? vid!)
+      : null;
+  if (agentsLandingVariant) {
+    headers.set(
+      'cookie',
+      [headers.get('cookie'), `${AGENTS_BLOCKS_COOKIE}=${agentsLandingVariant}`].filter(Boolean).join('; '),
+    );
+  }
+
   const request = { headers };
   // Сцена — витрина для гостя. Вошедшему главная нужна учебная: на ней его уроки
   // и цель пункта шапки «Моё обучение», а на сцене нет ни того, ни другого.
@@ -69,6 +89,10 @@ export function proxy(req: NextRequest) {
   if (vid) res.cookies.set('vid', vid, { maxAge: 60 * 60 * 24 * 365, path: '/', sameSite: 'lax' });
   if (pairsVariant) {
     res.cookies.set(LANDING_PAIRS_COOKIE, pairsVariant, { maxAge: LANDING_PAIRS_TTL, path: '/', sameSite: 'lax' });
+  }
+
+  if (agentsLandingVariant) {
+    res.cookies.set(AGENTS_BLOCKS_COOKIE, agentsLandingVariant, { maxAge: AGENTS_BLOCKS_TTL, path: '/', sameSite: 'lax' });
   }
   if (forced) res.cookies.set(HOME_VARIANT_PARAM, forced, { maxAge: 60 * 60 * 24 * 30, path: '/', sameSite: 'lax' });
 
