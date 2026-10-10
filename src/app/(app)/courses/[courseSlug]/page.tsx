@@ -2,6 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { cookies } from 'next/headers';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { ArrowDown, ArrowRight, ArrowUpRight, CalendarDays, Check, ChevronDown, Gift, GraduationCap, Laptop, Lightbulb, Repeat, Send, ShieldCheck, Wallet } from 'lucide-react';
 import { getPublishedCoursesWithLessons, type CourseWithLessons } from '@/lib/db/courses';
@@ -22,8 +23,9 @@ import { Lemon } from '@/components/scene/lemon';
 import { CaseCycle } from '@/components/case-cycle';
 import { BrandLogoRow, LogoStack, BrandLogo } from '@/components/brand-logos';
 import { VibeGuestCta } from '@/components/vibe-guest-cta';
+import { ExperimentExposure } from '@/components/experiment-exposure';
 import { TestimonialCarousel } from '@/components/testimonial-carousel';
-import { VIBE_GUEST_BLOCKS, type LandingBlock } from '@/lib/landing-blocks';
+import { LANDING_PAIRS_COOKIE, pickLandingPairs, type LandingBlock } from '@/lib/landing-blocks';
 
 // Вход в воронку для новичка: уроки курса-хаба открыты без оплаты
 const FREE_LESSON_HREF = '/courses/claude-code/lessons/1?from=course_landing';
@@ -156,10 +158,19 @@ export default async function CourseLandingPage({ params, searchParams }: {
         hint: `Урок ${nextIndex + 1} из ${course.lessons.length}${doneCount ? ` · пройдено ${doneCount}` : ''}`,
       }
     : null;
-  // Состав лендинга вайбкода для гостя зафиксирован по итогам A/B-теста длины.
+  // Состав лендинга вайбкода для гостя — ступень 2 теста длины (пары блоков): набор
+  // выбираем на сервере по cookie, чтобы страница не перестраивалась на глазах.
   // Оплатившему (cont) режем нечего — он пришёл за входом в уроки.
-  const guestBlocks = key === 'vibecoding' && !cont ? VIBE_GUEST_BLOCKS : null;
-  const shows = (block: LandingBlock) => !guestBlocks || guestBlocks.includes(block);
+  const forcedPairs = query.exp_vibe_landing_pairs;
+  const jar = key === 'vibecoding' && !cont ? await cookies() : null;
+  const pairsTest = jar
+    ? pickLandingPairs({
+        visitorId: jar.get('vid')?.value ?? null,
+        remembered: jar.get(LANDING_PAIRS_COOKIE)?.value ?? null,
+        forced: typeof forcedPairs === 'string' ? forcedPairs : null,
+      })
+    : null;
+  const shows = (block: LandingBlock) => !pairsTest || pairsTest.blocks.includes(block);
 
   // Для продаваемых флагманских программ цена и состав должны быть видны до модалки.
   const showTariffs = (isVibe || isAgents) && !cont;
@@ -233,6 +244,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
 
   return (
     <div className="space-y-24 sm:space-y-32">
+      {pairsTest && <ExperimentExposure experimentKey="vibe_landing_pairs" variant={pairsTest.variant} />}
       {/* Хиро: оффер, факты и обе кнопки — оплатить или написать лично */}
       <section className="animate-rise relative pt-6 sm:pt-10">
         {/* Обложка обучения стоит справа от текста: без неё правая половина

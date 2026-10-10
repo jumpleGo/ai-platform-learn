@@ -118,17 +118,20 @@ export const EXPERIMENTS = {
   vibeLandingPairs: {
     key: 'vibe_landing_pairs',
     hypothesis:
-      'Ступень 2, стартует после vibe_landing_blocks. К ядру и блоку-победителю добавляем второй ' +
-      'опциональный блок (пара — это ~55% контроля, на экран длиннее одиночного набора): окупается ' +
-      'ли второй блок ростом tariff_selected или короче всегда лучше. Контроль — набор-победитель.',
-    variants: ['winner', 'plus_first', 'plus_second', 'plus_third'],
-    startedAt: '2026-09-12',
+      'Ступень 2 после vibe_landing_blocks. Победитель ступени 1 — ядро + схема цикла: pricing_viewed 50% ' +
+      '(без TikTok-трафика), медиана времени 58 с. Добавляем второй блок из тех, что не отодвинули тарифы: ' +
+      'plus_proof («почему одного Claude мало», pricing 52% в ступени 1) и plus_why («чем отличается», с гарантией, ' +
+      'стоит после тарифов). Вопрос: окупается ли второй блок или короче не хуже. Блок proof стоит до тарифов ' +
+      'и может их отодвинуть — это ловит pricing_viewed; why стоит после — его вклад видно по tariff_selected ' +
+      'и telegram_click. Три варианта, а не четыре: трафик на лендинг сейчас десятки человек в день.',
+    variants: ['winner', 'plus_proof', 'plus_why'],
+    startedAt: '2026-10-10',
     pathPrefix: '/courses/vibecoding',
-    primaryMetric: 'tariff_selected',
-    secondaryMetrics: ['pricing_viewed', 'payment_started'],
-    minExposuresPerVariant: 60,
+    primaryMetric: 'pricing_viewed',
+    secondaryMetrics: ['tariff_selected', 'payment_started', 'telegram_click', 'lesson_view'],
+    minExposuresPerVariant: 100,
     reportScrollDepth: true,
-    status: 'planned',
+    status: 'running',
   },
   vibeLandingOrder: {
     key: 'vibe_landing_order',

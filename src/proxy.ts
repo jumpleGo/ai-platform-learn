@@ -6,6 +6,12 @@ import {
   pickHomeVariant,
 } from '@/lib/home-experiment';
 import { parseTestRub } from '@/lib/payments/tariffs';
+import {
+  LANDING_PAIRS_COOKIE,
+  LANDING_PAIRS_TTL,
+  isPairsVariant,
+  rollPairsVariant,
+} from '@/lib/landing-blocks';
 
 // Публичный сайт целиком открыт гостям: витрины, лендинги, бесплатные уроки и юр. документы
 const PUBLIC = [
@@ -37,6 +43,17 @@ export function proxy(req: NextRequest) {
   const remembered = req.cookies.get(HOME_VARIANT_PARAM)?.value;
   const variant = forced ?? (isHomeVariant(remembered) ? remembered : pickHomeVariant(valid ?? vid!));
 
+  // Вариант лендинга вайбкода (ступень 2, пары блоков): жребий бросаем здесь, чтобы
+  // запомнить его на сутки. Свежий вариант, как и vid, прокидываем в заголовок —
+  // иначе первый рендер его не увидит и страница разошлась бы с cookie.
+  const wantsLanding = pathname.startsWith('/courses/vibecoding');
+  const rememberedPairs = req.cookies.get(LANDING_PAIRS_COOKIE)?.value;
+  const pairsVariant =
+    wantsLanding && !isPairsVariant(rememberedPairs) ? rollPairsVariant(valid ?? vid!) : null;
+  if (pairsVariant) {
+    headers.set('cookie', [headers.get('cookie'), `${LANDING_PAIRS_COOKIE}=${pairsVariant}`].filter(Boolean).join('; '));
+  }
+
   const request = { headers };
   // Сцена — витрина для гостя. Вошедшему главная нужна учебная: на ней его уроки
   // и цель пункта шапки «Моё обучение», а на сцене нет ни того, ни другого.
@@ -50,6 +67,9 @@ export function proxy(req: NextRequest) {
         ? NextResponse.rewrite(new URL(SCENE_PATH, req.url), { request })
         : NextResponse.next({ request });
   if (vid) res.cookies.set('vid', vid, { maxAge: 60 * 60 * 24 * 365, path: '/', sameSite: 'lax' });
+  if (pairsVariant) {
+    res.cookies.set(LANDING_PAIRS_COOKIE, pairsVariant, { maxAge: LANDING_PAIRS_TTL, path: '/', sameSite: 'lax' });
+  }
   if (forced) res.cookies.set(HOME_VARIANT_PARAM, forced, { maxAge: 60 * 60 * 24 * 30, path: '/', sameSite: 'lax' });
 
   // сохраняем utm-метки с любого лендинга до момента регистрации
