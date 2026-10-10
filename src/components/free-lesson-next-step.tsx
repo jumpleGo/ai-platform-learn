@@ -31,9 +31,9 @@ export function FreeLessonNextStep({ lessonNumber, lessonId }: { lessonNumber: n
       aria-labelledby="lesson-next-step"
       className="rounded-2xl border-2 border-brand-navy bg-brand-yellow/35 p-5 shadow-[0_4px_0_0_rgba(16,38,71,0.1)] sm:p-7"
     >
-      <StickerTag tone="navy" className="text-xs sm:text-sm">{nbsp(`урок ${lessonNumber} из ${total}`)}</StickerTag>
+      <StickerTag tone="navy" className="text-xs sm:text-sm">{nbsp('бесплатный урок')}</StickerTag>
       <h2 id="lesson-next-step" className="mt-3 font-heading text-xl font-extrabold tracking-tight text-balance text-brand-navy sm:text-2xl">
-        {nbsp('Это урок из курса «Инженерный вайбкодинг». Что дальше в курсе:')}
+        {nbsp(`Это открытый урок. В курсе «Инженерный вайбкодинг» — ${total} уроков, вот что в нём дальше:`)}
       </h2>
 
       {/* Схема: текущий урок → следующие модули. На телефоне — столбиком со стрелками вниз */}
@@ -44,7 +44,7 @@ export function FreeLessonNextStep({ lessonNumber, lessonId }: { lessonNumber: n
           </span>
           <span className="min-w-0">
             <span className="block font-mono text-[11px] font-bold tracking-wider uppercase opacity-70">вы здесь</span>
-            <span className="block text-sm font-extrabold leading-snug">{nbsp(`Урок ${lessonNumber}: этот разбор`)}</span>
+            <span className="block text-sm font-extrabold leading-snug">{nbsp('Этот открытый урок')}</span>
           </span>
         </li>
         {steps.map((step, i) => {
