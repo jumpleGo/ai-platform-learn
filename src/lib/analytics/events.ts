@@ -24,4 +24,5 @@ export const EVENTS = {
   paymentResultViewed: 'payment_result_viewed', // props: result, referrerHost, returnedFromTBank — возврат с платёжной страницы
   paymentStatusChecked: 'payment_status_checked', // props: status, confirmed, courseSlug — только при смене статуса
   experimentExposed: 'experiment_exposed',     // props: experiment, variant — посетитель увидел тестируемый элемент
+  leadSubmitted: 'lead_submitted',             // props: courseSlug, place, type — оставил контакт в форме «пришлю программу»
 } as const;

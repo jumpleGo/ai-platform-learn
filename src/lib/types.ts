@@ -114,3 +114,17 @@ export interface PendingGrant {
   grantedBy: string;
   createdAt: number;
 }
+
+// Лид с лендинга: контакт того, кто не готов платить сейчас, но хочет программу
+// и пример домашнего задания. place — где стояла форма, utm — из cookie 'utm'
+export interface Lead {
+  id: string;
+  contact: string;
+  type: 'telegram' | 'email';
+  courseSlug: string;
+  place: string;
+  utm: Record<string, string> | null;
+  // Значение ?from=… на странице, если пришли с другого лендинга
+  fromLanding: string | null;
+  createdAt: number;
+}

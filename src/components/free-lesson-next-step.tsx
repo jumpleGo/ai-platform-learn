@@ -74,7 +74,7 @@ export function FreeLessonNextStep({ lessonNumber, lessonId }: { lessonNumber: n
       <div className="mt-5 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <FreeLessonCta
           href={PROGRAM_URL}
-          label="Посмотреть программу курса"
+          label="Подробнее о курсе"
           lessonId={lessonId}
           position="next_step"
           className="w-full sm:w-auto"

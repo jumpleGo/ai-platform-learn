@@ -56,6 +56,7 @@ function landingFor(course: CourseWithLessons): CourseLanding {
 
 import { CourseBuyButton } from '@/components/payment/course-buy-button';
 import { TariffCards } from '@/components/payment/tariff-cards';
+import { LeadCapture } from '@/components/lead-capture';
 import { VibeComparisonSection } from '@/components/vibe-pipeline-visual';
 
 // Оплативший приходит на лендинг за входом в уроки, а не за офером: продающие
@@ -1165,6 +1166,10 @@ export default async function CourseLandingPage({ params, searchParams }: {
               footnote={nbsp('\n')}
               guarantee={guarantee?.note.replace(/\*\*/g, '') ?? agentsGuarantee}
             />
+            {/* Мягкий шаг для тех, кто не готов платить: оставить контакт (тест lead_capture, только гость) */}
+            {!session && (
+              <LeadCapture courseSlug={key} fromLanding={typeof query.from === 'string' ? query.from : null} />
+            )}
           </>
         )}
         {/* Бумажная текстура и рамка-тельняшка. С тарифами выше — «не знаешь, какой формат»,

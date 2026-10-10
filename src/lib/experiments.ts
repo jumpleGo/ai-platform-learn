@@ -188,6 +188,23 @@ export const EXPERIMENTS = {
     minExposuresPerVariant: 60,
     status: 'running',
   },
+  leadCapture: {
+    key: 'lead_capture',
+    hypothesis:
+      'Контакты на сайте не собираются нигде: после просмотра цены 70% уходят молча, возвращаются 3,5%, ' +
+      'в Telegram пишут в 9 раз чаще, чем жмут «Оформить» (29.09–10.10, оплат 0). Мягкий шаг под тарифами — ' +
+      '«оставь Telegram, пришлю программу и пример домашки» — должен дать канал для возврата: ' +
+      'ожидаем lead_submitted у 3%+ увидевших форму. Контроль — без формы. Второстепенные метрики ловят ' +
+      'каннибализацию: не упали ли tariff_selected и telegram_click. Жребий отдельный, ортогонален ' +
+      'vibe_landing_pairs и agents_landing_blocks. Живёт на лендингах вайбкода и новичков, только у гостя.',
+    variants: ['control', 'form'],
+    startedAt: '2026-10-11',
+    pathPrefix: '/courses/',
+    primaryMetric: 'lead_submitted',
+    secondaryMetrics: ['tariff_selected', 'telegram_click', 'payment_started'],
+    minExposuresPerVariant: 100,
+    status: 'running',
+  },
 } as const satisfies Record<string, Experiment>;
 
 export type ExperimentKey = (typeof EXPERIMENTS)[keyof typeof EXPERIMENTS]['key'];

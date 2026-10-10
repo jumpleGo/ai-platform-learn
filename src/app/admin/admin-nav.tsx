@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, Handshake, Users } from 'lucide-react';
+import { BookOpen, Handshake, Inbox, Users } from 'lucide-react';
 
 const items = [
   { href: '/admin/courses', label: 'Курсы', icon: BookOpen },
   { href: '/admin/users', label: 'Пользователи', icon: Users },
   { href: '/admin/partners', label: 'Партнёры', icon: Handshake },
+  { href: '/admin/leads', label: 'Лиды', icon: Inbox },
 ];
 
 export function AdminNav() {
