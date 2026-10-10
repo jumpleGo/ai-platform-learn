@@ -14,7 +14,7 @@ export function FreeLessonCta({
   href: string;
   label: string;
   lessonId: string;
-  position: 'primary' | 'bottom';
+  position: 'primary' | 'bottom' | 'next_step';
   className?: string;
 }) {
   return (

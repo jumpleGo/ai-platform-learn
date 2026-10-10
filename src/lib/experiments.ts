@@ -169,6 +169,25 @@ export const EXPERIMENTS = {
     reportScrollDepth: true,
     status: 'running',
   },
+  lessonNextStep: {
+    key: 'lesson_next_step',
+    hypothesis:
+      'Бесплатный урок 4 — тупик воронки: из 84 lesson_view видео запускают 14 (16%), досматривают 5; ' +
+      '22 из 48 уходят прямо на плеере. CTA урока жмут чаще, чем смотрят видео (18 кликов), но он ведёт ' +
+      'обратно на #pricing лендинга, где человек уже был: 28 из 63 возвращаются на vibecoding, оплат 0. ' +
+      'Гипотеза: блок «это урок N из 17 курса → что дальше» под плеером (следующие темы схемой, цена «от», ' +
+      'кнопка на программу) объясняет, частью чего является урок, и даёт причину смотреть, а не кликать ' +
+      'мимо видео. Главная метрика — video_start, а не lesson_cta_click: клик по CTA в контроле и в варианте ' +
+      'ведёт в разные места и не сравним, а утечка воронки именно в запуске видео. Ожидание: video_start 16% → 25%+ ' +
+      'без падения pricing_viewed.',
+    variants: ['control', 'next_step'],
+    startedAt: '2026-10-11',
+    pathPrefix: '/courses/claude-code/lessons/',
+    primaryMetric: 'video_start',
+    secondaryMetrics: ['video_25', 'lesson_cta_click', 'pricing_viewed', 'telegram_click'],
+    minExposuresPerVariant: 60,
+    status: 'running',
+  },
 } as const satisfies Record<string, Experiment>;
 
 export type ExperimentKey = (typeof EXPERIMENTS)[keyof typeof EXPERIMENTS]['key'];

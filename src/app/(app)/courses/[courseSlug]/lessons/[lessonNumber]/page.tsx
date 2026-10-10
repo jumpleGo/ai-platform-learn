@@ -3,11 +3,11 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft, Clapperboard, Eye, Lock } from 'lucide-react';
-import { resolveLesson } from '@/lib/db/courses';
+import { getPublishedCoursesWithLessons, resolveLesson } from '@/lib/db/courses';
 import { getSubscription } from '@/lib/db/subscriptions';
 import { getCompletedLessonIds } from '@/lib/db/progress';
 import { getSession } from '@/lib/session';
-import { isLocked } from '@/lib/access';
+import { hasCourseAccess, isLocked } from '@/lib/access';
 import { materialsTeaser } from '@/lib/markdown';
 import { plural } from '@/lib/utils';
 import type { Lesson } from '@/lib/types';
@@ -29,7 +29,7 @@ import { FreeLessonAfterVideo, FreeLessonMarker } from '@/components/free-lesson
 import { LessonQuizMatchModal } from '@/components/lesson-quiz-modal';
 import { EVENTS } from '@/lib/analytics/events';
 import {
-  SITE_URL, buildProgramUrl, getFreeLessonContent, isoDuration, type FreeLessonContent,
+  SITE_URL, buildProgramUrl, getFreeLessonContent, isoDuration, localLessonPreview, type FreeLessonContent,
 } from '@/lib/free-lessons';
 import { recordViewAction } from './actions';
 
@@ -163,6 +163,14 @@ export default async function LessonPage({ params, searchParams }: {
 
   const now = Date.now();
   const locked = isLocked(lesson, sub, now);
+  // Тест lesson_next_step — только для тех, кому есть что продавать: гость или ученик
+  // без доступа к курсу вайбкодинга. Оплатившему блок «что дальше в курсе» не нужен
+  const vibeCourse = freeLesson
+    ? (await getPublishedCoursesWithLessons()).find((c) => ['vibecoding', 'it-vibecoding'].includes(courseKey(c)))
+    : undefined;
+  const nextStepTest = Boolean(freeLesson) && !(vibeCourse && hasCourseAccess(vibeCourse.id, sub, now));
+  // Обложка: локальный файл, пока превью из Storage не отдаются; иначе — загруженное в админке
+  const poster = localLessonPreview(courseKey(course), number) ?? lesson.previewImageUrl;
   // Чувствительные поля не уходят клиенту без доступа: ссылку на видео клиент не получает вовсе
   // (плеер грузится через прокси-роут), вместо полных материалов — оглавление разделов
   const materials = locked ? '' : lesson.materials;
@@ -256,12 +264,14 @@ export default async function LessonPage({ params, searchParams }: {
               {course.title}
             </Link>
           )}
+          {/* На телефоне заголовок компактнее, а лид уходит под плеер: 3 строки заголовка
+              и 3 строки лида сдвигали плеер за сгиб, и 22 из 48 уходили, не нажав play */}
           <h1 className={freeLesson
-            ? 'max-w-4xl font-heading text-[2.5rem]/[1.04] font-extrabold tracking-[-0.03em] text-balance text-brand-navy sm:text-[3.25rem]/[1.02]'
+            ? 'max-w-4xl font-heading text-[2rem]/[1.06] font-extrabold tracking-[-0.03em] text-balance text-brand-navy sm:text-[3.25rem]/[1.02]'
             : 'font-heading text-3xl font-extrabold tracking-tight text-balance text-brand-navy sm:text-4xl/[1.15]'}>
             {freeLesson?.h1 ?? lesson.title}
           </h1>
-          {freeLesson && <p className="max-w-3xl text-lg leading-[1.35] text-muted-foreground text-pretty">{freeLesson.lead}</p>}
+          {freeLesson && <p className="hidden max-w-3xl text-lg leading-[1.35] text-muted-foreground text-pretty sm:block">{freeLesson.lead}</p>}
         </div>
         {!freeLesson && (
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 font-mono text-xs text-muted-foreground">
@@ -288,11 +298,13 @@ export default async function LessonPage({ params, searchParams }: {
               lessonId={lessonId}
               title={freeLesson?.h1 ?? lesson.title}
               analyticsLessonId={freeLesson?.lessonId}
+              poster={poster}
             />
           ) : (
             <MissingVideo />
           )}
         </div>
+        {freeLesson && <p className="text-base leading-[1.4] text-muted-foreground text-pretty sm:hidden">{freeLesson.lead}</p>}
         {locked && !freeLesson && (
           <PromoLessonBanner
             courseSlug={courseKey(course)}
@@ -349,6 +361,8 @@ export default async function LessonPage({ params, searchParams }: {
             materials={materials}
             ctaHref={ctaHref}
             fromLanding={fromLanding}
+            lessonNumber={number}
+            nextStepTest={nextStepTest}
           />
         )}
       </div>

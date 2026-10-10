@@ -1,8 +1,11 @@
-import { getLesson } from '@/lib/db/courses';
+import { resolveLesson } from '@/lib/db/courses';
 import { getSubscription } from '@/lib/db/subscriptions';
 import { getSession } from '@/lib/session';
 import { isLocked } from '@/lib/access';
 import { playerEmbedUrl, youtubeId } from '@/lib/video-url';
+import { courseKey } from '@/lib/slug';
+import { localLessonPreview } from '@/lib/free-lessons';
+import { plural } from '@/lib/utils';
 
 // Экранирование для подстановки в значение HTML-атрибута
 function escapeAttr(value: string): string {
@@ -25,7 +28,14 @@ const HEADERS = {
 // Кастомный плеер поверх YouTube: нативные контролы скрыты (controls=0), сверху — прозрачный
 // «щит», который перехватывает правый клик и клики, поэтому меню «Скопировать URL видео» и
 // ссылка на канал недоступны. Управление — собственная панель через YouTube IFrame API.
-function youtubePlayerHtml(videoId: string, title: string, poster: string | null): string {
+// Длительность на постере: «6 мин» — только если она есть в данных урока
+function durationLabel(seconds: number | null): string | null {
+  if (!seconds || seconds < 1) return null;
+  const minutes = Math.max(1, Math.round(seconds / 60));
+  return `${minutes} ${plural(minutes, ['минута', 'минуты', 'минут'])}`;
+}
+
+function youtubePlayerHtml(videoId: string, title: string, poster: string | null, duration: string | null): string {
   return `<!doctype html>
 <html lang="ru">
 <head>
@@ -60,6 +70,11 @@ function youtubePlayerHtml(videoId: string, title: string, poster: string | null
   #poster:hover .play{transform:scale(1.06);background:rgba(0,0,0,.7)}
   #poster .play svg{width:30px;height:30px;fill:#fff;margin-left:3px}
   #poster.entering .play{opacity:0;transition:opacity .2s}
+  /* длительность — в углу постера, чтобы было видно, что это короткое видео */
+  #dur{position:absolute;left:12px;bottom:12px;display:flex;align-items:center;gap:6px;padding:5px 10px;
+       border-radius:999px;background:rgba(0,0,0,.65);color:#fff;font-size:13px;font-weight:700;letter-spacing:.01em}
+  #dur svg{width:12px;height:12px;fill:#fff}
+  #poster.entering #dur{opacity:0;transition:opacity .2s}
   @media(max-width:480px){#bar{gap:6px;padding:8px}#vol{display:none}#seek{min-width:40px}#time{font-size:11px}}
 </style>
 </head>
@@ -79,6 +94,7 @@ function youtubePlayerHtml(videoId: string, title: string, poster: string | null
   </div>
   <div id="poster">
     <span class="play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+    ${duration ? `<span id="dur"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>${escapeAttr(duration)}</span>` : ''}
   </div>
 </div>
 <script>
@@ -230,8 +246,10 @@ export async function GET(
 ) {
   const { courseId, lessonId } = await params;
   const session = await getSession();
+  // resolveLesson принимает id курса и id документа урока, а взамен даёт номер урока —
+  // он нужен, чтобы подставить локальную обложку, пока превью из Storage не отдаются
   const [data, sub] = await Promise.all([
-    getLesson(courseId, lessonId),
+    resolveLesson(courseId, lessonId),
     session ? getSubscription(session.uid) : null,
   ]);
   if (!data) return new Response('Not found', { status: 404 });
@@ -239,12 +257,16 @@ export async function GET(
     return new Response('Forbidden', { status: 403 });
   }
 
-  const { lesson } = data;
+  const { course, lesson, number } = data;
   // у урока тестового курса видео может не быть — плееру нечего отдавать
   if (!lesson.videoEmbedUrl) return new Response('Not found', { status: 404 });
   const id = youtubeId(lesson.videoEmbedUrl);
   if (id) {
-    return new Response(youtubePlayerHtml(id, lesson.title, lesson.previewImageUrl), { headers: HEADERS });
+    const poster = localLessonPreview(courseKey(course), number) ?? lesson.previewImageUrl;
+    return new Response(
+      youtubePlayerHtml(id, lesson.title, poster, durationLabel(lesson.durationSec)),
+      { headers: HEADERS },
+    );
   }
 
   // Не-YouTube источник: кастомный плеер неприменим — отдаём обычный iframe (правый клик глушим)

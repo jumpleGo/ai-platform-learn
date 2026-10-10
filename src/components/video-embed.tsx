@@ -5,11 +5,13 @@ import { track } from '@/lib/analytics/track-client';
 
 // iframe указывает на наш прокси-роут, а не на YouTube — id ролика не попадает
 // ни в исходник страницы, ни в RSC-пейлоад. Контекстное меню по обёртке отключено.
-export function VideoEmbed({ courseId, lessonId, title, analyticsLessonId }: {
+export function VideoEmbed({ courseId, lessonId, title, analyticsLessonId, poster }: {
   courseId: string;
   lessonId: string;
   title: string;
   analyticsLessonId?: string;
+  // Обложка под iframe: видна сразу, пока плеер грузится, — вместо чёрного квадрата
+  poster?: string | null;
 }) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
@@ -94,8 +96,9 @@ export function VideoEmbed({ courseId, lessonId, title, analyticsLessonId }: {
       className={
         fullscreen
           ? 'fixed inset-0 z-50 h-dvh w-screen overflow-hidden bg-black'
-          : 'aspect-video w-full overflow-hidden rounded-lg bg-black'
+          : 'aspect-video w-full overflow-hidden rounded-lg bg-black bg-cover bg-center'
       }
+      style={!fullscreen && poster ? { backgroundImage: `url(${JSON.stringify(poster)})` } : undefined}
       onContextMenu={(e) => e.preventDefault()}
     >
       <iframe

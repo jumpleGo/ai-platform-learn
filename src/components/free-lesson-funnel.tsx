@@ -3,6 +3,8 @@ import { Check, ChevronDown } from 'lucide-react';
 import { Accent, StickerTag } from '@/components/accent';
 import { Markdown } from '@/components/markdown';
 import { FreeLessonCta, FreeLessonTelegramLink } from '@/components/free-lesson-cta';
+import { FreeLessonNextStep } from '@/components/free-lesson-next-step';
+import { LessonNextStepSlot } from '@/components/lesson-next-step-slot';
 import { TELEGRAM_URL, type FreeLessonContent } from '@/lib/free-lessons';
 
 export function FreeLessonMarker() {
@@ -10,36 +12,47 @@ export function FreeLessonMarker() {
   return <StickerTag tone="sky">открытый урок программы</StickerTag>;
 }
 
-export function FreeLessonAfterVideo({ content, materials, ctaHref, fromLanding }: {
+export function FreeLessonAfterVideo({ content, materials, ctaHref, fromLanding, lessonNumber, nextStepTest }: {
   content: FreeLessonContent;
   materials: string;
   ctaHref: string;
   fromLanding?: string | null;
+  lessonNumber: number;
+  // Гость без доступа к платному курсу — участник теста lesson_next_step
+  nextStepTest: boolean;
 }) {
   const isFromVibe = fromLanding === 'vibecoding';
   const effectiveCtaHref = isFromVibe ? '/courses/vibecoding#pricing' : ctaHref;
   const effectiveCtaLabel = isFromVibe ? 'К тарифам курса' : content.ctaLabel;
 
+  // Контроль теста: плашка «Вернуться к тарифам» для пришедших с лендинга, иначе пусто
+  const backToPricing = isFromVibe ? (
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border-2 border-brand-navy bg-brand-yellow/35 p-5 shadow-[0_4px_0_0_rgba(16,38,71,0.1)]">
+      <div>
+        <p className="font-heading text-base sm:text-lg font-black text-brand-navy">
+          Вы смотрите разбор из программы «Инженерный вайбкодинг»
+        </p>
+        <p className="mt-0.5 text-xs sm:text-sm font-medium text-brand-charcoal/85 text-pretty">
+          Посмотрели урок? Возвращайтесь на страницу курса, чтобы настроить свой проект от CLAUDE.md до автотестов.
+        </p>
+      </div>
+      <a
+        href="/courses/vibecoding#pricing"
+        className="btn-goose inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl border-2 border-brand-navy px-5 text-sm font-extrabold text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_0_0_var(--color-goose-red)]"
+      >
+        Вернуться к тарифам
+      </a>
+    </div>
+  ) : null;
+
   return (
     <div className="space-y-6 sm:space-y-8">
-      {isFromVibe && (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border-2 border-brand-navy bg-brand-yellow/35 p-5 shadow-[0_4px_0_0_rgba(16,38,71,0.1)]">
-          <div>
-            <p className="font-heading text-base sm:text-lg font-black text-brand-navy">
-              Вы смотрите разбор из программы «Инженерный вайбкодинг»
-            </p>
-            <p className="mt-0.5 text-xs sm:text-sm font-medium text-brand-charcoal/85 text-pretty">
-              Посмотрели урок? Возвращайтесь на страницу курса, чтобы настроить свой проект от CLAUDE.md до автотестов.
-            </p>
-          </div>
-          <a
-            href="/courses/vibecoding#pricing"
-            className="btn-goose inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl border-2 border-brand-navy px-5 text-sm font-extrabold text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_0_0_var(--color-goose-red)]"
-          >
-            Вернуться к тарифам
-          </a>
-        </div>
-      )}
+      {nextStepTest ? (
+        <LessonNextStepSlot
+          control={backToPricing}
+          nextStep={<FreeLessonNextStep lessonNumber={lessonNumber} lessonId={content.lessonId} />}
+        />
+      ) : backToPricing}
 
       <section aria-labelledby="lesson-results" className="rounded-2xl border-2 border-brand-navy/15 bg-brand-cream/60 p-5 shadow-[0_3px_0_0_rgba(16,38,71,0.06)] sm:p-7">
         <h2 id="lesson-results" className="font-heading text-lg sm:text-2xl font-extrabold tracking-tight text-brand-navy text-balance">
@@ -60,8 +73,9 @@ export function FreeLessonAfterVideo({ content, materials, ctaHref, fromLanding 
         </ul>
       </section>
 
+      {/* Конспект свёрнут по умолчанию: раскрытый занимал 39–75% высоты страницы и отодвигал CTA */}
       {materials.trim() && (
-        <details open className="group rounded-2xl border border-border bg-card/60 px-5 py-4 sm:px-6">
+        <details className="group rounded-2xl border border-border bg-card/60 px-5 py-4 sm:px-6">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-bold marker:content-none sm:text-lg">
             Дополнительные материалы и ссылки
             <ChevronDown className="size-5 shrink-0 text-primary transition-transform group-open:rotate-180" aria-hidden />
