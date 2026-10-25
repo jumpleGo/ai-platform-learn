@@ -26,4 +26,6 @@ export const EVENTS = {
   experimentExposed: 'experiment_exposed',     // props: experiment, variant — посетитель увидел тестируемый элемент
   leadSubmitted: 'lead_submitted',             // props: courseSlug, place, type — оставил контакт в форме «пришлю программу»
   homeCourseClicked: 'home_course_click',      // props: course, place — клик по карточке курса или «Курсы» на главной
+  studentCopyClicked: 'student_copy_click',    // props: os — скопировал команду установки на /student
+  studentRepoClicked: 'student_repo_click',    // props: os — ушёл на GitHub набора с /student
 } as const;
