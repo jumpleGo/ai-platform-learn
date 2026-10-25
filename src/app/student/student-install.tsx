@@ -85,8 +85,8 @@ export function StudentInstall({
       </div>
       <p className={styles.hint}>
         {os === 'unix'
-          ? 'Вставь в терминал, потом запусти OpenCode или Claude Code в папке проекта.'
-          : 'Вставь в PowerShell, потом запусти OpenCode или Claude Code в папке проекта.'}
+          ? 'Вставь в терминал, потом запусти OpenCode, Claude Code или Codex в папке проекта.'
+          : 'Вставь в PowerShell, потом запусти OpenCode, Claude Code или Codex в папке проекта.'}
       </p>
 
       <div className={styles.actions}>
