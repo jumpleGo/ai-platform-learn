@@ -9,7 +9,7 @@ const COUNTER_ID = 110434658;
 type Os = 'unix' | 'windows';
 
 // Цель в Метрике ставим вместе с событием PostHog: рилсовый трафик смотрим в обеих
-function goal(name: string, props: Record<string, unknown>) {
+export function goal(name: string, props: Record<string, unknown>) {
   track(name, props);
   window.ym?.(COUNTER_ID, 'reachGoal', name, props);
 }

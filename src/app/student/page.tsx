@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
+import { StudentBanners } from './student-banners';
 import { StudentInstall } from './student-install';
 import styles from './student.module.css';
 
@@ -53,45 +54,49 @@ const SKILLS = [
 export default function StudentPage() {
   return (
     <main className={`${styles.page} ${mono.variable}`}>
-      <section className={styles.window} aria-labelledby="student-title">
-        <header className={styles.bar}>
-          <span className={styles.dots} aria-hidden="true">
-            <i className={styles.dotRed} />
-            <i className={styles.dotYellow} />
-            <i className={styles.dotGreen} />
-          </span>
-          <span className={styles.tab}>терминал</span>
-        </header>
+      <div className={styles.stack}>
+        <section className={styles.window} aria-labelledby="student-title">
+          <header className={styles.bar}>
+            <span className={styles.dots} aria-hidden="true">
+              <i className={styles.dotRed} />
+              <i className={styles.dotYellow} />
+              <i className={styles.dotGreen} />
+            </span>
+            <span className={styles.tab}>терминал</span>
+          </header>
 
-        <div className={styles.body}>
-          <p className={styles.kicker}>gelato student · бесплатно</p>
-          <h1 id="student-title" className={styles.title}>
-            учись кодить с ИИшкой, а не вместо себя
-          </h1>
-          <p className={styles.lead}>
-            Набор для OpenCode, Claude Code и Codex. Наставник не пишет код за тебя: даёт подсказки по ступеням,
-            проверяет решение, разбирает ошибки и объясняет непонятное.
-          </p>
-
-          <StudentInstall repo={KIT_REPO} installSh={INSTALL_SH} installPs={INSTALL_PS}>
-            <p className={styles.note} aria-hidden="true">
-              код пишешь ты!
+          <div className={styles.body}>
+            <p className={styles.kicker}>gelato student · бесплатно</p>
+            <h1 id="student-title" className={styles.title}>
+              учись кодить с ИИшкой, а не вместо себя
+            </h1>
+            <p className={styles.lead}>
+              Набор для OpenCode, Claude Code и Codex. Наставник не пишет код за тебя: даёт подсказки по ступеням,
+              проверяет решение, разбирает ошибки и объясняет непонятное.
             </p>
-          </StudentInstall>
 
-          <div className={styles.skills}>
-            <p className={styles.skillsLabel}>7 скиллов в наборе</p>
-            <ul className={styles.chips}>
-              {SKILLS.map((skill) => (
-                <li key={skill} className={styles.chip}>
-                  {skill}
-                </li>
-              ))}
-            </ul>
+            <StudentInstall repo={KIT_REPO} installSh={INSTALL_SH} installPs={INSTALL_PS}>
+              <p className={styles.note} aria-hidden="true">
+                код пишешь ты!
+              </p>
+            </StudentInstall>
+
+            <div className={styles.skills}>
+              <p className={styles.skillsLabel}>7 скиллов в наборе</p>
+              <ul className={styles.chips}>
+                {SKILLS.map((skill) => (
+                  <li key={skill} className={styles.chip}>
+                    {skill}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
           </div>
+        </section>
 
-        </div>
-      </section>
+        <StudentBanners />
+      </div>
     </main>
   );
 }

@@ -13,6 +13,7 @@
   flex: 1;
   min-height: 100dvh;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   place-items: center;
   padding: 56px 24px 72px;
   color: var(--navy);
@@ -308,6 +309,109 @@
   pointer-events: none;
 }
 
+/* Окно и баннеры под ним — одна колонка по центру */
+.stack {
+  width: 100%;
+  max-width: 760px;
+}
+
+/* Баннеры под окном: тише и меньше окна, но заметные */
+.banners {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.banner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 20px 18px;
+  color: var(--navy);
+  background: var(--paper);
+  border: 2.5px solid var(--navy);
+  border-radius: 20px;
+  box-shadow: 0 6px 0 var(--navy);
+  transform: rotate(var(--tilt, 0deg));
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+}
+
+.banner:nth-child(1) {
+  --tilt: 1deg;
+}
+
+.banner:nth-child(2) {
+  --tilt: -1deg;
+}
+
+.banner:hover {
+  transform: rotate(var(--tilt, 0deg)) translateY(-2px);
+  box-shadow: 0 8px 0 var(--navy);
+}
+
+.banner:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}
+
+.bannerLabel {
+  align-self: flex-start;
+  padding: 3px 9px 4px;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 2px solid var(--navy);
+  border-radius: 999px;
+}
+
+.bannerSky .bannerLabel {
+  background: var(--sky);
+}
+
+.bannerYellow .bannerLabel {
+  background: var(--yellow);
+}
+
+.bannerTitle {
+  margin-top: 4px;
+  font-family: var(--font-manrope), sans-serif;
+  font-weight: 800;
+  font-size: 21px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.bannerArrow {
+  display: inline-block;
+  transition: transform 0.15s;
+}
+
+.banner:hover .bannerArrow {
+  transform: translateX(3px);
+}
+
+.bannerText {
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 500;
+  color: var(--blue);
+  text-wrap: pretty;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .banner,
+  .bannerArrow {
+    transition: none;
+  }
+}
+
 @media (max-width: 640px) {
   .page {
     padding: 28px 16px 44px;
@@ -374,5 +478,23 @@
   .note {
     font-size: 28px;
     margin: 4px 6px 0 auto;
+  }
+
+  .banners {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 32px;
+  }
+
+  .banner:nth-child(1) {
+    --tilt: 0.6deg;
+  }
+
+  .banner:nth-child(2) {
+    --tilt: -0.6deg;
+  }
+
+  .bannerTitle {
+    font-size: 20px;
   }
 }
