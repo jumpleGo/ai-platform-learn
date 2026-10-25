@@ -28,5 +28,5 @@ export const EVENTS = {
   homeCourseClicked: 'home_course_click',      // props: course, place — клик по карточке курса или «Курсы» на главной
   studentCopyClicked: 'student_copy_click',    // props: os — скопировал команду установки на /student
   studentRepoClicked: 'student_repo_click',    // props: os — ушёл на GitHub набора с /student
-  studentBannerClicked: 'student_banner_click', // props: banner (vibecoding | free) — клик по баннеру под окном /student
+  studentBannerClicked: 'student_banner_click', // props: banner (vibecoding | free | about) — клик по баннеру под окном /student или пилюле «кто мы» над ним
 } as const;

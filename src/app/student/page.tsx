@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
-import { StudentBanners } from './student-banners';
+import { StudentAbout, StudentBanners } from './student-banners';
 import { StudentInstall } from './student-install';
 import styles from './student.module.css';
 
@@ -55,6 +55,9 @@ export default function StudentPage() {
   return (
     <main className={`${styles.page} ${mono.variable}`}>
       <div className={styles.stack}>
+        <div className={styles.aboutRow}>
+          <StudentAbout />
+        </div>
         <section className={styles.window} aria-labelledby="student-title">
           <header className={styles.bar}>
             <span className={styles.dots} aria-hidden="true">

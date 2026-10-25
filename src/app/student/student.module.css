@@ -405,7 +405,70 @@
   text-wrap: pretty;
 }
 
+/* Лимонная пилюля «кто мы» над окном справа: маленькая, в потоке — окно не перекрывает */
+.aboutRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 22px;
+}
+
+.about {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 15px 5px 5px;
+  font-family: var(--font-manrope), sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--navy);
+  background: var(--yellow);
+  border: 2.5px solid var(--navy);
+  border-radius: 999px;
+  box-shadow: 0 4px 0 var(--navy);
+  transform: rotate(2deg);
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+}
+
+.aboutBadge {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  border: 2px solid var(--navy);
+  border-radius: 50%;
+  background: var(--cream);
+}
+
+.aboutLemon {
+  transition: transform 0.2s;
+}
+
+.about:hover {
+  transform: rotate(-1deg) translateY(-2px);
+  box-shadow: 0 6px 0 var(--navy);
+}
+
+.about:hover .aboutLemon {
+  transform: rotate(-12deg);
+}
+
+.about:active {
+  transform: rotate(2deg) translateY(4px);
+  box-shadow: 0 0 0 var(--navy);
+}
+
+.about:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .about,
+  .aboutLemon,
   .banner,
   .bannerArrow {
     transition: none;
@@ -496,5 +559,9 @@
 
   .bannerTitle {
     font-size: 20px;
+  }
+
+  .aboutRow {
+    margin-bottom: 16px;
   }
 }
