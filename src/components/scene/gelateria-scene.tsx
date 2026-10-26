@@ -28,6 +28,7 @@ import { nbsp } from '@/lib/typography';
 import './scene.css';
 import { RichText } from '@/components/markdown';
 import { LessonQuizDialog } from '@/components/lesson-quiz';
+import { StudentLink } from '@/components/student-link';
 import { track } from '@/lib/analytics/track-client';
 import { EVENTS } from '@/lib/analytics/events';
 
@@ -540,6 +541,14 @@ export function GelateriaScene({ offer = null }: { offer?: SceneOffer | null }) 
                 <p className="scene-hero-cta">{COPY.hero.cta}</p>
               </>
             )}
+            {/* на телефоне наклейка встаёт в поток под текстом: сверху маркиза */}
+            <StudentLink place="scene" className="scene-student-inline" />
+          </div>
+
+          {/* Наклейка на стене над текстом: из рилсов приходят за учебным набором
+              по «ссылке в профиле». Вне героя — у того на десктопе появление по скроллу */}
+          <div className="scene-student" style={{ '--l': X(756), '--t': Y(500) } as React.CSSProperties}>
+            <StudentLink place="scene" />
           </div>
 
           <div

@@ -29,4 +29,5 @@ export const EVENTS = {
   studentCopyClicked: 'student_copy_click',    // props: os — скопировал команду установки на /student
   studentRepoClicked: 'student_repo_click',    // props: os — ушёл на GitHub набора с /student
   studentBannerClicked: 'student_banner_click', // props: banner (vibecoding | free | about) — клик по баннеру под окном /student или пилюле «кто мы» над ним
+  homeStudentClicked: 'home_student_click',     // props: place (classic | scene) — клик по пилюле Gelato Student на первом экране главной
 } as const;

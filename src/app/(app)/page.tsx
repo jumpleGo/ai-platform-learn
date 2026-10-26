@@ -16,6 +16,7 @@ import { HomeVariantAnalytics } from '@/components/home-variant-analytics';
 import { DoodleWord } from '@/components/doodle-decor';
 import { PromoBanner } from '@/components/promo-banner';
 import { SectionHead } from '@/components/section-head';
+import { StudentLink } from '@/components/student-link';
 import { nbspDeep } from '@/lib/typography';
 
 // Лента ролей в хиро — показывает охват, не перечисляя всех в заголовке
@@ -146,6 +147,9 @@ export default async function HomePage() {
             Сначала бесплатно
           </Link>
         </div>
+
+        {/* из рилсов приходят по «ссылке в профиле» за учебным набором — он сразу под кнопками */}
+        <StudentLink place="classic" className="relative" />
 
         <div className="relative overflow-hidden">
           <ul className="animate-roles flex">

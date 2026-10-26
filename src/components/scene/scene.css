@@ -1388,6 +1388,45 @@
   }
 }
 
+/* ── наклейка Gelato Student на первом экране ──────────────────────────── */
+
+.scene-student {
+  position: absolute;
+  z-index: 2;
+  left: var(--l);
+  top: var(--t);
+  max-width: 50cqw;
+  rotate: -1.5deg;
+}
+
+/* размер — от полотна, как у остального текста сцены: на планшете не налезает на героя */
+.scene-student > a {
+  font-size: clamp(0.7rem, 1.05cqw, 1.1rem);
+}
+
+.scene-student-inline {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  /* На телефоне над текстом маркиза: наклейка идёт в потоке героя под кнопками
+     и растёт вместе с полотном, а карточки на фасаде отъезжают ниже */
+  .scene-student {
+    display: none;
+  }
+
+  .scene-student-inline {
+    display: inline-flex;
+    margin-top: 2cqw;
+    font-size: 2.3cqw;
+    rotate: -1.5deg;
+  }
+
+  .scene-copy.scene-wall-cards {
+    top: 18.8%;
+  }
+}
+
 /* ── Вариант offer (тест home_offer): оффер на первом экране ─────────────── */
 
 .scene-hero--offer .scene-title {
