@@ -939,6 +939,22 @@
   color: var(--cream);
 }
 
+/* учебный набор — лимонная кнопка с лимоном */
+.scene-nav a.scene-nav-student {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  background: var(--color-brand-yellow);
+  font-weight: 600;
+}
+
+.scene-nav-student svg {
+  width: 1.15em;
+  height: auto;
+  flex-shrink: 0;
+}
+
 /* ── появление текста ────────────────────────────────────────────────────── */
 
 [data-reveal] {
@@ -1019,6 +1035,7 @@
     border: 1px solid rgba(16, 38, 71, 0.1);
     background: rgba(253, 252, 238, 0.92);
     box-shadow: 0 0.5rem 1.5rem rgba(30, 24, 18, 0.16);
+    gap: 0.15rem;
     transform: translate(-50%, 0.6rem);
   }
 
@@ -1027,8 +1044,8 @@
   }
 
   .scene-nav a {
-    flex: 1;
-    padding: 0.52rem 0.4rem;
+    flex: 1 1 auto;
+    padding: 0.52rem 0.3rem;
     text-align: center;
     font-size: clamp(0.7rem, 3.2vw, 0.82rem);
   }
@@ -1385,28 +1402,6 @@
     padding: 0.45em 0.65em;
     font-size: 1.7cqw;
     line-height: 1.18;
-  }
-}
-
-/* ── наклейка Gelato Student у двери ───────────────────────────────────── */
-
-.scene-student {
-  position: absolute;
-  z-index: 2;
-  left: 50%;
-  top: var(--t);
-  translate: -50% 0;
-  rotate: -1.5deg;
-}
-
-/* размер — от полотна, как у остального текста сцены */
-.scene-student > a {
-  font-size: clamp(0.7rem, 1.05cqw, 1.1rem);
-}
-
-@media (max-width: 700px) {
-  .scene-student > a {
-    font-size: 2.3cqw;
   }
 }
 

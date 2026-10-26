@@ -28,7 +28,7 @@ import { nbsp } from '@/lib/typography';
 import './scene.css';
 import { RichText } from '@/components/markdown';
 import { LessonQuizDialog } from '@/components/lesson-quiz';
-import { StudentLink } from '@/components/student-link';
+import { goal } from '@/app/student/student-install';
 import { track } from '@/lib/analytics/track-client';
 import { EVENTS } from '@/lib/analytics/events';
 
@@ -399,6 +399,15 @@ export function GelateriaScene({ offer = null }: { offer?: SceneOffer | null }) 
   return (
     <>
       <nav className="scene-nav" ref={navRef} aria-label="Разделы школы">
+        {/* из рилсов приходят по «ссылке в профиле» за учебным набором — он первым в плашке */}
+        <Link
+          href="/student"
+          className="scene-nav-student"
+          onClick={() => goal(EVENTS.homeStudentClicked, { place: 'scene' })}
+        >
+          <Lemon />
+          Student
+        </Link>
         <Link href="/free">Бесплатно</Link>
         <Link href={BEGINNER_URL}>Новичкам</Link>
         <Link href={PROGRAM_URL}>IT + вайбкодинг</Link>
@@ -566,12 +575,6 @@ export function GelateriaScene({ offer = null }: { offer?: SceneOffer | null }) 
             <span className="scene-door-label">{COPY.door}</span>
             <span className="sr-only">Наши обучения</span>
           </Link>
-
-          {/* Наклейка Gelato Student под аркой: из рилсов приходят по «ссылке в профиле»,
-              но первый экран не перегружаем — она ниже героя, на пороге */}
-          <div className="scene-student" style={{ '--t': Y(SPOT.door.y + SPOT.door.h + 12) } as React.CSSProperties}>
-            <StudentLink place="scene" />
-          </div>
 
           {/* ── двор: текст, облачко над столом, лимон на тропинке ── */}
           <div
