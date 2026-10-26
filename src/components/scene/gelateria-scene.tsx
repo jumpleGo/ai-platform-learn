@@ -541,14 +541,6 @@ export function GelateriaScene({ offer = null }: { offer?: SceneOffer | null }) 
                 <p className="scene-hero-cta">{COPY.hero.cta}</p>
               </>
             )}
-            {/* на телефоне наклейка встаёт в поток под текстом: сверху маркиза */}
-            <StudentLink place="scene" className="scene-student-inline" />
-          </div>
-
-          {/* Наклейка на стене над текстом: из рилсов приходят за учебным набором
-              по «ссылке в профиле». Вне героя — у того на десктопе появление по скроллу */}
-          <div className="scene-student" style={{ '--l': X(756), '--t': Y(500) } as React.CSSProperties}>
-            <StudentLink place="scene" />
           </div>
 
           <div
@@ -574,6 +566,12 @@ export function GelateriaScene({ offer = null }: { offer?: SceneOffer | null }) 
             <span className="scene-door-label">{COPY.door}</span>
             <span className="sr-only">Наши обучения</span>
           </Link>
+
+          {/* Наклейка Gelato Student под аркой: из рилсов приходят по «ссылке в профиле»,
+              но первый экран не перегружаем — она ниже героя, на пороге */}
+          <div className="scene-student" style={{ '--t': Y(SPOT.door.y + SPOT.door.h + 12) } as React.CSSProperties}>
+            <StudentLink place="scene" />
+          </div>
 
           {/* ── двор: текст, облачко над столом, лимон на тропинке ── */}
           <div
