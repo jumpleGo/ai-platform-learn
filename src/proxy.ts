@@ -6,6 +6,7 @@ import {
   pickHomeVariant,
 } from '@/lib/home-experiment';
 import { parseTestRub } from '@/lib/payments/tariffs';
+import { BLOG_POSTS } from '@/lib/blog';
 import {
   LANDING_PAIRS_COOKIE,
   LANDING_PAIRS_TTL,
@@ -29,8 +30,17 @@ const PUBLIC = [
   '/460dd8419dac7340d775ae7a71222585.txt',
 ];
 
+// Известные статьи блога: неизвестный slug получает настоящий 404 здесь, потому что
+// (app)/loading.tsx начинает поток со статусом 200 и notFound() в странице уже не меняет код
+const BLOG_SLUGS = new Set(BLOG_POSTS.map((p) => p.slug));
+
 export function proxy(req: NextRequest) {
   const { pathname, searchParams } = req.nextUrl;
+  const blogSlug = /^\/blog\/([^/]+)\/?$/.exec(pathname)?.[1];
+  if (blogSlug && !BLOG_SLUGS.has(blogSlug)) {
+    // человеку показываем список статей, роботу — код 404
+    return NextResponse.rewrite(new URL('/blog', req.url), { status: 404 });
+  }
   // главная ('/') открыта гостям — точное совпадение, чтобы не распахнуть весь сайт через startsWith
   const isPublic = pathname === '/' || PUBLIC.some((p) => pathname.startsWith(p));
   // id посетителя для A/B-тестов баннеров и главной: живёт год, гостям тоже нужен.
