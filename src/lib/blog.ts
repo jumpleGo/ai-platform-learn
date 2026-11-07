@@ -1012,7 +1012,7 @@ export const BLOG_POSTS: readonly BlogPost[] = [
       { question: 'Как новичку почистить память агента?', answer: 'Раз в неделю прочитайте файл с правилами, вычеркните устаревшее, объедините дубли и сократите записи. Агента можно попросить найти противоречия, но удалять лучше по своему решению.' },
     ],
     lessonPath: null,
-    cover: '/blog/ii-agent-prostymi-slovami.webp',
+    cover: '/blog/pamyat-ii-agenta.webp',
   },
 ];
 
