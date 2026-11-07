@@ -50,3 +50,20 @@ export function nbspDeep<T>(value: T): T {
   }
   return value;
 }
+
+// Markdown статьи: nbsp построчно, потому что правило про число и единицу
+// ловит \s и иначе склеило бы абзацы через перенос. Код в ``` не трогаем —
+// неразрывные пробелы в нём ломают копирование.
+export function nbspMarkdown(source: string): string {
+  let inCode = false;
+  return source
+    .split('\n')
+    .map((line) => {
+      if (line.trim().startsWith('```')) {
+        inCode = !inCode;
+        return line;
+      }
+      return inCode ? line : nbsp(line);
+    })
+    .join('\n');
+}

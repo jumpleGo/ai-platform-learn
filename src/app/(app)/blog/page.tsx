@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { BLOG_POSTS, readingMinutes } from '@/lib/blog';
+import Image from 'next/image';
 import { StickerTag, TitleAccent } from '@/components/accent';
+import { nbsp } from '@/lib/typography';
 
 export const metadata: Metadata = {
   title: 'Блог о работе с ИИ — разборы и инструкции | GELATO',
@@ -37,8 +39,9 @@ export default function BlogPage() {
             <li key={post.slug}>
               <Link
                 href={`/blog/${post.slug}`}
-                className="group block rounded-2xl border-2 border-brand-navy/15 bg-card p-6 shadow-[0_3px_0_0_rgba(16,38,71,0.06)] transition-all hover:-translate-y-0.5 hover:border-brand-navy hover:shadow-[0_5px_0_0_rgba(16,38,71,0.12)] motion-reduce:hover:translate-y-0 sm:p-8"
+                className="group grid gap-5 rounded-2xl border-2 border-brand-navy/15 bg-card p-6 shadow-[0_3px_0_0_rgba(16,38,71,0.06)] transition-all hover:-translate-y-0.5 hover:border-brand-navy hover:shadow-[0_5px_0_0_rgba(16,38,71,0.12)] motion-reduce:hover:translate-y-0 sm:grid-cols-[minmax(0,1fr)_15rem] sm:items-center sm:p-8"
               >
+                <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-muted-foreground">
                   <span className="rounded-full bg-brand-sky/20 px-2.5 py-0.5 font-sans font-bold text-brand-navy">
                     {post.topic}
@@ -48,15 +51,24 @@ export default function BlogPage() {
                   <span>{readingMinutes(post)} мин чтения</span>
                 </div>
                 <h2 className="mt-3 font-heading text-2xl font-extrabold tracking-tight text-balance text-brand-navy sm:text-3xl">
-                  {post.title}
+                  {nbsp(post.title)}
                 </h2>
                 <p className="mt-2.5 max-w-2xl leading-relaxed text-pretty text-muted-foreground">
-                  {post.lead}
+                  {nbsp(post.lead)}
                 </p>
                 <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-extrabold text-brand-navy">
                   Читать
                   <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
                 </span>
+                </div>
+                <Image
+                  src={post.cover}
+                  alt=""
+                  width={480}
+                  height={270}
+                  sizes="(min-width: 640px) 15rem, 100vw"
+                  className="order-first aspect-[16/9] w-full rounded-xl border border-brand-navy/10 object-cover sm:order-none"
+                />
               </Link>
             </li>
           ))}

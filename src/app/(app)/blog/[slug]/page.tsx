@@ -5,7 +5,9 @@ import { ArrowLeft, ArrowRight, PlayCircle } from 'lucide-react';
 import { BLOG_POSTS, blogPostUrl, getBlogPost, readingMinutes } from '@/lib/blog';
 import { SITE_URL } from '@/lib/site';
 import { Markdown } from '@/components/markdown';
+import Image from 'next/image';
 import { StickerTag } from '@/components/accent';
+import { nbsp, nbspMarkdown } from '@/lib/typography';
 
 const dateFormat = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -31,13 +33,13 @@ export async function generateMetadata({ params }: {
       description: post.seoDescription,
       publishedTime: post.published,
       modifiedTime: post.updated,
-      images: [{ url: '/og-gelato.png', width: 1200, height: 630, alt: post.title }],
+      images: [{ url: post.cover, alt: post.title }],
     },
     twitter: {
       card: 'summary_large_image',
       title: post.seoTitle,
       description: post.seoDescription,
-      images: ['/og-gelato.png'],
+      images: [post.cover],
     },
   };
 }
@@ -61,7 +63,7 @@ function postJsonLd(post: (typeof BLOG_POSTS)[number]) {
         author: { '@type': 'Person', name: 'Эмиль', url: SITE_URL },
         publisher: { '@id': `${SITE_URL}/#organization` },
         mainEntityOfPage: canonical,
-        image: `${SITE_URL}/og-gelato.png`,
+        image: `${SITE_URL}${post.cover}`,
       },
       {
         '@type': 'FAQPage',
@@ -103,9 +105,9 @@ export default async function BlogPostPage({ params }: {
         </Link>
 
         <h1 className="mt-4 font-heading text-[clamp(2rem,5vw,3.25rem)]/[1.05] font-extrabold tracking-[-0.03em] text-balance text-brand-navy">
-          {post.title}
+          {nbsp(post.title)}
         </h1>
-        <p className="mt-3 text-lg leading-[1.4] text-muted-foreground text-pretty">{post.lead}</p>
+        <p className="mt-3 text-lg leading-[1.4] text-muted-foreground text-pretty">{nbsp(post.lead)}</p>
 
         <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-border pb-6 font-mono text-xs text-muted-foreground">
           <time dateTime={post.published}>{dateFormat.format(new Date(post.published))}</time>
@@ -115,7 +117,18 @@ export default async function BlogPostPage({ params }: {
           <span>Эмиль, автор школы GELATO</span>
         </div>
 
-        <Markdown source={post.body} variant="read" className="mt-8" />
+        {/* Обложка в стиле Gelato: та же картинка уходит в OG и в разметку статьи */}
+        <Image
+          src={post.cover}
+          alt={post.title}
+          width={1600}
+          height={900}
+          priority
+          sizes="(min-width: 768px) 46rem, 100vw"
+          className="mt-8 aspect-[16/9] w-full rounded-2xl border-2 border-brand-navy/12 object-cover"
+        />
+
+        <Markdown source={nbspMarkdown(post.body)} variant="read" className="mt-8" />
 
         {post.faq.length > 0 && (
           <section aria-labelledby="post-faq" className="mt-14">
@@ -129,9 +142,9 @@ export default async function BlogPostPage({ params }: {
                   className="rounded-2xl border-2 border-brand-navy/12 bg-card p-5 shadow-[0_2px_0_0_rgba(16,38,71,0.05)]"
                 >
                   <dt className="font-heading text-base font-extrabold text-brand-navy text-pretty sm:text-lg">
-                    {item.question}
+                    {nbsp(item.question)}
                   </dt>
-                  <dd className="mt-2 leading-relaxed text-pretty text-muted-foreground">{item.answer}</dd>
+                  <dd className="mt-2 leading-relaxed text-pretty text-muted-foreground">{nbsp(item.answer)}</dd>
                 </div>
               ))}
             </dl>
@@ -168,7 +181,7 @@ export default async function BlogPostPage({ params }: {
                   href={`/blog/${other.slug}`}
                   className="group flex items-center justify-between gap-4 rounded-2xl border border-border bg-card/60 px-5 py-4 transition-colors hover:border-brand-navy"
                 >
-                  <span className="font-heading text-base font-bold text-brand-navy text-pretty">{other.title}</span>
+                  <span className="font-heading text-base font-bold text-brand-navy text-pretty">{nbsp(other.title)}</span>
                   <ArrowRight className="size-4 shrink-0 text-primary transition-transform group-hover:translate-x-0.5" aria-hidden />
                 </Link>
               </li>
