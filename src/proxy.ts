@@ -25,6 +25,8 @@ const PUBLIC = [
   '/sitemap.xml', '/robots.txt', '/llms.txt',
   // файл подтверждения прав в Яндекс.Вебмастере: лежит в public/, робот ходит без сессии
   '/yandex_',
+  // ключ IndexNow (scripts/indexnow.mjs): Яндекс и Bing сверяют его с сайтом без сессии
+  '/460dd8419dac7340d775ae7a71222585.txt',
 ];
 
 export function proxy(req: NextRequest) {
