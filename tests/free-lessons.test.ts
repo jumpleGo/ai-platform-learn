@@ -4,22 +4,40 @@ import {
 } from '../src/lib/free-lessons';
 
 describe('free lesson funnel config', () => {
-  it('включён только для четырёх уроков курса claude-code', () => {
-    expect([1, 2, 3, 4].map((n) => getFreeLessonContent('claude-code', n)?.lessonId))
-      .toEqual(['01', '02', '03', '04']);
-    expect(getFreeLessonContent('claude-code', 5)).toBeNull();
+  it('включён только для пяти уроков курса claude-code', () => {
+    expect([1, 2, 3, 4, 5].map((n) => getFreeLessonContent('claude-code', n)?.lessonId))
+      .toEqual(['01', '02', '03', '04', '05']);
+    expect(getFreeLessonContent('claude-code', 6)).toBeNull();
     expect(getFreeLessonContent('ai-cartoons', 1)).toBeNull();
   });
 
   it('у каждого урока есть уникальный SEO и смысловой контент', () => {
-    const lessons = [1, 2, 3, 4].map((n) => getFreeLessonContent('claude-code', n)!);
-    expect(new Set(lessons.map((lesson) => lesson.h1))).toHaveLength(4);
-    expect(new Set(lessons.map((lesson) => lesson.seoTitle))).toHaveLength(4);
+    const lessons = [1, 2, 3, 4, 5].map((n) => getFreeLessonContent('claude-code', n)!);
+    expect(new Set(lessons.map((lesson) => lesson.h1))).toHaveLength(5);
+    expect(new Set(lessons.map((lesson) => lesson.seoTitle))).toHaveLength(5);
     for (const lesson of lessons) {
       expect(lesson.outcomes).toHaveLength(3);
       expect(lesson.bridgeText.length).toBeGreaterThan(80);
       expect(lesson.faq.length).toBeGreaterThanOrEqual(2);
     }
+  });
+
+  it('урок про роли: короткие слова и тире не висят на краю строки', () => {
+    const lesson = getFreeLessonContent('claude-code', 5)!;
+    const texts = [
+      lesson.h1, lesson.lead, ...lesson.outcomes, lesson.bridgeTitle, lesson.bridgeText,
+      lesson.ctaLabel, lesson.seoTitle, lesson.seoDescription,
+      ...lesson.faq.flatMap((item) => [item.question, item.answer]),
+    ];
+    for (const text of texts) {
+      // после короткого слова — только неразрывный пробел U+00A0
+      expect(text).not.toMatch(/(^|[\s(«])(и|а|в|с|к|о|у|на|по|за|из|от|до|не|ни|но|то|как|для|без|под|над|при|про|же|бы|ли) /i);
+      // тире не начинает строку
+      expect(text).not.toMatch(/ —/);
+      // символ, а не HTML-сущность
+      expect(text).not.toContain('&nbsp;');
+    }
+    expect(lesson.faq.map((item) => item.answer).join(' ')).toContain('/office-hours');
   });
 });
 
