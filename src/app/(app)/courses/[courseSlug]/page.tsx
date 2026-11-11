@@ -27,6 +27,7 @@ import { ExperimentExposure } from '@/components/experiment-exposure';
 import { TestimonialCarousel } from '@/components/testimonial-carousel';
 import { LANDING_PAIRS_COOKIE, pickLandingPairs, type LandingBlock } from '@/lib/landing-blocks';
 import { AGENTS_BLOCKS_COOKIE, pickAgentsBlocks, type AgentsLandingBlock } from '@/lib/landing-blocks';
+import { BeginnerQuestions } from '@/components/beginner-questions';
 
 // Вход в воронку для новичка: уроки курса-хаба открыты без оплаты
 const FREE_LESSON_HREF = '/courses/claude-code/lessons/1?from=course_landing';
@@ -516,6 +517,8 @@ export default async function CourseLandingPage({ params, searchParams }: {
             ))}
           </dl>
         )}
+
+        {isAgents && <BeginnerQuestions course={course} />}
 
       </section>
 
