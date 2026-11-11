@@ -8,6 +8,8 @@ import { Markdown } from '@/components/markdown';
 import Image from 'next/image';
 import { StickerTag } from '@/components/accent';
 import { nbsp, nbspMarkdown } from '@/lib/typography';
+import { getPublishedCoursesWithLessons } from '@/lib/db/courses';
+import { courseKey, lessonPath } from '@/lib/slug';
 
 const dateFormat = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -86,6 +88,19 @@ export default async function BlogPostPage({ params }: {
   if (!post) notFound();
 
   const others = BLOG_POSTS.filter((p) => p.slug !== post.slug);
+  // Используем уже заданную связку: урок-источник или ссылка на курс в Markdown.
+  const relatedPath = post.lessonPath ?? post.body.match(/\]\((\/courses\/[^\s)]+)\)/)?.[1];
+  const relatedKey = relatedPath?.match(/^\/courses\/([^/?#]+)(?:\/|[?#]|$)/)?.[1];
+  const relatedCourse = relatedKey
+    ? (await getPublishedCoursesWithLessons()).find((course) => courseKey(course) === relatedKey || course.id === relatedKey)
+    : undefined;
+  const firstFreeLesson = relatedCourse?.isTest ? undefined : relatedCourse?.lessons.find(
+    (lesson) => lesson.access === 'free' && lesson.published !== false,
+  );
+  const courseHref = relatedCourse ? `/courses/${courseKey(relatedCourse)}` : '/courses';
+  const introHref = relatedCourse && firstFreeLesson
+    ? lessonPath(courseKey(relatedCourse), firstFreeLesson.number)
+    : null;
 
   return (
     <div className="space-y-14">
@@ -150,6 +165,37 @@ export default async function BlogPostPage({ params }: {
             </dl>
           </section>
         )}
+
+        <section aria-labelledby="post-start" className="mt-12 rounded-2xl border-2 border-brand-navy/12 bg-card p-6">
+          <h2 id="post-start" className="font-heading text-2xl font-extrabold tracking-tight text-brand-navy">
+            С чего начать
+          </h2>
+          <p className="mt-3 leading-relaxed text-muted-foreground text-pretty">
+            {nbsp(introHref
+              ? 'Если вы только знакомитесь с темой, начните с вводного урока: разберитесь в основах и попробуйте применить их к своей задаче. Затем посмотрите программу курса и выберите следующие шаги.'
+              : relatedCourse
+                ? 'Если вы только знакомитесь с темой, посмотрите программу курса: она поможет разобраться, чему учиться и какие задачи вы сможете решать.'
+                : 'Если вы только знакомитесь с ИИ, выберите курс по своей задаче. В каталоге можно посмотреть программы и найти урок, с которого удобно начать.')}
+          </p>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            {introHref && (
+              <Link
+                href={introHref}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border-2 border-brand-navy px-5 py-3 font-bold text-brand-navy transition-colors hover:bg-brand-yellow/30 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-navy"
+              >
+                <PlayCircle className="size-4 shrink-0" aria-hidden />
+                Смотреть вводный урок
+              </Link>
+            )}
+            <Link
+              href={courseHref}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 py-3 font-bold text-brand-navy underline underline-offset-4 transition-colors hover:bg-brand-yellow/30 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-navy"
+            >
+              {relatedCourse ? 'Посмотреть программу курса' : 'Выбрать курс'}
+              <ArrowRight className="size-4 shrink-0" aria-hidden />
+            </Link>
+          </div>
+        </section>
 
         {post.lessonPath && (
           <aside className="mt-12 rounded-2xl border-2 border-brand-navy bg-brand-yellow/30 p-6 shadow-[0_4px_0_0_rgba(16,38,71,0.1)]">
