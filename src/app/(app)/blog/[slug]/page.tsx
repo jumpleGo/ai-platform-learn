@@ -2,16 +2,48 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, ArrowRight, PlayCircle } from 'lucide-react';
-import { BLOG_POSTS, blogPostUrl, getBlogPost, readingMinutes } from '@/lib/blog';
-import { SITE_URL } from '@/lib/site';
+import { BLOG_POSTS, blogPostUrl, getBlogPost, readingMinutes, type BlogPost } from '@/lib/blog';
+import { BEGINNER_URL, isFreeHub, SITE_URL } from '@/lib/site';
 import { Markdown } from '@/components/markdown';
 import Image from 'next/image';
 import { StickerTag } from '@/components/accent';
 import { nbsp, nbspMarkdown } from '@/lib/typography';
-import { getPublishedCoursesWithLessons } from '@/lib/db/courses';
+import { getPublishedCoursesWithLessons, type CourseWithLessons } from '@/lib/db/courses';
 import { courseKey, lessonPath } from '@/lib/slug';
 
 const dateFormat = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+
+function chooseStartCourse(post: BlogPost & { tags?: readonly string[] }, courses: readonly CourseWithLessons[]) {
+  const available = courses.filter((course) => course.published && !course.isTest).flatMap((course) => {
+    const lesson = course.lessons.filter((lesson) => lesson.access === 'free' && lesson.published !== false)
+      .sort((a, b) => a.number - b.number)[0];
+    const key = courseKey(course);
+    return lesson ? [{ course, courseHref: `/courses/${key}`, introHref: lessonPath(key, lesson.number) }] : [];
+  }).sort((a, b) => a.course.order - b.course.order || courseKey(a.course).localeCompare(courseKey(b.course)));
+
+  // Сохраняем редакторскую связку, если курс и вводный урок доступны.
+  const paths = [post.lessonPath, ...Array.from(post.body.matchAll(/\]\((\/courses\/[^\s)]+)\)/g), (match) => match[1])];
+  for (const path of paths) {
+    const key = path?.match(/^\/courses\/([^/?#]+)(?:\/|[?#]|$)/)?.[1];
+    const linked = available.find(({ course }) => courseKey(course) === key || course.id === key);
+    if (linked) return linked;
+  }
+
+  // Автостатьям не нужны ручные ссылки или теги: достаточно темы и заголовка.
+  const theme = [post.topic, ...(post.tags ?? []), post.title].join(' ').toLowerCase();
+  const topics: [RegExp, string[]][] = [
+    [/видео|картин|мульт|озвуч|comfyui|\bvideo\b|\bimage\b/, ['ai-cartoons']],
+    [/вайбкод|vibecod|сайт|программир/, ['vibecoding', 'it-vibecoding']],
+    [/агент|agent|claude code/, ['claude-code-agents']],
+    [/промпт|лимит|контекст|нейросет|эконом|работа с ии/, ['claude-code']],
+  ];
+  for (const [pattern, keys] of topics) {
+    const themed = pattern.test(theme) && available.find(({ course }) => keys.includes(courseKey(course)));
+    if (themed) return themed;
+  }
+  return available.find(({ courseHref }) => courseHref === BEGINNER_URL)
+    ?? available.find(({ course }) => isFreeHub(course)) ?? available[0];
+}
 
 export function generateStaticParams() {
   return BLOG_POSTS.map((post) => ({ slug: post.slug }));
@@ -88,19 +120,7 @@ export default async function BlogPostPage({ params }: {
   if (!post) notFound();
 
   const others = BLOG_POSTS.filter((p) => p.slug !== post.slug);
-  // Используем уже заданную связку: урок-источник или ссылка на курс в Markdown.
-  const relatedPath = post.lessonPath ?? post.body.match(/\]\((\/courses\/[^\s)]+)\)/)?.[1];
-  const relatedKey = relatedPath?.match(/^\/courses\/([^/?#]+)(?:\/|[?#]|$)/)?.[1];
-  const relatedCourse = relatedKey
-    ? (await getPublishedCoursesWithLessons()).find((course) => courseKey(course) === relatedKey || course.id === relatedKey)
-    : undefined;
-  const firstFreeLesson = relatedCourse?.isTest ? undefined : relatedCourse?.lessons.find(
-    (lesson) => lesson.access === 'free' && lesson.published !== false,
-  );
-  const courseHref = relatedCourse ? `/courses/${courseKey(relatedCourse)}` : '/courses';
-  const introHref = relatedCourse && firstFreeLesson
-    ? lessonPath(courseKey(relatedCourse), firstFreeLesson.number)
-    : null;
+  const start = chooseStartCourse(post, await getPublishedCoursesWithLessons());
 
   return (
     <div className="space-y-14">
@@ -166,36 +186,32 @@ export default async function BlogPostPage({ params }: {
           </section>
         )}
 
-        <section aria-labelledby="post-start" className="mt-12 rounded-2xl border-2 border-brand-navy/12 bg-card p-6">
-          <h2 id="post-start" className="font-heading text-2xl font-extrabold tracking-tight text-brand-navy">
-            С чего начать
-          </h2>
-          <p className="mt-3 leading-relaxed text-muted-foreground text-pretty">
-            {nbsp(introHref
-              ? 'Если вы только знакомитесь с темой, начните с вводного урока: разберитесь в основах и попробуйте применить их к своей задаче. Затем посмотрите программу курса и выберите следующие шаги.'
-              : relatedCourse
-                ? 'Если вы только знакомитесь с темой, посмотрите программу курса: она поможет разобраться, чему учиться и какие задачи вы сможете решать.'
-                : 'Если вы только знакомитесь с ИИ, выберите курс по своей задаче. В каталоге можно посмотреть программы и найти урок, с которого удобно начать.')}
-          </p>
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            {introHref && (
+        {start && (
+          <section aria-labelledby="post-start" className="mt-12 rounded-2xl border-2 border-brand-navy/12 bg-card p-6">
+            <h2 id="post-start" className="font-heading text-2xl font-extrabold tracking-tight text-brand-navy">
+              С чего начать
+            </h2>
+            <p className="mt-3 leading-relaxed text-muted-foreground text-pretty">
+              {nbsp('Если вы только знакомитесь с темой, начните с вводного урока: разберитесь в основах и попробуйте применить их к своей задаче. Затем посмотрите программу курса и выберите следующие шаги.')}
+            </p>
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Link
-                href={introHref}
+                href={start.introHref}
                 className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border-2 border-brand-navy px-5 py-3 font-bold text-brand-navy transition-colors hover:bg-brand-yellow/30 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-navy"
               >
                 <PlayCircle className="size-4 shrink-0" aria-hidden />
                 Смотреть вводный урок
               </Link>
-            )}
-            <Link
-              href={courseHref}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 py-3 font-bold text-brand-navy underline underline-offset-4 transition-colors hover:bg-brand-yellow/30 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-navy"
-            >
-              {relatedCourse ? 'Посмотреть программу курса' : 'Выбрать курс'}
-              <ArrowRight className="size-4 shrink-0" aria-hidden />
-            </Link>
-          </div>
-        </section>
+              <Link
+                href={start.courseHref}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 py-3 font-bold text-brand-navy underline underline-offset-4 transition-colors hover:bg-brand-yellow/30 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-navy"
+              >
+                Посмотреть программу курса
+                <ArrowRight className="size-4 shrink-0" aria-hidden />
+              </Link>
+            </div>
+          </section>
+        )}
 
         {post.lessonPath && (
           <aside className="mt-12 rounded-2xl border-2 border-brand-navy bg-brand-yellow/30 p-6 shadow-[0_4px_0_0_rgba(16,38,71,0.1)]">

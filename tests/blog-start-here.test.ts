@@ -1,7 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import BlogPostPage from '@/app/(app)/blog/[slug]/page';
 import { BLOG_POSTS } from '@/lib/blog';
+import * as blog from '@/lib/blog';
 import { getPublishedCoursesWithLessons, type CourseWithLessons, type NumberedLesson } from '@/lib/db/courses';
 
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: vi.fn() }));
@@ -26,23 +27,32 @@ function course(slug: string, firstFreeNumber: number): CourseWithLessons {
   };
 }
 
-async function startHere(slug: string): Promise<string> {
+async function pageHtml(slug: string): Promise<string> {
   // Resolve the async page first; Vitest renders only the resulting synchronous tree.
-  const html = renderToStaticMarkup(await BlogPostPage({ params: Promise.resolve({ slug }) }));
+  return renderToStaticMarkup(await BlogPostPage({ params: Promise.resolve({ slug }) }));
+}
+
+async function startHere(slug: string): Promise<string> {
+  const html = await pageHtml(slug);
   const section = html.match(/<section\b[^>]*aria-labelledby="post-start"[\s\S]*?<\/section>/)?.[0];
   expect(section, `Блок «С чего начать» в /blog/${slug}`).toBeDefined();
   return section!;
 }
 
+let catalog: CourseWithLessons[];
 beforeEach(() => {
   vi.mocked(getPublishedCoursesWithLessons).mockReset();
-  vi.mocked(getPublishedCoursesWithLessons).mockResolvedValue([
+  catalog = [
     course('claude-code-agents', 7), course('claude-code', 5), course('vibecoding', 4),
-  ]);
+    course('ai-cartoons', 6),
+  ];
+  vi.mocked(getPublishedCoursesWithLessons).mockResolvedValue(catalog);
 });
+afterEach(() => vi.restoreAllMocks());
 
 describe('блок «С чего начать» в шаблоне статьи', () => {
   it('берёт курс из ссылки в статье и первый опубликованный бесплатный урок из данных', async () => {
+    catalog[0].lessons.reverse();
     const html = await startHere('ii-agent-prostymi-slovami');
     expect(html).toContain('С чего начать');
     expect(html).toContain('href="/courses/claude-code-agents"');
@@ -58,30 +68,63 @@ describe('блок «С чего начать» в шаблоне статьи',
     expect(html).not.toContain('/lessons/2');
   });
 
-  it('без связки предлагает каталог /courses', async () => {
+  it('без связки выбирает курс по теме и его вводный урок', async () => {
     const html = await startHere('kakuyu-neyroset-vybrat');
-    expect(html).toContain('href="/courses"');
-    expect(html).not.toContain('/lessons/');
-    expect(getPublishedCoursesWithLessons).not.toHaveBeenCalled();
+    expect(html).toContain('href="/courses/claude-code"');
+    expect(html).toContain('href="/courses/claude-code/lessons/5"');
+    expect(html).not.toContain('href="/courses"');
   });
 
-  it('если связанный курс снят с публикации, предлагает каталог', async () => {
+  it('при пустом каталоге сохраняет рендер статьи без битых CTA', async () => {
     vi.mocked(getPublishedCoursesWithLessons).mockResolvedValue([]);
+    const html = await pageHtml('ii-agent-prostymi-slovami');
+    expect(html).toContain('<article');
+    expect(html).not.toContain('aria-labelledby="post-start"');
+  });
+
+  it.each(['unpublished', 'test', 'no-free'])('исключает недоступный связанный курс: %s', async (state) => {
+    if (state === 'unpublished') catalog[0].published = false;
+    if (state === 'test') catalog[0].isTest = true;
+    if (state === 'no-free') catalog[0].lessons = [lesson(1, 'free', false), lesson(2, 'paid')];
     const html = await startHere('ii-agent-prostymi-slovami');
-    expect(html).toContain('href="/courses"');
+    expect(html).toContain('href="/courses/claude-code"');
+    expect(html).toContain('href="/courses/claude-code/lessons/5"');
     expect(html).not.toContain('/courses/claude-code-agents');
   });
 
-  it('если бесплатного урока нет, оставляет только лендинг курса', async () => {
-    const related = course('claude-code-agents', 7);
-    related.lessons = [lesson(1, 'free', false), lesson(2, 'paid')];
-    vi.mocked(getPublishedCoursesWithLessons).mockResolvedValue([related]);
-    const html = await startHere('ii-agent-prostymi-slovami');
-    expect(html).toContain('href="/courses/claude-code-agents"');
-    expect(html).not.toContain('/lessons/');
+  it.each([
+    ['Как сделать видео с ИИ', undefined, 'ai-cartoons', 6],
+    ['Первый сайт с ИИ', undefined, 'vibecoding', 4],
+    ['Новый инструмент', ['ИИ-агенты'], 'claude-code-agents', 7],
+    ['Обзор нового инструмента', undefined, 'claude-code-agents', 7],
+  ] as const)('новая автостатья без связки получает курс и урок: %s', async (title, tags, key, number) => {
+    vi.spyOn(blog, 'getBlogPost').mockReturnValue({
+      ...BLOG_POSTS[0], slug: 'future-auto-article', title, topic: '',
+      body: 'Новая статья gelato-blog без внутренних ссылок.', lessonPath: null,
+      ...(tags ? { tags } : {}),
+    });
+    const html = await startHere('future-auto-article');
+    expect(html).toContain(`href="/courses/${key}"`);
+    expect(html).toContain(`href="/courses/${key}/lessons/${number}"`);
+    expect(html).not.toContain('href="/courses"');
+    catalog.reverse();
+    expect(await startHere('future-auto-article')).toBe(html);
   });
 
-  it.each(BLOG_POSTS.map((post) => post.slug))('рендерит блок со ссылкой на курсы: %s', async (slug) => {
-    expect(await startHere(slug)).toMatch(/href="\/courses(?:\/|"|\?)/);
+  it('≥90% фактических статей ссылаются на конкретный курс и его первый открытый урок', async () => {
+    const results = await Promise.all(BLOG_POSTS.map(async (post) => {
+      const html = await startHere(post.slug);
+      const covered = catalog.some((course) => {
+        const first = course.lessons.filter((lesson) => lesson.access === 'free' && lesson.published !== false)
+          .sort((a, b) => a.number - b.number)[0];
+        return first && html.includes(`href="/courses/${course.slug}"`)
+          && html.includes(`href="/courses/${course.slug}/lessons/${first.number}"`);
+      });
+      return { slug: post.slug, covered };
+    }));
+    const covered = results.filter((result) => result.covered).length;
+    console.info(`BLOG_START_HERE_COVERAGE=${covered}/${BLOG_POSTS.length}`);
+    expect(covered, JSON.stringify(results.filter((result) => !result.covered)))
+      .toBeGreaterThanOrEqual(Math.ceil(BLOG_POSTS.length * 0.9));
   });
 });
