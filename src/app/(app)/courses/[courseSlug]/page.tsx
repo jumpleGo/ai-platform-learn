@@ -19,6 +19,7 @@ import { nbsp } from '@/lib/typography';
 import { DoodleWord, DoodleUnderline } from '@/components/doodle-decor';
 import { SectionHead } from '@/components/section-head';
 import { RichText } from '@/components/markdown';
+import { CourseLead } from '@/components/course-lead';
 import { Lemon } from '@/components/scene/lemon';
 import { CaseCycle } from '@/components/case-cycle';
 import { BrandLogoRow, LogoStack, BrandLogo } from '@/components/brand-logos';
@@ -310,39 +311,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
                 : landing.h1}
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-[1.45] text-muted-foreground text-pretty whitespace-pre-line sm:mt-6 sm:text-xl">
-              {isAgents ? (
-                <>
-                  Установите Claude Code и научитесь{' '}
-                  <span className="relative inline-block whitespace-nowrap text-brand-navy">
-                    автоматизировать
-                    <DoodleUnderline thin color="var(--color-scarf-green)" className="opacity-70" />
-                  </span>{' '}
-                  свою работу.{`\n`}
-                  А также научитесь создавать своих агентов{' '}
-                  <span className="relative inline-block whitespace-nowrap text-brand-navy">
-                    под любую задачу
-                    <DoodleUnderline thin color="var(--color-goose-red)" className="opacity-70" />
-                  </span>
-                  .
-                </>
-              ) : isVibe ? (
-                // Лёгкие ручные подчёркивания под двумя обещаниями — как «тимлида» в заголовке
-                <>
-                  Обучаем ИИ правилам твоего репозитория:{' '}
-                  <span className="relative inline-block whitespace-nowrap text-brand-navy">
-                    CLAUDE.md, rules, линтер, типы и тесты
-                    <DoodleUnderline thin color="var(--color-scarf-green)" className="opacity-70" />
-                  </span>
-                  .{'\n'}Модель сама исправляет ошибки по тестам и предлагает{' '}
-                  <span className="relative inline-block whitespace-nowrap text-brand-navy">
-                    чистые изолированные коммиты
-                    <DoodleUnderline thin color="var(--color-scarf-green)" className="opacity-70" />
-                  </span>
-                  .
-                </>
-              ) : (
-                <RichText text={landing.lead} />
-              )}
+              <CourseLead slug={key} lead={landing.lead} />
             </p>
 
             {landing.offer && !cont && (
