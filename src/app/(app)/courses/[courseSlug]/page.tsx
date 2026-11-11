@@ -28,6 +28,9 @@ import { TestimonialCarousel } from '@/components/testimonial-carousel';
 import { LANDING_PAIRS_COOKIE, pickLandingPairs, type LandingBlock } from '@/lib/landing-blocks';
 import { AGENTS_BLOCKS_COOKIE, pickAgentsBlocks, type AgentsLandingBlock } from '@/lib/landing-blocks';
 
+// Вход в воронку для новичка: уроки курса-хаба открыты без оплаты
+const FREE_LESSON_HREF = '/courses/claude-code/lessons/1?from=course_landing';
+
 // Подпись приходит с неразрывными пробелами — сравниваем по обычному тексту
 function isGiftLabel(label: string): boolean {
   return label.replaceAll('\u00a0', ' ') === 'В подарок';
@@ -136,8 +139,6 @@ export default async function CourseLandingPage({ params, searchParams }: {
   const landing = landingFor(course);
   const isVibe = key === 'it-vibecoding' || key === 'vibecoding';
   const isAgents = key === 'claude-code-agents';
-  const freeLesson = isAgents ? course.lessons.find((lesson) => lesson.access === 'free') : undefined;
-  const freeLessonHref = freeLesson ? `${lessonPath(key, freeLesson.number)}?from=course_landing` : null;
   const streamStartDate = getStreamStartDate();
 
   const session = await getSession();
@@ -198,6 +199,8 @@ export default async function CourseLandingPage({ params, searchParams }: {
   const agentsPrices = isAgents ? getTariffsForCourse(key).map((t) => t.price) : [];
   const agentsMinPrice = isAgents ? Math.min(...agentsPrices) : null;
   const agentsGuarantee = isAgents ? OFFER_REFUND_GUARANTEE : undefined;
+  const freeLesson = isAgents ? course.lessons.find((lesson) => lesson.access === 'free') : undefined;
+  const beginnerFreeLessonHref = freeLesson ? `${lessonPath(key, freeLesson.number)}?from=course_landing` : null;
   // Открытые ответы общие для обоих вариантов agents_landing_blocks.
   // Не обещаем отдельную программу по ChatGPT или теорию устройства нейросетей.
   const beginnerAnswers = isAgents ? [
@@ -400,13 +403,13 @@ export default async function CourseLandingPage({ params, searchParams }: {
               {(isVibe || isAgents) && !cont ? (
                 isAgents ? (
                   <>
-                    {freeLessonHref && <Link
-                      href={freeLessonHref}
+                    <Link
+                      href={FREE_LESSON_HREF}
                       className="btn-goose inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy px-6 text-base font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-goose-red)] motion-reduce:hover:translate-y-0"
                     >
                       Начать с бесплатного урока
                       <ArrowRight className="size-4" aria-hidden />
-                    </Link>}
+                    </Link>
                     <a
                       href="#testimonials"
                       className="inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy/25 bg-brand-cream/80 px-5 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
@@ -528,8 +531,8 @@ export default async function CourseLandingPage({ params, searchParams }: {
               </p>
             </div>
           ))}
-          {freeLessonHref && (
-            <Link href={freeLessonHref} className="inline-flex min-h-11 items-center font-bold text-brand-navy underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-navy">
+          {beginnerFreeLessonHref && (
+            <Link href={beginnerFreeLessonHref} className="inline-flex min-h-11 items-center font-bold text-brand-navy underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-navy">
               бесплатный вводный урок
             </Link>
           )}

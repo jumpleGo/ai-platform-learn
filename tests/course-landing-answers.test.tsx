@@ -67,9 +67,10 @@ describe('Открытые ответы новичкам на лендинге C
     expect(block).not.toMatch(/бесплатн\S* курс/iu);
   });
 
-  it('ссылки на бесплатный урок ведут к опубликованному уроку текущего курса', async () => {
-    const html = await renderLanding();
-    const links = [...html.matchAll(/href="([^"]+)"[^>]*>\s*(?:Начать с бесплатного урока|бесплатный вводный урок)/g)];
+  // Проверяем ссылку нового блока ответов; CTA первого экрана исправляет задача #71.
+  it('ссылка блока ответов ведёт к опубликованному бесплатному уроку текущего курса', async () => {
+    const block = answersBlock(await renderLanding());
+    const links = [...block.matchAll(/href="([^"]+)"[^>]*>\s*бесплатный вводный урок/g)];
     for (const [, href] of links) {
       const url = new URL(href, 'https://gelato.education');
       const [, slug, number] = url.pathname.match(/^\/courses\/([^/]+)\/lessons\/(\d+)$/)!;
@@ -79,15 +80,15 @@ describe('Открытые ответы новичкам на лендинге C
         lesson.number === Number(number) && lesson.published && lesson.access === 'free')).toBeDefined();
       expect(url.searchParams.get('from')).toBe('course_landing');
     }
-    expect(links.length).toBeGreaterThanOrEqual(2);
+    expect(links).toHaveLength(1);
   });
 
-  it('берёт номер бесплатного урока из данных, даже если это не первый урок', async () => {
+  it('блок ответов берёт номер бесплатного урока из данных, даже если это не первый урок', async () => {
     const course = courseFixture('claude-code-agents');
     course.lessons[0].number = 3;
-    const html = await renderLanding(course.slug, 'control', course);
-    expect(html).toContain('href="/courses/claude-code-agents/lessons/3?from=course_landing"');
-    expect(html).not.toContain('/lessons/1?from=course_landing');
+    const block = answersBlock(await renderLanding(course.slug, 'control', course));
+    expect(block).toContain('href="/courses/claude-code-agents/lessons/3?from=course_landing"');
+    expect(block).not.toContain('/lessons/1?from=course_landing');
   });
 
   it.each(['control', 'core'])('содержит один FAQPage с видимыми ответами и 12 уникальными вопросами (%s)', async (variant) => {
