@@ -55,12 +55,12 @@ export function rollPairsVariant(visitorId: string, now: number = Date.now()): s
 
 // Вариант считаем на сервере: иначе страница сначала отрисуется одним набором
 // и перестроится на глазах. Порядок: ручной выбор для QA → запомненный жребий → свежий.
-// Закрытый тест запомненный жребий игнорирует — всем победитель.
+// Закрытый тест игнорирует cookie и QA: всем контроль либо установленный победитель.
 export function pickLandingPairs(
   { visitorId, remembered, forced }: { visitorId: string | null; remembered?: string | null; forced?: string | null },
 ): { variant: string; blocks: readonly LandingBlock[] } {
   const open = getExperiment('vibe_landing_pairs').status === 'running';
-  const variant = isPairsVariant(forced)
+  const variant = open && isPairsVariant(forced)
     ? forced
     : open && isPairsVariant(remembered)
       ? remembered
@@ -126,13 +126,14 @@ export function rollAgentsLandingVariant(visitorId: string, now: number = Date.n
 
 // Вариант считаем на сервере: иначе короткая страница сначала отрисуется полной
 // и «схлопнется» на глазах у посетителя. Порядок: ручной выбор для QA → запомненный
-// на сутки жребий → свежий жребий.
+// на сутки жребий → свежий жребий. Закрытый тест игнорирует cookie и QA.
 export function pickAgentsBlocks(
   { visitorId, remembered, forced }: { visitorId: string | null; remembered?: string | null; forced?: string | null },
 ): { variant: string; blocks: readonly AgentsLandingBlock[] } {
-  const variant = isAgentsLandingVariant(forced)
+  const open = getExperiment('agents_landing_blocks').status === 'running';
+  const variant = open && isAgentsLandingVariant(forced)
     ? forced
-    : isAgentsLandingVariant(remembered)
+    : open && isAgentsLandingVariant(remembered)
       ? remembered
       : rollAgentsLandingVariant(visitorId ?? 'anonymous');
   return { variant, blocks: agentsBlocksForVariant(variant) };
