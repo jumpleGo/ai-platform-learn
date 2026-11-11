@@ -28,6 +28,9 @@ import { TestimonialCarousel } from '@/components/testimonial-carousel';
 import { LANDING_PAIRS_COOKIE, pickLandingPairs, type LandingBlock } from '@/lib/landing-blocks';
 import { AGENTS_BLOCKS_COOKIE, pickAgentsBlocks, type AgentsLandingBlock } from '@/lib/landing-blocks';
 
+// Вход в воронку для новичка: уроки курса-хаба открыты без оплаты
+const FREE_LESSON_HREF = '/courses/claude-code/lessons/1?from=course_landing';
+
 // Подпись приходит с неразрывными пробелами — сравниваем по обычному тексту
 function isGiftLabel(label: string): boolean {
   return label.replaceAll('\u00a0', ' ') === 'В подарок';
@@ -133,11 +136,6 @@ export default async function CourseLandingPage({ params, searchParams }: {
   if (!course) notFound();
   const key = courseKey(course);
   if (courseSlug !== key) permanentRedirect(`/courses/${key}`);
-  // Каталог уже отфильтровал неопубликованные уроки, сохранив их номера в URL.
-  const firstFreeLesson = course.lessons.find((lesson) => lesson.access === 'free');
-  const freeLessonHref = firstFreeLesson
-    ? `${lessonPath(key, firstFreeLesson.number)}?from=course_landing`
-    : null;
   const landing = landingFor(course);
   const isVibe = key === 'it-vibecoding' || key === 'vibecoding';
   const isAgents = key === 'claude-code-agents';
@@ -362,15 +360,13 @@ export default async function CourseLandingPage({ params, searchParams }: {
               {(isVibe || isAgents) && !cont ? (
                 isAgents ? (
                   <>
-                    {freeLessonHref && (
-                      <Link
-                        href={freeLessonHref}
-                        className="btn-goose inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy px-6 text-base font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-goose-red)] motion-reduce:hover:translate-y-0"
-                      >
-                        Начать с бесплатного урока
-                        <ArrowRight className="size-4" aria-hidden />
-                      </Link>
-                    )}
+                    <Link
+                      href={FREE_LESSON_HREF}
+                      className="btn-goose inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy px-6 text-base font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-goose-red)] motion-reduce:hover:translate-y-0"
+                    >
+                      Начать с бесплатного урока
+                      <ArrowRight className="size-4" aria-hidden />
+                    </Link>
                     <a
                       href="#testimonials"
                       className="inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy/25 bg-brand-cream/80 px-5 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"
