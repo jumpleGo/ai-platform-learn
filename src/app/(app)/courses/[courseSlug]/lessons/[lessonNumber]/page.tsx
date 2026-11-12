@@ -42,14 +42,15 @@ export async function generateMetadata({ params }: {
   const data = await resolveLesson(courseSlug, lessonNumber);
   if (!data) return {};
   const canonicalCourseSlug = courseKey(data.course);
+  const canonical = `${SITE_URL}${lessonPath(canonicalCourseSlug, data.number)}`;
   const content = getFreeLessonContent(canonicalCourseSlug, data.number);
   if (!content) {
     return {
       title: `${data.lesson.title} — ${data.course.title}`,
       description: data.lesson.description || data.course.description,
+      alternates: { canonical },
     };
   }
-  const canonical = `${SITE_URL}${lessonPath(canonicalCourseSlug, data.number)}`;
   return {
     title: content.seoTitle,
     description: content.seoDescription,
