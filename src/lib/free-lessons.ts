@@ -20,6 +20,18 @@ export type FreeLessonContent = {
   faq: readonly FreeLessonFaq[];
 };
 
+export type LessonSeoContent = Pick<FreeLessonContent, 'h1' | 'seoTitle' | 'seoDescription'>;
+
+// Вступление открыто бесплатно, полная программа платная. SEO-контент отдельно
+// от воронки курса-хаба: вступление сохраняет обычную навигацию и материалы.
+export const AGENTS_INTRO_LESSON = {
+  courseSlug: 'claude-code-agents',
+  number: 1,
+  h1: 'Первый шаг в работе с ИИ: Claude Code с нуля',
+  seoTitle: 'Claude Code с нуля: бесплатный вводный урок — GELATO',
+  seoDescription: 'Бесплатный вводный урок для тех, кто ещё не работал с ИИ. Узнайте, что такое Claude Code и как начать решать свои задачи с его помощью без опыта программирования.',
+} satisfies LessonSeoContent & { courseSlug: string; number: number };
+
 
 // Временные локальные обложки бесплатных уроков. Загруженные через админку превью
 // лежат в Firebase Storage, у которого сейчас отключён биллинг и вместо картинок
@@ -142,6 +154,13 @@ const LESSONS: Record<number, FreeLessonContent> = {
 
 export function getFreeLessonContent(courseSlug: string, lessonNumber: number): FreeLessonContent | null {
   return courseSlug === COURSE_SLUG ? LESSONS[lessonNumber] ?? null : null;
+}
+
+export function getLessonSeoContent(courseSlug: string, lessonNumber: number): LessonSeoContent | null {
+  if (courseSlug === AGENTS_INTRO_LESSON.courseSlug && lessonNumber === AGENTS_INTRO_LESSON.number) {
+    return AGENTS_INTRO_LESSON;
+  }
+  return getFreeLessonContent(courseSlug, lessonNumber);
 }
 
 type SearchValue = string | string[] | undefined;

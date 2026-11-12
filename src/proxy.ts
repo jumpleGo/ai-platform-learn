@@ -42,7 +42,7 @@ export function proxy(req: NextRequest) {
     return NextResponse.rewrite(new URL('/blog', req.url), { status: 404 });
   }
   // главная ('/') открыта гостям — точное совпадение, чтобы не распахнуть весь сайт через startsWith
-  const isPublic = pathname === '/' || PUBLIC.some((p) => pathname.startsWith(p));
+  const isPublic = pathname === '/' || pathname === '/llms-full.txt' || PUBLIC.some((p) => pathname.startsWith(p));
   // id посетителя для A/B-тестов баннеров и главной: живёт год, гостям тоже нужен.
   // Свежий id прокидываем в заголовок запроса — иначе первый рендер его не увидит
   // и все новые посетители получили бы один и тот же вариант.

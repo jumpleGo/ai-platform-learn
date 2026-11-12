@@ -28,10 +28,15 @@ import { FreeLessonAnalytics } from '@/components/free-lesson-analytics';
 import { FreeLessonAfterVideo, FreeLessonMarker } from '@/components/free-lesson-funnel';
 import { LessonQuizMatchModal } from '@/components/lesson-quiz-modal';
 import { EVENTS } from '@/lib/analytics/events';
+import { COURSE_PAYMENT_CONFIGS } from '@/lib/payments/tariffs';
 import {
-  SITE_URL, buildProgramUrl, getFreeLessonContent, isoDuration, localLessonPreview, type FreeLessonContent,
+  AGENTS_INTRO_LESSON, SITE_URL, buildProgramUrl, getFreeLessonContent, getLessonSeoContent,
+  isoDuration, localLessonPreview, type LessonSeoContent,
 } from '@/lib/free-lessons';
 import { recordViewAction } from './actions';
+
+// Метаданные и материалы читают Firebase только при запросе.
+export const dynamic = 'force-dynamic';
 
 type LessonSearchParams = Record<string, string | string[] | undefined> & { banner?: string };
 
@@ -43,7 +48,7 @@ export async function generateMetadata({ params }: {
   if (!data) return {};
   const canonicalCourseSlug = courseKey(data.course);
   const canonical = `${SITE_URL}${lessonPath(canonicalCourseSlug, data.number)}`;
-  const content = getFreeLessonContent(canonicalCourseSlug, data.number);
+  const content = data.lesson.access === 'free' ? getLessonSeoContent(canonicalCourseSlug, data.number) : null;
   if (!content) {
     return {
       title: `${data.lesson.title} — ${data.course.title}`,
@@ -84,7 +89,7 @@ function freeLessonJsonLd({
   durationSec,
   publishedAt,
 }: {
-  content: FreeLessonContent;
+  content: LessonSeoContent;
   courseTitle: string;
   courseSlug: string;
   lessonNumber: number;
@@ -95,16 +100,26 @@ function freeLessonJsonLd({
   publishedAt: string;
 }) {
   const canonical = `${SITE_URL}${lessonPath(courseSlug, lessonNumber)}`;
-  const courseUrl = `${SITE_URL}/courses/${courseSlug}/lessons/1`;
+  const courseUrl = `${SITE_URL}/courses/${courseSlug}`;
   const videoId = `${canonical}#video`;
   const courseSchemaId = `${courseUrl}#course`;
+  const provider = { '@id': `${SITE_URL}/#organization` };
+  const prices = COURSE_PAYMENT_CONFIGS[courseSlug]?.tariffs
+    .map((tariff) => tariff.price).filter((price) => Number.isFinite(price) && price > 0) ?? [];
+  const offers = prices.length === 1
+    ? { '@type': 'Offer', price: prices[0], priceCurrency: 'RUB' }
+    : prices.length > 1
+      ? { '@type': 'AggregateOffer', lowPrice: Math.min(...prices), highPrice: Math.max(...prices), priceCurrency: 'RUB', offerCount: prices.length }
+      : undefined;
   const graph: Record<string, unknown>[] = [
     {
       '@type': 'Course',
       '@id': courseSchemaId,
+      url: courseUrl,
       name: courseTitle,
       description: 'Практическая программа школы GELATO о системной и проверяемой работе с ИИ на реальном проекте.',
-      provider: { '@type': 'Organization', name: 'GELATO', url: SITE_URL },
+      provider,
+      ...(offers ? { offers } : {}),
     },
     {
       '@type': 'LearningResource',
@@ -112,6 +127,9 @@ function freeLessonJsonLd({
       name: content.h1,
       description: content.seoDescription,
       url: canonical,
+      provider,
+      isAccessibleForFree: courseSlug === AGENTS_INTRO_LESSON.courseSlug && lessonNumber === AGENTS_INTRO_LESSON.number
+        ? true : undefined,
       inLanguage: 'ru',
       educationalLevel: 'Начальный',
       learningResourceType: 'Видеоурок',
@@ -160,6 +178,7 @@ export default async function LessonPage({ params, searchParams }: {
   const courseId = course.id;
   const lessonId = lesson.id;
   const freeLesson = lesson.access === 'free' ? getFreeLessonContent(courseKey(course), number) : null;
+  const seoContent = lesson.access === 'free' ? getLessonSeoContent(courseKey(course), number) : null;
   const ctaHref = freeLesson ? buildProgramUrl(freeLesson, query) : null;
 
   const now = Date.now();
@@ -225,12 +244,12 @@ export default async function LessonPage({ params, searchParams }: {
         />
       )}
       <RecordView key={`view:${courseId}:${lessonId}`} action={recordViewAction.bind(null, courseId, lessonId)} />
-      {freeLesson && (
+      {seoContent && (
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(freeLessonJsonLd({
-              content: freeLesson,
+              content: seoContent,
               courseTitle: course.title,
               courseSlug: courseKey(course),
               lessonNumber: number,
@@ -270,7 +289,7 @@ export default async function LessonPage({ params, searchParams }: {
           <h1 className={freeLesson
             ? 'max-w-4xl font-heading text-[2rem]/[1.06] font-extrabold tracking-[-0.03em] text-balance text-brand-navy sm:text-[3.25rem]/[1.02]'
             : 'font-heading text-3xl font-extrabold tracking-tight text-balance text-brand-navy sm:text-4xl/[1.15]'}>
-            {freeLesson?.h1 ?? lesson.title}
+            {seoContent?.h1 ?? lesson.title}
           </h1>
           {freeLesson && <p className="hidden max-w-3xl text-lg leading-[1.35] text-muted-foreground text-pretty sm:block">{freeLesson.lead}</p>}
         </div>
@@ -297,7 +316,7 @@ export default async function LessonPage({ params, searchParams }: {
             <VideoEmbed
               courseId={courseId}
               lessonId={lessonId}
-              title={freeLesson?.h1 ?? lesson.title}
+              title={seoContent?.h1 ?? lesson.title}
               analyticsLessonId={freeLesson?.lessonId}
               poster={poster}
             />
@@ -312,8 +331,8 @@ export default async function LessonPage({ params, searchParams }: {
             courseTitle={course.title}
           />
         )}
-        {!freeLesson && lesson.description && (
-          <p className="max-w-2xl leading-relaxed text-muted-foreground">{lesson.description}</p>
+        {!freeLesson && (seoContent?.seoDescription || lesson.description) && (
+          <p className="max-w-2xl leading-relaxed text-muted-foreground">{seoContent?.seoDescription ?? lesson.description}</p>
         )}
         {!freeLesson && (materials || teaser) && (
           <div className="max-w-2xl rounded-2xl border border-border bg-card/40 p-5 sm:p-6">
