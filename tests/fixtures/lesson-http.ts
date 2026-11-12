@@ -22,10 +22,14 @@ const courses = Object.entries(publishedNumbers).map(([slug, numbers], index) =>
   })),
 })) as CourseWithLessons[];
 export const resolveLesson = cache(async (slug: string, key: string): Promise<ResolvedLesson | null> => {
-  await new Promise((resolve) => setTimeout(resolve, 1600));
   const course = courses.find((item) => item.slug === slug || item.id === slug);
   const lesson = course?.lessons.find((item) => String(item.number) === key || item.id === key);
-  return course && lesson ? { course, lesson, number: lesson.number, publishedAt: '2026-11-11T00:00:00.000Z' } : null;
+  if (course && lesson) {
+    return { course, lesson, number: lesson.number, publishedAt: '2026-11-11T00:00:00.000Z' };
+  }
+  // Only missing lessons suspend long enough to expose an early HTTP 200.
+  await new Promise((resolve) => setTimeout(resolve, 1600));
+  return null;
 });
 export async function getPublishedCoursesWithLessons() { return courses; }
 export async function getTestCourse(_key: string): Promise<Course | null> { return null; }
