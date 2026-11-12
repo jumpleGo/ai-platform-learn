@@ -19,6 +19,7 @@ import { nbsp } from '@/lib/typography';
 import { DoodleWord, DoodleUnderline } from '@/components/doodle-decor';
 import { SectionHead } from '@/components/section-head';
 import { RichText } from '@/components/markdown';
+import { CourseLead } from '@/components/course-lead';
 import { Lemon } from '@/components/scene/lemon';
 import { CaseCycle } from '@/components/case-cycle';
 import { BrandLogoRow, LogoStack, BrandLogo } from '@/components/brand-logos';
@@ -28,9 +29,6 @@ import { TestimonialCarousel } from '@/components/testimonial-carousel';
 import { LANDING_PAIRS_COOKIE, pickLandingPairs, type LandingBlock } from '@/lib/landing-blocks';
 import { AGENTS_BLOCKS_COOKIE, pickAgentsBlocks, type AgentsLandingBlock } from '@/lib/landing-blocks';
 import { BeginnerQuestions } from '@/components/beginner-questions';
-
-// Вход в воронку для новичка: уроки курса-хаба открыты без оплаты
-const FREE_LESSON_HREF = '/courses/claude-code/lessons/1?from=course_landing';
 
 // Подпись приходит с неразрывными пробелами — сравниваем по обычному тексту
 function isGiftLabel(label: string): boolean {
@@ -137,6 +135,11 @@ export default async function CourseLandingPage({ params, searchParams }: {
   if (!course) notFound();
   const key = courseKey(course);
   if (courseSlug !== key) permanentRedirect(`/courses/${key}`);
+  // Каталог уже отфильтровал неопубликованные уроки, сохранив их номера в URL.
+  const firstFreeLesson = course.lessons.find((lesson) => lesson.access === 'free');
+  const freeLessonHref = firstFreeLesson
+    ? `${lessonPath(key, firstFreeLesson.number)}?from=course_landing`
+    : null;
   const landing = landingFor(course);
   const isVibe = key === 'it-vibecoding' || key === 'vibecoding';
   const isAgents = key === 'claude-code-agents';
@@ -354,39 +357,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
                 : landing.h1}
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-[1.45] text-muted-foreground text-pretty whitespace-pre-line sm:mt-6 sm:text-xl">
-              {isAgents ? (
-                <>
-                  Установите Claude Code и научитесь{' '}
-                  <span className="relative inline-block whitespace-nowrap text-brand-navy">
-                    автоматизировать
-                    <DoodleUnderline thin color="var(--color-scarf-green)" className="opacity-70" />
-                  </span>{' '}
-                  свою работу.{`\n`}
-                  А также научитесь создавать своих агентов{' '}
-                  <span className="relative inline-block whitespace-nowrap text-brand-navy">
-                    под любую задачу
-                    <DoodleUnderline thin color="var(--color-goose-red)" className="opacity-70" />
-                  </span>
-                  .
-                </>
-              ) : isVibe ? (
-                // Лёгкие ручные подчёркивания под двумя обещаниями — как «тимлида» в заголовке
-                <>
-                  Обучаем ИИ правилам твоего репозитория:{' '}
-                  <span className="relative inline-block whitespace-nowrap text-brand-navy">
-                    CLAUDE.md, rules, линтер, типы и тесты
-                    <DoodleUnderline thin color="var(--color-scarf-green)" className="opacity-70" />
-                  </span>
-                  .{'\n'}Модель сама исправляет ошибки по тестам и предлагает{' '}
-                  <span className="relative inline-block whitespace-nowrap text-brand-navy">
-                    чистые изолированные коммиты
-                    <DoodleUnderline thin color="var(--color-scarf-green)" className="opacity-70" />
-                  </span>
-                  .
-                </>
-              ) : (
-                <RichText text={landing.lead} />
-              )}
+              <CourseLead slug={key} lead={landing.lead} />
             </p>
 
             {landing.offer && !cont && (
@@ -404,13 +375,15 @@ export default async function CourseLandingPage({ params, searchParams }: {
               {(isVibe || isAgents) && !cont ? (
                 isAgents ? (
                   <>
-                    <Link
-                      href={FREE_LESSON_HREF}
-                      className="btn-goose inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy px-6 text-base font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-goose-red)] motion-reduce:hover:translate-y-0"
-                    >
-                      Начать с бесплатного урока
-                      <ArrowRight className="size-4" aria-hidden />
-                    </Link>
+                    {freeLessonHref && (
+                      <Link
+                        href={freeLessonHref}
+                        className="btn-goose inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy px-6 text-base font-extrabold tracking-tight text-brand-navy shadow-[0_3px_0_0_var(--color-goose-red)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_0_0_var(--color-goose-red)] motion-reduce:hover:translate-y-0"
+                      >
+                        Начать с бесплатного урока
+                        <ArrowRight className="size-4" aria-hidden />
+                      </Link>
+                    )}
                     <a
                       href="#testimonials"
                       className="inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-navy/25 bg-brand-cream/80 px-5 text-[15px] font-bold text-brand-navy transition-colors hover:border-brand-navy/60"

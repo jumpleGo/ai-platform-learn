@@ -29,12 +29,8 @@ export function useExperiment(key: ExperimentKey, active: boolean): string | nul
   useEffect(() => {
     const experiment = getExperiment(key);
     const forced = readForcedVariant(key);
-    if (forced && experiment.variants.includes(forced)) {
-      setVariant(forced);
-      return;
-    }
     const vid = readVisitorId();
-    setVariant(pickVariant(experiment, vid ?? 'anonymous'));
+    setVariant(pickVariant(experiment, vid ?? 'anonymous', forced));
   }, [key]);
 
   useEffect(() => {

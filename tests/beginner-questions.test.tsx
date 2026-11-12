@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { CourseWithLessons } from '@/lib/db/courses';
 import SceneHome from '@/app/gelateria/page';
-import ClassicHome from '@/app/(app)/page';
+import ClassicHome from '@/app/(app)/(home)/page';
 import CourseLanding from '@/app/(app)/courses/[courseSlug]/page';
 
 const { catalog } = vi.hoisted(() => ({ catalog: vi.fn() }));

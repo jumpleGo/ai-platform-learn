@@ -3,7 +3,8 @@
 // какое решение лучше, — не спорим, а заводим тест здесь и смотрим цифры.
 //
 // Жизненный цикл: status 'running' → накопили экспозиции → отчёт → решение пользователя →
-// status 'done' + winner (код проигравшего варианта удаляем отдельным коммитом).
+// status 'done' + winner, если победитель установлен; без winner всем отдаём контроль.
+// Код проигравшего варианта удаляем отдельным коммитом только после выбора победителя.
 import { hashSeed } from './banners';
 
 // 'planned' — тест описан, но ещё не запущен: ступень лестницы, которая стартует
@@ -32,6 +33,7 @@ export type Experiment = {
   // Нужно там, где тестируется длина страницы, а не элемент на ней.
   reportScrollDepth?: boolean;
   status: ExperimentStatus;
+  // При остановке без победителя не заполняем: всем возвращается первый вариант.
   winner?: string;
   decisionNote?: string;
 };
@@ -131,7 +133,9 @@ export const EXPERIMENTS = {
     secondaryMetrics: ['tariff_selected', 'payment_started', 'telegram_click', 'lesson_view'],
     minExposuresPerVariant: 100,
     reportScrollDepth: true,
-    status: 'running',
+    status: 'done',
+    decisionNote:
+      '2026-11-11, решение пользователя в задаче #152 по аудиту #147: остановить без победителя, вернуть контроль winner (название из предыдущей ступени). n=5/7/2, до мощности ~208 недель при 22 новых в неделю; 5 активных тестов при лимите 2. Ключ и варианты сохранены, активным остаётся только home_offer.',
   },
   vibeLandingOrder: {
     key: 'vibe_landing_order',
@@ -167,7 +171,9 @@ export const EXPERIMENTS = {
     secondaryMetrics: ['lesson_view', 'tariff_selected', 'telegram_click'],
     minExposuresPerVariant: 60,
     reportScrollDepth: true,
-    status: 'running',
+    status: 'done',
+    decisionNote:
+      '2026-11-11, решение пользователя в задаче #152 по аудиту #147: остановить без победителя, вернуть control. n=4/4, до мощности ~113 недель при 22 новых в неделю; 5 активных тестов при лимите 2. Ключ и варианты сохранены, активным остаётся только home_offer.',
   },
   lessonNextStep: {
     key: 'lesson_next_step',
@@ -186,7 +192,9 @@ export const EXPERIMENTS = {
     primaryMetric: 'video_start',
     secondaryMetrics: ['video_25', 'lesson_cta_click', 'pricing_viewed', 'telegram_click'],
     minExposuresPerVariant: 60,
-    status: 'running',
+    status: 'done',
+    decisionNote:
+      '2026-11-11, решение пользователя в задаче #152 по аудиту #147: остановить без победителя, вернуть control. n=0/3, контроль не оценён; до мощности ~86 недель при допущении p0=16% и 22 новых в неделю. Ключ и варианты сохранены, активным остаётся только home_offer для возврата в лимит 2 A/B.',
   },
   leadCapture: {
     key: 'lead_capture',
@@ -203,7 +211,9 @@ export const EXPERIMENTS = {
     primaryMetric: 'lead_submitted',
     secondaryMetrics: ['tariff_selected', 'telegram_click', 'payment_started'],
     minExposuresPerVariant: 100,
-    status: 'running',
+    status: 'done',
+    decisionNote:
+      '2026-11-11, решение пользователя в задаче #152 по аудиту #147: остановить без победителя, вернуть control. n=4/2, конверсий нет; ~13,4 недели до мощности — ненадёжная оценка при p0=0. Ключ и варианты сохранены, активным остаётся только home_offer для возврата в лимит 2 A/B.',
   },
   homeOffer: {
     key: 'home_offer',
@@ -237,10 +247,12 @@ export function getExperiment(key: ExperimentKey): Experiment {
 
 // Детерминированный жребий: один посетитель всегда попадает в один вариант,
 // без хранения состояния — достаточно cookie vid из proxy.ts
-export function pickVariant(experiment: Experiment, visitorId: string): string {
-  if (experiment.status === 'done' && experiment.winner) return experiment.winner;
+export function pickVariant(experiment: Experiment, visitorId: string, forcedVariant?: string | null): string {
+  if (experiment.status === 'done') return experiment.winner ?? experiment.variants[0];
   // Незапущенный тест всем отдаёт контроль: описание уже в реестре, показов ещё нет
   if (experiment.status === 'planned') return experiment.variants[0];
+  // QA-выбор действует только для активного теста и не возобновляет остановленный.
+  if (forcedVariant && experiment.variants.includes(forcedVariant)) return forcedVariant;
   const roll = hashSeed(`${experiment.key}:${visitorId}`) / 0x1_0000_0000;
   const weights = experiment.weights ?? experiment.variants.map(() => 1 / experiment.variants.length);
   let acc = 0;
