@@ -54,8 +54,17 @@ function block(html: string) {
 
 const text = (html: string) => html.replace(/<[^>]*>/g, '').replaceAll('&#x27;', "'");
 
-describe('GEO: прямые ответы Q1–Q3 на главной и вводном курсе', () => {
-  it.each(['control', 'offer', 'classic', 'agents-control', 'core'])('показывает открытые ответы в начале страницы (%s)', async (page) => {
+describe('#214: на обеих главных ответов Q1–Q3 нет', () => {
+  it.each(['control', 'offer', 'classic'])('блок ответов отсутствует (%s)', async (page) => {
+    const html = await render(page);
+    expect(html).not.toContain('id="beginner-questions"');
+    expect(html).not.toContain('Ответы новичкам об ИИ');
+    expect(text(html)).not.toMatch(/с чего начать ИИ с нуля|как работают нейросети/iu);
+  });
+});
+
+describe('GEO: прямые ответы Q1–Q3 на вводном курсе (лендинг сохранён)', () => {
+  it.each(['agents-control', 'core'])('показывает открытые ответы в начале страницы (%s)', async (page) => {
     const html = await render(page);
     const content = block(html);
     expect(content).not.toMatch(/<details|<summary|\bhidden\b/);
@@ -78,16 +87,10 @@ describe('GEO: прямые ответы Q1–Q3 на главной и ввод
     expect(sentences.slice(0, 3).join(' ')).not.toMatch(/курс|Gelato/iu);
     expect(content).toContain('Курс платный');
     expect(text(content)).not.toMatch(/бесплатн\S*\s+курс/iu);
-    if (page === 'control' || page === 'offer') {
-      expect(html.indexOf('id="beginner-questions"')).toBeLessThan(html.indexOf('data-scene'));
-    } else if (page === 'classic') {
-      expect(html.indexOf('id="beginner-questions"')).toBeLessThan(html.indexOf('id="about"'));
-    } else {
-      expect(html.indexOf('id="beginner-questions"')).toBeLessThan(html.indexOf('id="beginner-answers"'));
-    }
+    expect(html.indexOf('id="beginner-questions"')).toBeLessThan(html.indexOf('id="beginner-answers"'));
   });
 
-  it.each(['control', 'classic', 'agents-control'])('ссылка берёт slug и номер опубликованного бесплатного урока из каталога (%s)', async (page) => {
+  it.each(['agents-control'])('ссылка берёт slug и номер опубликованного бесплатного урока из каталога (%s)', async (page) => {
     const course = fixture('claude-code-agents', 3);
     course.lessons.unshift({ ...course.lessons[0], id: 'draft', number: 1, published: false });
     const href = block(await render(page, course)).match(/href="([^"]+)"/)![1];
@@ -97,8 +100,7 @@ describe('GEO: прямые ответы Q1–Q3 на главной и ввод
     expect(course.lessons.some((lesson) => lesson.number === 3 && lesson.published && lesson.access === 'free')).toBe(true);
   });
 
-  it('ответы одинаковы в обоих вариантах home_offer и agents_landing_blocks', async () => {
-    expect(block(await render('control'))).toBe(block(await render('offer')));
+  it('ответы одинаковы в обоих вариантах agents_landing_blocks', async () => {
     expect(block(await render('agents-control'))).toBe(block(await render('core')));
   });
 
