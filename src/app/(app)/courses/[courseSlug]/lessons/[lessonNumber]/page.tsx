@@ -27,6 +27,7 @@ import { WatchingNow } from '@/components/watching-now';
 import { BannerSlotView } from '@/components/banner-slot';
 import { FreeLessonAnalytics } from '@/components/free-lesson-analytics';
 import { FreeLessonAfterVideo, FreeLessonMarker } from '@/components/free-lesson-funnel';
+import { AgentsIntroNextStep } from '@/components/agents-intro-next-step';
 import { LessonQuizMatchModal } from '@/components/lesson-quiz-modal';
 import { EVENTS } from '@/lib/analytics/events';
 import { COURSE_PAYMENT_CONFIGS } from '@/lib/payments/tariffs';
@@ -387,6 +388,8 @@ export default async function LessonPage({ params, searchParams }: {
             nextStepTest={nextStepTest}
           />
         )}
+        {lesson.access === 'free' && courseKey(course) === AGENTS_INTRO_LESSON.courseSlug
+          && number === AGENTS_INTRO_LESSON.number && <AgentsIntroNextStep />}
       </div>
     </>
   );

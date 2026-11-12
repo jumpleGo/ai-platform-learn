@@ -14,6 +14,7 @@ export const EVENTS = {
   video90: 'video_90',                         // props: lesson_id, progress
   videoCompleted: 'video_complete',            // props: lesson_id
   lessonCtaClicked: 'lesson_cta_click',        // props: lesson_id, cta_position, destination
+  lessonNextClicked: 'lesson_next_click',      // props: course, lesson, target
   blogCtaClicked: 'blog_cta_click',            // props: slug, position
   telegramClicked: 'telegram_click',           // props: lesson_id, cta_position
   quizStarted: 'quiz_started',                 // props: place
