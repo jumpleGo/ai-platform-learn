@@ -5,6 +5,10 @@ import { HomeVariantAnalytics } from '@/components/home-variant-analytics';
 import { GelateriaScene } from '@/components/scene/gelateria-scene';
 import { getExperiment, pickVariant } from '@/lib/experiments';
 import { getTariffsForCourse } from '@/lib/payments/tariffs';
+import { getPublishedCoursesWithLessons } from '@/lib/db/courses';
+import { courseKey } from '@/lib/slug';
+import { BEGINNER_URL } from '@/lib/site';
+import { BeginnerQuestions } from '@/components/beginner-questions';
 
 // Вариант «сцена» в A/B-тесте главной. Отдельного адреса у него нет: прокси
 // подставляет эту страницу под '/', поэтому и canonical здесь — главная.
@@ -41,10 +45,18 @@ export default async function GelateriaPage({
       ? { prices: { agents: minPrice('claude-code-agents'), vibecoding: minPrice('vibecoding') } }
       : null;
 
+  // Каталог требует серверный ключ Firebase, доступный только при запуске.
+  // Читаем его после searchParams/cookies: они останавливают пререндер в CI.
+  const courses = await getPublishedCoursesWithLessons();
+  const beginnerCourse = courses.find((course) => `/courses/${courseKey(course)}` === BEGINNER_URL);
+
   return (
     <>
       <HomeVariantAnalytics variant="scene" />
       <ExperimentExposure experimentKey="home_offer" variant={variant} />
+      <div className="mx-auto w-full max-w-6xl px-4 pb-8 pt-20 sm:px-6">
+        <BeginnerQuestions course={beginnerCourse} />
+      </div>
       <GelateriaScene offer={offer} />
     </>
   );

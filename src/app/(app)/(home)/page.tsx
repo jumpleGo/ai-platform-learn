@@ -18,6 +18,8 @@ import { PromoBanner } from '@/components/promo-banner';
 import { SectionHead } from '@/components/section-head';
 import { StudentLink } from '@/components/student-link';
 import { nbspDeep } from '@/lib/typography';
+import { BEGINNER_URL } from '@/lib/site';
+import { BeginnerQuestions } from '@/components/beginner-questions';
 
 // Лента ролей в хиро — показывает охват, не перечисляя всех в заголовке
 const AUDIENCE = [
@@ -168,6 +170,8 @@ export default async function HomePage() {
         {/* из рилсов приходят по «ссылке в профиле» за учебным набором — тихо, под лентой ролей */}
         <StudentLink place="classic" className="relative" />
       </section>
+
+      <BeginnerQuestions course={courses.find((course) => `/courses/${courseKey(course)}` === BEGINNER_URL)} />
 
       {/* Учебная витрина — только своим: гостю она конкурирует с офферами и путает.
           id — цель пункта шапки «Моё обучение» (lib/site.ts) */}
