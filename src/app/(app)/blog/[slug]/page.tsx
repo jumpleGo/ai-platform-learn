@@ -120,7 +120,13 @@ export default async function BlogPostPage({ params }: {
   if (!post) notFound();
 
   const others = BLOG_POSTS.filter((p) => p.slug !== post.slug);
-  const start = chooseStartCourse(post, await getPublishedCoursesWithLessons());
+  let courses: CourseWithLessons[] = [];
+  try {
+    courses = await getPublishedCoursesWithLessons();
+  } catch {
+    // Каталог необязателен для чтения статьи: при сбое пропускаем блок ссылок.
+  }
+  const start = chooseStartCourse(post, courses);
 
   return (
     <div className="space-y-14">
