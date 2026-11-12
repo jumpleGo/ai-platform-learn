@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, ArrowRight, PlayCircle } from 'lucide-react';
 import { BLOG_POSTS, blogPostUrl, getBlogPost, readingMinutes } from '@/lib/blog';
 import { SITE_URL } from '@/lib/site';
+import { BLOG_CRUMB, breadcrumbList, HOME_CRUMB } from '@/lib/breadcrumbs';
 import { Markdown } from '@/components/markdown';
 import { BlogLessonNextStep } from '@/components/blog-lesson-next-step';
 import { parseBlocks } from '@/lib/markdown';
@@ -76,6 +77,7 @@ function postJsonLd(post: (typeof BLOG_POSTS)[number]) {
           acceptedAnswer: { '@type': 'Answer', text: item.answer },
         })),
       },
+      breadcrumbList([HOME_CRUMB, BLOG_CRUMB, { name: post.title, url: canonical }]),
     ],
   };
 }

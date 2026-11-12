@@ -80,7 +80,7 @@ describe('GEO: бесплатное вступление в платную пр�
     expect(lessonGraph, 'LearningResource отсутствует на /lessons/1').toBeDefined();
     expect(lessonGraph['@context']).toBe('https://schema.org');
     expect(lessonGraph['@graph'].map((node: Record<string, unknown>) => node['@type']))
-      .toEqual(['Course', 'LearningResource', 'VideoObject']);
+      .toEqual(['Course', 'LearningResource', 'VideoObject', 'BreadcrumbList']);
     const resource = nodes.find((node) => node['@type'] === 'LearningResource');
     const courseNode = nodes.find((node) => node['@type'] === 'Course')!;
     const organizations = nodes.filter((node) => Array.isArray(node['@type']) && node['@type'].includes('Organization'));
