@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { CourseWithLessons } from '@/lib/db/courses';
 import CourseLandingPage from '@/app/(app)/courses/[courseSlug]/page';
@@ -25,12 +25,20 @@ function courseFixture(slug: string): CourseWithLessons {
   } as CourseWithLessons;
 }
 
-async function renderLanding(slug = 'claude-code-agents', variant = 'control', course = courseFixture(slug)) {
-  catalog.mockResolvedValue([course]);
-  return renderToStaticMarkup(await CourseLandingPage({
+// Повторные проверки используют тот же HTML стандартной фикстуры. Изменённые
+// данные курса всегда рендерим заново, чтобы проверить выбор бесплатного урока.
+const defaultLandings = new Map<string, string>();
+
+async function renderLanding(slug = 'claude-code-agents', variant = 'control', course?: CourseWithLessons) {
+  catalog.mockResolvedValue([course ?? courseFixture(slug)]);
+  const cacheKey = `${slug}:${variant}`;
+  if (!course && defaultLandings.has(cacheKey)) return defaultLandings.get(cacheKey)!;
+  const html = renderToStaticMarkup(await CourseLandingPage({
     params: Promise.resolve({ courseSlug: slug }),
     searchParams: Promise.resolve({ exp_agents_landing_blocks: variant }),
   }));
+  if (!course) defaultLandings.set(cacheKey, html);
+  return html;
 }
 
 function answersBlock(html: string) {
@@ -49,6 +57,12 @@ function faqPages(html: string) {
 }
 
 describe('Открытые ответы новичкам на лендинге Claude Code', () => {
+  beforeAll(async () => {
+    for (const variant of ['control', 'core']) {
+      await renderLanding('claude-code-agents', variant);
+    }
+  });
+
   it.each(['control', 'core'])('показывает 4 ответа по 40–60 слов после первого экрана (%s)', async (variant) => {
     const html = await renderLanding('claude-code-agents', variant);
     const block = answersBlock(html);
