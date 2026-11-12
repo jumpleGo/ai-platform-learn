@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { parseBlocks, parseInline, type Inline } from '@/lib/markdown';
 
 // Безопасные ссылки: только http(s), остальное гасим (без javascript: и пр.)
@@ -77,10 +77,11 @@ export function RichText({ text }: { text: string }) {
 // Вариант «read» — для длинных статей блога: крупнее кегль, свободнее интерлиньяж,
 // заголовки крупнее и с большим отбивом сверху. Обычный вариант остаётся компактным:
 // им набраны короткие блоки материалов внутри уроков.
-export function Markdown({ source, className, variant = 'default' }: {
+export function Markdown({ source, className, variant = 'default', insertAfterBlock }: {
   source: string;
   className?: string;
   variant?: 'default' | 'read';
+  insertAfterBlock?: { index: number; content: ReactNode };
 }) {
   const blocks = parseBlocks(source);
   if (blocks.length === 0) return null;
@@ -185,7 +186,9 @@ export function Markdown({ source, className, variant = 'default' }: {
               </div>
             );
         }
-      })}
+      }).flatMap((block, i) => i === insertAfterBlock?.index
+        ? [block, <Fragment key="insert-after-block">{insertAfterBlock.content}</Fragment>]
+        : [block])}
     </div>
   );
 }
