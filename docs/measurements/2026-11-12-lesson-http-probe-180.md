@@ -160,3 +160,83 @@ generation 26/52 when the deadline expired. It was stopped and cleaned up.
 Logs remain in `eval/http/`; those attempts are not counted as acceptance
 evidence. The old streaming-order unit regression failed at `1be4d93`
 with `['shell', 'lookup']` instead of `['lookup']` (1 failed, 4 passed).
+
+## #173 audit repeat and loading comparison (2026-11-12)
+
+The follow-up started at 05:03:36 UTC on `hq/vera/180`, input commit
+`ccb34fde62eb2f9a7b2667cce5d8e68ce8e5c258`. Hypothesis: missing lessons
+return real 404 without introducing new broken targets. All 214 source
+files and the existing tests remained unchanged, including the protected
+`src/app/(app)/courses/[courseSlug]/page.tsx` (`TOUCHES_COURSE_PAGE=no`).
+
+The same catalog fixture and production-build preparation were used.
+Three existing lookups together took 0.307 ms; only the missing lookup
+waited, taking 1607.136 ms. `next build --webpack` passed; the isolated
+build disabled Webpack's disk cache because disk space was limited.
+`next start --hostname localhost --port 33531` served every audited target.
+
+The baseline is `../173/eval/20261111T142513Z/report.md`. Its crawler was
+copied byte-for-byte, with a transport wrapper mapping production URLs to
+localhost and preserving canonical URLs in the results. This retained
+GET for sitemap pages, HEAD then GET on 200/405 for other targets,
+redirect following, HTML-only link extraction, queries and the original
+soft-404 classifier. All 45 crawler requests stayed local; none failed or
+duplicated another URL/method. The minimum pause after a request was
+0.409 seconds. Fresh production and local sitemaps both matched the
+baseline's 30 URLs exactly.
+
+| Metric | #173 baseline | Branch repeat |
+| --- | ---: | ---: |
+| Sitemap URLs / non-200 / soft-404 | 30 / 0 / 0 | 30 / 0 / 0 |
+| Internal targets checked | 38 | 38 |
+| Broken targets | 1 | 1 |
+| Broken targets returning soft-404 | 1 | 0 |
+| CTA pairs checked / broken | 11 / 1 | 11 / 1 |
+| Pages containing CTA | 6 | 6 |
+
+The target sets and CTA page sets match exactly: the three course landings
+(`ai-cartoons`, `claude-code-agents`, `vibecoding`) plus the three
+`vibecoding` URLs carrying the original lesson 02/03/04 campaign queries.
+`NEW_BROKEN=0`; the only broken target remains
+`/courses/claude-code/lessons/1?from=course_landing`. Its baseline response
+was 200 with a streamed 404; both HEAD and the separate direct GET now
+return 404. Achieving `BROKEN_N=0` still requires changing the protected
+CTA, blocked by the instruction: “src/app/(app)/courses/[courseSlug]/page.tsx
+не трогай (там идёт замер #52)”. No new out-of-scope broken links were found.
+
+The separate direct-GET probe confirmed 5/5 missing lessons returning 404
+and 4/4 existing lessons returning 200 without streamed errors, using the
+same paths listed above. Missing-response TTFB ranged from 1.663 to
+1.878 seconds, after the fixture delay. `npx tsc --noEmit -p .` exited 0
+(zero new errors against the earlier zero-error baseline);
+`LESSON_HTTP_ORIGIN=http://localhost:33531 npx vitest run` passed all 177
+tests in 20 files, including all nine HTTP tests, with no skips.
+
+Loading comparison: three samples per page and origin, interleaved, after
+one excluded warm-up each; no concurrent build, crawler or tests. All
+responses were 200. Values below are medians in milliseconds. TTFB is
+curl's `time_starttransfer`; first content means arrival of the first
+nonempty route `<h1>` text in the HTML stream, excluding scripts/templates,
+timed from curl process launch (including its startup overhead).
+
+| Page | Branch TTFB | Prod TTFB | Branch first content | Prod first content |
+| --- | ---: | ---: | ---: | ---: |
+| `/blog` | 35.168 | 119.567 | 50.335 | 137.266 |
+| `/blog/ai-komanda-kak-realnaya-komanda` | 117.707 | 239.850 | 141.646 | 264.880 |
+| `/courses/claude-code-agents` | 57.234 | 155.187 | 84.624 | 173.042 |
+
+`LOADING_LOST` is confirmed in the sampled HTML: no loading skeleton in
+any of the nine branch responses, versus a skeleton in all nine production
+responses. Production headings arrived inside hidden React containers;
+branch headings did not. These are HTTP content-arrival measurements,
+not browser paint/FCP or hydration measurements. Localhost with immediate
+fixture data versus remote production cannot isolate the causal latency
+cost of removing the loading boundary, especially with a slow database.
+No deployment, production writes or organic-traffic measurement occurred.
+
+Evidence remains in excluded `eval/audit-20261112T050336Z/`: build/check
+logs, crawler CSVs, unchanged crawler and transport wrapper, source/body
+hashes, audit comparison, lesson results and timing samples/medians.
+The server was stopped before removing the isolated build, raw HTML and
+response headers; cleanup removed 24,517,530 bytes. Only this report is
+changed by the follow-up commit.
