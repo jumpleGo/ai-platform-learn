@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation';
 import { resolveLesson } from '@/lib/db/courses';
 
-// Layout сегмента стоит выше loading.tsx (Suspense-границы страницы урока), поэтому notFound() здесь
-// срабатывает до начала стриминга и отдаёт настоящий HTTP 404, а не soft-404 со статусом 200.
+// Проверка должна оставаться выше ВСЕХ родительских loading.tsx: скелетон главной
+// ограничен группой (home), а loading.tsx урока находится ниже этого layout.
 // resolveLesson обёрнут в cache() — страница урока повторно в Firestore не ходит.
 export default async function LessonSegmentLayout({ children, params }: {
   children: React.ReactNode;
