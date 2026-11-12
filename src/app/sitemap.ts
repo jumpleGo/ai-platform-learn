@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { getPublishedCoursesWithLessons } from '@/lib/db/courses';
-import { trainingCourses } from '@/lib/catalog';
+import { freeLessonCards, trainingCourses } from '@/lib/catalog';
 import { courseKey, lessonPath } from '@/lib/slug';
 import { SITE_URL } from '@/lib/site';
 import { BLOG_POSTS, blogPostUrl } from '@/lib/blog';
@@ -41,15 +41,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  // Каталог уже исключает неопубликованные уроки. Открытые уроки обучений
-  // тоже индексируются; платные уроки и курсы предзаписи в карту не идут.
-  const lessons: MetadataRoute.Sitemap = courses.filter((course) => !course.isTest).flatMap((course) =>
-    course.lessons.filter((lesson) => lesson.access === 'free').map((lesson) => ({
-      url: `${SITE_URL}${lessonPath(courseKey(course), lesson.number)}`,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    })),
-  );
+  const lessons: MetadataRoute.Sitemap = freeLessonCards(courses).map((lesson) => ({
+    url: `${SITE_URL}${lessonPath(lesson.courseKey, lesson.number)}`,
+    changeFrequency: 'monthly',
+    priority: 0.7,
+  }));
 
   return [...statics, ...posts, ...landings, ...lessons];
 }
