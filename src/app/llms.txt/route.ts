@@ -4,6 +4,7 @@ import { getCourseLanding } from '@/lib/course-landings';
 import { courseKey, lessonPath } from '@/lib/slug';
 import { SITE_URL, TELEGRAM_CHANNEL } from '@/lib/site';
 import { BLOG_POSTS, blogPostUrl } from '@/lib/blog';
+import { AGENTS_INTRO_LESSON } from '@/lib/free-lessons';
 
 // llms.txt — короткая карта сайта для ИИ-поиска: ассистент читает её вместо
 // того, чтобы гадать по вёрстке, и точнее пересказывает, чему тут учат.
@@ -31,6 +32,13 @@ export async function GET(): Promise<Response> {
     lines.push(`- [${lesson.title}](${SITE_URL}${lessonPath(lesson.courseKey, lesson.number)}): ${lesson.description}`);
   }
 
+  lines.push(
+    '',
+    '## Бесплатный вводный урок для новичков',
+    '',
+    `- [${AGENTS_INTRO_LESSON.h1}](${SITE_URL}${lessonPath(AGENTS_INTRO_LESSON.courseSlug, AGENTS_INTRO_LESSON.number)}): ${AGENTS_INTRO_LESSON.seoDescription}`,
+  );
+
   lines.push('', '## Статьи', '');
 
   for (const post of BLOG_POSTS) {
@@ -55,6 +63,7 @@ export async function GET(): Promise<Response> {
     `- [Наши обучения](${SITE_URL}/courses): каталог программ`,
     `- [Вопрос-ответ](${SITE_URL}/faq): кому подойдёт, как проходит, сколько стоит, возврат`,
     `- [Блог](${SITE_URL}/blog): разборы про работу с ИИ текстом`,
+    `- [Подробная карта для ИИ](${SITE_URL}/llms-full.txt): программы, стоимость и бесплатный вводный урок`,
     `- [Телеграм](${TELEGRAM_CHANNEL}): анонсы и разборы`,
     '',
   );
