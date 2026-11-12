@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { describe, expect, it, vi } from 'vitest';
 import CourseLandingPage from '@/app/(app)/courses/[courseSlug]/page';
 import { VibeGuestCta } from '@/components/vibe-guest-cta';
+import { BeginnerQuestions } from '@/components/beginner-questions';
+import type { CourseWithLessons } from '@/lib/db/courses';
 
 // Каталог на границе ошибки: урок 1 хаба снят с публикации, введение агентов
 // открыто. Номера опубликованных уроков сохраняются после фильтрации в db/courses.
@@ -30,11 +32,12 @@ vi.mock('@/components/payment/tariff-cards', () => ({ TariffCards: () => null })
 vi.mock('@/components/lead-capture', () => ({ LeadCapture: () => null }));
 
 // Вызываем async-функцию страницы и проверяем её JSX; React-рендерер async RSC
-// не запускаем. Раскрываем также настоящий дочерний CTA лендинга вайбкодинга.
+// не запускаем. Раскрываем также CTA вайбкодинга и общего блока ответов #164.
 function lessonHrefs(node: ReactNode): string[] {
   return Children.toArray(node).flatMap((child) => {
-    if (!isValidElement<{ href?: string; children?: ReactNode }>(child)) return [];
+    if (!isValidElement<{ href?: string; children?: ReactNode; course?: CourseWithLessons }>(child)) return [];
     if (child.type === VibeGuestCta) return lessonHrefs(VibeGuestCta());
+    if (child.type === BeginnerQuestions) return lessonHrefs(BeginnerQuestions({ course: child.props.course }));
     const { href, children } = child.props;
     const link = (child.type === Link || child.type === 'a') && href?.match(/^\/courses\/[^/]+\/lessons\//);
     return [...(link ? [href!] : []), ...lessonHrefs(children)];
@@ -51,7 +54,8 @@ describe('ссылки бесплатных уроков на лендингах
   it.each(catalog.map((course) => course.slug))('%s: каждый предлагаемый урок существует и бесплатен', async (slug) => {
     const hrefs = await landingHrefs(slug);
     // У этих двух лендингов нет отдельного CTA бесплатного урока.
-    expect(hrefs).toHaveLength(['ai-cartoons', 'claude-code'].includes(slug) ? 0 : 1);
+    // У агентов проверяем все три CTA: hero и оба сохранённых блока ответов.
+    expect(hrefs).toHaveLength(['ai-cartoons', 'claude-code'].includes(slug) ? 0 : slug === 'claude-code-agents' ? 3 : 1);
     for (const href of hrefs) {
       const url = new URL(href, 'https://gelato.education');
       const [, , targetSlug, , number] = url.pathname.split('/');
@@ -69,7 +73,7 @@ describe('ссылки бесплатных уроков на лендингах
     course.lessons = [{ number: 2, access: 'paid' }, { number: 5, access: 'free' }, { number: 7, access: 'free' }]
       .map((lesson) => ({ ...original[0], ...lesson }));
     try {
-      expect(await landingHrefs(course.slug)).toEqual(['/courses/claude-code-agents/lessons/5?from=course_landing']);
+      expect(await landingHrefs(course.slug)).toEqual(Array(3).fill('/courses/claude-code-agents/lessons/5?from=course_landing'));
       course.lessons = [];
       expect(await landingHrefs(course.slug)).toEqual([]);
     } finally {
