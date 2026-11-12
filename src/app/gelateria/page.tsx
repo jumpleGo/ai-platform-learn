@@ -5,6 +5,10 @@ import { HomeVariantAnalytics } from '@/components/home-variant-analytics';
 import { GelateriaScene } from '@/components/scene/gelateria-scene';
 import { getExperiment, pickVariant } from '@/lib/experiments';
 import { getTariffsForCourse } from '@/lib/payments/tariffs';
+import { getPublishedCoursesWithLessons } from '@/lib/db/courses';
+import { courseKey } from '@/lib/slug';
+import { BEGINNER_URL } from '@/lib/site';
+import { BeginnerQuestions } from '@/components/beginner-questions';
 
 // Вариант «сцена» в A/B-тесте главной. Отдельного адреса у него нет: прокси
 // подставляет эту страницу под '/', поэтому и canonical здесь — главная.
@@ -25,6 +29,8 @@ export default async function GelateriaPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const courses = await getPublishedCoursesWithLessons();
+  const beginnerCourse = courses.find((course) => `/courses/${courseKey(course)}` === BEGINNER_URL);
   // Тест оффера на первом экране: жребий на сервере по cookie vid (его ставит
   // proxy и прокидывает в заголовок), чтобы первый экран не моргал контролем.
   // QA: ?exp_home_offer=offer — query доезжает сюда вместе с рерайтом из proxy.
@@ -45,6 +51,9 @@ export default async function GelateriaPage({
     <>
       <HomeVariantAnalytics variant="scene" />
       <ExperimentExposure experimentKey="home_offer" variant={variant} />
+      <div className="mx-auto w-full max-w-6xl px-4 pb-8 pt-20 sm:px-6">
+        <BeginnerQuestions course={beginnerCourse} />
+      </div>
       <GelateriaScene offer={offer} />
     </>
   );
