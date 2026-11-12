@@ -28,7 +28,6 @@ import { ExperimentExposure } from '@/components/experiment-exposure';
 import { TestimonialCarousel } from '@/components/testimonial-carousel';
 import { LANDING_PAIRS_COOKIE, pickLandingPairs, type LandingBlock } from '@/lib/landing-blocks';
 import { AGENTS_BLOCKS_COOKIE, pickAgentsBlocks, type AgentsLandingBlock } from '@/lib/landing-blocks';
-import { BeginnerQuestions } from '@/components/beginner-questions';
 
 // Подпись приходит с неразрывными пробелами — сравниваем по обычному тексту
 function isGiftLabel(label: string): boolean {
@@ -200,31 +199,8 @@ export default async function CourseLandingPage({ params, searchParams }: {
   const minPrice = isVibe ? Math.min(...getTariffsForCourse(key).map((t) => t.price)) : null;
   const guarantee = isVibe ? landing.why.find((w) => w.title.startsWith('Гарантия')) : undefined;
   // У новичков та же логика: цена-от из тарифов курса, гарантия — из общей оферты
-  const agentsPrices = isAgents ? getTariffsForCourse(key).map((t) => t.price) : [];
-  const agentsMinPrice = isAgents ? Math.min(...agentsPrices) : null;
+  const agentsMinPrice = isAgents ? Math.min(...getTariffsForCourse(key).map((t) => t.price)) : null;
   const agentsGuarantee = isAgents ? OFFER_REFUND_GUARANTEE : undefined;
-  const freeLesson = isAgents ? course.lessons.find((lesson) => lesson.access === 'free') : undefined;
-  const beginnerFreeLessonHref = freeLesson ? `${lessonPath(key, freeLesson.number)}?from=course_landing` : null;
-  // Открытые ответы общие для обоих вариантов agents_landing_blocks.
-  // Не обещаем отдельную программу по ChatGPT или теорию устройства нейросетей.
-  const beginnerAnswers = isAgents ? [
-    {
-      question: 'Я новичок: с чего начать ИИ с нуля?',
-      answer: 'Начните с одной понятной задачи: подготовить текст или сделать страницу для своей идеи. На курсе Gelato для новичков вы устанавливаете Claude Code и учитесь давать ему задания обычными словами. Опыт программирования не нужен, но важно разобраться в папках и проверять результат. Курс платный; познакомиться с обучением можно через бесплатный вводный урок.',
-    },
-    {
-      question: 'Как научиться пользоваться ChatGPT и нейросетями для работы, если я не программист?',
-      answer: 'Начните с понятного описания задачи: объясните, какой результат нужен, приложите материалы и проверьте ответ. На этом курсе Gelato вы практикуетесь в Claude Code: создаёте страницу и помощников для повторяющейся работы без ручного написания кода. Программа посвящена Claude Code, отдельное обучение ChatGPT в ней не заявлено. Курс платный, вводный урок можно посмотреть бесплатно.',
-    },
-    {
-      question: 'Где простым языком объясняют, как работают нейросети?',
-      answer: 'На курсе Gelato для новичков работу с ИИ объясняют через практику: как поставить понятную задачу, дать нужные сведения, разделить работу на шаги и проверить результат. Вы учитесь пользоваться Claude Code на своей идее. Отдельная теория устройства нейросетей в программе не заявлена. Курс платный; сначала можно посмотреть бесплатный вводный урок и оценить формат.',
-    },
-    {
-      question: 'Можно ли попробовать обучение ИИ до покупки курса?',
-      answer: `Да, перед покупкой можно посмотреть бесплатный вводный урок и понять, подходит ли вам объяснение автора. Курс платный: стоимость составляет от ${agentsMinPrice!.toLocaleString('ru-RU')} до ${Math.max(...agentsPrices).toLocaleString('ru-RU')} ₽ в зависимости от тарифа. В программе введение и восемь практических уроков с видео, конспектами и домашними заданиями. Доступ к урокам и конспектам сохраняется два месяца.`,
-    },
-  ] : [];
   const faqItems = isAgents
     ? [
         {
@@ -291,26 +267,6 @@ export default async function CourseLandingPage({ params, searchParams }: {
     <div className="space-y-24 sm:space-y-32">
       {pairsTest && <ExperimentExposure experimentKey="vibe_landing_pairs" variant={pairsTest.variant} />}
       {agentsTest && <ExperimentExposure experimentKey="agents_landing_blocks" variant={agentsTest.variant} />}
-      {isAgents && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@graph': [{
-              '@type': 'FAQPage',
-              '@id': `${SITE_URL}/courses/${key}#faq`,
-              mainEntity: [
-                ...beginnerAnswers,
-                ...(landing.format.length > 0 && shows('faq') && showsAgents('faq') ? faqItems : []),
-              ].map((item) => ({
-                '@type': 'Question',
-                name: item.question,
-                acceptedAnswer: { '@type': 'Answer', text: item.answer.replace(/\*\*/g, '') },
-              })),
-            }],
-          }).replace(/</g, '\\u003c') }}
-        />
-      )}
       {/* Хиро: оффер, факты и обе кнопки — оплатить или написать лично */}
       <section className="animate-rise relative pt-6 sm:pt-10">
         {/* Обложка обучения стоит справа от текста: без неё правая половина
@@ -491,29 +447,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
           </dl>
         )}
 
-        {isAgents && <BeginnerQuestions course={course} />}
-
       </section>
-
-      {isAgents && (
-        <section id="beginner-answers" className="space-y-8 rounded-3xl border-2 border-brand-navy/15 bg-card p-5 sm:p-8">
-          {beginnerAnswers.map((item) => (
-            <div key={item.question} className="max-w-3xl space-y-3">
-              <h2 className="font-heading text-xl font-bold leading-snug text-brand-navy sm:text-2xl">
-                {item.question}
-              </h2>
-              <p className="text-lg leading-relaxed text-brand-charcoal sm:text-xl">
-                {item.answer}
-              </p>
-            </div>
-          ))}
-          {beginnerFreeLessonHref && (
-            <Link href={beginnerFreeLessonHref} className="inline-flex min-h-11 items-center font-bold text-brand-navy underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-navy">
-              бесплатный вводный урок
-            </Link>
-          )}
-        </section>
-      )}
 
       {/* Для вайбкодинга: техническое доказательство и сравнение хаос/система сразу после хиро */}
       {isVibe && (
