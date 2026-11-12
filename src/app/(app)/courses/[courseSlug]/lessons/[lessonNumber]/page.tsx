@@ -12,6 +12,7 @@ import { materialsTeaser } from '@/lib/markdown';
 import { plural } from '@/lib/utils';
 import type { Lesson } from '@/lib/types';
 import { courseKey, lessonPath } from '@/lib/slug';
+import { breadcrumbList, HOME_CRUMB } from '@/lib/breadcrumbs';
 import { isBannerSlot, pickVariant, slotVariants, variantSeed } from '@/lib/banners';
 import { VideoEmbed } from '@/components/video-embed';
 import { LockedVideoPlayer } from '@/components/payment/locked-video-player';
@@ -149,6 +150,7 @@ function freeLessonJsonLd({
       inLanguage: 'ru',
       isFamilyFriendly: true,
     },
+    breadcrumbList([HOME_CRUMB, { name: courseTitle, url: courseUrl }, { name: content.h1, url: canonical }]),
   ];
   return { '@context': 'https://schema.org', '@graph': graph };
 }

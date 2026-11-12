@@ -1,6 +1,7 @@
 import { COURSE_PAYMENT_CONFIGS } from '@/lib/payments/tariffs';
 import { SITE_JSON_LD } from '@/lib/site-schema';
 import { SITE_URL } from '@/lib/site';
+import { breadcrumbList, COURSES_CRUMB, HOME_CRUMB } from '@/lib/breadcrumbs';
 
 export type CourseSchemaInput = { slug: string; name: string; description: string };
 
@@ -29,7 +30,7 @@ export function SiteStructuredData({ course }: { course?: CourseSchemaInput }) {
         educationalLevel: 'beginner',
         hasCourseInstance: { '@type': 'CourseInstance', courseMode: 'online' },
         ...(offers ? { offers } : {}),
-      }] : []),
+      }, breadcrumbList([HOME_CRUMB, COURSES_CRUMB, { name: course.name, url: `${SITE_URL}/courses/${course.slug}` }])] : []),
     ],
   };
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />;
