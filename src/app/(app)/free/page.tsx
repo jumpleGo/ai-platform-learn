@@ -8,6 +8,7 @@ import { freeLessonCards } from '@/lib/catalog';
 import { localLessonPreview } from '@/lib/free-lessons';
 import { lessonPath } from '@/lib/slug';
 import { TELEGRAM_DM } from '@/lib/site';
+import { FREE_PAGE_ANSWER } from '@/lib/geo-answers';
 import { Accent, StickerTag, TitleAccent } from '@/components/accent';
 import { CoverCard } from '@/components/cover-card';
 import { FreeIntroLessonButton } from '@/components/free-intro-lesson-button';
@@ -42,6 +43,9 @@ export default async function FreePage({
         <h1 className="mt-4 font-heading text-[clamp(2.6rem,7vw,5.25rem)]/[0.98] font-bold tracking-[-0.035em] text-balance text-brand-navy">
           <TitleAccent>Бесплатные</TitleAccent> уроки
         </h1>
+        <p className="mt-3 max-w-2xl text-base leading-[1.5] text-brand-navy text-pretty sm:text-lg">
+          {FREE_PAGE_ANSWER}
+        </p>
         {/* подзаголовок — часть заголовка, а не отдельный блок: держим вплотную */}
         <p className="mt-2.5 max-w-2xl text-lg leading-[1.35] text-muted-foreground text-pretty sm:text-xl">
           Про принципы работы с ИИ: как объяснить задачу, зачем нужен контекст
