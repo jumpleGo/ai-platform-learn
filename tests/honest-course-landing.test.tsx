@@ -1,9 +1,12 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import CourseLandingPage from '@/app/(app)/courses/[courseSlug]/page';
 import StructuredDataPage from '@/app/@structuredData/[...path]/page';
 import { getCourseLanding } from '@/lib/course-landings';
 import type { CourseWithLessons } from '@/lib/db/courses';
+import { COURSE_PAYMENT_CONFIGS, DEFAULT_TARIFFS, getTariffsForCourse, type Tariff } from '@/lib/payments/tariffs';
+import publishedVibecoding from './fixtures/published-vibecoding-lessons.json';
+import tariffsMain from './fixtures/tariffs-main.json';
 
 const { catalog } = vi.hoisted(() => ({ catalog: vi.fn() }));
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: catalog }));
@@ -79,6 +82,49 @@ describe('honest published lesson count', () => {
     expect(normalize(landing.format[0].note)).toContain(`Опубликовано уроков: ${count}.`);
     expect(normalize(landing.price.includes.join(' '))).toContain(`Опубликовано уроков: ${count}.`);
     expect(JSON.stringify(landing)).not.toMatch(/17(?:\s|\\u00a0)*урок/u);
+  });
+});
+
+describe('honest vibecoding tariff copy', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(tariffsMain.capturedAt));
+  });
+  afterEach(() => vi.useRealTimers());
+
+  it.each(['vibecoding', 'it-vibecoding'])('%s states the public catalog count computed by the landing', async (slug) => {
+    // Public navigation is already publication-filtered. Refresh this snapshot
+    // and the tariff copy together when the published catalog changes.
+    const course = fixture(slug, 0);
+    course.lessons.unshift(...publishedVibecoding.lessons.map((lesson) => ({
+      ...lesson, description: '', published: true,
+      access: lesson.number === 1 ? 'free' : 'paid',
+    })) as CourseWithLessons['lessons']);
+    // Keep the draft and test from fixture(): the real #264 counter excludes both.
+    const { text } = await render(course);
+    const match = text.match(/Опубликовано уроков: (\d+)\./u);
+    expect(match).not.toBeNull();
+    const count = Number(match![1]);
+    expect(count).toBe(publishedVibecoding.lessons.length);
+
+    for (const tariff of getTariffsForCourse(slug)) {
+      const copy = [tariff.description, ...tariff.features].join(' ');
+      expect.soft(copy).not.toMatch(/\b17\b/u);
+      expect.soft(copy).toContain(`Опубликовано уроков: ${count}.`);
+    }
+  });
+
+  it('preserves every field outside description and features from main', () => {
+    const withoutCopy = (tariffs: Tariff[]) => tariffs.map(({
+      description: _description, features: _features, ...unchanged
+    }) => unchanged);
+
+    expect({
+      defaults: withoutCopy(DEFAULT_TARIFFS),
+      courses: Object.fromEntries(Object.entries(COURSE_PAYMENT_CONFIGS).map(([slug, config]) => [
+        slug, { ...config, tariffs: withoutCopy(config.tariffs) },
+      ])),
+    }).toEqual(tariffsMain.config);
   });
 });
 

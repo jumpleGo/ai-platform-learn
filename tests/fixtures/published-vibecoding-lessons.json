@@ -1,0 +1,42 @@
+{
+  "source": "https://gelato.education/courses/vibecoding/lessons/1",
+  "landingSource": "https://gelato.education/courses/vibecoding",
+  "capturedAt": "2026-11-13T07:37:57.574159+00:00",
+  "lessons": [
+    {
+      "id": "ZmPKOIXJbwcDySbAOYWi",
+      "number": 1,
+      "title": "Вступление"
+    },
+    {
+      "id": "c1oZ34u9OvRk3dGbmPRC",
+      "number": 2,
+      "title": "Подбор стека под приложение"
+    },
+    {
+      "id": "qkvHhxvN3RHimkYcRp6n",
+      "number": 3,
+      "title": "Настраиваем стат.анализатор"
+    },
+    {
+      "id": "xcmpNdlRyFWBdfmLHjDX",
+      "number": 4,
+      "title": "Что такое тестирование кода"
+    },
+    {
+      "id": "1WbzrQQXbLe0bFOYAuVe",
+      "number": 5,
+      "title": "Настраиваем тестирование кода"
+    },
+    {
+      "id": "DTJtoLPiIsa0oRKlFjkO",
+      "number": 6,
+      "title": "Что такое типизация"
+    },
+    {
+      "id": "yUMphNZhsLcVgrwrQaeo",
+      "number": 7,
+      "title": "Настраиваем типизацию"
+    }
+  ]
+}
