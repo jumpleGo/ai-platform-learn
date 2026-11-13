@@ -29,6 +29,7 @@ import { TestimonialCarousel } from '@/components/testimonial-carousel';
 import { LANDING_PAIRS_COOKIE, pickLandingPairs, type LandingBlock } from '@/lib/landing-blocks';
 import { AGENTS_BLOCKS_COOKIE, pickAgentsBlocks, type AgentsLandingBlock } from '@/lib/landing-blocks';
 import { BeginnerQuestions } from '@/components/beginner-questions';
+import { LandingLessonCta } from '@/components/landing-lesson-cta';
 
 // Подпись приходит с неразрывными пробелами — сравниваем по обычному тексту
 function isGiftLabel(label: string): boolean {
@@ -489,6 +490,10 @@ export default async function CourseLandingPage({ params, searchParams }: {
               </div>
             ))}
           </dl>
+        )}
+
+        {course.lessons.some((lesson) => lesson.number === 1) && (
+          <LandingLessonCta courseSlug={key} />
         )}
 
         {isAgents && <BeginnerQuestions course={course} />}
