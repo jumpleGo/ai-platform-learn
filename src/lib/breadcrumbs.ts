@@ -20,3 +20,17 @@ export function breadcrumbList(crumbs: Crumb[]) {
     })),
   };
 }
+
+// Link the existing list from a WebPage without changing the content nodes.
+export function breadcrumbNodes(crumbs: Crumb[], mainEntityId?: string) {
+  const list = breadcrumbList(crumbs);
+  const page = crumbs[crumbs.length - 1];
+  return [list, {
+    '@type': 'WebPage',
+    '@id': `${page.url}#webpage`,
+    url: page.url,
+    name: page.name,
+    ...(mainEntityId ? { mainEntity: { '@id': mainEntityId } } : {}),
+    breadcrumb: { '@id': list['@id'] },
+  }];
+}
