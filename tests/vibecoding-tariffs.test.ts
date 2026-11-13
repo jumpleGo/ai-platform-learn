@@ -8,13 +8,27 @@ const vibecodingSlugs = Object.keys(COURSE_PAYMENT_CONFIGS).filter((slug) =>
   getTariffsForCourse(slug).some((tariff) => tariff.id.startsWith('vibecoding_')),
 );
 
+const LESSON_COUNT_RE = /\d+\s*урок|урок\p{L}*\s*[:—-]?\s*\d+|опубликовано\s+уроков/iu;
+const NEW_WORDING = 'по мере выхода';
+
 describe('vibecoding tariff copy carries no hand-maintained lesson count', () => {
+  it.each([
+    'Опубликовано уроков: 7.',
+    'Опубликовано уроков: 8.',
+    '17 уроков',
+    'ко всем 17 урокам',
+    'уроков — 12',
+  ])('guard matches the old literal %j', (old) => {
+    expect(old).toMatch(LESSON_COUNT_RE);
+  });
+
   it.each(vibecodingSlugs)('%s describes access without a number of lessons', (slug) => {
     for (const tariff of getTariffsForCourse(slug).filter((t) => t.id.startsWith('vibecoding_'))) {
-      const copy = [tariff.description, ...tariff.features].join(' ');
-      expect.soft(copy, tariff.id).not.toMatch(/\d+\s*урок/iu);
-      expect.soft(copy, tariff.id).toMatch(/опубликованн/iu);
-      expect.soft(copy, tariff.id).not.toMatch(/вся программа курса|ко всем \d+ урокам/iu);
+      const texts = [tariff.description, ...tariff.features];
+      for (const text of texts) {
+        expect.soft(text, tariff.id).not.toMatch(LESSON_COUNT_RE);
+      }
+      expect.soft(texts.join(' '), tariff.id).toContain(NEW_WORDING);
     }
   });
 
