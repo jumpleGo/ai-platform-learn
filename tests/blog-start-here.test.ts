@@ -1,8 +1,7 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { renderToStaticMarkup } from 'react-dom/server';
-import Page from '@/app/(app)/blog/[slug]/page';
 import * as blog from '@/lib/blog';
 import { getPublishedCoursesWithLessons as getCatalog, type CourseWithLessons, type NumberedLesson } from '@/lib/db/courses';
+import { renderBlogPost as pageHtml } from './fixtures/blog-page';
 
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: vi.fn() }));
 vi.mock('@/lib/analytics/track-client', () => ({ track: vi.fn() }));
@@ -20,9 +19,7 @@ const course = (slug: string, first: number): CourseWithLessons => ({
   lessons: [lesson(1, 'free', false), lesson(2, 'paid'), lesson(first, 'free'), lesson(first + 1, 'free')],
 });
 const introHref = '/courses/claude-code-agents/lessons/1';
-const pageHtml = async (slug: string) => renderToStaticMarkup(await Page({ params: Promise.resolve({ slug }) }));
-async function start(slug: string) {
-  const html = await pageHtml(slug);
+function startHtml(html: string, slug: string) {
   const blocks = html.match(/<section\b[^>]*data-blog-cta-position="[^"]+"[\s\S]*?<\/section>/g) ?? [];
   expect(blocks, slug).toHaveLength(2);
   for (const block of blocks) {
@@ -32,6 +29,9 @@ async function start(slug: string) {
   }
   expect(getCatalog).not.toHaveBeenCalled();
   return blocks.join('');
+}
+async function start(slug: string) {
+  return startHtml(await pageHtml(slug), slug);
 }
 let catalog: CourseWithLessons[];
 beforeEach(() => {
@@ -55,7 +55,7 @@ it.each(['empty', 'throw'])('catalog %s preserves the article and both CTAs', as
   else vi.mocked(getCatalog).mockResolvedValue([]);
   const html = await pageHtml('ii-agent-prostymi-slovami');
   for (const marker of ['<article', 'application/ld+json', 'id="post-faq"']) expect(html).toContain(marker);
-  await start('ii-agent-prostymi-slovami');
+  startHtml(html, 'ii-agent-prostymi-slovami');
 });
 it.each(['unpublished', 'test', 'no-free'])('catalog state %s cannot change the intro target', async state => {
   if (state === 'unpublished') catalog[0].published = false;
