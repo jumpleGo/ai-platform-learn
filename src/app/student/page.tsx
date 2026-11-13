@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { JetBrains_Mono } from 'next/font/google';
+import localFont from 'next/font/local';
 import { StudentAbout, StudentBanners } from './student-banners';
 import { StudentInstall } from './student-install';
 import styles from './student.module.css';
@@ -10,10 +10,14 @@ const INSTALL_SH = 'curl -fsSL https://raw.githubusercontent.com/bubli-mubli/gel
 const INSTALL_PS = 'irm https://raw.githubusercontent.com/bubli-mubli/gelato-student/main/install.ps1 | iex';
 
 // Моноширинный нужен только этой странице: вкладка «терминал» и команды установки
-const mono = JetBrains_Mono({
+// Локальные файлы обходят ошибку Turbopack при разборе URL Google Fonts.
+const mono = localFont({
+  src: [
+    { path: '../fonts/JetBrainsMono-Medium.woff2', weight: '500', style: 'normal' },
+    { path: '../fonts/JetBrainsMono-Bold.woff2', weight: '700', style: 'normal' },
+  ],
   variable: '--font-jetbrains',
-  subsets: ['latin', 'cyrillic'],
-  weight: ['500', '700'],
+  display: 'swap',
 });
 
 const TITLE = 'Gelato Student — учись кодить с ИИшкой';
