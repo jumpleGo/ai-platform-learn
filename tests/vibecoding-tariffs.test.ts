@@ -4,6 +4,7 @@ import {
   COURSE_PAYMENT_CONFIGS, DEFAULT_TARIFFS, getTariffsForCourse, type Tariff,
 } from '@/lib/payments/tariffs';
 import tariffsMain from './fixtures/tariffs-main.json';
+import publicCatalog from './fixtures/vibecoding-lessons.json';
 
 type PublicLesson = {
   id: string;
@@ -17,12 +18,46 @@ const vibecodingSlugs = Object.keys(COURSE_PAYMENT_CONFIGS).filter((slug) =>
   getTariffsForCourse(slug).some((tariff) => tariff.id.startsWith('vibecoding_')),
 );
 
-describe('vibecoding tariff copy against the live published catalog', () => {
+describe('vibecoding tariff copy against the dated public catalog snapshot', () => {
+  // Same predicate as #264. Refresh the dated fixture when lessons are published.
+  const publishedCount = publicCatalog.lessons.filter(
+    (lesson) => isLessonPublished(lesson) && !lesson.isTest,
+  ).length;
+
+  it('has a dated, non-empty public lesson snapshot with unique ids', () => {
+    expect(Number.isFinite(Date.parse(publicCatalog.capturedAt))).toBe(true);
+    expect(publishedCount).toBeGreaterThan(0);
+    expect(new Set(publicCatalog.lessons.map((lesson) => lesson.id)).size)
+      .toBe(publicCatalog.lessons.length);
+    expect(vibecodingSlugs.length).toBeGreaterThan(0);
+  });
+
+  it.each(vibecodingSlugs)('%s promises the captured published lesson count in every tariff', (slug) => {
+    for (const tariff of getTariffsForCourse(slug)) {
+      const copy = [tariff.description, ...tariff.features].join(' ');
+      expect.soft(copy).toContain(`Опубликовано уроков: ${publishedCount}.`);
+      expect.soft(copy).not.toMatch(/вся программа курса|ко всем \d+ урокам/iu);
+    }
+  });
+
+  it('has no obsolete 17-lesson promises in defaults or any course tariff', () => {
+    const allTariffs = [
+      ...DEFAULT_TARIFFS,
+      ...Object.values(COURSE_PAYMENT_CONFIGS).flatMap((config) => config.tariffs),
+    ];
+    for (const tariff of allTariffs) {
+      expect.soft(JSON.stringify(tariff), tariff.id).not.toMatch(/17\s+урок|все\s+17/iu);
+    }
+  });
+});
+
+// Opt in with LIVE_CATALOG_CHECK=1 npx vitest run tests/vibecoding-tariffs.test.ts.
+describe.skipIf(!process.env.LIVE_CATALOG_CHECK)('vibecoding tariff copy against the live published catalog', () => {
   let publishedCount: number;
 
   beforeAll(async () => {
-    // Production lessons live in Firestore. Fetch current public data on every
-    // run; a network or parser failure must fail this check, never use a snapshot.
+    // Only this opt-in check reads production. Network/parser failures still fail
+    // the live check; the default regression above uses the committed snapshot.
     const [lessonHtml, landingHtml] = await Promise.all([
       '/courses/vibecoding/lessons/1', '/courses/vibecoding',
     ].map(async (path) => {
