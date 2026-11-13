@@ -1,6 +1,7 @@
 import { getCourseLanding } from '@/lib/course-landings';
 import { AGENTS_INTRO_LESSON } from '@/lib/free-lessons';
 import { COURSE_PAYMENT_CONFIGS } from '@/lib/payments/tariffs';
+import { BLOG_POSTS, blogPostUrl } from '@/lib/blog';
 import { SITE_URL } from '@/lib/site';
 import { lessonPath } from '@/lib/slug';
 
@@ -36,6 +37,14 @@ export function GET(): Response {
     }
     lines.push('');
   }
+
+  lines.push('## Блог', '');
+
+  for (const post of BLOG_POSTS) {
+    lines.push(`- [${post.title}](${blogPostUrl(post.slug)}): ${post.lead}`);
+  }
+
+  lines.push('');
 
   lines.push(
     '## Другие публичные материалы',
