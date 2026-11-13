@@ -9,8 +9,8 @@ import { getPublishedCoursesWithLessons, type CourseWithLessons } from '@/lib/db
 import { getSubscription } from '@/lib/db/subscriptions';
 import { getCompletedLessonIds } from '@/lib/db/progress';
 import { getSession } from '@/lib/session';
-import { hasCourseAccess } from '@/lib/access';
-import { buildFallbackLanding, getCourseLanding, OFFER_REFUND_GUARANTEE, type CourseLanding } from '@/lib/course-landings';
+import { hasCourseAccess, isLessonPublished } from '@/lib/access';
+import { buildFallbackLanding, getCourseLanding, publishedLessonsNotice, OFFER_REFUND_GUARANTEE, type CourseLanding } from '@/lib/course-landings';
 import { getStreamStartDate } from '@/lib/payments/stream-schedule';
 import { getTariffsForCourse } from '@/lib/payments/tariffs';
 import { courseKey, lessonPath } from '@/lib/slug';
@@ -50,8 +50,14 @@ async function findCourse(key: string): Promise<CourseWithLessons | null> {
   return courses.find((c) => courseKey(c) === key || c.id === key) ?? null;
 }
 
+function countPublishedLessons(course: CourseWithLessons): number {
+  return course.isTest ? 0 : course.lessons.filter(
+    (lesson: { published?: boolean; isTest?: boolean }) => isLessonPublished(lesson) && !lesson.isTest,
+  ).length;
+}
+
 function landingFor(course: CourseWithLessons): CourseLanding {
-  return getCourseLanding(courseKey(course)) ?? buildFallbackLanding(course, course.lessons);
+  return getCourseLanding(courseKey(course), countPublishedLessons(course)) ?? buildFallbackLanding(course, course.lessons);
 }
 
 import { CourseBuyButton } from '@/components/payment/course-buy-button';
@@ -264,7 +270,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
     : [
         {
           question: 'Как и когда открывается доступ к материалам?',
-          answer: `Все 17 уроков курса **открываются целиком со старта потока ${streamStartDate}**. Вы двигаетесь в комфортном для себя темпе. **Доступ к курсу сохраняется на 2 месяца**.`,
+          answer: `${publishedLessonsNotice(countPublishedLessons(course))} Опубликованные уроки **доступны со старта потока ${streamStartDate}**. Вы двигаетесь в комфортном для себя темпе. **Доступ к курсу сохраняется на 2 месяца**.`,
         },
         {
           question: 'Курс привязан к Claude Code?',
@@ -1364,7 +1370,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
       )}
 
       {/* Блок «Как проходит обучение» в стиле Вопрос-Ответ (6 пунктов с сомнениями) */}
-      {landing.format.length > 0 && shows('faq') && showsAgents('faq') && (
+      {(isVibe || isAgents) && landing.format.length > 0 && shows('faq') && showsAgents('faq') && (
         <section className="animate-rise space-y-6 pt-4">
           <SectionHead
             size="lg"
@@ -1393,7 +1399,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
                 </span>
               </summary>
               <div className="mt-3.5 border-t border-dashed border-brand-navy/10 pt-3.5 text-[17px] font-medium leading-relaxed sm:text-lg text-brand-charcoal/90">
-                <RichText text={`Все 17 уроков курса **открываются целиком со старта потока ${streamStartDate}**. Вы двигаетесь в комфортном для себя темпе без искусственных задержек. **Доступ к курсу сохраняется на 2 месяца**.`} />
+                <RichText text={faqItems[0].answer} />
               </div>
             </details>
 

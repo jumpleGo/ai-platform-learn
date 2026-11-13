@@ -76,7 +76,13 @@ export type CourseLanding = {
   seoDescription: string;
 };
 
-const VIBECODING: CourseLanding = {
+export function publishedLessonsNotice(count?: number): string {
+  return count === undefined
+    ? 'Уроки публикуются, новые выходят.'
+    : `Опубликовано уроков: ${count}. Новые выходят.`;
+}
+
+const VIBECODING = (publishedLessonCount?: number): CourseLanding => ({
   eyebrow: 'интенсив · ИИ для вайбкодеров и разработчиков',
   cover: '/cover-vibecoding.webp',
   h1: 'Из няньки для нейросети — в тимлида агентов.',
@@ -88,7 +94,9 @@ const VIBECODING: CourseLanding = {
   facts: [
     { value: '1 день', label: 'до первого коммита' },
     { value: '3 недели', label: 'поддержки в Telegram' },
-    { value: '17', label: 'уроков в 5 модулях, доступ на 2 месяца' },
+    ...(publishedLessonCount === undefined ? [] : [
+      { value: String(publishedLessonCount), label: 'опубликовано уроков; новые выходят, доступ на 2 месяца' },
+    ]),
   ],
   caseStudy: {
     title: 'Один цикл работы с настроенным проектом',
@@ -148,7 +156,7 @@ const VIBECODING: CourseLanding = {
     { label: 'Домашки', value: 'проверяемые задания с критериями приёмки' },
   ],
   format: [
-    { title: 'Доступ ко всем урокам сразу', note: 'Все 17 уроков открыты с первого дня: **двигаетесь в своём темпе, доступ на 2 месяца**.' },
+    { title: 'Доступ к опубликованным урокам', note: `${publishedLessonsNotice(publishedLessonCount)} **Двигаетесь в своём темпе, доступ на 2 месяца**.` },
     { title: 'Практика в своём проекте', note: 'Вы работаете в своём репозитории: **настраиваете правила, тесты и агентов под свой реальный стек** (рабочий или личный проект).' },
     { title: 'Личная поддержка Эмиля', note: 'В тарифе с поддержкой Эмиль **проверяет домашние задания и отвечает на любые вопросы по ходу обучения**: если что-то не получается, непонятно, как поступить, или хочется проверить своё решение.' },
   ],
@@ -158,7 +166,7 @@ const VIBECODING: CourseLanding = {
     get includes() {
       const date = getStreamStartDate();
       return [
-        `Старт ${date} (доступ ко всем 17 урокам на 2 месяца)`,
+        `Старт ${date}. ${publishedLessonsNotice(publishedLessonCount)} Доступ на 2 месяца.`,
         'Готовые шаблоны CLAUDE.md, rules, skills, линтеров и тестов',
         'Практика на своём проекте — рабочем, личном или пет-проекте',
         'Тариф «С поддержкой»: проверка домашних заданий и 3 недели ответов на вопросы + Claude Pro на 1 месяц в подарок',
@@ -168,7 +176,7 @@ const VIBECODING: CourseLanding = {
   cta: { label: 'Выбрать тариф', href: PROGRAM_URL },
   seoTitle: 'Инженерный вайбкодинг для разработчиков и вайбкодеров — GELATO',
   seoDescription: 'Интенсив для разработчиков и опытных вайбкодеров: CLAUDE.md и rules, линтеры, типы, автотесты, свои агенты. ИИ пишет проверяемый код в вашем репозитории, а не плодит баги.',
-};
+});
 
 const CARTOONS: CourseLanding = {
   eyebrow: 'обучение · ИИ-мультфильмы',
@@ -338,14 +346,14 @@ export const OFFER_REFUND_GUARANTEE =
   'Не подошло — возвращаем полную стоимость: напишите в Telegram в первые 2 дня с момента выдачи доступа.';
 
 const LANDINGS: Record<string, CourseLanding> = {
-  'it-vibecoding': VIBECODING,
-  vibecoding: VIBECODING,
   'ai-cartoons': CARTOONS,
   'claude-code-agents': AGENTS,
 };
 
-export function getCourseLanding(slug: string): CourseLanding | null {
-  const landing = LANDINGS[slug];
+export function getCourseLanding(slug: string, publishedLessonCount?: number): CourseLanding | null {
+  const landing = slug === 'vibecoding' || slug === 'it-vibecoding'
+    ? VIBECODING(publishedLessonCount)
+    : LANDINGS[slug];
   // неразрывные пробелы расставляем на выходе — в тексте выше они не мешают читать
   return landing ? nbspDeep(landing) : null;
 }
