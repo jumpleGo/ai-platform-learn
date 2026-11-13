@@ -1,11 +1,11 @@
 import { COURSE_PAYMENT_CONFIGS } from '@/lib/payments/tariffs';
 import { SITE_JSON_LD } from '@/lib/site-schema';
 import { SITE_URL } from '@/lib/site';
-import { breadcrumbList, COURSES_CRUMB, HOME_CRUMB } from '@/lib/breadcrumbs';
+import { breadcrumbNodes, COURSES_CRUMB, HOME_CRUMB, type Crumb } from '@/lib/breadcrumbs';
 
 export type CourseSchemaInput = { slug: string; name: string; description: string };
 
-export function SiteStructuredData({ course }: { course?: CourseSchemaInput }) {
+export function SiteStructuredData({ course, breadcrumbs }: { course?: CourseSchemaInput; breadcrumbs?: Crumb[] }) {
   // Только тарифы самого курса: общая подписка и тестовая цена сюда не попадают.
   const prices = course
     ? COURSE_PAYMENT_CONFIGS[course.slug]?.tariffs.map((tariff) => tariff.price).filter((price) => Number.isFinite(price) && price > 0) ?? []
@@ -30,7 +30,11 @@ export function SiteStructuredData({ course }: { course?: CourseSchemaInput }) {
         educationalLevel: 'beginner',
         hasCourseInstance: { '@type': 'CourseInstance', courseMode: 'online' },
         ...(offers ? { offers } : {}),
-      }, breadcrumbList([HOME_CRUMB, COURSES_CRUMB, { name: course.name, url: `${SITE_URL}/courses/${course.slug}` }])] : []),
+      }, ...breadcrumbNodes(
+        [HOME_CRUMB, COURSES_CRUMB, { name: course.name, url: `${SITE_URL}/courses/${course.slug}` }],
+        `${SITE_URL}/courses/${course.slug}#course`,
+      )] : []),
+      ...(breadcrumbs ? breadcrumbNodes(breadcrumbs) : []),
     ],
   };
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />;

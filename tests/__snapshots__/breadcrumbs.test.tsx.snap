@@ -1,0 +1,373 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`BreadcrumbList в существующем @graph > preserves Article and FAQ nodes independently of newly published posts 1`] = `
+"[
+  {
+    "@type": "Article",
+    "@id": "https://gelato.education/blog/schema-fixture#article",
+    "headline": "Название статьи из данных",
+    "description": "Описание статьи",
+    "url": "https://gelato.education/blog/schema-fixture",
+    "inLanguage": "ru",
+    "datePublished": "2026-11-12",
+    "dateModified": "2026-11-13",
+    "author": {
+      "@type": "Person",
+      "name": "Эмиль",
+      "url": "https://gelato.education"
+    },
+    "publisher": {
+      "@id": "https://gelato.education/#organization"
+    },
+    "mainEntityOfPage": "https://gelato.education/blog/schema-fixture",
+    "image": "https://gelato.education/og-gelato.png"
+  },
+  {
+    "@type": "FAQPage",
+    "@id": "https://gelato.education/blog/schema-fixture#faq",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Вопрос?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ответ."
+        }
+      }
+    ]
+  },
+  {
+    "@type": "BreadcrumbList",
+    "@id": "https://gelato.education/blog/schema-fixture#breadcrumb",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "GELATO",
+        "item": "https://gelato.education"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Блог",
+        "item": "https://gelato.education/blog"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Название статьи из данных",
+        "item": "https://gelato.education/blog/schema-fixture"
+      }
+    ]
+  }
+]"
+`;
+
+exports[`BreadcrumbList в существующем @graph > лендинг курса: Главная → Курсы → курс 1`] = `
+"[
+  {
+    "@type": [
+      "EducationalOrganization",
+      "Organization"
+    ],
+    "@id": "https://gelato.education/#organization",
+    "name": "GELATO",
+    "alternateName": "Школа GELATO",
+    "url": "https://gelato.education",
+    "logo": "https://gelato.education/logo.webp",
+    "image": "https://gelato.education/og-gelato.png",
+    "description": "Школа GELATO учит работать с ИИ по делу: объяснять задачу словами, держать контекст, проверять результат и собирать своих агентов. Бесплатные уроки и обучения с личной проверкой.",
+    "inLanguage": "ru-RU",
+    "sameAs": [
+      "https://t.me/gelato_ai"
+    ],
+    "knowsAbout": [
+      "работа с ИИ",
+      "промпт-инжиниринг",
+      "ИИ-агенты",
+      "вайбкодинг",
+      "Claude Code",
+      "ИИ-анимация"
+    ]
+  },
+  {
+    "@type": "WebSite",
+    "@id": "https://gelato.education/#website",
+    "url": "https://gelato.education",
+    "name": "GELATO",
+    "description": "Школа GELATO учит работать с ИИ по делу: объяснять задачу словами, держать контекст, проверять результат и собирать своих агентов. Бесплатные уроки и обучения с личной проверкой.",
+    "inLanguage": "ru-RU",
+    "publisher": {
+      "@id": "https://gelato.education/#organization"
+    }
+  },
+  {
+    "@type": "Course",
+    "@id": "https://gelato.education/courses/claude-code-agents#course",
+    "url": "https://gelato.education/courses/claude-code-agents",
+    "name": "Название курса из данных",
+    "description": "Установите Claude Code и научитесь автоматизировать свою работу.\\nА также научитесь создавать своих агентов под любую задачу.",
+    "inLanguage": "ru",
+    "provider": {
+      "@id": "https://gelato.education/#organization"
+    },
+    "educationalLevel": "beginner",
+    "hasCourseInstance": {
+      "@type": "CourseInstance",
+      "courseMode": "online"
+    },
+    "offers": {
+      "@type": "AggregateOffer",
+      "lowPrice": 7990,
+      "highPrice": 27990,
+      "priceCurrency": "RUB",
+      "offerCount": 3
+    }
+  },
+  {
+    "@type": "BreadcrumbList",
+    "@id": "https://gelato.education/courses/claude-code-agents#breadcrumb",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "GELATO",
+        "item": "https://gelato.education"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Курсы",
+        "item": "https://gelato.education/courses"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Название курса из данных",
+        "item": "https://gelato.education/courses/claude-code-agents"
+      }
+    ]
+  },
+  {
+    "@type": "FAQPage",
+    "@id": "https://gelato.education/courses/claude-code-agents#faq",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Я новичок: с чего начать ИИ с нуля?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Начните с одной понятной задачи: подготовить текст или сделать страницу для своей идеи. На курсе Gelato для новичков вы устанавливаете Claude Code и учитесь давать ему задания обычными словами. Опыт программирования не нужен, но важно разобраться в папках и проверять результат. Курс платный; познакомиться с обучением можно через бесплатный вводный урок."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Как научиться пользоваться ChatGPT и нейросетями для работы, если я не программист?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Начните с понятного описания задачи: объясните, какой результат нужен, приложите материалы и проверьте ответ. На этом курсе Gelato вы практикуетесь в Claude Code: создаёте страницу и помощников для повторяющейся работы без ручного написания кода. Программа посвящена Claude Code, отдельное обучение ChatGPT в ней не заявлено. Курс платный, вводный урок можно посмотреть бесплатно."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Где простым языком объясняют, как работают нейросети?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "На курсе Gelato для новичков работу с ИИ объясняют через практику: как поставить понятную задачу, дать нужные сведения, разделить работу на шаги и проверить результат. Вы учитесь пользоваться Claude Code на своей идее. Отдельная теория устройства нейросетей в программе не заявлена. Курс платный; сначала можно посмотреть бесплатный вводный урок и оценить формат."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Можно ли попробовать обучение ИИ до покупки курса?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Да, перед покупкой можно посмотреть бесплатный вводный урок и понять, подходит ли вам объяснение автора. Курс платный: стоимость составляет от 7 990 до 27 990 ₽ в зависимости от тарифа. В программе введение и восемь практических уроков с видео, конспектами и домашними заданиями. Доступ к урокам и конспектам сохраняется два месяца."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Что именно входит в курс?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Введение и 8 практических уроков. Сначала установим Claude Code и выполним первую задачу. Затем научим его помнить правила вашего проекта, подключим нужные инструменты, создадим сайт и собственных агентов. После каждого урока есть понятное практическое задание."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Получится ли без опыта программирования?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Да, стартуем с установки и терминала. Код и файлы создаёт Claude Code по вашим заданиям обычными словами. При этом вы научитесь ориентироваться в папках проекта и проверять результат — полностью игнорировать техническую часть не получится."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Нужен ли готовый проект?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Нет. Можно прийти с идеей, повторяющейся рабочей задачей или начать с простой HTML-страницы прямо на курсе. Если проект уже есть, вы сможете настроить для него контекст, правила, команды и агентов."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Что я сделаю руками во время обучения?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Вы настроите помощника, который пишет в вашем стиле, создадите свой сайт и опубликуете его в интернете — ссылку сможет открыть любой человек. Затем подключите к Claude внешний сервис и соберёте отдельных агентов под свои повторяющиеся задачи."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Сколько времени это занимает?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Около 3-4 часов в неделю. Урок идёт 20-30 минут, остальное — практика на своей задаче. Уроки открыты сразу, поэтому темп вы выбираете сами: можно пройти всё за две недели, можно растянуть на два месяца."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Что будет, когда закончатся 2 месяца доступа?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Закроются только уроки и конспекты на платформе. Всё, что вы сделали за курс, остаётся у вас: настроенный Claude Code, файлы проекта, скиллы, агенты и опубликованный сайт. Они лежат на вашем компьютере и в ваших аккаунтах, а не на платформе."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Как устроена поддержка?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Это личный чат с автором в Telegram: 3 недели на тарифе с поддержкой, 4 недели на расширенном. Можно прислать вопрос, скриншот или запись экрана — автор поможет найти причину ошибки и поправить настройку, а также проверит домашние задания. В самостоятельном тарифе поддержки нет."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Какие дополнительные расходы понадобятся?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Для практики нужен Claude Code. В тарифах с поддержкой месяц Claude Pro идёт в подарок. Если вы захотите подключить дополнительный платный сервис, его подписка оплачивается отдельно; для прохождения базовой программы выбирать такой сервис не обязательно."
+        }
+      }
+    ]
+  }
+]"
+`;
+
+exports[`BreadcrumbList в существующем @graph > урок claude-code-agents/lessons/1: Главная → курс → урок 1`] = `
+"[
+  {
+    "@type": "Course",
+    "@id": "https://gelato.education/courses/claude-code-agents#course",
+    "url": "https://gelato.education/courses/claude-code-agents",
+    "name": "Название курса из данных",
+    "description": "Практическая программа школы GELATO о системной и проверяемой работе с ИИ на реальном проекте.",
+    "provider": {
+      "@id": "https://gelato.education/#organization"
+    },
+    "offers": {
+      "@type": "AggregateOffer",
+      "lowPrice": 7990,
+      "highPrice": 27990,
+      "priceCurrency": "RUB",
+      "offerCount": 3
+    }
+  },
+  {
+    "@type": "LearningResource",
+    "@id": "https://gelato.education/courses/claude-code-agents/lessons/1#lesson",
+    "name": "Первый шаг в работе с ИИ: Claude Code с нуля",
+    "description": "Бесплатный вводный урок для тех, кто ещё не работал с ИИ. Узнайте, что такое Claude Code и как начать решать свои задачи с его помощью без опыта программирования.",
+    "url": "https://gelato.education/courses/claude-code-agents/lessons/1",
+    "provider": {
+      "@id": "https://gelato.education/#organization"
+    },
+    "isAccessibleForFree": true,
+    "inLanguage": "ru",
+    "educationalLevel": "Начальный",
+    "learningResourceType": "Видеоурок",
+    "datePublished": "2026-11-12T00:00:00.000Z",
+    "isPartOf": {
+      "@id": "https://gelato.education/courses/claude-code-agents#course"
+    },
+    "associatedMedia": {
+      "@id": "https://gelato.education/courses/claude-code-agents/lessons/1#video"
+    }
+  },
+  {
+    "@type": "VideoObject",
+    "@id": "https://gelato.education/courses/claude-code-agents/lessons/1#video",
+    "name": "Первый шаг в работе с ИИ: Claude Code с нуля",
+    "description": "Бесплатный вводный урок для тех, кто ещё не работал с ИИ. Узнайте, что такое Claude Code и как начать решать свои задачи с его помощью без опыта программирования.",
+    "uploadDate": "2026-11-12T00:00:00.000Z",
+    "duration": "PT1M",
+    "embedUrl": "https://gelato.education/api/player/agents-course/lesson-1",
+    "inLanguage": "ru",
+    "isFamilyFriendly": true
+  },
+  {
+    "@type": "BreadcrumbList",
+    "@id": "https://gelato.education/courses/claude-code-agents/lessons/1#breadcrumb",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "GELATO",
+        "item": "https://gelato.education"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Название курса из данных",
+        "item": "https://gelato.education/courses/claude-code-agents"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Первый шаг в работе с ИИ: Claude Code с нуля",
+        "item": "https://gelato.education/courses/claude-code-agents/lessons/1"
+      }
+    ]
+  }
+]"
+`;
+
+exports[`BreadcrumbList в существующем @graph > урок vibecoding/1 без собственного JSON-LD использует существующий корневой граф 1`] = `
+"[
+  {
+    "@type": [
+      "EducationalOrganization",
+      "Organization"
+    ],
+    "@id": "https://gelato.education/#organization",
+    "name": "GELATO",
+    "alternateName": "Школа GELATO",
+    "url": "https://gelato.education",
+    "logo": "https://gelato.education/logo.webp",
+    "image": "https://gelato.education/og-gelato.png",
+    "description": "Школа GELATO учит работать с ИИ по делу: объяснять задачу словами, держать контекст, проверять результат и собирать своих агентов. Бесплатные уроки и обучения с личной проверкой.",
+    "inLanguage": "ru-RU",
+    "sameAs": [
+      "https://t.me/gelato_ai"
+    ],
+    "knowsAbout": [
+      "работа с ИИ",
+      "промпт-инжиниринг",
+      "ИИ-агенты",
+      "вайбкодинг",
+      "Claude Code",
+      "ИИ-анимация"
+    ]
+  },
+  {
+    "@type": "WebSite",
+    "@id": "https://gelato.education/#website",
+    "url": "https://gelato.education",
+    "name": "GELATO",
+    "description": "Школа GELATO учит работать с ИИ по делу: объяснять задачу словами, держать контекст, проверять результат и собирать своих агентов. Бесплатные уроки и обучения с личной проверкой.",
+    "inLanguage": "ru-RU",
+    "publisher": {
+      "@id": "https://gelato.education/#organization"
+    }
+  }
+]"
+`;

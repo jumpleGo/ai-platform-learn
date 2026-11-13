@@ -18,6 +18,7 @@ vi.mock('@/components/tiktok-pixel', () => ({ TikTokPixel: () => null }));
 vi.mock('@/lib/analytics/posthog-client', () => ({ PostHogProvider: ({ children }: { children: React.ReactNode }) => children }));
 vi.mock('@/components/payment/payment-modal-context', () => ({ PaymentModalProvider: ({ children }: { children: React.ReactNode }) => children }));
 vi.mock('@/lib/db/courses', () => ({
+  resolveLesson: async () => null,
   getPublishedCoursesWithLessons: async () => ['vibecoding', 'claude-code-agents', 'ai-cartoons', 'claude-code'].map((slug) => ({
     id: slug, slug, title: slug, description: 'Уроки Claude Code для новичков.', lessons: [], isTest: false,
   })),
