@@ -54,6 +54,6 @@ it('tracks the intro lesson target exactly once when the CTA is clicked', async 
 
   expect(EVENTS.freeCtaClicked).toBe('free_cta_click');
   expect(track).toHaveBeenCalledExactlyOnceWith(EVENTS.freeCtaClicked, {
-    target: 'claude-code-agents/lessons/1',
+    target: 'lesson1',
   });
 });
