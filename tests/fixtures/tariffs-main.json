@@ -1,0 +1,194 @@
+{
+  "mainCommit": "eb20c3e07bc2df084169ef6becd8732bd53d844d",
+  "capturedAt": "2026-11-13T07:51:48.439Z",
+  "config": {
+    "defaults": [
+      {
+        "id": "month",
+        "title": "1 месяц",
+        "price": 1990,
+        "oldPrice": 2790,
+        "periodDays": 30,
+        "months": 1,
+        "hasSupport": false
+      },
+      {
+        "id": "3months",
+        "title": "3 месяца",
+        "price": 4990,
+        "oldPrice": 6990,
+        "periodDays": 90,
+        "months": 3,
+        "popular": true,
+        "hasSupport": false
+      },
+      {
+        "id": "year",
+        "title": "1 год",
+        "price": 9990,
+        "oldPrice": 13990,
+        "periodDays": 365,
+        "months": 12,
+        "hasSupport": false
+      }
+    ],
+    "courses": {
+      "it-vibecoding": {
+        "courseSlug": "it-vibecoding",
+        "courseTitle": "ИИ для вайбкодеров и программистов (Инженерный вайбкодинг)",
+        "subtitle": "Старт потока 16 ноября · Типы, тесты, линтер, CLAUDE.md и агент-ревьюер для вашего проекта",
+        "tariffs": [
+          {
+            "id": "vibecoding_month",
+            "title": "Самостоятельно",
+            "price": 7900,
+            "oldPrice": 10900,
+            "periodDays": 60,
+            "months": 2,
+            "hasSupport": false,
+            "excludedFeatures": [
+              "Без проверки домашних заданий и личного чата"
+            ]
+          },
+          {
+            "id": "vibecoding_stream",
+            "title": "С поддержкой Эмиля",
+            "price": 19900,
+            "oldPrice": 27900,
+            "periodDays": 60,
+            "months": 2,
+            "popular": true,
+            "hasSupport": true,
+            "startDate": "16 ноября",
+            "specialOffer": {
+              "label": "Спецпредложение",
+              "title": "Claude Pro на месяц в подарок",
+              "note": "Оплачиваю Claude Pro на 1 месяц. Докупать ничего не нужно."
+            }
+          }
+        ]
+      },
+      "vibecoding": {
+        "courseSlug": "it-vibecoding",
+        "courseTitle": "ИИ для вайбкодеров и программистов (Инженерный вайбкодинг)",
+        "subtitle": "Старт потока 16 ноября · Типы, тесты, линтер, CLAUDE.md и агент-ревьюер для вашего проекта",
+        "tariffs": [
+          {
+            "id": "vibecoding_month",
+            "title": "Самостоятельно",
+            "price": 7900,
+            "oldPrice": 10900,
+            "periodDays": 60,
+            "months": 2,
+            "hasSupport": false,
+            "excludedFeatures": [
+              "Без проверки домашних заданий и личного чата"
+            ]
+          },
+          {
+            "id": "vibecoding_stream",
+            "title": "С поддержкой Эмиля",
+            "price": 19900,
+            "oldPrice": 27900,
+            "periodDays": 60,
+            "months": 2,
+            "popular": true,
+            "hasSupport": true,
+            "startDate": "16 ноября",
+            "specialOffer": {
+              "label": "Спецпредложение",
+              "title": "Claude Pro на месяц в подарок",
+              "note": "Оплачиваю Claude Pro на 1 месяц. Докупать ничего не нужно."
+            }
+          }
+        ]
+      },
+      "ai-cartoons": {
+        "courseSlug": "ai-cartoons",
+        "courseTitle": "Свой мультик за вечер (ИИ-мультфильмы)",
+        "subtitle": "Claude, Nano Banana, Seedance и Gemini в одном пайплайне",
+        "tariffs": [
+          {
+            "id": "cartoons_month",
+            "title": "1 месяц",
+            "price": 1990,
+            "oldPrice": 2790,
+            "periodDays": 30,
+            "months": 1,
+            "hasSupport": false
+          },
+          {
+            "id": "cartoons_stream",
+            "title": "Поток по предзаписи (3 месяца)",
+            "price": 4490,
+            "oldPrice": 6290,
+            "periodDays": 90,
+            "months": 3,
+            "popular": true,
+            "hasSupport": true,
+            "startDate": "по предзаписи"
+          },
+          {
+            "id": "cartoons_year",
+            "title": "1 год (Все курсы)",
+            "price": 8990,
+            "oldPrice": 12490,
+            "periodDays": 365,
+            "months": 12,
+            "hasSupport": false
+          }
+        ]
+      },
+      "claude-code-agents": {
+        "courseSlug": "claude-code-agents",
+        "courseTitle": "Claude Code с нуля — свои ИИ-агенты",
+        "subtitle": "Учитесь на своей идее и создаёте агентов без необходимости писать код вручную",
+        "tariffs": [
+          {
+            "id": "agents_month",
+            "title": "Самостоятельно",
+            "price": 7990,
+            "oldPrice": 10990,
+            "periodDays": 60,
+            "months": 2,
+            "hasSupport": false,
+            "excludedFeatures": [
+              "Поддержка не входит"
+            ]
+          },
+          {
+            "id": "agents_stream",
+            "title": "С поддержкой — 3 недели",
+            "price": 19990,
+            "oldPrice": 24990,
+            "periodDays": 60,
+            "months": 2,
+            "popular": true,
+            "hasSupport": true,
+            "startDate": "14 сентября",
+            "specialOffer": {
+              "label": "Спецпредложение",
+              "title": "Claude Pro — 1 месяц в подарок",
+              "note": ""
+            }
+          },
+          {
+            "id": "agents_year",
+            "title": "Расширенный — 4 недели",
+            "price": 27990,
+            "oldPrice": 37990,
+            "periodDays": 60,
+            "months": 2,
+            "hasSupport": true,
+            "startDate": "14 сентября",
+            "specialOffer": {
+              "label": "Спецпредложение",
+              "title": "Claude Pro — 1 месяц в подарок",
+              "note": ""
+            }
+          }
+        ]
+      }
+    }
+  }
+}
