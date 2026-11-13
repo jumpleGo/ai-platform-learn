@@ -10,6 +10,7 @@ import { lessonPath } from '@/lib/slug';
 import { TELEGRAM_DM } from '@/lib/site';
 import { Accent, StickerTag, TitleAccent } from '@/components/accent';
 import { CoverCard } from '@/components/cover-card';
+import { FreeIntroLessonButton } from '@/components/free-intro-lesson-button';
 import { SectionHead } from '@/components/section-head';
 
 export const metadata: Metadata = {
@@ -47,6 +48,7 @@ export default async function FreePage({
           и почему модель ошибается. Без привязки к инструменту — работает
           и в Claude, и в ChatGPT, и в Gemini.
         </p>
+        <FreeIntroLessonButton />
 
         {isFromVibe && (
           <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border-2 border-brand-navy bg-brand-yellow/35 p-5 shadow-[0_4px_0_0_rgba(16,38,71,0.1)]">
