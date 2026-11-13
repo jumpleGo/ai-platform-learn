@@ -280,7 +280,7 @@ export default async function LessonPage({ params, searchParams }: {
         <div className="space-y-3">
           {freeLesson ? <FreeLessonMarker /> : !lesson.hideBackLink && (
             <Link
-              href="/"
+              href={`/courses/${courseKey(course)}`}
               className="group inline-flex items-center gap-1.5 font-mono text-sm text-muted-foreground transition-colors hover:text-primary"
             >
               <ArrowLeft className="size-4 transition-transform duration-200 group-hover:-translate-x-0.5" aria-hidden />

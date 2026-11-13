@@ -78,6 +78,27 @@ function nextStepLink(node: ReactNode): ReactElement<ClickLink> | undefined {
   }
 }
 
+describe('ссылка названия курса (#246)', () => {
+  it.each([
+    ['claude-code-agents', 1], ['claude-code-agents', 2],
+    ['vibecoding', 1], ['vibecoding', 2],
+  ] as const)('ведёт на лендинг текущего курса из %s/lessons/%s', async (courseSlug, number) => {
+    const currentCourse = {
+      ...course, id: `document-${courseSlug}`, slug: courseSlug, title: `Программа ${courseSlug}`,
+    };
+    vi.mocked(resolveLesson).mockResolvedValue({
+      course: currentCourse,
+      lesson: { ...course.lessons[number - 1], courseId: currentCourse.id },
+      number, publishedAt: '2026-11-12T00:00:00Z',
+    });
+    const { html } = await renderedLesson(String(number), courseSlug);
+    const courseLinks = [...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)]
+      .filter(([, , label]) => label.replace(/<[^>]*>/g, '') === currentCourse.title);
+    expect(courseLinks).toHaveLength(1);
+    expect(courseLinks[0][1]).toBe(`/courses/${courseSlug}`);
+  });
+});
+
 describe('следующий шаг после вступления (#239)', () => {
   it('показывает один блок и одну кнопку после материалов вводного урока', async () => {
     vi.mocked(resolveLesson).mockResolvedValue({
