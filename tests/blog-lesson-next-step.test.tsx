@@ -10,14 +10,13 @@ import { AGENTS_INTRO_LESSON } from '@/lib/free-lessons';
 import { lessonPath } from '@/lib/slug';
 import { nbspMarkdown } from '@/lib/typography';
 import { track } from '@/lib/analytics/track-client';
+import { renderBlogPost as renderPost } from './fixtures/blog-page';
 
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: vi.fn() }));
 vi.mock('@/lib/analytics/track-client', () => ({ track: vi.fn() }));
 
 const introHref = '/courses/claude-code-agents/lessons/1';
 const positions = ['after_first_third', 'after_body'] as const;
-const renderPost = async (slug: string) =>
-  renderToStaticMarkup(await Page({ params: Promise.resolve({ slug }) }));
 
 type CtaProps = { slug: string; position: typeof positions[number] };
 function ctaElements(node: ReactNode): ReactElement<CtaProps>[] {
