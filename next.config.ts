@@ -8,6 +8,16 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ['192.168.*.*', '10.*.*.*', '*.local'],
   // загрузка превью-обложек уроков через server actions
   experimental: { serverActions: { bodySizeLimit: '6mb' } },
+  async redirects() {
+    return [
+      {
+        // Confirmed legacy ID URL: redirect before the lesson starts streaming.
+        source: '/courses/O9aFw3KZqEFyGxnJB8fX/lessons/CY4AYMjQMSbND8TUYSFQ',
+        destination: '/courses/claude-code-agents/lessons/2',
+        statusCode: 301,
+      },
+    ];
+  },
   // файлы из public/ Next по умолчанию отдаёт без кеша (max-age=0) — сцена
   // весит ~2.7 МБ и без этого качается заново при каждом визите
   async headers() {
