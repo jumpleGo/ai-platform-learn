@@ -16,6 +16,11 @@ const nextConfig: NextConfig = {
         destination: '/courses/claude-code-agents/lessons/2',
         statusCode: 301,
       },
+      {
+        source: '/courses/it-vibecoding',
+        destination: '/courses/vibecoding',
+        statusCode: 301,
+      },
     ];
   },
   // файлы из public/ Next по умолчанию отдаёт без кеша (max-age=0) — сцена
