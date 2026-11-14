@@ -13,7 +13,7 @@ import { getTariffsForCourse } from '@/lib/payments/tariffs';
 export const metadata: Metadata = {
   title: 'GELATO — обучение работе с ИИ: от нуля до своих ИИ-агентов',
   description:
-    'Онлайн-школа GELATO: Claude Code с нуля для новичков без опыта, инженерный вайбкодинг для разработчиков и ИИ-мультфильмы. Бесплатные уроки, домашки с личной проверкой.',
+    'Онлайн-школа GELATO с бесплатными уроками и личной проверкой домашних работ: Claude Code для новичков, разработка с ИИ и создание мультфильмов.',
   alternates: { canonical: '/' },
 };
 
