@@ -162,6 +162,15 @@ describe('public reels feed', () => {
     expect(response.headers.get('x-middleware-next')).toBe('1');
   });
 
+  it.each(['/reels', '/reels/', '/reels?utm_source=student'])('allows a student to open %s', (path) => {
+    const response = proxy(new NextRequest(`${SITE_URL}${path}`, {
+      headers: { cookie: 'vid=reels-review-464; session=student-session' },
+    }));
+    expect(response.status).toBe(200);
+    expect(response.headers.get('location')).toBeNull();
+    expect(response.headers.get('x-middleware-next')).toBe('1');
+  });
+
   it.each(['/admin', '/admin/reels', '/reels/private', '/reels-private'])('preserves the guest gate for %s', (path) => {
     const response = proxy(new NextRequest(`${SITE_URL}${path}`, {
       headers: { cookie: 'vid=reels-review-464' },
