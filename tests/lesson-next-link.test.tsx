@@ -106,7 +106,7 @@ it('sends the next-lesson event and numeric props through PostHog only on click'
   expect(posthog.capture).not.toHaveBeenCalled();
   link!.props.onClick!();
   expect(posthog.capture).toHaveBeenCalledExactlyOnceWith('lesson_next_click', {
-    course_slug: 'vibecoding', from_lesson: 1, to_lesson: 2,
+    course: 'vibecoding', lesson: 1, target: 'next_lesson', to_lesson: 2,
   });
 });
 
