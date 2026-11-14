@@ -1,6 +1,7 @@
 import 'server-only';
 
-export const MAX_REEL_BYTES = 20 * 1024 * 1024;
+// Match nginx client_max_body_size 10m.
+export const MAX_REEL_BYTES = 10 * 1024 * 1024;
 const BRANDS = new Set(['mp4 ', 'isom', 'qt  ', 'mp42', 'avc1']);
 export class ReelUploadError extends Error {
   constructor(public status: number, message: string) { super(message); }
@@ -20,7 +21,7 @@ export async function readReelUpload(request: Request) {
       size += value.byteLength;
       if (size > MAX_REEL_BYTES) {
         await reader.cancel();
-        throw new ReelUploadError(413, 'Video exceeds 20 MiB');
+        throw new ReelUploadError(413, 'Video exceeds 10 MiB');
       }
       chunks.push(Buffer.from(value));
     }

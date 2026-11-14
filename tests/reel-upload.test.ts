@@ -55,12 +55,13 @@ it('validates signatures', async () => {
     await rejects(bytes);
   }
 });
-it('enforces 20 MiB', async () => {
-  expect(MAX_REEL_BYTES).toBe(20971520);
-  const bytes = Buffer.alloc(MAX_REEL_BYTES); video().copy(bytes);
+it('enforces the 10 MiB nginx limit', async () => {
+  expect(MAX_REEL_BYTES).toBe(10485760);
+  const bytes = Buffer.alloc(10485760); video().copy(bytes);
   await expect(read(request(bytes))).resolves.toMatchObject({ extension: 'mp4' });
+  const oversized = Buffer.alloc(10485761); video().copy(oversized);
   for (const headers of [{}, { 'content-length': '1' }]) {
-    await rejects(Buffer.concat([bytes, Buffer.of(0)]), 413, headers);
+    await rejects(oversized, 413, headers);
   }
 });
 it('cancels oversized streams', async () => {
@@ -99,7 +100,7 @@ it('rejects invalid requests', async () => {
     [request(video(), { origin: 'https://y.test' }), ctx(), 403],
     [request(), ctx('../other'), 400],
     [request(video('avif')), ctx(), 415],
-    [request(Buffer.alloc(MAX_REEL_BYTES + 1)), ctx(), 413],
+    [request(Buffer.alloc(10485761)), ctx(), 413],
   ] as const) expect((await upload(req, context)).status).toBe(status);
   getReel.mockResolvedValue(null);
   expect((await upload()).status).toBe(404);
