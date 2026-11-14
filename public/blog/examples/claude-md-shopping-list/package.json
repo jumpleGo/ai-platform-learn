@@ -1,0 +1,9 @@
+{
+  "name": "claude-md-shopping-list",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node app.mjs",
+    "test": "node --test check.mjs"
+  }
+}
