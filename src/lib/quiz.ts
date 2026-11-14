@@ -123,6 +123,7 @@ export const QUIZ: readonly QuizQuestion[] = nbspDeep(QUESTIONS);
 
 export type QuizResult = {
   slug: string;
+  href: string;
   title: string;
   verdict: string;
   note: string;
@@ -131,18 +132,21 @@ export type QuizResult = {
 const RESULTS: Record<string, QuizResult> = {
   vibecoding: {
     slug: 'it-vibecoding',
+    href: '/courses/vibecoding',
     title: 'Вайбкодим как инженер',
     verdict: 'Вам нужны страховки, а не новые промпты',
     note: 'У вас есть что ломать — значит, пора научить ИИ проверять себя: типы, тесты, линтер, CI и правила проекта.',
   },
   'claude-code-agents': {
     slug: 'claude-code-agents',
+    href: '/courses/claude-code-agents',
     title: 'Claude Code — свои агенты',
     verdict: 'Вам нужен рабочий процесс с нуля',
     note: 'Начинаем с установки и контекста, заканчиваем своими агентами и проектом, который живёт в интернете.',
   },
   'ai-cartoons': {
     slug: 'ai-cartoons',
+    href: '/courses/ai-cartoons',
     title: 'ИИ мультики',
     verdict: 'Вам нужен пайплайн, а не удачный кадр',
     note: 'История, лист персонажа, оживление и монтаж — чтобы ролик собирался каждый раз, а не «когда повезёт».',
