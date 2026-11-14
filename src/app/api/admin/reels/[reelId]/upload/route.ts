@@ -18,11 +18,22 @@ export async function POST(request: Request, context: { params: Promise<{ reelId
   const { reelId } = await context.params;
   if (!/^[\w-]{1,128}$/.test(reelId)) return failure('Invalid reel ID', 400);
   try {
-    if (!await getReel(reelId)) return failure('Reel not found', 404);
+    const reel = await getReel(reelId);
+    if (!reel) return failure('Reel not found', 404);
     const { buffer, extension, contentType } = await readReelUpload(request);
     const videoPath = `reels/${reelId}/${randomUUID()}.${extension}`;
-    await adminStorage.bucket(storageBucketName).file(videoPath).save(buffer, { contentType, resumable: false });
+    const bucket = adminStorage.bucket(storageBucketName);
+    await bucket.file(videoPath).save(buffer, { contentType, resumable: false });
     await setReelVideoPath(reelId, videoPath);
+    // Delete only the exact previously recorded video in this reel's namespace.
+    const oldPath = reel.videoPath;
+    const oldMatch = /^reels\/([\w-]+)\/[a-f0-9-]{36}\.(mp4|mov)$/.exec(oldPath ?? '');
+    if (oldMatch?.[1] === reelId && oldPath !== videoPath) {
+      try { await bucket.file(oldPath).delete({ ignoreNotFound: true }); }
+      catch {
+        return Response.json({ videoPath, warning: 'Новое видео сохранено, но старый файл не удалось удалить.' });
+      }
+    }
     return Response.json({ videoPath });
   } catch (error) {
     const status = error instanceof ReelUploadError ? error.status : 500;

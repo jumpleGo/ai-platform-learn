@@ -1,7 +1,7 @@
 import 'server-only';
 
-// Match nginx client_max_body_size 10m.
-export const MAX_REEL_BYTES = 10 * 1024 * 1024;
+import { MAX_REEL_BYTES } from '@/lib/reels';
+export { MAX_REEL_BYTES } from '@/lib/reels';
 const IMAGE_BRANDS = new Set(['avif', 'avis', 'heic', 'heix', 'mif1', 'msf1']);
 export class ReelUploadError extends Error {
   constructor(public status: number, message: string) { super(message); }

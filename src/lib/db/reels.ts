@@ -13,14 +13,38 @@ async function publishedSlugs() {
   return new Set(snap.docs.filter((d) => d.data().published === true).map((d) => d.data().slug));
 }
 
-// Guard callers with requireAdmin.
-export async function createReel({ title: rawTitle, courseSlug, order }: Pick<Reel, 'title' | 'courseSlug' | 'order'>): Promise<string> {
+type ReelMetadata = Pick<Reel, 'title' | 'courseSlug' | 'order'>;
+async function validateMetadata({ title: rawTitle, courseSlug, order }: ReelMetadata): Promise<ReelMetadata> {
   const title = rawTitle.trim();
   if (!title || title.length > 120 || !/^[a-z0-9-]+$/.test(courseSlug)
     || !Number.isSafeInteger(order) || order < 0) throw new Error('Invalid reel metadata');
   if (!(await publishedSlugs()).has(courseSlug)) throw new Error('Course is not published');
-  const doc = await reels().add({ title, courseSlug, order, videoPath: '', published: false });
+  return { title, courseSlug, order };
+}
+
+// Guard callers with requireAdmin.
+export async function createReel(metadata: ReelMetadata): Promise<string> {
+  const data = await validateMetadata(metadata);
+  const doc = await reels().add({ ...data, videoPath: '', published: false });
   return doc.id;
+}
+
+export async function updateReelMetadata(id: string, metadata: ReelMetadata): Promise<void> {
+  if (!/^[\w-]{1,128}$/.test(id)) throw new Error('Invalid reel ID');
+  const data = await validateMetadata(metadata);
+  await reels().doc(id).update(data);
+}
+
+export async function listAllReels(): Promise<Reel[]> {
+  const snap = await reels().get();
+  return snap.docs.map((d) => project(d.id, d.data() as ReelData))
+    .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
+}
+
+export async function listReelCourses(): Promise<Array<{ slug: string; title: string }>> {
+  const snap = await adminDb.collection('courses').where('published', '==', true).get();
+  return snap.docs.map((d) => d.data()).filter((d) => d.published === true && typeof d.slug === 'string')
+    .map((d) => ({ slug: d.slug as string, title: d.title as string }));
 }
 
 export async function getReel(id: string): Promise<Reel | null> {
