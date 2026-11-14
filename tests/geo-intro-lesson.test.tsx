@@ -115,7 +115,8 @@ describe('следующий шаг после вступления (#239)', () 
     expect(block).toContain('Посмотреть программу и цены');
     expect(html).toContain('INTRO MATERIALS END');
     expect(block).not.toMatch(/бесплатн\p{L}*\s+курс|MCP|скилл|промпт/iu);
-    expect(getPublishedCoursesWithLessons).not.toHaveBeenCalled();
+    // The shared next-lesson link now reads the published catalog once.
+    expect(getPublishedCoursesWithLessons).toHaveBeenCalledTimes(1);
   });
 
   it('отправляет lesson_next_click через PostHog только при клике', async () => {

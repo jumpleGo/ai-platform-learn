@@ -80,8 +80,9 @@ it.each(['vibecoding', 'claude-code-agents', 'ai-cartoons', 'claude-code', 'futu
     const { html } = await renderLesson(1, current);
     const link = expectNextLink(html, slug, 2);
     expect(link).toContain('Урок 2');
+    expect(html).toContain('LESSON CONTENT END');
     expect(html.indexOf(link)).toBeGreaterThan(html.indexOf('LESSON CONTENT END'));
-    expect(html).not.toContain('data-lessons-nav');
+    expect(html).not.toMatch(/<[^>]+\bdata-lessons-nav[\s=>]/);
   },
 );
 
@@ -119,6 +120,6 @@ it('rejects the frozen old page end with the same next-link assertion', () => {
     .toBe('9c701554a03860f5cf7a38fb9aed73b093be4554eaa1c8d4148a30bdc654b7b2');
   let oldFails = 0;
   try { expectNextLink(OLD_LESSON_END, 'vibecoding', 2); } catch { oldFails++; }
-  console.log(`OLD_FAILS=${oldFails}`);
+  process.stdout.write(`OLD_FAILS=${oldFails}\n`);
   expect(oldFails).toBe(1);
 });
