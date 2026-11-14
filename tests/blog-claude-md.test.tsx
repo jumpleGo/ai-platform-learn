@@ -40,7 +40,9 @@ describe('free beginner CLAUDE.md article', () => {
 
   it('preserves every old slug and its order, away from the append point', () => {
     const slugs = BLOG_POSTS.map(({ slug }) => slug);
-    expect(slugs.filter((slug) => slug !== SLUG)).toEqual(OLD_BLOG_SLUGS);
+    // Новые статьи автоблога допустимы; старые — все на месте и в прежнем порядке
+    const old = new Set<string>(OLD_BLOG_SLUGS);
+    expect(slugs.filter((slug) => old.has(slug))).toEqual(OLD_BLOG_SLUGS);
     expect(slugs.indexOf(SLUG)).toBeGreaterThan(0);
     expect(slugs.indexOf(SLUG)).toBeLessThan(slugs.length - 1);
   });
