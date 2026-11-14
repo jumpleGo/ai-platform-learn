@@ -28,6 +28,7 @@ import { BannerSlotView } from '@/components/banner-slot';
 import { FreeLessonAnalytics } from '@/components/free-lesson-analytics';
 import { FreeLessonAfterVideo, FreeLessonMarker } from '@/components/free-lesson-funnel';
 import { AgentsIntroNextStep } from '@/components/agents-intro-next-step';
+import { NextLessonLink } from '@/components/next-lesson-link';
 import { LessonQuizMatchModal } from '@/components/lesson-quiz-modal';
 import { EVENTS } from '@/lib/analytics/events';
 import { COURSE_PAYMENT_CONFIGS } from '@/lib/payments/tariffs';
@@ -183,6 +184,17 @@ export default async function LessonPage({ params, searchParams }: {
   // id документов нужны для аналитики, прогресса и прокси-плеера — они не участвуют в URL страницы
   const courseId = course.id;
   const lessonId = lesson.id;
+  const publishedCourses = await getPublishedCoursesWithLessons();
+  const nextLesson = publishedCourses.find((item) => item.id === courseId)
+    ?.lessons.find((item) => item.number > number);
+  const nextLessonLink = nextLesson ? (
+    <NextLessonLink
+      courseSlug={courseKey(course)}
+      fromLesson={number}
+      toLesson={nextLesson.number}
+      title={nextLesson.title}
+    />
+  ) : null;
   const freeLesson = lesson.access === 'free' ? getFreeLessonContent(courseKey(course), number) : null;
   const seoContent = lesson.access === 'free' ? getLessonSeoContent(courseKey(course), number) : null;
   const ctaHref = freeLesson ? buildProgramUrl(freeLesson, query) : null;
@@ -192,7 +204,7 @@ export default async function LessonPage({ params, searchParams }: {
   // Тест lesson_next_step — только для тех, кому есть что продавать: гость или ученик
   // без доступа к курсу вайбкодинга. Оплатившему блок «что дальше в курсе» не нужен
   const vibeCourse = freeLesson
-    ? (await getPublishedCoursesWithLessons()).find((c) => ['vibecoding', 'it-vibecoding'].includes(courseKey(c)))
+    ? publishedCourses.find((c) => ['vibecoding', 'it-vibecoding'].includes(courseKey(c)))
     : undefined;
   const nextStepTest = Boolean(freeLesson) && !(vibeCourse && hasCourseAccess(vibeCourse.id, sub, now));
   // Обложка: локальный файл, пока превью из Storage не отдаются; иначе — загруженное в админке
@@ -362,6 +374,7 @@ export default async function LessonPage({ params, searchParams }: {
             preview={materialsBanner.preview}
           />
         )}
+        {!freeLesson && nextLessonLink}
         {!freeLesson && session && !locked && (
           <CompleteLessonButton
             courseId={courseId}
@@ -391,6 +404,7 @@ export default async function LessonPage({ params, searchParams }: {
             nextStepTest={nextStepTest}
           />
         )}
+        {freeLesson && nextLessonLink}
         {lesson.access === 'free' && courseKey(course) === AGENTS_INTRO_LESSON.courseSlug
           && number === AGENTS_INTRO_LESSON.number && <AgentsIntroNextStep />}
       </div>
