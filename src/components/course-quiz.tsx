@@ -105,7 +105,7 @@ function QuizBody({ onDone }: { onDone: () => void }) {
         </div>
         <div className="flex flex-col gap-2.5">
           <Link
-            href={`/courses/${result.slug}`}
+            href={result.href}
             onClick={onDone}
             className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl bg-primary px-6 text-[15px] font-medium text-primary-foreground shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md motion-reduce:hover:translate-y-0"
           >
