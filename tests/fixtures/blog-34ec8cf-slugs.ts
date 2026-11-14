@@ -1,0 +1,25 @@
+// BLOG_POSTS slugs from src/lib/blog.ts at 34ec8cf72320da2e31dfa1e1889b41125295a593.
+// Original file SHA-256: 1fc7dbc59993e5c561b711df30e8a8ced7e95c6f58339f7a270c411782663867.
+export const BASE_BLOG_SLUGS = [
+  'ai-komanda-kak-realnaya-komanda',
+  'kuda-uhodyat-limity-ii',
+  'promt-inzhiniring-prostymi-slovami',
+  'kak-sekonomit-na-ii',
+  'zamenit-li-ii-moyu-rabotu',
+  'kakuyu-neyroset-vybrat',
+  'pochemu-neyroset-vret',
+  'vaybkoding-chto-eto',
+  'ii-agent-prostymi-slovami',
+  'szhatie-konteksta-ii',
+  'pamyat-ii-agenta',
+  'gemini-omni-video-novichku',
+  'otkrytye-modeli-video-i-ozvuchki',
+  'ii-agenty-s-celyu-vmesto-prompta',
+  'claude-fable-5-2-mythos-5-2-proverka',
+  'minimax-h3-image-novichku',
+  'lokalnoe-video-comfyui-ltx-hyperflow',
+  'chto-takoe-llm',
+  'ii-skazal-87-procentov-kak-proverit',
+  'chto-takoe-rag',
+  'chto-takoe-mcp',
+] as const;
