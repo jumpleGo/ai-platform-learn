@@ -54,8 +54,8 @@ describe('ссылки бесплатных уроков на лендингах
   it.each(catalog.map((course) => course.slug))('%s: каждый предлагаемый урок существует и бесплатен', async (slug) => {
     const hrefs = await landingHrefs(slug);
     // У этих двух лендингов нет отдельного CTA бесплатного урока.
-    // У агентов проверяем все три CTA: hero и оба сохранённых блока ответов.
-    expect(hrefs).toHaveLength(['ai-cartoons', 'claude-code'].includes(slug) ? 0 : slug === 'claude-code-agents' ? 3 : 1);
+    // У агентов проверяем оба CTA: hero и объединённый блок ответов.
+    expect(hrefs).toHaveLength(['ai-cartoons', 'claude-code'].includes(slug) ? 0 : slug === 'claude-code-agents' ? 2 : 1);
     for (const href of hrefs) {
       const url = new URL(href, 'https://gelato.education');
       const [, , targetSlug, , number] = url.pathname.split('/');
@@ -73,7 +73,7 @@ describe('ссылки бесплатных уроков на лендингах
     course.lessons = [{ number: 2, access: 'paid' }, { number: 5, access: 'free' }, { number: 7, access: 'free' }]
       .map((lesson) => ({ ...original[0], ...lesson }));
     try {
-      expect(await landingHrefs(course.slug)).toEqual(Array(3).fill('/courses/claude-code-agents/lessons/5?from=course_landing'));
+      expect(await landingHrefs(course.slug)).toEqual(Array(2).fill('/courses/claude-code-agents/lessons/5?from=course_landing'));
       course.lessons = [];
       expect(await landingHrefs(course.slug)).toEqual([]);
     } finally {

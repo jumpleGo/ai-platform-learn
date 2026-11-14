@@ -17,8 +17,15 @@ const ANSWERS = [
   },
 ];
 
-// Один открытый блок для обеих главных и вводного лендинга, вне ветвления A/B.
-export function BeginnerQuestions({ course }: { course?: CourseWithLessons }) {
+export function BeginnerQuestions({ course, answers = [] }: {
+  course?: CourseWithLessons;
+  answers?: typeof ANSWERS;
+}) {
+  const questions = new Map<string, Set<string>>();
+  for (const item of [...answers, ...ANSWERS]) {
+    if (!questions.has(item.question)) questions.set(item.question, new Set());
+    questions.get(item.question)!.add(item.answer);
+  }
   const lesson = course?.published && !course.isTest
     ? course.lessons.find((item) => item.published !== false && item.access === 'free')
     : undefined;
@@ -27,20 +34,22 @@ export function BeginnerQuestions({ course }: { course?: CourseWithLessons }) {
     : null;
 
   return (
-    <div id="beginner-questions" role="region" aria-label="Ответы новичкам об ИИ" className="space-y-8 rounded-3xl border-2 border-brand-navy/15 bg-card p-5 sm:p-8">
-      {ANSWERS.map((item) => (
-        <article key={item.question} className="max-w-3xl space-y-3">
-          <h2 className="font-heading text-xl font-bold leading-snug text-brand-navy sm:text-2xl">
-            {item.question}
-          </h2>
-          <p className="text-lg leading-relaxed text-brand-charcoal sm:text-xl">
-            {item.answer}
-          </p>
-        </article>
+    <div id="beginner-questions" role="region" aria-label="Ответы новичкам об ИИ" className="divide-y divide-brand-navy/15">
+      {[...questions].map(([question, texts]) => (
+        <details key={question} className="py-4">
+          <summary className="cursor-pointer rounded font-heading text-base font-bold leading-snug text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-navy sm:text-lg">
+            {question}
+          </summary>
+          {[...texts].map((answer) => (
+            <p key={answer} className="mt-3 max-w-3xl text-base leading-relaxed text-brand-charcoal">
+              {answer}
+            </p>
+          ))}
+        </details>
       ))}
       {href && (
         <Link href={href} className="inline-flex min-h-11 items-center font-bold text-brand-navy underline underline-offset-4 hover:text-brand-forest focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-navy">
-          Посмотреть бесплатный вводный урок курса Gelato
+          бесплатный вводный урок
         </Link>
       )}
     </div>

@@ -210,9 +210,7 @@ export default async function CourseLandingPage({ params, searchParams }: {
   const agentsPrices = isAgents ? getTariffsForCourse(key).map((t) => t.price) : [];
   const agentsMinPrice = isAgents ? Math.min(...agentsPrices) : null;
   const agentsGuarantee = isAgents ? OFFER_REFUND_GUARANTEE : undefined;
-  const freeLesson = isAgents ? course.lessons.find((lesson) => lesson.access === 'free') : undefined;
-  const beginnerFreeLessonHref = freeLesson ? `${lessonPath(key, freeLesson.number)}?from=course_landing` : null;
-  // Открытые ответы общие для обоих вариантов agents_landing_blocks.
+  // Ответы общие для обоих вариантов agents_landing_blocks.
   // Не обещаем отдельную программу по ChatGPT или теорию устройства нейросетей.
   const beginnerAnswers = isAgents ? [
     {
@@ -502,27 +500,11 @@ export default async function CourseLandingPage({ params, searchParams }: {
           <LandingLessonCta courseSlug={key} />
         )}
 
-        {isAgents && <BeginnerQuestions course={course} />}
-
       </section>
 
       {isAgents && (
-        <section id="beginner-answers" className="space-y-8 rounded-3xl border-2 border-brand-navy/15 bg-card p-5 sm:p-8">
-          {beginnerAnswers.map((item) => (
-            <div key={item.question} className="max-w-3xl space-y-3">
-              <h2 className="font-heading text-xl font-bold leading-snug text-brand-navy sm:text-2xl">
-                {item.question}
-              </h2>
-              <p className="text-lg leading-relaxed text-brand-charcoal sm:text-xl">
-                {item.answer}
-              </p>
-            </div>
-          ))}
-          {beginnerFreeLessonHref && (
-            <Link href={beginnerFreeLessonHref} className="inline-flex min-h-11 items-center font-bold text-brand-navy underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-navy">
-              бесплатный вводный урок
-            </Link>
-          )}
+        <section id="beginner-answers" className="rounded-3xl border-2 border-brand-navy/15 bg-card p-5 sm:p-8">
+          <BeginnerQuestions course={course} answers={beginnerAnswers} />
         </section>
       )}
 
