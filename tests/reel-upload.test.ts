@@ -38,7 +38,7 @@ file.mockReturnValue({ save });
 });
 
 it('validates signatures', async () => {
-  for (const brand of ['avif', 'heic', 'heix', 'mif1', 'jpeg', 'xxxx']) {
+  for (const brand of ['avif', 'avis', 'heic', 'heix', 'mif1', 'msf1']) {
     for (const bytes of [video(brand), video('isom', [brand])]) {
       await rejects(bytes, 415, { 'content-type': 'video/mp4' });
     }
@@ -54,6 +54,21 @@ it('validates signatures', async () => {
   for (const bytes of [Buffer.alloc(0), video().subarray(0, 12), Buffer.concat([Buffer.of(0), video()]), truncated, misaligned, short, highBit]) {
     await rejects(bytes);
   }
+});
+it('accepts the ffmpeg ftyp brands', async () => {
+  const bytes = video('isom', ['isom', 'iso2', 'avc1', 'mp41']);
+  await expect(read(request(bytes))).resolves.toEqual({
+    buffer: bytes, extension: 'mp4', contentType: 'video/mp4',
+  });
+});
+it.each(['mp41', 'iso5', 'M4V ', 'jpeg', 'xxxx'].flatMap((brand) => [
+  { major: brand, compatible: ['isom'] },
+  { major: 'isom', compatible: [brand] },
+]))('accepts ISO BMFF brands $major / $compatible', async ({ major, compatible }) => {
+  const bytes = video(major, compatible);
+  await expect(read(request(bytes))).resolves.toEqual({
+    buffer: bytes, extension: 'mp4', contentType: 'video/mp4',
+  });
 });
 it('enforces the 10 MiB nginx limit', async () => {
   expect(MAX_REEL_BYTES).toBe(10485760);
