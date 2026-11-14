@@ -22,3 +22,59 @@ Audit expressions and entry points:
 
 Raw run artifacts live in eval/, excluded through Git info/exclude.
 Production validation and the hypothesis measurement await rollout.
+
+## Resumed run, 2026-11-14
+
+Started from clean `hq/vera/464` at `8b28b80`; disk gate passed with
+19,801,796,608 B available. Fresh `origin/main` (`fb94eab`) merged without
+conflicts. The saved implementation already satisfied the product requirements:
+public `src/app/reels/page.tsx` outside `(app)`, published reels with playable
+Storage paths and published course links, empty state, manual inline video with
+`preload="none"`, title/description, `/reels` canonical and sitemap entry.
+The exact public route exception also covers the trailing slash and query string.
+The root structured-data slot and robots allow this route.
+
+Added three student-session routing cases to the existing public-feed suite.
+They supplement the guest, empty/drafts, published course, Storage signing,
+ordering, metadata and sitemap assertions. No assertions were weakened.
+The suite also checks that `/admin`, `/admin/reels`, `/reels/private` and
+`/reels-private` retain their existing guest gate.
+
+Validation from this run:
+
+- `npx tsc --noEmit -p .`: exit 0 (`eval/tsc-final.log`).
+- `npx vitest run --reporter=verbose`: exit 0, 55 test files passed and one
+  skipped; 490 passed, 3 expected fail and 9 skipped (`eval/vitest-final.log`).
+  The existing production lesson HTTP suite is skipped without its live fixture.
+  An interrupted first full run exited 143 without a final report; its log is
+  preserved as `eval/vitest-interrupted.log`, and the exact command was rerun.
+- The identical 17-case feed suite ran on pre-implementation main `04fc3e3`
+  in `eval/node_modules/main`: 10 failed, 7 passed, exit 1. Empty and draft-only
+  feed assertions fail because the public route is absent; sitemap and guest
+  assertions fail as well (`eval/old-final.log`, `eval/old-final.json`).
+- Browser review at 1440×1080 and 390×844: no horizontal overflow, no initial
+  MP4 requests, course links present, playback succeeds using `video.play()`
+  with a CDP user gesture (`eval/browser-review.json`).
+- Review shots: `eval/reels-desktop-published.png`,
+  `eval/reels-mobile-published.png`, `eval/reels-desktop-empty.png`, and
+  `eval/reels-mobile-empty.png`. They render the actual page component with
+  the application stylesheet and local Firestore/Storage fixtures. They cover
+  the component layout; production data, Next hydration and live Storage signing
+  remain to be checked after rollout.
+- No Next build or main build ran in this resumed run, as explicitly instructed.
+  Route modes have not been measured. Existing `node_modules` were reused.
+
+Files whose complete task diff exceeds 2000 characters:
+
+- `src/app/reels/page.tsx`: the new public page contains its own header, responsive
+  video grid, Storage URL signing, empty state, course links and metadata.
+- `tests/reels-public.test.tsx`: integration assertions render the real page and
+  data reader with mocked Firestore/Storage, exercise proxy routing and sitemap,
+  and provide a reproducible failing baseline on the old checkout.
+- This note: records the original audit, resumed-run evidence and review limits.
+
+The remaining two files each add only the narrowly scoped `/reels` entry:
+`src/app/sitemap.ts` for discovery and `src/proxy.ts` for authorized guest access.
+Authentication modules, payments, Firestore rules, environment files and GitHub
+configuration have no task changes. Production validation and the retention/search
+hypothesis measurement remain pending rollout.
