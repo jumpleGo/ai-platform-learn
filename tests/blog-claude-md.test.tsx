@@ -7,6 +7,8 @@ import BlogIndex from '@/app/(app)/blog/page';
 import sitemap from '@/app/sitemap';
 import { GET as llmsFull } from '@/app/llms-full.txt/route';
 import { parseBlocks } from '@/lib/markdown';
+import { NextRequest } from 'next/server';
+import { proxy } from '@/proxy';
 import { OLD_BLOG_SLUGS } from './fixtures/blog-f0fde9e-slugs';
 
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: async () => [] }));
@@ -14,7 +16,7 @@ vi.mock('@/lib/analytics/track-client', () => ({ track: vi.fn() }));
 
 const SLUG = 'claude-md-primer-chek-list';
 const PAPER = 'https://arxiv.org/html/2611.02383v1';
-const EXAMPLE = 'public/examples/claude-md-shopping-list';
+const EXAMPLE = 'public/blog/examples/claude-md-shopping-list';
 
 function assertRegistered(slugs: readonly string[]) {
   expect(slugs.filter((slug) => slug === SLUG), 'the new article must be registered once').toHaveLength(1);
@@ -79,11 +81,22 @@ describe('free beginner CLAUDE.md article', () => {
     const body = post().body;
     const instructions = readFileSync(`${EXAMPLE}/CLAUDE.md`, 'utf8').trim();
     expect(parseBlocks(body).filter((block) => block.t === 'code').map((block) => block.text)).toContain(instructions);
-    expect(body).toContain('](/examples/claude-md-shopping-list.zip)');
+    expect(body).toContain('](/blog/examples/claude-md-shopping-list.zip)');
     const pkg = JSON.parse(readFileSync(`${EXAMPLE}/package.json`, 'utf8'));
     expect(pkg.scripts).toEqual({ start: 'node app.mjs', test: 'node --test check.mjs' });
     expect(instructions).toContain('npm start');
     expect(instructions).toContain('npm test');
+  });
+
+  it('serves both sample downloads to guests without a login or 404 rewrite', () => {
+    const links = [...post().body.matchAll(/\]\((\/[^)]+claude-md-shopping-list[^)]*)\)/g)].map((match) => match[1]);
+    expect(links).toHaveLength(2);
+    for (const href of links) {
+      const response = proxy(new NextRequest(new URL(href, 'https://gelato.education')));
+      expect(response.status, href).toBe(200);
+      expect(response.headers.get('location'), href).toBeNull();
+      expect(response.headers.get('x-middleware-rewrite'), href).toBeNull();
+    }
   });
 
   it('exposes the article through the list, static params, canonical, sitemap and llms text', async () => {
