@@ -29,7 +29,8 @@ export function GET(): Response {
     const landing = getCourseLanding(slug);
     if (!landing) continue;
     const prices = config.tariffs.map((tariff) => tariff.price).filter((price) => Number.isFinite(price) && price > 0);
-    lines.push(`- [${config.courseTitle}](${SITE_URL}/courses/${slug}): ${landing.seoDescription}`);
+    const courseSlug = slug === 'it-vibecoding' ? 'vibecoding' : slug;
+    lines.push(`- [${config.courseTitle}](${SITE_URL}/courses/${courseSlug}): ${landing.seoDescription}`);
     if (prices.length) {
       const low = Math.min(...prices).toLocaleString('ru-RU');
       const high = Math.max(...prices).toLocaleString('ru-RU');
