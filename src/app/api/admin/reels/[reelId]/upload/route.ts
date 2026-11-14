@@ -12,7 +12,9 @@ export async function POST(request: Request, context: { params: Promise<{ reelId
   try { await requireAdmin(); }
   catch { return failure('Forbidden', 403); }
   const origin = request.headers.get('origin');
-  if (origin && origin !== new URL(request.url).origin) {
+  // за nginx request.url — внутренний адрес контейнера, поэтому сверяем с Host от прокси
+  const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? new URL(request.url).host;
+  if (origin && new URL(origin).host !== host) {
     return failure('Forbidden origin', 403);
   }
   const { reelId } = await context.params;
