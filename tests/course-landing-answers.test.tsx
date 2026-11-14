@@ -43,7 +43,7 @@ async function renderLanding(slug = 'claude-code-agents', variant = 'control', c
 
 function answersBlock(html: string) {
   const block = html.match(/<section\b[^>]*id="beginner-answers"[^>]*>([\s\S]*?)<\/section>/);
-  expect(block, 'Открытые ответы должны находиться сразу после первого экрана').not.toBeNull();
+  expect(block, 'Свёрнутые ответы должны находиться сразу после первого экрана').not.toBeNull();
   return block![1];
 }
 
@@ -56,22 +56,25 @@ function faqPages(html: string) {
     .filter((item) => item['@type'] === 'FAQPage');
 }
 
-describe('Открытые ответы новичкам на лендинге Claude Code', () => {
+describe('Свёрнутые ответы новичкам на лендинге Claude Code', () => {
   beforeAll(async () => {
     for (const variant of ['control', 'core']) {
       await renderLanding('claude-code-agents', variant);
     }
   });
 
-  it.each(['control', 'core'])('показывает 4 ответа по 40–60 слов после первого экрана (%s)', async (variant) => {
+  it.each(['control', 'core'])('сохраняет 7 ответов по 40–60 слов в 6 закрытых details после первого экрана (%s)', async (variant) => {
     const html = await renderLanding('claude-code-agents', variant);
     const block = answersBlock(html);
     expect(html.indexOf('id="beginner-answers"')).toBeGreaterThan(html.indexOf('</section>'));
     expect(html.slice(html.indexOf('</section>') + '</section>'.length)).toMatch(/^\s*<section[^>]*id="beginner-answers"/);
-    expect(block).not.toMatch(/<details|<summary|\bhidden\b/);
-    expect([...block.matchAll(/<h2\b/g)]).toHaveLength(4);
-    const paragraphs = [...block.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/g)];
-    expect(paragraphs).toHaveLength(4);
+    expect(block).not.toMatch(/\bhidden\b/);
+    const details = [...block.matchAll(/<details\b([^>]*)>([\s\S]*?)<\/details>/g)];
+    expect(details).toHaveLength(6);
+    for (const [, attributes] of details) expect(attributes).not.toMatch(/(?:^|\s)open(?:\s|=|$)/);
+    expect([...block.matchAll(/<summary\b/g)]).toHaveLength(6);
+    const paragraphs = details.flatMap(([, , content]) => [...content.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/g)]);
+    expect(paragraphs).toHaveLength(7);
     for (const [, paragraph] of paragraphs) {
       const words = paragraph.replace(/<[^>]*>/g, '').trim().split(/\s+/u).length;
       expect(words).toBeGreaterThanOrEqual(40);
@@ -112,7 +115,11 @@ describe('Открытые ответы новичкам на лендинге C
     expect(faq.mainEntity).toHaveLength(12);
     expect(new Set(faq.mainEntity.map((item: { name: string }) => item.name)).size).toBe(12);
     const block = answersBlock(html);
-    const headings = [...block.matchAll(/<h2\b[^>]*>(.*?)<\/h2>/g)].map((match) => match[1]);
+    const headings = [...block.matchAll(/<summary\b[^>]*>(.*?)<\/summary>/g)]
+      .map((match) => match[1])
+      .filter((question) => faq.mainEntity.some((item: { name: string }) => item.name === question));
+    // Четыре исходных вопроса FAQ остаются среди шести объединённых вопросов.
+    expect(headings).toHaveLength(4);
     for (const question of headings) {
       const item = faq.mainEntity.find((item: { name: string }) => item.name === question);
       expect(item).toBeDefined();

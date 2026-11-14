@@ -48,7 +48,7 @@ async function render(page: string, course = fixture()) {
 
 function block(html: string) {
   const match = html.match(/<div\b[^>]*id="beginner-questions"[^>]*>([\s\S]*?)<\/div>/);
-  expect(match, 'Q1–Q3 должны быть видимы на настоящей странице').not.toBeNull();
+  expect(match, 'Q1–Q3 должны присутствовать в HTML настоящей страницы').not.toBeNull();
   return match![1];
 }
 
@@ -64,21 +64,27 @@ describe('#214: на обеих главных ответов Q1–Q3 нет', (
 });
 
 describe('GEO: прямые ответы Q1–Q3 на вводном курсе (лендинг сохранён)', () => {
-  it.each(['agents-control', 'core'])('показывает открытые ответы в начале страницы (%s)', async (page) => {
+  it.each(['agents-control', 'core'])('сохраняет ответы в закрытых details после первого экрана (%s)', async (page) => {
     const html = await render(page);
     const content = block(html);
-    expect(content).not.toMatch(/<details|<summary|\bhidden\b/);
-    const answers = [...content.matchAll(/<article\b[^>]*>\s*<h2\b[^>]*>(.*?)<\/h2>\s*<p\b[^>]*>([\s\S]*?)<\/p>\s*<\/article>/g)];
+    expect(content).not.toMatch(/\bhidden\b/);
+    const details = [...content.matchAll(/<details\b([^>]*)>\s*<summary\b[^>]*>(.*?)<\/summary>([\s\S]*?)<\/details>/g)];
+    expect(details).toHaveLength(6);
+    for (const [, attributes] of details) expect(attributes).not.toMatch(/(?:^|\s)open(?:\s|=|$)/);
+    // У общего вопроса два абзаца: сохраняем проверки исходных ответов Q1–Q3.
+    const answers = details.flatMap(([, , question, body]) =>
+      [...body.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/g)].map(([, answer]) => [question, answer]),
+    ).filter(([, answer]) => /^(?:Начните с одной небольшой задачи:|Учиться пользоваться ChatGPT можно|Нейросеть учится на множестве примеров:)/u.test(text(answer)));
     expect(answers).toHaveLength(3);
-    expect(text(answers[0][1])).toMatch(/с чего начать ИИ с нуля/iu);
-    expect(text(answers[1][1])).toMatch(/бесплатно.*ChatGPT.*без программирования/iu);
-    expect(text(answers[2][1])).toMatch(/как работают нейросети/iu);
+    expect(text(answers[0][0])).toMatch(/с чего начать ИИ с нуля/iu);
+    expect(text(answers[1][0])).toMatch(/бесплатно.*ChatGPT.*без программирования/iu);
+    expect(text(answers[2][0])).toMatch(/как работают нейросети/iu);
     for (const answer of answers) {
-      const words = text(answer[2]).trim().split(/\s+/u).length;
+      const words = text(answer[1]).trim().split(/\s+/u).length;
       expect(words).toBeGreaterThanOrEqual(40);
       expect(words).toBeLessThanOrEqual(60);
     }
-    const explanation = text(answers[2][2]);
+    const explanation = text(answers[2][1]);
     // Q3 объясняет обучение и создание ответа, а не перечисляет программу курса.
     expect(explanation).toMatch(/учится.*пример/iu);
     expect(explanation).toMatch(/(?:продолжение|следующ\S* слов)/iu);
@@ -87,7 +93,7 @@ describe('GEO: прямые ответы Q1–Q3 на вводном курсе 
     expect(sentences.slice(0, 3).join(' ')).not.toMatch(/курс|Gelato/iu);
     expect(content).toContain('Курс платный');
     expect(text(content)).not.toMatch(/бесплатн\S*\s+курс/iu);
-    expect(html.indexOf('id="beginner-questions"')).toBeLessThan(html.indexOf('id="beginner-answers"'));
+    expect(html.indexOf('id="beginner-questions"')).toBeGreaterThan(html.indexOf('id="beginner-answers"'));
   });
 
   it.each(['agents-control'])('ссылка берёт slug и номер опубликованного бесплатного урока из каталога (%s)', async (page) => {
