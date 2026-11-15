@@ -1,25 +1,53 @@
 import 'server-only';
+import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb, adminStorage, storageBucketName } from '@/lib/firebase/admin';
-import type { Reel } from '@/lib/reels';
+import {
+  isValidReelCtaHref, MAX_REEL_DESCRIPTION_LENGTH, normalizeReel, REEL_TEXT_FIELDS,
+  type NormalizedReel, type Reel, type ReelMetadata,
+} from '@/lib/reels';
 
 type ReelData = Omit<Reel, 'id'>;
 function project(id: string, data: ReelData): Reel {
-  const { title, courseSlug, videoPath, posterPath, order, published } = data;
-  return { id, title, courseSlug, videoPath, order, published, ...(posterPath ? { posterPath } : {}) };
+  const { courseSlug, videoPath, posterPath, order, published } = data;
+  const reel: Reel = { id, courseSlug, videoPath, order, published, ...(posterPath ? { posterPath } : {}) };
+  for (const field of REEL_TEXT_FIELDS) {
+    const value = data[field];
+    if (typeof value === 'string' && value) reel[field] = value;
+  }
+  return reel;
 }
 const reels = () => adminDb.collection('reels');
-async function publishedSlugs() {
+async function publishedCourses() {
   const snap = await adminDb.collection('courses').where('published', '==', true).get();
-  return new Set(snap.docs.filter((d) => d.data().published === true).map((d) => d.data().slug));
+  return new Map(snap.docs.map((d) => d.data())
+    .filter((data) => data.published === true && typeof data.slug === 'string')
+    .map((data) => [data.slug as string, {
+      title: typeof data.title === 'string' ? data.title : data.slug as string,
+      description: typeof data.description === 'string' ? data.description : undefined,
+    }]));
 }
 
-type ReelMetadata = Pick<Reel, 'title' | 'courseSlug' | 'order'>;
-async function validateMetadata({ title: rawTitle, courseSlug, order }: ReelMetadata): Promise<ReelMetadata> {
-  const title = rawTitle.trim();
-  if (!title || title.length > 120 || !/^[a-z0-9-]+$/.test(courseSlug)
+async function validateMetadata(metadata: ReelMetadata): Promise<ReelMetadata> {
+  const { courseSlug, order } = metadata;
+  if (typeof courseSlug !== 'string' || !/^[a-z0-9-]+$/.test(courseSlug)
     || !Number.isSafeInteger(order) || order < 0) throw new Error('Invalid reel metadata');
-  if (!(await publishedSlugs()).has(courseSlug)) throw new Error('Course is not published');
-  return { title, courseSlug, order };
+  const data: ReelMetadata = { courseSlug, order };
+  for (const field of REEL_TEXT_FIELDS) {
+    const value = metadata[field];
+    if (value === undefined) continue;
+    if (typeof value !== 'string' || !value.trim()) throw new Error('Invalid reel metadata');
+    const text = value.trim();
+    if (field === 'title' && text.length > 120) throw new Error('Заголовок рилса — не больше 120 символов.');
+    if (field === 'description' && text.length > MAX_REEL_DESCRIPTION_LENGTH) {
+      throw new Error('Описание рилса — не больше 300 символов.');
+    }
+    if (field === 'ctaHref' && !isValidReelCtaHref(text)) {
+      throw new Error('Ссылка кнопки должна быть внутренним путём /… или адресом https://.');
+    }
+    data[field] = text;
+  }
+  if (!(await publishedCourses()).has(courseSlug)) throw new Error('Course is not published');
+  return data;
 }
 
 // Guard callers with requireAdmin.
@@ -32,7 +60,9 @@ export async function createReel(metadata: ReelMetadata): Promise<string> {
 export async function updateReelMetadata(id: string, metadata: ReelMetadata): Promise<void> {
   if (!/^[\w-]{1,128}$/.test(id)) throw new Error('Invalid reel ID');
   const data = await validateMetadata(metadata);
-  await reels().doc(id).update(data);
+  // A save replaces the editable metadata; omitted overrides restore defaults.
+  const overrides = Object.fromEntries(REEL_TEXT_FIELDS.map((field) => [field, data[field] ?? FieldValue.delete()]));
+  await reels().doc(id).update({ ...data, ...overrides });
 }
 
 export async function listAllReels(): Promise<Reel[]> {
@@ -42,9 +72,7 @@ export async function listAllReels(): Promise<Reel[]> {
 }
 
 export async function listReelCourses(): Promise<Array<{ slug: string; title: string }>> {
-  const snap = await adminDb.collection('courses').where('published', '==', true).get();
-  return snap.docs.map((d) => d.data()).filter((d) => d.published === true && typeof d.slug === 'string')
-    .map((d) => ({ slug: d.slug as string, title: d.title as string }));
+  return Array.from(await publishedCourses(), ([slug, course]) => ({ slug, title: course.title }));
 }
 
 export async function getReel(id: string): Promise<Reel | null> {
@@ -52,12 +80,13 @@ export async function getReel(id: string): Promise<Reel | null> {
   return doc.exists ? project(doc.id, doc.data() as ReelData) : null;
 }
 
-export async function listPublishedReels(): Promise<Reel[]> {
-  const [snap, slugs] = await Promise.all([
-    reels().where('published', '==', true).get(), publishedSlugs(),
+export async function listPublishedReels(): Promise<NormalizedReel[]> {
+  const [snap, courses] = await Promise.all([
+    reels().where('published', '==', true).get(), publishedCourses(),
   ]);
   return snap.docs.map((d) => project(d.id, d.data() as ReelData))
-    .filter((r) => r.published === true && r.videoPath && slugs.has(r.courseSlug))
+    .filter((r) => r.published === true && r.videoPath && courses.has(r.courseSlug))
+    .map((r) => normalizeReel(r, courses.get(r.courseSlug)!))
     .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
 }
 
@@ -85,7 +114,7 @@ export async function setReelPublished(id: string, published: boolean): Promise<
     if (typeof reel.videoPath !== 'string' || !reel.videoPath.trim()) {
       throw new ReelMutationError(400, 'Сначала загрузите видео, затем опубликуйте рилс.');
     }
-    if (!(await publishedSlugs()).has(reel.courseSlug)) {
+    if (!(await publishedCourses()).has(reel.courseSlug)) {
       throw new ReelMutationError(400, 'Курс рилса не опубликован. Сначала опубликуйте курс.');
     }
   }

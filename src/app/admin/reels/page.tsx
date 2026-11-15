@@ -22,7 +22,7 @@ export default async function AdminReelsPage() {
       {reels.map((reel) => (
         <Card key={reel.id}>
           <CardHeader>
-            <CardTitle>{reel.title}</CardTitle>
+            <CardTitle>{reel.title || courses.find((course) => course.slug === reel.courseSlug)?.title || reel.courseSlug}</CardTitle>
             <p className="text-sm text-muted-foreground">
               {reel.published ? 'Опубликован' : 'Черновик'} · {reel.videoPath ? 'Видео загружено' : 'Без видео'}
             </p>

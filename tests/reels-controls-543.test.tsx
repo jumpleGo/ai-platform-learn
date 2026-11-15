@@ -33,7 +33,7 @@ vi.mock('react', async original => ({
   },
 }));
 
-const reel: Reel = { id: 'reel-1', title: 'Первые шаги', courseSlug: 'course-a', videoPath: 'reels/reel-1/video.mp4', published: false, order: 0 };
+const reel = { id: 'reel-1', title: 'Первые шаги', courseSlug: 'course-a', videoPath: 'reels/reel-1/video.mp4', published: false, order: 0 } satisfies Reel;
 const courses = [{ slug: 'course-a', title: 'Курс' }];
 function form(value: Reel | undefined = reel, choices = courses) {
   hooks.cursor = 0;
