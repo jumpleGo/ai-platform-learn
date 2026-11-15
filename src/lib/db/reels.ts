@@ -1,5 +1,5 @@
 import 'server-only';
-import { adminDb } from '@/lib/firebase/admin';
+import { adminDb, adminStorage, storageBucketName } from '@/lib/firebase/admin';
 import type { Reel } from '@/lib/reels';
 
 type ReelData = Omit<Reel, 'id'>;
@@ -65,4 +65,43 @@ export async function setReelVideoPath(id: string, videoPath: string): Promise<v
   const match = /^reels\/([\w-]+)\/[a-f0-9-]{36}\.(mp4|mov)$/.exec(videoPath);
   if (!match || match[1] !== id) throw new Error('Invalid reel video path');
   await reels().doc(id).update({ videoPath, published: false });
+}
+
+export class ReelMutationError extends Error {
+  constructor(public status: number, message: string) { super(message); }
+}
+
+async function requireReel(id: string): Promise<Reel> {
+  if (!/^[\w-]{1,128}$/.test(id)) throw new ReelMutationError(400, 'Некорректный идентификатор рилса.');
+  const reel = await getReel(id);
+  if (!reel) throw new ReelMutationError(404, 'Рилс не найден.');
+  return reel;
+}
+
+// Guard callers with the existing requireAdmin, just like the upload endpoint.
+export async function setReelPublished(id: string, published: boolean): Promise<void> {
+  const reel = await requireReel(id);
+  if (published) {
+    if (typeof reel.videoPath !== 'string' || !reel.videoPath.trim()) {
+      throw new ReelMutationError(400, 'Сначала загрузите видео, затем опубликуйте рилс.');
+    }
+    if (!(await publishedSlugs()).has(reel.courseSlug)) {
+      throw new ReelMutationError(400, 'Курс рилса не опубликован. Сначала опубликуйте курс.');
+    }
+  }
+  await reels().doc(id).update({ published });
+}
+
+export async function deleteReel(id: string): Promise<void> {
+  const reel = await requireReel(id);
+  if (reel.videoPath) {
+    // Match upload ownership: never delete another reel's file or a course video.
+    const match = /^reels\/([\w-]+)\/[a-f0-9-]{36}\.(mp4|mov)$/.exec(reel.videoPath);
+    if (match?.[1] !== id) {
+      throw new ReelMutationError(409, 'Не удалось удалить рилс: путь видео не принадлежит этому рилсу.');
+    }
+    await adminStorage.bucket(storageBucketName).file(reel.videoPath).delete({ ignoreNotFound: true });
+  }
+  // Keep the document if Storage fails, so the admin can retry cleanup.
+  await reels().doc(id).delete();
 }

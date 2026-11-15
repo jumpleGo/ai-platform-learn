@@ -38,10 +38,34 @@ export function ReelUploadForm({ courses, reel }: {
   const inFlight = useRef(false);
   const draftId = useRef<string | null>(reel?.id ?? null);
   const [busy, setBusy] = useState(false);
+  const [pendingAction, setPendingAction] = useState<'publish' | 'unpublish' | 'delete' | null>(null);
   const [progress, setProgress] = useState({ loaded: 0, total: 1 });
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const prefix = reel?.id ?? 'new-reel';
+
+  async function manageReel(action: 'publish' | 'unpublish' | 'delete') {
+    if (!reel || inFlight.current) return;
+    if (action === 'delete' && !window.confirm(`Удалить рилс «${reel.title}» и его видео? Это действие нельзя отменить.`)) return;
+    inFlight.current = true;
+    setBusy(true); setPendingAction(action); setError(''); setMessage('');
+    const fallback = action === 'delete' ? 'Не удалось удалить рилс. Повторите попытку.' : 'Не удалось изменить публикацию. Повторите попытку.';
+    try {
+      const response = await fetch(`/api/admin/reels/${encodeURIComponent(reel.id)}`, action === 'delete'
+        ? { method: 'DELETE' }
+        : { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ published: action === 'publish' }) },
+      ).catch(() => { throw new Error('Ошибка сети. Повторите попытку.'); });
+      const result = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(typeof result?.error === 'string' ? result.error : fallback);
+      setMessage(action === 'delete' ? 'Рилс удалён.' : action === 'publish' ? 'Рилс опубликован.' : 'Рилс снят с публикации.');
+      router.refresh();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : fallback);
+    } finally {
+      inFlight.current = false;
+      setBusy(false); setPendingAction(null);
+    }
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -101,7 +125,7 @@ export function ReelUploadForm({ courses, reel }: {
         {reel?.videoPath && <p className="text-xs text-muted-foreground">После успешной замены старый файл удаляется, рилс становится черновиком.</p>}
       </fieldset>
       {courses.length === 0 && <p role="status" className="text-sm">Сначала опубликуйте курс.</p>}
-      {busy && (
+      {busy && !pendingAction && (
         <div className="flex flex-col gap-1">
           <progress aria-label="Прогресс загрузки видео" value={progress.loaded} max={progress.total} className="w-full" />
           <p role="status" className="text-sm text-muted-foreground">
@@ -109,11 +133,22 @@ export function ReelUploadForm({ courses, reel }: {
           </p>
         </div>
       )}
+      {pendingAction && <p role="status" className="text-sm">{pendingAction === 'delete' ? 'Удаляем рилс…' : 'Меняем публикацию…'}</p>}
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       {message && <p role="status" className="text-sm">{message}</p>}
-      <button type="submit" disabled={busy || courses.length === 0} className="self-start rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground disabled:opacity-50">
-        {busy ? 'Сохраняем…' : reel ? 'Сохранить' : 'Загрузить рилс'}
-      </button>
+      <div className="flex flex-wrap gap-2">
+        <button type="submit" disabled={busy || courses.length === 0} className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground disabled:opacity-50">
+          {busy && !pendingAction ? 'Сохраняем…' : reel ? 'Сохранить' : 'Загрузить рилс'}
+        </button>
+        {reel && <>
+          <button type="button" disabled={busy} onClick={() => manageReel(reel.published ? 'unpublish' : 'publish')} className="rounded-md border border-input px-4 py-2 text-sm disabled:opacity-50">
+            {reel.published ? 'Снять с публикации' : 'Опубликовать'}
+          </button>
+          <button type="button" disabled={busy} onClick={() => manageReel('delete')} className="rounded-md border border-destructive px-4 py-2 text-sm text-destructive disabled:opacity-50">
+            Удалить
+          </button>
+        </>}
+      </div>
     </form>
   );
 }

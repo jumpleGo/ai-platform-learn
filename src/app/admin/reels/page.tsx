@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { listAllReels, listReelCourses } from '@/lib/db/reels';
 import { requireAdmin } from '@/lib/require-admin';
@@ -10,6 +11,10 @@ export default async function AdminReelsPage() {
     <div className="flex max-w-3xl flex-col gap-6">
       <h1 className="font-heading text-2xl font-bold tracking-tight">Рилсы</h1>
       <p className="text-sm text-muted-foreground">Загрузите MP4 до 10 МБ (10 485 760 байт). Новое видео сохраняется как черновик.</p>
+      <p className="text-sm text-muted-foreground">
+        После загрузки нажмите «Опубликовать». Рилс появится в{' '}
+        <Link href="/reels" className="text-primary underline underline-offset-4">публичной ленте рилсов</Link>, доступной без входа.
+      </p>
       <Card>
         <CardHeader><CardTitle>Новый рилс</CardTitle></CardHeader>
         <CardContent><ReelUploadForm courses={courses} /></CardContent>

@@ -37,6 +37,11 @@ export function SiteFooter() {
                 Блог
               </Link>
             </li>
+            <li>
+              <Link href="/reels" className="text-sm text-brand-cream/80 transition-colors hover:text-brand-sky">
+                Рилсы
+              </Link>
+            </li>
           </ul>
         </nav>
 
