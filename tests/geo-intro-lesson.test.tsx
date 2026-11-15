@@ -1,6 +1,6 @@
 import React, { Children, isValidElement, type ReactElement, type ReactNode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import posthog from 'posthog-js';
+import posthog from '@/lib/analytics/posthog';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import LessonPage, { generateMetadata } from '@/app/(app)/courses/[courseSlug]/lessons/[lessonNumber]/page';
 import { SiteStructuredData } from '@/components/site-structured-data';
@@ -16,7 +16,7 @@ vi.mock('@/lib/db/subscriptions', () => ({ getSubscription: vi.fn() }));
 vi.mock('@/lib/db/progress', () => ({ getCompletedLessonIds: vi.fn(), markLessonCompleted: vi.fn() }));
 vi.mock('@/lib/db/stats', () => ({ recordLessonView: vi.fn() }));
 vi.mock('@/components/payment/locked-video-player', () => ({ LockedVideoPlayer: () => null }));
-vi.mock('posthog-js', () => ({ default: { __loaded: true, capture: vi.fn() } }));
+vi.mock('@/lib/analytics/posthog', () => ({ default: { __loaded: true, capture: vi.fn() } }));
 
 const slug = 'claude-code-agents';
 const canonical = `https://gelato.education/courses/${slug}/lessons/1`;

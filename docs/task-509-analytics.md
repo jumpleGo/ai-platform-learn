@@ -107,3 +107,11 @@ A single `import('posthog-js')` lives in the thin client wrapper. The provider s
 Event names, payload builders, the SDK defaults controlling automatic/history pageviews, and the admin before_send filter are unchanged.
 
 The baseline build compiled successfully and its emitted files were measured; its remaining TypeScript phase and the optional baseline test run were stopped to preserve the 30-minute budget for the final full checks.
+
+## Step 3: delivery regression tests
+
+Focused run: 5 files, 49 tests passed. `OLD_FAILS=1` is printed in the same Vitest run: the same exact delivery assertion rejects a frozen copy of the old track-client implementation. The fixture includes source bytes, SHA-256, and commit c44a558ee51a89e0b86ee8ad12055660c6b70a49; tests never read Git or origin/main.
+
+The new tests hold the mocked SDK import unresolved, emit calls both before and during loading, then check exact capture/identify/reset order, first-touch and variant properties, post-load delivery, one init, and StrictMode/paint scheduling. Pageview defaults and the admin filter are asserted unchanged.
+
+Existing first-touch/contract tests now await asynchronous initialization and import components from the same reset module graph. Two isolated lesson rendering tests mock the new wrapper boundary instead of the package import. Their exact event-name/property assertions are unchanged; the new integration test verifies the real wrapper all the way to the mocked SDK. These test edits accommodate the new asynchronous boundary, without relaxing the schema contract.
