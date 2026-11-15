@@ -15,3 +15,7 @@ Large diffs: the inherited research document records the earlier audit and was n
 Dependencies: existing package-lock installation, logged in `eval/run-528/npm-ci.log`; no dependency edits. Raw logs and screenshots stay in ignored `eval/run-528/`.
 
 Verification: TypeScript exit 0. Initial full suite found two CTA adjacency failures; the markup was corrected. Final full-suite and branch-build results will be appended after completion. Parallel verification encountered generated build files; final checks must use a stable build.
+
+Follow-up test correction: `AGENTS_FAIL_CAUSE=page_has_no_block`. The agents page renders its own FAQ, “Как устроена поддержка?”, rather than the vibecoding homework block targeted here. The support-period test now renders only vibecoding and checks its actual support feature. The no-Telegram premise belonged to a different course and did not exercise this block. The 40-word budget, retained-fact assertions, exact old-text fixtures and their SHA-256 checks remain unchanged.
+
+Follow-up validation: `npx vitest run tests/text-blocks-528.test.tsx` passed all 8 tests, including both old-text rejections; `npx tsc --noEmit -p .` exited 0. Logs: ignored `eval/run-528/followup-vitest.log` and `followup-tsc.log`. No build or dependency installation in this run. `eval/` has no tracked files. Started from `e095ecf`, an existing descendant of `af1c5fd`, preserving history.

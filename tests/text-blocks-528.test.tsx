@@ -14,10 +14,6 @@ vi.mock('@/lib/db/courses', () => ({
     id: 'vibe-document', slug: 'vibecoding', title: 'Курс', description: '',
     published: true, isTest: false, coverUrl: null, order: 1, access: 'paid',
     lessons: [],
-  } as unknown as CourseWithLessons, {
-    id: 'agents-document', slug: 'claude-code-agents', title: 'Курс', description: '',
-    published: true, isTest: false, coverUrl: null, order: 2, access: 'paid',
-    lessons: [],
   } as unknown as CourseWithLessons],
 }));
 vi.mock('@/lib/session', () => ({ getSession: async () => null }));
@@ -46,9 +42,9 @@ async function freeMarkup() {
   return renderToStaticMarkup(await FreePage({}));
 }
 
-async function courseMarkup(courseSlug = 'vibecoding') {
+async function courseMarkup() {
   return renderToStaticMarkup(await CourseLandingPage({
-    params: Promise.resolve({ courseSlug }),
+    params: Promise.resolve({ courseSlug: 'vibecoding' }),
     searchParams: Promise.resolve({ exp_vibe_landing_pairs: 'control' }),
   }));
 }
@@ -105,12 +101,12 @@ describe('task 528: readable text blocks', () => {
     expect(homeworkAnswer(await courseMarkup())).toContain(changedSupport);
   });
 
-  it('agents: retains the support period when the tariff does not mention Telegram', async () => {
-    const support = tariffData.getTariffsForCourse('claude-code-agents')
-      .find((tariff) => tariff.hasSupport)!.features.find((feature) => feature.startsWith('Личная поддержка'))!;
+  // This homework FAQ exists on vibecoding; agents renders a different support FAQ.
+  it('vibecoding: retains the support period within the homework answer budget', async () => {
+    const support = tariffData.getTariffsForCourse('vibecoding')
+      .find((tariff) => tariff.hasSupport)!.features.find((feature) => feature.includes('Telegram'))!;
     expect(support).toBeTruthy();
-    expect(support).not.toContain('Telegram');
-    const text = homeworkAnswer(await courseMarkup('claude-code-agents'));
+    const text = homeworkAnswer(await courseMarkup());
     expect(text).toContain(support);
     assertBudget(text);
   });
