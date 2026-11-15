@@ -1,0 +1,16 @@
+{
+  "commit": "b7963655aa0254f69b5a5b0ff66944154333f1af",
+  "sourceSha256": {
+    "src/components/reels/reels-mobile-feed.tsx": "41def683d00014d383d2059be127a1002a61e9dfafe4aca5a324ab1ee29088da",
+    "src/components/reels/reel-player.tsx": "8ff87ed47aff2b536433f047894a312163310073b8c3cf23f8ac1ea3033bb4e1"
+  },
+  "courseSlugs": [
+    "claude-code-agents",
+    "prompts-intro"
+  ],
+  "videoTags": [
+    "<video src=\"https://storage.googleapis.com/reels.test/reel-1/video.mp4?signed=read\" poster=\"https://storage.googleapis.com/reels.test/reel-1/poster.webp?signed=read\" playsInline=\"\" loop=\"\" preload=\"auto\" autoPlay=\"\" muted=\"\" class=\"h-full w-full object-cover\">",
+    "<video src=\"https://storage.googleapis.com/reels.test/reel-2/video.mp4?signed=read\" poster=\"https://storage.googleapis.com/reels.test/reel-2/poster.webp?signed=read\" playsInline=\"\" loop=\"\" preload=\"none\" muted=\"\" class=\"h-full w-full object-cover\">"
+  ],
+  "videoTagsSha256": "738d45370bfa285035e7c4821c6f659cfb85abfa57b850fdd32e4c9b38db8200"
+}

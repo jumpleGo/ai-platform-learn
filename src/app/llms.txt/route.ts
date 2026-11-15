@@ -4,7 +4,7 @@ import { getCourseLanding } from '@/lib/course-landings';
 import { courseKey, lessonPath } from '@/lib/slug';
 import { SITE_URL, TELEGRAM_CHANNEL } from '@/lib/site';
 import { BLOG_POSTS, blogPostUrl } from '@/lib/blog';
-import { AGENTS_INTRO_LESSON } from '@/lib/free-lessons';
+import { AGENTS_INTRO_LESSON, STANDALONE_FREE_LESSONS, standaloneFreeLessonPath } from '@/lib/free-lessons';
 import { hasPublishedReels } from '@/lib/reels-availability';
 
 // llms.txt — короткая карта сайта для ИИ-поиска: ассистент читает её вместо
@@ -33,6 +33,11 @@ export async function GET(): Promise<Response> {
 
   for (const lesson of freeLessonCards(courses)) {
     lines.push(`- [${lesson.title}](${SITE_URL}${lessonPath(lesson.courseKey, lesson.number)}): ${lesson.description}`);
+  }
+
+  lines.push('', '## Бесплатные практикумы', '');
+  for (const lesson of STANDALONE_FREE_LESSONS.filter((lesson) => lesson.published)) {
+    lines.push(`- [${lesson.h1}](${SITE_URL}${standaloneFreeLessonPath(lesson.slug)}): ${lesson.seoDescription}`);
   }
 
   lines.push(
