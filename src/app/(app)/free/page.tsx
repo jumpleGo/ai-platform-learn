@@ -88,7 +88,7 @@ export default async function FreePage({
       {standaloneLessons.length > 0 && (
         <section className="space-y-6" aria-labelledby="free-practice-title">
           <h2 id="free-practice-title" className="font-heading text-2xl font-extrabold text-brand-navy sm:text-3xl">
-            Сделайте свой маленький проект
+            Практикумы: попробуйте сами
           </h2>
           <ul className="grid gap-6 sm:grid-cols-2">
             {standaloneLessons.map((lesson) => (
