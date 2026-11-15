@@ -8,32 +8,26 @@ import { listPublishedReels } from '@/lib/db/reels';
 import { adminStorage, storageBucketName } from '@/lib/firebase/admin';
 import { SITE_URL } from '@/lib/site';
 
-// Publication state and signed media URLs must be fresh on every request.
+// Publication state must be fresh on every request.
 export const dynamic = 'force-dynamic';
 
 type Props = { params: Promise<{ id: string }> };
-const LINK_TTL_MS = 60 * 60 * 1000;
-
 const loadReel = cache(async (id: string) => {
-  if (!/^[\w-]{1,128}$/.test(id)) notFound();
+  if (!/^[A-Za-z0-9]{20}$/.test(id)) notFound();
   // Uses the same publication, video and published-course checks as the feed.
   const reel = (await listPublishedReels()).find((item) => item.id === id);
   if (!reel) notFound();
 
   const bucket = adminStorage.bucket(storageBucketName);
-  const options = { action: 'read' as const, expires: Date.now() + LINK_TTL_MS };
-  const [[video], poster, [metadata]] = await Promise.all([
-    bucket.file(reel.videoPath).getSignedUrl(options),
-    reel.posterPath
-      ? bucket.file(reel.posterPath).getSignedUrl(options).then(([url]) => url)
-      : Promise.resolve(`${SITE_URL}/og-gelato.png`),
-    bucket.file(reel.videoPath).getMetadata(),
-  ]);
+  const [metadata] = await bucket.file(reel.videoPath).getMetadata();
+  const url = `${SITE_URL}/reels/${id}`;
+  const video = `${url}/video`;
+  const poster = `${url}/poster`;
   // Storage records the actual upload time, including for legacy reel documents.
   const uploadDate = metadata.timeCreated
     ? new Date(metadata.timeCreated).toISOString()
     : undefined;
-  return { reel, video, poster, uploadDate, url: `${SITE_URL}/reels/${id}` };
+  return { reel, video, poster, uploadDate, url };
 });
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -59,7 +53,7 @@ export default async function ReelPage({ params }: Props) {
   const schema = {
     '@context': 'https://schema.org', '@type': 'VideoObject',
     name: reel.title, description: reel.description,
-    thumbnailUrl: poster, uploadDate, contentUrl: video, url,
+    thumbnailUrl: poster, uploadDate, contentUrl: video, embedUrl: url, url,
   };
 
   return (
