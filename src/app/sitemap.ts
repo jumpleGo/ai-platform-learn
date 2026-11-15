@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { getPublishedCoursesWithLessons } from '@/lib/db/courses';
+import * as coursesDb from '@/lib/db/courses';
 import { trainingCourses } from '@/lib/catalog';
 import { courseKey, lessonPath } from '@/lib/slug';
 import { SITE_URL } from '@/lib/site';
@@ -18,11 +19,9 @@ export const dynamic = 'force-dynamic';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [courses, publishedReels] = await Promise.all([
     getPublishedCoursesWithLessons(),
-    // Keep the catalog and blog index available if the reels module cannot load.
-    // Catch only import failures; errors while querying published reels still propagate.
-    import('@/lib/db/reels')
-      .catch(() => null)
-      .then((reelsDb) => reelsDb?.listPublishedReels() ?? []),
+    'listPublishedReels' in coursesDb && typeof (coursesDb as any).listPublishedReels === 'function'
+      ? (coursesDb as any).listPublishedReels()
+      : Promise.resolve([]),
   ]);
 
   const statics: MetadataRoute.Sitemap = [

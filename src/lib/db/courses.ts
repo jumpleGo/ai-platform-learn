@@ -106,3 +106,5 @@ export function invalidateCatalog() {
   // в Next 16 revalidateTag требует профиль; 'max' = пометить устаревшим, отдавая старое до фоновой ревалидации (SWR)
   revalidateTag('catalog', 'max');
 }
+
+export { listPublishedReels } from '@/lib/db/reels';

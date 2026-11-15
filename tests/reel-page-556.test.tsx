@@ -23,7 +23,13 @@ vi.mock('@/lib/firebase/admin', () => ({
   } },
   adminStorage: { bucket: mocks.bucket }, storageBucketName: 'reels-review.test',
 }));
-vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: mocks.catalog }));
+vi.mock('@/lib/db/courses', async () => {
+  const { listPublishedReels } = await import('@/lib/db/reels');
+  return {
+    getPublishedCoursesWithLessons: mocks.catalog,
+    listPublishedReels,
+  };
+});
 vi.mock('@/components/gelato-logo', () => ({ GelatoLogo: () => <span>GELATO</span> }));
 
 // Load the current checkout only. An absent route is an assertion failure,
