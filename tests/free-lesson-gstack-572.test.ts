@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import {
@@ -33,8 +34,60 @@ const MAIN_FREE_LESSONS = Object.freeze({
   ]),
 });
 
+// Замороженные разделы старого текста урока c53a38a до правок B01 и B02 (#572).
+const OLD_PRACTIKUM_FIXTURE = Object.freeze({
+  commit: 'c53a38afeec5ee6ad5c8ecf5f6868886a474975b',
+  sourceSha256: 'afd4225c2e78a30ca0f70d1ae74e31dcaa010f259ce6d7f9814888c3ef62b129',
+  combinedSha256: '11c58961060e1312b0efc5b381b7f9d10e8e9ac9af63c736453a117208b2177a',
+  text: `## Сначала проверьте среду
+
+Начните с проверки установки. Для gstack в README перечислены Claude Code, Git и Bun. Для Bun указана проверенная версия v1.4.2 или новее; установка отказывает при версии ниже 1.3.3. На Windows дополнительно нужен Node.js. Минимальную версию Node.js этот README не задаёт. [Источник: Requirements, строка 32](https://github.com/garrytan/gstack/blob/3b650356f3d711caca98713475dd6085b15c5996/README.md#L32).
+
+macOS и Linux имеют полную поддержку. Для Windows автор обещает установку и основные команды, а не все возможности. На Windows 11 нужны Git Bash или WSL; команды bun и node должны быть доступны в выбранной среде. В README это названо «на PATH». [Источник: Platform notes, строки 241–247](https://github.com/garrytan/gstack/blob/3b650356f3d711caca98713475dd6085b15c5996/README.md#L241).
+
+Откройте Claude Code в отдельной папке для учебной работы. Включите секундомер и заведите заметку «Ход практикума»: записывайте сделанное, ошибки и время до первого работающего результата. Текст в рамках дальше можно копировать в чат. Сначала отправьте:
+
+\`\`\`text
+Помоги проверить готовность к установке gstack.
+Определи мою операционную систему. Проверь наличие Claude Code, Git и Bun.
+Сравни Bun с требованиями: проверенная версия v1.4.2+, отказ установки ниже 1.3.3.
+Если это Windows, проверь также Node.js и доступность bun и node в Git Bash или WSL.
+Пока ничего не устанавливай. Покажи, что уже готово, чего не хватает и что нужно сделать.
+Объясняй каждое действие обычными словами.
+\`\`\`
+
+Сам gstack бесплатный и открытый, с лицензией MIT. Это утверждение относится к gstack. [Источник: README, строка 318](https://github.com/garrytan/gstack/blob/3b650356f3d711caca98713475dd6085b15c5996/README.md#L318).
+
+## Шаг 2. /review — проверьте изменения
+
+В README \`/review\` запускают в ветке с изменениями. Команда ищет ошибки и исправляет очевидные. [Источник: Quick start и описание роли, строки 25 и 155](https://github.com/garrytan/gstack/blob/3b650356f3d711caca98713475dd6085b15c5996/README.md#L155).
+
+Оставайтесь в том же проекте и отправьте:
+
+\`\`\`text
+/review
+Проверь изменения страницы «Список покупок» по согласованному документу.
+Для каждого замечания объясни, какое действие пользователя сломается.
+После исправления покажи, какая проверка подтверждает результат.
+Сохрани краткий итог в review.md: замечание, исправление, проверка.
+Если замечаний нет, так и напиши.
+\`\`\`
+
+Прочитайте итог. Вместо непонятного объяснения попросите пример: «Что я увижу на странице, если это не исправить?» Повторите добавление «Молока» и отметку о покупке.
+
+**Наглядный результат:** \`review.md\` с результатом проверки и снимок страницы после исправлений. Если замечаний нет, сохраните этот честный итог: придумывать найденную ошибку не нужно.`,
+});
+
 function hasPracticum(slugs: readonly string[]): boolean {
   return slugs.includes(NEW_SLUG);
+}
+
+function checkNodeStep(body: string): boolean {
+  return body.includes('node -v') && body.includes('Team mode');
+}
+
+function checkCodexOptional(body: string): boolean {
+  return body.includes('Codex необязателен') && body.includes('codex_reviews disabled');
 }
 
 function pageProps(slug = NEW_SLUG) {
@@ -104,5 +157,22 @@ describe('самостоятельный бесплатный практикум
       .rejects.toThrow('NEXT_HTTP_ERROR_FALLBACK;404');
     await expect(generateMetadata(pageProps('missing-practicum')))
       .rejects.toThrow('NEXT_HTTP_ERROR_FALLBACK;404');
+  });
+
+  it('в уроке есть шаг про Node и пометка, что Codex необязателен', () => {
+    const body = getStandaloneFreeLesson(NEW_SLUG)?.body ?? '';
+    expect(checkNodeStep(body)).toBe(true);
+    expect(checkCodexOptional(body)).toBe(true);
+  });
+
+  it('падающая проверка на старом тексте урока (OLD_FAILS>0)', () => {
+    expect(createHash('sha256').update(OLD_PRACTIKUM_FIXTURE.text).digest('hex'))
+      .toBe(OLD_PRACTIKUM_FIXTURE.combinedSha256);
+    let oldFails = 0;
+    if (!checkNodeStep(OLD_PRACTIKUM_FIXTURE.text)) oldFails++;
+    if (!checkCodexOptional(OLD_PRACTIKUM_FIXTURE.text)) oldFails++;
+    console.log(`OLD_FAILS=${oldFails}`);
+    expect(oldFails).toBe(2);
+    expect(oldFails).toBeGreaterThan(0);
   });
 });
