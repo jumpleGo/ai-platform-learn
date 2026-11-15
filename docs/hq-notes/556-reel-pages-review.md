@@ -9,3 +9,4 @@ SIGNED_URL_IN_JSONLD=yes. `src/app/reels/[id]/page.tsx:15` and `:24` set a one-h
 Diffs over 2000 characters: `src/app/reels/[id]/page.tsx` implements the public page, player, canonical/social metadata and VideoObject. `tests/reel-page-556.test.tsx` checks publication, guest routing, metadata, JSON-LD and sitemap, including the new regression.
 
 Logs: `eval/*-review-556.*` (excluded from git). Full build belongs to the platform; production verification awaits rollout.
+Сьют #583 получил тот же мок, ассерты не менялись.
