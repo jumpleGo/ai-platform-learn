@@ -1,0 +1,8 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    # реверс-прокси и SSL — на хостовом nginx, поэтому публикуем только локально
+    ports:
+      - "127.0.0.1:3000:3000"

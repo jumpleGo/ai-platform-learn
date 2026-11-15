@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { clientAuth } from '@/lib/firebase/client';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,8 @@ import {
   signInWithGoogleAndSession,
 } from '../session-client';
 
-export default function LoginPage() {
+function LoginForm() {
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +26,16 @@ export default function LoginPage() {
   const [dataConsent, setDataConsent] = useState(false);
   const [cookieConsent, setCookieConsent] = useState(false);
   const consented = dataConsent && cookieConsent;
+
+  useEffect(() => {
+    const qEmail = searchParams.get('email');
+    if (qEmail) {
+      setEmail(qEmail);
+    } else {
+      const saved = typeof window !== 'undefined' ? localStorage.getItem('gelato_user_email') : '';
+      if (saved) setEmail(saved);
+    }
+  }, [searchParams]);
 
   function finishLogin() {
     // полный переход: гарантированно подхватывает только что выставленную session-cookie
@@ -49,6 +61,10 @@ export default function LoginPage() {
 
   async function handleGoogle() {
     setError(null);
+    if (!consented) {
+      setError('Пожалуйста, подтвердите согласие на обработку данных и использование cookie');
+      return;
+    }
     setPending(true);
     try {
       await signInWithGoogleAndSession();
@@ -62,7 +78,7 @@ export default function LoginPage() {
   return (
     <Card className="w-full rounded-2xl shadow-lg">
       <CardHeader>
-        <CardTitle className="font-sans text-2xl font-semibold tracking-tight">Вход</CardTitle>
+        <CardTitle className="font-sans text-2xl font-bold tracking-tight">Вход</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-5">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -120,7 +136,7 @@ export default function LoginPage() {
           или
           <span className="h-px flex-1 bg-border" />
         </div>
-        <Button variant="outline" disabled={pending || !consented} onClick={handleGoogle} className="h-11 rounded-xl">
+        <Button variant="outline" disabled={pending} onClick={handleGoogle} className="h-11 rounded-xl">
           Войти через Google
         </Button>
         <p className="text-center text-sm text-muted-foreground">
@@ -131,5 +147,13 @@ export default function LoginPage() {
         </p>
       </CardContent>
     </Card>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }

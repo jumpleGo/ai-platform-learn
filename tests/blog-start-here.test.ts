@@ -1,0 +1,97 @@
+import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest';
+import * as blog from '@/lib/blog';
+import { getPublishedCoursesWithLessons as getCatalog, type CourseWithLessons, type NumberedLesson } from '@/lib/db/courses';
+import { renderBlogPost as pageHtml } from './fixtures/blog-page';
+
+vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: vi.fn() }));
+vi.mock('@/lib/analytics/track-client', () => ({ track: vi.fn() }));
+const lesson = (number: number, access: 'free' | 'paid', published = true): NumberedLesson => ({
+  id: `lesson-${number}`, courseId: 'id', number, order: number, title: 'Lesson',
+  description: '', access, published, videoEmbedUrl: '', durationSec: null, materials: '',
+  views: 0, previewImageUrl: null, coverCaption: null, hideHeader: false, hideFooter: false,
+  hideBackLink: false, hideLessonsNav: false, marketingVariants: [], relatedVariants: [],
+  marketingHtml: null, relatedHtml: null,
+});
+const course = (slug: string, first: number): CourseWithLessons => ({
+  id: `${slug}-id`, slug, title: 'Course', description: '', coverUrl: null, order: 0,
+  published: true, access: 'paid', isTest: false, testToastMessage: null, testLandingHtml: null,
+  showBadge: false, badgeText: null, highlightBackground: false, clickCount: 0,
+  lessons: [lesson(1, 'free', false), lesson(2, 'paid'), lesson(first, 'free'), lesson(first + 1, 'free')],
+});
+const introHref = '/courses/claude-code-agents/lessons/1';
+function startHtml(html: string, slug: string) {
+  const blocks = html.match(/<section\b[^>]*data-blog-cta-position="[^"]+"[\s\S]*?<\/section>/g) ?? [];
+  expect(blocks, slug).toHaveLength(2);
+  for (const block of blocks) {
+    expect(block).toContain(`href="${introHref}"`);
+    expect(block).toContain('бесплатный вводный урок');
+    expect(block).not.toMatch(/бесплатн\S*\s+курс|₽|рубл/i);
+  }
+  expect(getCatalog).not.toHaveBeenCalled();
+  return blocks.join('');
+}
+async function start(slug: string) {
+  return startHtml(await pageHtml(slug), slug);
+}
+const realPostHtml = new Map<string, string>();
+let realPostCatalogCalls: number;
+// Clean origin/main (#503, 2026-11-15): import 6786.203223 ms, all-post
+// render 4535.457943 ms, slowest coverage run 5183.504959 ms (5000 ms timeout).
+// Use 3x the largest measurement, rounded up to ms, for scheduling contention;
+// every post and every original assertion still runs, with both phases bounded.
+const realPostsTimeoutMs = Math.ceil(6_786.203223 * 3);
+beforeAll(async () => {
+  // Render each real article once during preparation, so the growing catalog's
+  // Markdown/SSR work does not consume the assertion test's time budget.
+  for (const post of blog.BLOG_POSTS) realPostHtml.set(post.slug, await pageHtml(post.slug));
+  realPostCatalogCalls = vi.mocked(getCatalog).mock.calls.length;
+}, realPostsTimeoutMs);
+let catalog: CourseWithLessons[];
+beforeEach(() => {
+  catalog = [course('claude-code-agents', 7), course('claude-code', 5), course('vibecoding', 4), course('ai-cartoons', 6)];
+  vi.mocked(getCatalog).mockReset().mockResolvedValue(catalog);
+});
+afterEach(() => vi.restoreAllMocks());
+
+// The shared template now has a fixed intro target, independent of catalog
+// availability, lesson numbering and article topic (task #229 rework).
+it.each([
+  'ii-agent-prostymi-slovami',
+  'promt-inzhiniring-prostymi-slovami',
+  'kakuyu-neyroset-vybrat',
+])('keeps the fixed intro target for editorial article: %s', async slug => {
+  catalog[0].lessons.reverse();
+  await start(slug);
+});
+it.each(['empty', 'throw'])('catalog %s preserves the article and both CTAs', async state => {
+  if (state === 'throw') vi.mocked(getCatalog).mockRejectedValue(new Error('catalog unavailable'));
+  else vi.mocked(getCatalog).mockResolvedValue([]);
+  const html = await pageHtml('ii-agent-prostymi-slovami');
+  for (const marker of ['<article', 'application/ld+json', 'id="post-faq"']) expect(html).toContain(marker);
+  startHtml(html, 'ii-agent-prostymi-slovami');
+});
+it.each(['unpublished', 'test', 'no-free'])('catalog state %s cannot change the intro target', async state => {
+  if (state === 'unpublished') catalog[0].published = false;
+  if (state === 'test') catalog[0].isTest = true;
+  if (state === 'no-free') catalog[0].lessons = [lesson(1, 'free', false), lesson(2, 'paid')];
+  await start('ii-agent-prostymi-slovami');
+});
+it.each([
+  ['Как сделать видео с ИИ', undefined],
+  ['Первый сайт с ИИ', undefined],
+  ['Новый инструмент', ['ИИ-агенты']],
+  ['Обзор нового инструмента', undefined],
+] as const)('auto article without editorial links: %s', async (title, tags) => {
+  vi.spyOn(blog, 'getBlogPost').mockReturnValue({
+    ...blog.BLOG_POSTS[0], slug: 'future', title, topic: '', body: 'New auto article.', lessonPath: null,
+    ...(tags ? { tags } : {}),
+  });
+  const html = await start('future');
+  catalog.reverse();
+  expect(await start('future')).toBe(html);
+});
+it('covers every real post without reading the public catalog', async () => {
+  expect(realPostCatalogCalls).toBe(0);
+  expect(realPostHtml.size).toBe(blog.BLOG_POSTS.length);
+  for (const post of blog.BLOG_POSTS) startHtml(realPostHtml.get(post.slug)!, post.slug);
+}, realPostsTimeoutMs);

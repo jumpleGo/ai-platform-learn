@@ -1,0 +1,586 @@
+<!-- Лендинг предзаписи курса про ИИ-мультфильмы. Вставляется в поле testLandingHtml
+     в админке курса. Без <script> — innerHTML его не исполнит, поэтому только HTML+CSS.
+     Весь лендинг — самостоятельное тёмное «кинополотно», поэтому одинаково выглядит
+     в светлой и тёмной теме сайта. Ссылка — https://t.me/gelato_ai в двух местах. -->
+<style>
+.cn {
+  --cn-night: oklch(0.17 0.035 290);
+  --cn-night-2: oklch(0.23 0.055 300);
+  --cn-gold: oklch(0.85 0.13 85);
+  --cn-gold-deep: oklch(0.7 0.14 62);
+  --cn-rose: oklch(0.7 0.19 15);
+  --cn-violet: oklch(0.66 0.19 300);
+  --cn-teal: oklch(0.76 0.12 195);
+  --cn-paper: oklch(0.97 0.01 90);
+  --cn-dim: oklch(0.8 0.02 290 / 78%);
+  --cn-line: oklch(1 0 0 / 10%);
+  --cn-glass: oklch(1 0 0 / 6%);
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 3.25rem;
+  padding: 0 1.25rem 1.25rem;
+  border-radius: 2rem;
+  color: var(--cn-paper);
+  background:
+    radial-gradient(38rem 26rem at 82% -6%, oklch(0.45 0.18 320 / 55%), transparent 68%),
+    radial-gradient(32rem 24rem at 6% 22%, oklch(0.42 0.14 250 / 48%), transparent 70%),
+    radial-gradient(34rem 28rem at 50% 108%, oklch(0.5 0.15 30 / 42%), transparent 70%),
+    linear-gradient(180deg, var(--cn-night-2), var(--cn-night) 45%, oklch(0.15 0.03 290));
+  box-shadow: 0 40px 80px -50px oklch(0.2 0.08 300 / 90%);
+  text-wrap: pretty;
+}
+@media (min-width: 34rem) { .cn { padding: 0 2.25rem 2.25rem; gap: 4rem; } }
+.cn h1, .cn h2 { text-wrap: balance; }
+
+/* киноплёночное зерно поверх всего полотна */
+.cn-grain {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0.35;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.cn > section { position: relative; z-index: 1; }
+
+@keyframes cn-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.cn-rise { animation: cn-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: var(--d, 0s); }
+@keyframes cn-wobble {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(-3deg) translateY(-4px); }
+}
+@keyframes cn-twinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.85) rotate(0deg); }
+  50% { opacity: 0.9; transform: scale(1.1) rotate(15deg); }
+}
+@keyframes cn-shine {
+  0% { transform: translateX(-120%) skewX(-18deg); }
+  55%, 100% { transform: translateX(320%) skewX(-18deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cn-rise, .cn-seal, .cn-spark { animation: none !important; }
+  .cn-cta::after { display: none; }
+}
+
+/* ─── ХИРО: киноафиша ────────────────────────────────────── */
+.cn-hero {
+  margin: 0 -1.25rem;
+  padding: 3.5rem 1.25rem 2.75rem;
+  border-bottom: 1px solid var(--cn-line);
+}
+@media (min-width: 34rem) { .cn-hero { margin: 0 -2.25rem; padding: 4.5rem 2.25rem 3.5rem; } }
+/* тонкая перфорация плёнки по верхней кромке афиши */
+.cn-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1.5rem;
+  background-image: repeating-linear-gradient(90deg, oklch(1 0 0 / 22%) 0 0.7rem, transparent 0.7rem 1.7rem);
+  background-size: 100% 0.3rem;
+  background-position: 0 center;
+  background-repeat: repeat-x;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.cn-eyebrow {
+  margin: 0;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cn-gold);
+}
+.cn-hero h1 {
+  margin: 1.1rem 0 0;
+  max-width: 13ch;
+  font-family: var(--font-source-serif), serif;
+  font-size: clamp(2.5rem, 10vw, 4rem);
+  line-height: 1.03;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+/* мультяшное слово, но золотой фольгой, а не маркером */
+.cn-hero h1 em {
+  font-style: normal;
+  font-family: var(--font-underdog), var(--font-source-serif), serif;
+  font-size: 1.06em;
+  letter-spacing: 0;
+  background: linear-gradient(120deg, oklch(0.93 0.09 95), var(--cn-gold) 38%, var(--cn-gold-deep) 72%, oklch(0.95 0.08 95));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.cn-lead {
+  margin: 1.35rem 0 0;
+  max-width: 33rem;
+  font-size: 1.0625rem;
+  line-height: 1.68;
+  color: var(--cn-dim);
+}
+
+/* стеклянные чипы инструментов */
+.cn-chips { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 1.6rem; }
+.cn-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.85rem 0.4rem 0.65rem;
+  border: 1px solid var(--cn-line);
+  border-radius: 999px;
+  background: var(--cn-glass);
+  font-size: 0.8125rem;
+  letter-spacing: 0.01em;
+}
+.cn-chip i {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--c, var(--cn-gold));
+  box-shadow: 0 0 0.6rem var(--c, var(--cn-gold));
+}
+.cn-chip b { font-weight: 500; }
+.cn-chip span { color: var(--cn-dim); }
+
+/* верхняя строка афиши: на мобиле печать стоит в потоке рядом с надзаголовком,
+   на широком экране уезжает в абсолют и висит поверх правого поля */
+.cn-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+
+/* золотая печать со скидкой */
+.cn-seal {
+  z-index: 3;
+  flex: none;
+  display: grid;
+  place-items: center;
+  gap: 0.1rem;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 999px;
+  color: oklch(0.24 0.05 60);
+  background:
+    radial-gradient(circle at 32% 26%, oklch(0.97 0.06 95), transparent 55%),
+    linear-gradient(150deg, var(--cn-gold), var(--cn-gold-deep) 70%, oklch(0.78 0.12 75));
+  box-shadow:
+    inset 0 0 0 1px oklch(1 0 0 / 45%),
+    inset 0 0 0 4px oklch(0.55 0.12 60 / 25%),
+    0 14px 28px -14px oklch(0.5 0.14 60 / 85%);
+  animation: cn-wobble 5s ease-in-out infinite;
+}
+.cn-seal span { font-family: var(--font-source-serif), serif; font-size: 1.2rem; font-weight: 600; line-height: 1; }
+.cn-seal b { font-size: 0.5rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.75; }
+@media (min-width: 34rem) {
+  .cn-seal { position: absolute; top: 4rem; right: 2.25rem; width: 7rem; height: 7rem; }
+  .cn-seal span { font-size: 1.85rem; }
+  .cn-seal b { font-size: 0.5625rem; }
+}
+.cn-spark { position: absolute; z-index: 1; color: var(--cn-gold); animation: cn-twinkle 3.6s ease-in-out infinite; }
+/* в маленькой печати подпись не помещается в круг — на мобиле остаётся только цифра */
+@media (max-width: 33.99rem) {
+  .cn-seal b { display: none; }
+  .cn-seal span { font-size: 1.35rem; }
+}
+/* на узком экране искры попадают на текст — на мобиле их нет */
+@media (max-width: 33.99rem) { .cn-hero .cn-spark { display: none; } }
+
+/* ─── КНОПКИ ─────────────────────────────────────────────── */
+.cn-cta {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 1.85rem;
+  height: 3.125rem;
+  padding: 0 1.7rem;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: oklch(0.22 0.05 60);
+  background: linear-gradient(135deg, oklch(0.92 0.1 95), var(--cn-gold) 45%, var(--cn-gold-deep));
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 65%),
+    0 16px 30px -16px oklch(0.65 0.14 70 / 95%);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s;
+}
+.cn-cta::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 30%;
+  background: linear-gradient(90deg, transparent, oklch(1 0 0 / 55%), transparent);
+  animation: cn-shine 4.5s ease-in-out infinite;
+}
+.cn-cta:hover {
+  transform: translateY(-3px);
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 65%), 0 22px 38px -18px oklch(0.65 0.14 70 / 95%);
+}
+@media (prefers-reduced-motion: reduce) { .cn-cta:hover { transform: none; } }
+/* на мобиле надпись не влезала в пилюлю и ломалась на две строки */
+@media (max-width: 33.99rem) {
+  .cn-cta { width: 100%; justify-content: center; padding: 0 1.1rem; font-size: 0.9375rem; }
+  .cn-cta span { white-space: nowrap; }
+}
+.cn-cta > * { position: relative; z-index: 1; }
+.cn-note { margin: 0.9rem 0 0; font-size: 0.8125rem; color: var(--cn-dim); }
+
+/* ─── ЦИФРЫ ФОРМАТА ──────────────────────────────────────── */
+.cn-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin-top: 2.25rem; }
+.cn-stat {
+  min-width: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--cn-line);
+  border-radius: 1rem;
+  background: var(--cn-glass);
+}
+/* три колонки не влезают в 360px — на мобиле это строки «цифра + подпись» */
+@media (max-width: 33.99rem) {
+  .cn-stats { grid-template-columns: 1fr; gap: 0.45rem; }
+  .cn-stat { display: flex; align-items: baseline; gap: 0.6rem; padding: 0.7rem 1rem; }
+  .cn-stat b { font-size: 1.25rem; }
+  .cn-stat span { margin-top: 0; }
+}
+.cn-stat b {
+  display: block;
+  font-family: var(--font-source-serif), serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--cn-gold);
+}
+.cn-stat span { display: block; margin-top: 0.3rem; font-size: 0.75rem; line-height: 1.4; color: var(--cn-dim); }
+
+/* ─── ЗАГОЛОВКИ СЕКЦИЙ ───────────────────────────────────── */
+.cn-h2 {
+  margin: 0 0 1.5rem;
+  font-family: var(--font-source-serif), serif;
+  font-size: clamp(1.4rem, 4vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.cn-kicker {
+  display: block;
+  margin-bottom: 0.55rem;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cn-gold);
+}
+
+/* ─── ПАЙПЛАЙН ───────────────────────────────────────────── */
+.cn-frames { display: grid; gap: 0.7rem; grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 34rem) { .cn-frames { grid-template-columns: repeat(4, 1fr); } }
+.cn-frame {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 9.5rem;
+  padding: 2.2rem 0.95rem 0.95rem;
+  border: 1px solid var(--cn-line);
+  border-radius: 1.1rem;
+  background:
+    radial-gradient(9rem 6rem at 50% -10%, var(--g), transparent 70%),
+    var(--cn-glass);
+}
+.cn-frame::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 18%;
+  right: 18%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--g), transparent);
+}
+.cn-frame-n {
+  position: absolute;
+  top: 0.8rem;
+  left: 0.95rem;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.6875rem;
+  color: var(--cn-dim);
+}
+.cn-frame b { font-size: 1rem; font-weight: 600; }
+.cn-frame p { margin: 0.25rem 0 0; font-size: 0.8125rem; line-height: 1.45; color: var(--cn-dim); }
+.cn-frame u {
+  align-self: flex-start;
+  margin-top: auto;
+  padding-top: 0.7rem;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  color: var(--t);
+}
+
+/* ─── БОЛИ ───────────────────────────────────────────────── */
+.cn-pains { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.55rem; }
+.cn-pain {
+  position: relative;
+  padding: 0.95rem 1.1rem 0.95rem 2.6rem;
+  border: 1px solid var(--cn-line);
+  border-radius: 0.9rem;
+  background: oklch(1 0 0 / 3.5%);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--cn-dim);
+}
+.cn-pain::before {
+  content: '';
+  position: absolute;
+  top: 1.15rem;
+  left: 1.1rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: var(--cn-rose);
+  box-shadow: 0 0 0.75rem var(--cn-rose);
+}
+
+/* ─── ПРОГРАММА ──────────────────────────────────────────── */
+.cn-steps { margin: 0; padding: 0; list-style: none; counter-reset: cn; }
+.cn-step {
+  counter-increment: cn;
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  gap: 0.85rem;
+  align-items: baseline;
+  padding: 0.9rem 0.35rem;
+  border-bottom: 1px solid var(--cn-line);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  border-radius: 0.5rem;
+  transition: background 0.2s;
+}
+.cn-step:first-child { border-top: 1px solid var(--cn-line); }
+.cn-step:hover { background: oklch(1 0 0 / 4%); }
+.cn-step::before {
+  content: counter(cn, decimal-leading-zero);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.75rem;
+  color: var(--cn-gold);
+}
+.cn-step b { font-weight: 600; }
+.cn-step span { color: var(--cn-dim); }
+.cn-outcome {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 1.4rem 0 0;
+  padding: 1rem 1.2rem;
+  border: 1px solid oklch(0.85 0.13 85 / 28%);
+  border-radius: 1rem;
+  background: linear-gradient(120deg, oklch(0.85 0.13 85 / 12%), transparent 70%);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+.cn-outcome b { font-weight: 600; color: var(--cn-gold); white-space: nowrap; }
+
+/* ─── КОМУ ───────────────────────────────────────────────── */
+.cn-who { display: grid; gap: 1.75rem; }
+@media (min-width: 34rem) { .cn-who { grid-template-columns: 1fr 1fr; gap: 2.5rem; } }
+.cn-who-col > p {
+  margin: 0 0 0.9rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--cn-line);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cn-dim);
+}
+.cn-who-col ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.75rem; }
+.cn-who-col li { font-size: 0.9rem; line-height: 1.6; }
+.cn-who-yes > p { color: var(--cn-teal); }
+
+/* ─── ФИНАЛЬНЫЙ ОФФЕР ────────────────────────────────────── */
+.cn-offer {
+  position: relative;
+  overflow: hidden;
+  padding: 2.25rem 1.15rem;
+  border: 1px solid oklch(1 0 0 / 12%);
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(22rem 14rem at 88% 8%, oklch(0.55 0.2 320 / 65%), transparent 70%),
+    radial-gradient(20rem 14rem at 4% 96%, oklch(0.55 0.17 25 / 55%), transparent 70%),
+    linear-gradient(150deg, oklch(0.28 0.08 300), oklch(0.22 0.06 320));
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 14%);
+}
+@media (min-width: 34rem) { .cn-offer { padding: 3.25rem 2.75rem; } }
+.cn-offer > p, .cn-offer > h2, .cn-offer > b, .cn-offer > a { position: relative; z-index: 1; }
+.cn-offer-num {
+  display: block;
+  margin: 0.65rem 0 0;
+  font-family: var(--font-source-serif), serif;
+  font-size: clamp(3.5rem, 15vw, 5rem);
+  line-height: 0.95;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  background: linear-gradient(120deg, oklch(0.95 0.07 95), var(--cn-gold) 45%, var(--cn-gold-deep));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.cn-offer h2 {
+  margin: 0.45rem 0 0;
+  max-width: 22ch;
+  font-family: var(--font-source-serif), serif;
+  font-size: clamp(1.375rem, 4.5vw, 1.85rem);
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.cn-offer-text { margin: 1rem 0 0; max-width: 32rem; font-size: 0.9375rem; line-height: 1.65; color: var(--cn-dim); }
+</style>
+
+<div class="cn">
+  <div class="cn-grain" aria-hidden></div>
+
+  <!-- АФИША -->
+  <section class="cn-hero cn-rise">
+    <svg class="cn-spark" style="top: 10rem; left: 0.55rem; width: 1.15rem; height: 1.15rem; animation-delay: 0.6s" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 2L23 15.5L34 7.5L25.5 18L38 20.5L25 22.5L33 34L21.5 26L19 38L16.5 25.5L5.5 33L14 22L2 19.5L14.5 17.5L6 6.5L17 15Z" fill="currentColor"/></svg>
+    <svg class="cn-spark" style="top: 21rem; right: 0.9rem; width: 0.9rem; height: 0.9rem; animation-delay: 2.1s" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 2L23 15.5L34 7.5L25.5 18L38 20.5L25 22.5L33 34L21.5 26L19 38L16.5 25.5L5.5 33L14 22L2 19.5L14.5 17.5L6 6.5L17 15Z" fill="currentColor"/></svg>
+
+    <div class="cn-top">
+      <p class="cn-eyebrow">Курс · ИИ-мультфильмы</p>
+      <div class="cn-seal" aria-hidden="true">
+        <span>−30%</span>
+        <b>предзапись</b>
+      </div>
+    </div>
+    <h1>Свой <em>мультик</em> за вечер</h1>
+    <p class="cn-lead">
+      Без рисования, без аниматоров и без студии. Вы придумываете историю — ИИ рисует
+      кадры, оживляет их и собирает в ролик, который досматривают до конца.
+    </p>
+
+    <div class="cn-chips">
+      <span class="cn-chip" style="--c: var(--cn-gold)"><i></i><b>Nano Banana</b><span>кадры</span></span>
+      <span class="cn-chip" style="--c: var(--cn-teal)"><i></i><b>Seedance</b><span>движение</span></span>
+      <span class="cn-chip" style="--c: var(--cn-violet)"><i></i><b>Gemini</b><span>сцены</span></span>
+      <span class="cn-chip" style="--c: var(--cn-rose)"><i></i><b>Claude</b><span>сценарий</span></span>
+    </div>
+
+    <a class="cn-cta" href="https://t.me/gelato_ai" target="_blank" rel="noopener noreferrer">
+      <span>Забрать скидку 30%</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7V16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <p class="cn-note">Скидка тем, кто оставит телеграм до старта. Ответим лично.</p>
+
+    <div class="cn-stats">
+      <div class="cn-stat"><b>8</b><span>модулей от идеи до выпуска</span></div>
+      <div class="cn-stat"><b>4</b><span>инструмента в одной связке</span></div>
+      <div class="cn-stat"><b>1</b><span>готовый ролик на выходе</span></div>
+    </div>
+  </section>
+
+  <!-- ПАЙПЛАЙН -->
+  <section class="cn-rise" style="--d: 0.06s">
+    <h2 class="cn-h2"><span class="cn-kicker">Пайплайн</span>От идеи до ролика — четыре шага</h2>
+    <div class="cn-frames">
+      <div class="cn-frame" style="--g: oklch(0.7 0.19 15 / 45%); --t: var(--cn-rose)">
+        <span class="cn-frame-n">01</span>
+        <b>История</b>
+        <p>логлайн, сцены, реплики героев</p>
+        <u>Claude</u>
+      </div>
+      <div class="cn-frame" style="--g: oklch(0.85 0.13 85 / 45%); --t: var(--cn-gold)">
+        <span class="cn-frame-n">02</span>
+        <b>Кадры</b>
+        <p>герой и мир, одинаковые в каждом кадре</p>
+        <u>Nano Banana</u>
+      </div>
+      <div class="cn-frame" style="--g: oklch(0.76 0.12 195 / 45%); --t: var(--cn-teal)">
+        <span class="cn-frame-n">03</span>
+        <b>Движение</b>
+        <p>картинка оживает, камера едет</p>
+        <u>Seedance</u>
+      </div>
+      <div class="cn-frame" style="--g: oklch(0.66 0.19 300 / 45%); --t: var(--cn-violet)">
+        <span class="cn-frame-n">04</span>
+        <b>Ролик</b>
+        <p>голос, музыка, монтаж, экспорт</p>
+        <u>Gemini</u>
+      </div>
+    </div>
+  </section>
+
+  <!-- БОЛИ -->
+  <section class="cn-rise" style="--d: 0.12s">
+    <h2 class="cn-h2"><span class="cn-kicker">Знакомо</span>Почему обычно выходит каша</h2>
+    <ul class="cn-pains">
+      <li class="cn-pain">У героя в каждом кадре новое лицо — истории не получается, получается набор картинок.</li>
+      <li class="cn-pain">Картинка красивая, а в видео руки плывут и лицо ломается на первом же движении.</li>
+      <li class="cn-pain">Промпты наугад: один кадр вышел, десять ушли в мусор вместе с деньгами за генерации.</li>
+      <li class="cn-pain">Ролик вроде готов, но его выключают на пятой секунде.</li>
+    </ul>
+  </section>
+
+  <!-- ПРОГРАММА -->
+  <section class="cn-rise" style="--d: 0.18s">
+    <h2 class="cn-h2"><span class="cn-kicker">Программа</span>Что внутри</h2>
+    <ol class="cn-steps">
+      <li class="cn-step"><div><b>Идея и логлайн</b> <span>— Claude превращает задумку в историю на минуту</span></div></li>
+      <li class="cn-step"><div><b>Сценарий и раскадровка</b> <span>— сцены, планы, тайминг до первой генерации</span></div></li>
+      <li class="cn-step"><div><b>Лист персонажа</b> <span>— герой, которого Nano Banana повторяет один в один</span></div></li>
+      <li class="cn-step"><div><b>Стиль и мир</b> <span>— свет, палитра, ракурсы: язык больших студий на пальцах</span></div></li>
+      <li class="cn-step"><div><b>Консистентность кадров</b> <span>— референсы и приёмы, чтобы серия не разъезжалась</span></div></li>
+      <li class="cn-step"><div><b>Оживление в Seedance</b> <span>— движение камеры и героя без плывущих рук</span></div></li>
+      <li class="cn-step"><div><b>Голос и звук</b> <span>— озвучка, музыка, шумы, липсинк</span></div></li>
+      <li class="cn-step"><div><b>Монтаж и выпуск</b> <span>— склейка, титры, вертикаль для Reels и горизонталь для YouTube</span></div></li>
+    </ol>
+    <p class="cn-outcome"><b>На выходе:</b> ваш собственный мультфильм на минуту — с героем, историей, голосом и музыкой.</p>
+  </section>
+
+  <!-- КОМУ -->
+  <section class="cn-rise" style="--d: 0.24s">
+    <h2 class="cn-h2"><span class="cn-kicker">Аудитория</span>Кому это надо</h2>
+    <div class="cn-who">
+      <div class="cn-who-col cn-who-yes">
+        <p>подойдёт</p>
+        <ul>
+          <li>Тем, кто хочет свой канал с мультиками, но не умеет рисовать</li>
+          <li>Маркетологам и владельцам продукта: ролик вместо сметы на студию</li>
+        </ul>
+      </div>
+      <div class="cn-who-col">
+        <p>не подойдёт</p>
+        <ul>
+          <li>Тем, кто ищет классическую покадровую анимацию руками</li>
+          <li>Тем, кто ждёт полный метр: здесь короткий метр и ролики</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ОФФЕР -->
+  <section class="cn-rise cn-offer" style="--d: 0.3s">
+    <svg class="cn-spark" style="top: 1.6rem; right: 1.6rem; width: 1.6rem; height: 1.6rem" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 2L23 15.5L34 7.5L25.5 18L38 20.5L25 22.5L33 34L21.5 26L19 38L16.5 25.5L5.5 33L14 22L2 19.5L14.5 17.5L6 6.5L17 15Z" fill="currentColor"/></svg>
+    <p class="cn-eyebrow">Предзапись</p>
+    <b class="cn-offer-num">−30%</b>
+    <h2>Скидка держится только до старта курса</h2>
+    <p class="cn-offer-text">
+      Курс ещё готовится. Напишите нам в телеграм — закрепим за вами 30% и позовём
+      лично в день открытия. После старта цена будет полной.
+    </p>
+    <a class="cn-cta" href="https://t.me/gelato_ai" target="_blank" rel="noopener noreferrer">
+      <span>Забрать скидку 30%</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7V16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <p class="cn-note">Ответим лично, без рассылок.</p>
+  </section>
+</div>

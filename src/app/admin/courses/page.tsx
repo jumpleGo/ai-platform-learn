@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/table';
 import { listAllCourses } from '@/lib/db/admin-courses';
 import { createCourse, moveCourse } from './actions';
+import { courseKey } from '@/lib/slug';
 
 const selectClass =
   'h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30';
@@ -18,7 +19,7 @@ export default async function AdminCoursesPage() {
   const courses = await listAllCourses();
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-heading text-2xl font-semibold tracking-tight">Курсы</h1>
+      <h1 className="font-heading text-2xl font-bold tracking-tight">Курсы</h1>
 
       <Card>
         <CardHeader>
@@ -29,6 +30,17 @@ export default async function AdminCoursesPage() {
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="new-course-title">Название</Label>
               <Input id="new-course-title" name="title" required className="w-64" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="new-course-slug">Адрес (необязательно)</Label>
+              <Input
+                id="new-course-slug"
+                name="slug"
+                className="w-52"
+                pattern="[a-z0-9][a-z0-9-]*"
+                title="Латиница в нижнем регистре, цифры и дефис"
+                placeholder="из названия"
+              />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="new-course-description">Описание</Label>
@@ -53,6 +65,7 @@ export default async function AdminCoursesPage() {
             <TableHead>Статус</TableHead>
             <TableHead>Доступ</TableHead>
             <TableHead>Уроки</TableHead>
+            <TableHead>Клики</TableHead>
             <TableHead>Действия</TableHead>
           </TableRow>
         </TableHeader>
@@ -63,11 +76,15 @@ export default async function AdminCoursesPage() {
                 <Link href={`/admin/courses/${course.id}`} className="font-medium hover:underline">
                   {course.title}
                 </Link>
+                <div className="font-mono text-xs text-muted-foreground">/{courseKey(course)}</div>
               </TableCell>
               <TableCell>
-                <Badge variant={course.published ? 'default' : 'secondary'}>
-                  {course.published ? 'Опубликован' : 'Черновик'}
-                </Badge>
+                <div className="flex flex-wrap gap-1">
+                  <Badge variant={course.published ? 'default' : 'secondary'}>
+                    {course.published ? 'Опубликован' : 'Черновик'}
+                  </Badge>
+                  {course.isTest && <Badge variant="destructive">Тест</Badge>}
+                </div>
               </TableCell>
               <TableCell>
                 <Badge variant="outline">
@@ -75,6 +92,7 @@ export default async function AdminCoursesPage() {
                 </Badge>
               </TableCell>
               <TableCell>{course.lessonCount}</TableCell>
+              <TableCell>{course.isTest ? (course.clickCount ?? 0) : '—'}</TableCell>
               <TableCell>
                 <div className="flex items-center gap-1">
                   <form action={moveCourse.bind(null, course.id, 'up')}>
@@ -96,7 +114,7 @@ export default async function AdminCoursesPage() {
           ))}
           {courses.length === 0 && (
             <TableRow>
-              <TableCell colSpan={5} className="text-muted-foreground">
+              <TableCell colSpan={6} className="text-muted-foreground">
                 Курсов пока нет
               </TableCell>
             </TableRow>

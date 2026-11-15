@@ -5,5 +5,33 @@ export const EVENTS = {
   lessonCompleted: 'lesson_completed',           // props: courseId, lessonId
   paywallViewed: 'paywall_viewed',               // props: courseId, lessonId
   subscribeClicked: 'subscribe_clicked',         // props: place
-  subscriptionActivated: 'subscription_activated', // props: plan, source
+  subscriptionActivated: 'subscription_activated', // props: plan, amount, tariffId, courseSlug, hasSupport, source
+  lessonViewed: 'lesson_view',                 // props: lesson_id, source, campaign, device
+  videoStarted: 'video_start',                 // props: lesson_id
+  video25: 'video_25',                         // props: lesson_id, progress
+  video50: 'video_50',                         // props: lesson_id, progress
+  video75: 'video_75',                         // props: lesson_id, progress
+  video90: 'video_90',                         // props: lesson_id, progress
+  videoCompleted: 'video_complete',            // props: lesson_id
+  lessonCtaClicked: 'lesson_cta_click',        // props: lesson_id, cta_position, destination
+  lessonNextClicked: 'lesson_next_click',      // props: course, lesson, target; optional: to_lesson
+  landingLessonCtaClicked: 'landing_lesson_cta_click', // props: course, target
+  freeCtaClicked: 'free_cta_click',            // props: target
+  blogCtaClicked: 'blog_cta_click',            // props: slug, position
+  telegramClicked: 'telegram_click',           // props: lesson_id, cta_position
+  quizStarted: 'quiz_started',                 // props: place
+  quizCompleted: 'quiz_completed',             // props: result_slug
+  homeViewed: 'home_view',                     // props: variant (A/B главной)
+  pricingViewed: 'pricing_viewed',             // props: courseSlug, place — блок тарифов попал в экран
+  tariffSelected: 'tariff_selected',           // props: tariffId, price, courseSlug, place
+  paymentStarted: 'payment_started',           // props: tariffId, price, courseSlug — сабмит формы оплаты, не клик по CTA
+  paymentResultViewed: 'payment_result_viewed', // props: result, referrerHost, returnedFromTBank — возврат с платёжной страницы
+  paymentStatusChecked: 'payment_status_checked', // props: status, confirmed, courseSlug — только при смене статуса
+  experimentExposed: 'experiment_exposed',     // props: experiment, variant — посетитель увидел тестируемый элемент
+  leadSubmitted: 'lead_submitted',             // props: courseSlug, place, type — оставил контакт в форме «пришлю программу»
+  homeCourseClicked: 'home_course_click',      // props: course, place — клик по карточке курса или «Курсы» на главной
+  studentCopyClicked: 'student_copy_click',    // props: os — скопировал команду установки на /student
+  studentRepoClicked: 'student_repo_click',    // props: os — ушёл на GitHub набора с /student
+  studentBannerClicked: 'student_banner_click', // props: banner (vibecoding | free | about) — клик по баннеру под окном /student или пилюле «кто мы» над ним
+  homeStudentClicked: 'home_student_click',     // props: place (classic | scene) — клик по пилюле Gelato Student на первом экране главной
 } as const;

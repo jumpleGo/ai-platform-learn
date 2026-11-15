@@ -3,11 +3,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { LessonCard, type LessonCardData } from './lesson-card';
+import { CourseBadge } from './course-badge';
 import { plural } from '@/lib/utils';
+import { plainText } from '@/lib/markdown';
 
 export function CourseCarousel({ course, lessons, lockedIds }: {
   // только нужные поля курса — полный объект (с уроками) в клиент не уходит
-  course: { title: string; description: string };
+  course: {
+    title: string;
+    description: string;
+    isTest: boolean;
+    testToastMessage: string | null;
+    showBadge: boolean;
+    badgeText: string | null;
+    highlightBackground: boolean;
+  };
   lessons: LessonCardData[];
   lockedIds: string[];
 }) {
@@ -46,12 +56,29 @@ export function CourseCarousel({ course, lessons, lockedIds }: {
   const showArrows = lessons.length > 1;
 
   return (
-    <section className="space-y-5">
-      <div className="flex items-end justify-between gap-4">
+    <section className="relative space-y-5">
+      {/* Выделенная полка: ровная зелёная подложка во всю ширину окна.
+          Края растворяются маской сверху и снизу, поэтому рамки и углы не видны. */}
+      {course.highlightBackground && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-10 -bottom-10 left-1/2 w-screen -translate-x-1/2 bg-brand-green/10 [mask-image:linear-gradient(to_bottom,transparent_0%,black_18%,black_82%,transparent_100%)]"
+        />
+      )}
+      <div className="relative flex items-end justify-between gap-4">
         <div className="min-w-0 space-y-1.5">
-          <h2 className="font-heading text-2xl font-semibold tracking-tight">{course.title}</h2>
+          {/* тег идёт инлайном сразу за названием — на узких экранах не уезжает отдельным блоком */}
+          <h2 className="font-heading text-2xl font-bold tracking-tight">
+            {course.title}
+            {course.showBadge && course.badgeText && (
+              <>
+                {'\u00A0'}
+                <CourseBadge text={course.badgeText} />
+              </>
+            )}
+          </h2>
           {course.description && (
-            <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">{course.description}</p>
+            <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">{plainText(course.description)}</p>
           )}
         </div>
         <div className="flex shrink-0 items-center gap-3 pb-1">
@@ -73,17 +100,24 @@ export function CourseCarousel({ course, lessons, lockedIds }: {
           className="no-scrollbar -mx-1 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-1 pb-3"
         >
           {lessons.map((l, i) => (
-            <LessonCard key={l.id} lesson={l} index={i} locked={lockedIds.includes(l.id)} />
+            <LessonCard
+              key={l.id}
+              lesson={l}
+              index={i}
+              locked={lockedIds.includes(l.id)}
+              isTest={course.isTest}
+              testToastMessage={course.testToastMessage}
+            />
           ))}
         </div>
-        {/* боковые градиенты-подсказки, что лента продолжается */}
+        {/* боковые градиенты-подсказки, что лента продолжается (только от sm — на мобилке мешают) */}
         <div
           aria-hidden
-          className={`pointer-events-none absolute inset-y-0 -left-1 w-10 bg-gradient-to-r from-background to-transparent transition-opacity duration-300 ${atStart ? 'opacity-0' : 'opacity-100'}`}
+          className={`pointer-events-none absolute inset-y-0 -left-1 hidden w-10 bg-gradient-to-r from-background to-transparent transition-opacity duration-300 sm:block ${atStart ? 'opacity-0' : 'opacity-100'}`}
         />
         <div
           aria-hidden
-          className={`pointer-events-none absolute inset-y-0 -right-1 w-10 bg-gradient-to-l from-background to-transparent transition-opacity duration-300 ${atEnd ? 'opacity-0' : 'opacity-100'}`}
+          className={`pointer-events-none absolute inset-y-0 -right-1 hidden w-10 bg-gradient-to-l from-background to-transparent transition-opacity duration-300 sm:block ${atEnd ? 'opacity-0' : 'opacity-100'}`}
         />
       </div>
     </section>

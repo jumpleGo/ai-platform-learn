@@ -53,12 +53,20 @@ const COURSES: CourseSeed[] = [
   {
     id: 'course-basics',
     data: {
+      slug: 'osnovy-platformy',
       title: 'Основы платформы',
       description: 'Вводный курс для знакомства с платформой. Разберём интерфейс, навигацию и базовые сценарии работы.',
       coverUrl: null,
       order: 0,
       published: true,
       access: 'free',
+      isTest: false,
+      testToastMessage: null,
+      testLandingHtml: null,
+      showBadge: false,
+      badgeText: null,
+      highlightBackground: false,
+      clickCount: 0,
     },
     lessonTitles: [
       'Знакомство с платформой',
@@ -71,12 +79,20 @@ const COURSES: CourseSeed[] = [
   {
     id: 'course-advanced',
     data: {
+      slug: 'prodvinutyy-kurs',
       title: 'Продвинутый курс',
       description: 'Углублённый курс для тех, кто освоил основы. Продвинутые техники, разбор реальных кейсов и практика.',
       coverUrl: null,
       order: 1,
       published: true,
       access: 'paid',
+      isTest: false,
+      testToastMessage: null,
+      testLandingHtml: null,
+      showBadge: false,
+      badgeText: null,
+      highlightBackground: false,
+      clickCount: 0,
     },
     lessonTitles: [
       'Введение в продвинутые техники',
@@ -100,9 +116,19 @@ async function main() {
         durationSec: 300,
         order: i,
         access: course.lessonAccess(i),
+        published: true,
         materials: SAMPLE_MATERIALS,
         views: 120 + i * 37 + course.data.order * 210,
         previewImageUrl: null,
+        coverCaption: null,
+        hideHeader: false,
+        hideFooter: false,
+        hideBackLink: false,
+        hideLessonsNav: false,
+        marketingVariants: [],
+        relatedVariants: [],
+        marketingHtml: null,
+        relatedHtml: null,
       };
       await courseRef.collection('lessons').doc(`lesson-${i + 1}`).set(lesson);
     }

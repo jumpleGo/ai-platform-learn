@@ -11,7 +11,7 @@ export default function AdminError({
 }) {
   return (
     <div className="flex flex-col gap-3 p-6">
-      <h2 className="text-lg font-semibold">Что-то пошло не так</h2>
+      <h2 className="text-lg font-bold">Что-то пошло не так</h2>
       <p>{error.message}</p>
       <Button className="self-start" onClick={reset}>
         Попробовать снова

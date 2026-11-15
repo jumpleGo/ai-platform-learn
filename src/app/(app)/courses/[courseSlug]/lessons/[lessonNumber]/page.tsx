@@ -1,0 +1,443 @@
+import { cookies } from 'next/headers';
+import { notFound, permanentRedirect } from 'next/navigation';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { ArrowLeft, Clapperboard, Eye, Lock } from 'lucide-react';
+import { getPublishedCoursesWithLessons, resolveLesson } from '@/lib/db/courses';
+import { getSubscription } from '@/lib/db/subscriptions';
+import { getCompletedLessonIds } from '@/lib/db/progress';
+import { getSession } from '@/lib/session';
+import { hasCourseAccess, isLocked } from '@/lib/access';
+import { materialsTeaser } from '@/lib/markdown';
+import { plural } from '@/lib/utils';
+import type { Lesson } from '@/lib/types';
+import { courseKey, lessonPath } from '@/lib/slug';
+import { breadcrumbNodes, HOME_CRUMB } from '@/lib/breadcrumbs';
+import { isBannerSlot, pickVariant, slotVariants, variantSeed } from '@/lib/banners';
+import { VideoEmbed } from '@/components/video-embed';
+import { LockedVideoPlayer } from '@/components/payment/locked-video-player';
+// Оффер закрытого урока — маркетинговый баннер на внешний лендинг
+import { PromoLessonBanner } from '@/components/promo-banner';
+import { CompleteLessonButton } from '@/components/complete-lesson-button';
+import { TrackOnMount } from '@/components/track-on-mount';
+import { RecordView } from '@/components/record-view';
+import { Markdown } from '@/components/markdown';
+import { MaterialsTeaser } from '@/components/materials-teaser';
+import { WatchingNow } from '@/components/watching-now';
+import { BannerSlotView } from '@/components/banner-slot';
+import { FreeLessonAnalytics } from '@/components/free-lesson-analytics';
+import { FreeLessonAfterVideo, FreeLessonMarker } from '@/components/free-lesson-funnel';
+import { AgentsIntroNextStep } from '@/components/agents-intro-next-step';
+import { NextLessonLink } from '@/components/next-lesson-link';
+import { LessonQuizMatchModal } from '@/components/lesson-quiz-modal';
+import { EVENTS } from '@/lib/analytics/events';
+import { COURSE_PAYMENT_CONFIGS } from '@/lib/payments/tariffs';
+import {
+  AGENTS_INTRO_LESSON, SITE_URL, buildProgramUrl, getFreeLessonContent, getLessonSeoContent,
+  isoDuration, localLessonPreview, type LessonSeoContent,
+} from '@/lib/free-lessons';
+import { recordViewAction } from './actions';
+
+// Метаданные и материалы читают Firebase только при запросе.
+export const dynamic = 'force-dynamic';
+
+type LessonSearchParams = Record<string, string | string[] | undefined> & { banner?: string };
+
+export async function generateMetadata({ params }: {
+  params: Promise<{ courseSlug: string; lessonNumber: string }>;
+}): Promise<Metadata> {
+  const { courseSlug, lessonNumber } = await params;
+  const data = await resolveLesson(courseSlug, lessonNumber);
+  if (!data) return {};
+  const canonicalCourseSlug = courseKey(data.course);
+  const canonical = `${SITE_URL}${lessonPath(canonicalCourseSlug, data.number)}`;
+  const content = data.lesson.access === 'free' ? getLessonSeoContent(canonicalCourseSlug, data.number) : null;
+  if (!content) {
+    return {
+      title: `${data.lesson.title} — ${data.course.title}`,
+      description: data.lesson.description || data.course.description,
+      alternates: { canonical },
+    };
+  }
+  return {
+    title: content.seoTitle,
+    description: content.seoDescription,
+    alternates: { canonical },
+    openGraph: {
+      type: 'video.other',
+      url: canonical,
+      title: content.seoTitle,
+      description: content.seoDescription,
+      images: data.lesson.previewImageUrl
+        ? [{ url: data.lesson.previewImageUrl, alt: content.h1 }]
+        : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: content.seoTitle,
+      description: content.seoDescription,
+      images: data.lesson.previewImageUrl ? [data.lesson.previewImageUrl] : undefined,
+    },
+  };
+}
+
+function freeLessonJsonLd({
+  content,
+  courseTitle,
+  courseSlug,
+  lessonNumber,
+  courseId,
+  lessonDocumentId,
+  previewImageUrl,
+  durationSec,
+  publishedAt,
+}: {
+  content: LessonSeoContent;
+  courseTitle: string;
+  courseSlug: string;
+  lessonNumber: number;
+  courseId: string;
+  lessonDocumentId: string;
+  previewImageUrl: string | null;
+  durationSec: number | null;
+  publishedAt: string;
+}) {
+  const canonical = `${SITE_URL}${lessonPath(courseSlug, lessonNumber)}`;
+  const courseUrl = `${SITE_URL}/courses/${courseSlug}`;
+  const videoId = `${canonical}#video`;
+  const courseSchemaId = `${courseUrl}#course`;
+  const provider = { '@id': `${SITE_URL}/#organization` };
+  const prices = COURSE_PAYMENT_CONFIGS[courseSlug]?.tariffs
+    .map((tariff) => tariff.price).filter((price) => Number.isFinite(price) && price > 0) ?? [];
+  const offers = prices.length === 1
+    ? { '@type': 'Offer', price: prices[0], priceCurrency: 'RUB' }
+    : prices.length > 1
+      ? { '@type': 'AggregateOffer', lowPrice: Math.min(...prices), highPrice: Math.max(...prices), priceCurrency: 'RUB', offerCount: prices.length }
+      : undefined;
+  const graph: Record<string, unknown>[] = [
+    {
+      '@type': 'Course',
+      '@id': courseSchemaId,
+      url: courseUrl,
+      name: courseTitle,
+      description: 'Практическая программа школы GELATO о системной и проверяемой работе с ИИ на реальном проекте.',
+      provider,
+      ...(offers ? { offers } : {}),
+    },
+    {
+      '@type': 'LearningResource',
+      '@id': `${canonical}#lesson`,
+      name: content.h1,
+      description: content.seoDescription,
+      url: canonical,
+      provider,
+      isAccessibleForFree: courseSlug === AGENTS_INTRO_LESSON.courseSlug && lessonNumber === AGENTS_INTRO_LESSON.number
+        ? true : undefined,
+      inLanguage: 'ru',
+      educationalLevel: 'Начальный',
+      learningResourceType: 'Видеоурок',
+      datePublished: publishedAt,
+      isPartOf: { '@id': courseSchemaId },
+      associatedMedia: { '@id': videoId },
+    },
+    {
+      '@type': 'VideoObject',
+      '@id': videoId,
+      name: content.h1,
+      description: content.seoDescription,
+      uploadDate: publishedAt,
+      duration: isoDuration(durationSec),
+      thumbnailUrl: previewImageUrl ? [previewImageUrl] : undefined,
+      embedUrl: `${SITE_URL}/api/player/${courseId}/${lessonDocumentId}`,
+      inLanguage: 'ru',
+      isFamilyFriendly: true,
+    },
+    ...breadcrumbNodes(
+      [HOME_CRUMB, { name: courseTitle, url: courseUrl }, { name: content.h1, url: canonical }],
+      `${canonical}#lesson`,
+    ),
+  ];
+  return { '@context': 'https://schema.org', '@graph': graph };
+}
+
+export default async function LessonPage({ params, searchParams }: {
+  params: Promise<{ courseSlug: string; lessonNumber: string }>;
+  searchParams: Promise<LessonSearchParams>;
+}) {
+  const { courseSlug, lessonNumber } = await params;
+  const query = await searchParams;
+  // ?banner=materials:b — открыть урок с конкретным вариантом (предпросмотр из админки)
+  const forcedBanner = Array.isArray(query.banner) ? query.banner[0] : query.banner;
+  const [forcedSlot, forcedVariant] = (forcedBanner ?? '').split(':');
+  // страница урока открыта и гостям; платный урок без доступа отдаётся заблокированным (только превью)
+  const session = await getSession();
+  const [data, sub, completedIds] = await Promise.all([
+    resolveLesson(courseSlug, lessonNumber),
+    session ? getSubscription(session.uid) : null,
+    session ? getCompletedLessonIds(session.uid) : new Set<string>(),
+  ]);
+  if (!data) notFound();
+  const { course, lesson, number, publishedAt } = data;
+  // пришли по старому адресу с хешами — уводим на человекочитаемый
+  const path = lessonPath(courseKey(course), number);
+  if (courseSlug !== courseKey(course) || lessonNumber !== String(number)) permanentRedirect(path);
+  // id документов нужны для аналитики, прогресса и прокси-плеера — они не участвуют в URL страницы
+  const courseId = course.id;
+  const lessonId = lesson.id;
+  const publishedCourses = await getPublishedCoursesWithLessons();
+  const nextLesson = publishedCourses.find((item) => item.id === courseId)
+    ?.lessons.find((item) => item.number > number);
+  const nextLessonLink = nextLesson ? (
+    <NextLessonLink
+      courseSlug={courseKey(course)}
+      fromLesson={number}
+      toLesson={nextLesson.number}
+      title={nextLesson.title}
+    />
+  ) : null;
+  const freeLesson = lesson.access === 'free' ? getFreeLessonContent(courseKey(course), number) : null;
+  const seoContent = lesson.access === 'free' ? getLessonSeoContent(courseKey(course), number) : null;
+  const ctaHref = freeLesson ? buildProgramUrl(freeLesson, query) : null;
+
+  const now = Date.now();
+  const locked = isLocked(lesson, sub, now);
+  // Тест lesson_next_step — только для тех, кому есть что продавать: гость или ученик
+  // без доступа к курсу вайбкодинга. Оплатившему блок «что дальше в курсе» не нужен
+  const vibeCourse = freeLesson
+    ? publishedCourses.find((c) => ['vibecoding', 'it-vibecoding'].includes(courseKey(c)))
+    : undefined;
+  const nextStepTest = Boolean(freeLesson) && !(vibeCourse && hasCourseAccess(vibeCourse.id, sub, now));
+  // Обложка: локальный файл, пока превью из Storage не отдаются; иначе — загруженное в админке
+  const poster = localLessonPreview(courseKey(course), number) ?? lesson.previewImageUrl;
+  // Чувствительные поля не уходят клиенту без доступа: ссылку на видео клиент не получает вовсе
+  // (плеер грузится через прокси-роут), вместо полных материалов — оглавление разделов
+  const materials = locked ? '' : lesson.materials;
+  const teaser = locked && lesson.materials ? materialsTeaser(lesson.materials) : null;
+  const views = lesson.views ?? 0;
+  const cookieStore = await cookies();
+  const visitorId = cookieStore.get('vid')?.value ?? 'anon';
+  const fromLanding = (Array.isArray(query.from) ? query.from[0] : query.from) ?? cookieStore.get('from_landing')?.value;
+  const banners = (['materials', 'related'] as const).map((slot) => {
+    const variants = slotVariants(lesson, slot);
+    // принудительный вариант показываем как есть и не считаем в статистике
+    const forced = isBannerSlot(forcedSlot) && forcedSlot === slot
+      ? variants.find((v) => v.id === forcedVariant)
+      : undefined;
+    return {
+      slot,
+      preview: Boolean(forced),
+      variant: forced ?? pickVariant(variants, variantSeed(visitorId, lessonId, slot)),
+    };
+  });
+  const [materialsBanner, relatedBanner] = banners;
+
+  return (
+    <>
+      {/* key — иначе React реюзает компонент при навигации между уроками и событие не уходит */}
+      {freeLesson ? (
+        <FreeLessonAnalytics
+          key={`viewed:${courseId}:${lessonId}`}
+          courseId={courseId}
+          lessonDocumentId={lessonId}
+          lessonId={freeLesson.lessonId}
+          source={(Array.isArray(query.source) ? query.source[0] : query.source)
+            ?? (Array.isArray(query.utm_source) ? query.utm_source[0] : query.utm_source)
+            ?? 'direct'}
+          campaign={(Array.isArray(query.campaign) ? query.campaign[0] : query.campaign)
+            ?? (Array.isArray(query.utm_campaign) ? query.utm_campaign[0] : query.utm_campaign)
+            ?? 'gelato_dev'}
+        />
+      ) : (
+        <TrackOnMount
+          key={`opened:${courseId}:${lessonId}`}
+          event={EVENTS.lessonOpened}
+          props={{ courseId, lessonId, locked }}
+        />
+      )}
+      {locked && (
+        <TrackOnMount
+          key={`paywall:${courseId}:${lessonId}`}
+          event={EVENTS.paywallViewed}
+          props={{ courseId, lessonId }}
+        />
+      )}
+      <RecordView key={`view:${courseId}:${lessonId}`} action={recordViewAction.bind(null, courseId, lessonId)} />
+      {seoContent && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(freeLessonJsonLd({
+              content: seoContent,
+              courseTitle: course.title,
+              courseSlug: courseKey(course),
+              lessonNumber: number,
+              courseId,
+              lessonDocumentId: lessonId,
+              previewImageUrl: lesson.previewImageUrl,
+              durationSec: lesson.durationSec,
+              publishedAt,
+            })).replace(/</g, '\\u003c'),
+          }}
+        />
+      )}
+      <LessonChrome
+        lesson={lesson}
+        hideLessonsNav={Boolean(freeLesson && !session)}
+        funnelMode={Boolean(freeLesson)}
+      />
+      <LessonQuizMatchModal
+        lessonNumber={number}
+        source={Array.isArray(query.source) ? query.source[0] : query.source}
+        match={Array.isArray(query.match) ? query.match[0] : query.match}
+      />
+      <div className="animate-rise relative space-y-8">
+        {/* метка, заголовок и лид — одна смысловая группа, поэтому стоят вплотную */}
+        <div className="space-y-3">
+          {freeLesson ? <FreeLessonMarker /> : !lesson.hideBackLink && (
+            <Link
+              href={`/courses/${courseKey(course)}`}
+              className="group inline-flex items-center gap-1.5 font-mono text-sm text-muted-foreground transition-colors hover:text-primary"
+            >
+              <ArrowLeft className="size-4 transition-transform duration-200 group-hover:-translate-x-0.5" aria-hidden />
+              {course.title}
+            </Link>
+          )}
+          {/* На телефоне заголовок компактнее, а лид уходит под плеер: 3 строки заголовка
+              и 3 строки лида сдвигали плеер за сгиб, и 22 из 48 уходили, не нажав play */}
+          <h1 className={freeLesson
+            ? 'max-w-4xl font-heading text-[2rem]/[1.06] font-extrabold tracking-[-0.03em] text-balance text-brand-navy sm:text-[3.25rem]/[1.02]'
+            : 'font-heading text-3xl font-extrabold tracking-tight text-balance text-brand-navy sm:text-4xl/[1.15]'}>
+            {seoContent?.h1 ?? lesson.title}
+          </h1>
+          {freeLesson && <p className="hidden max-w-3xl text-lg leading-[1.35] text-muted-foreground text-pretty sm:block">{freeLesson.lead}</p>}
+        </div>
+        {!freeLesson && (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 font-mono text-xs text-muted-foreground">
+            <WatchingNow seed={views} />
+            {views > 0 && (
+              <span className="inline-flex items-center gap-1.5">
+                <Eye className="size-3.5" aria-hidden />
+                {views.toLocaleString('ru-RU')} {plural(views, ['просмотр', 'просмотра', 'просмотров'])}
+              </span>
+            )}
+          </div>
+        )}
+        <div className="overflow-hidden rounded-2xl border border-border shadow-md">
+          {locked ? (
+            <LockedVideoPlayer
+              previewUrl={lesson.previewImageUrl}
+              title={lesson.title}
+              courseSlug={courseKey(course)}
+              courseTitle={course.title}
+            />
+          ) : lesson.videoEmbedUrl ? (
+            <VideoEmbed
+              courseId={courseId}
+              lessonId={lessonId}
+              title={seoContent?.h1 ?? lesson.title}
+              analyticsLessonId={freeLesson?.lessonId}
+              poster={poster}
+            />
+          ) : (
+            <MissingVideo />
+          )}
+        </div>
+        {freeLesson && <p className="text-base leading-[1.4] text-muted-foreground text-pretty sm:hidden">{freeLesson.lead}</p>}
+        {locked && !freeLesson && (
+          <PromoLessonBanner
+            courseSlug={courseKey(course)}
+            courseTitle={course.title}
+          />
+        )}
+        {!freeLesson && (seoContent?.seoDescription || lesson.description) && (
+          <p className="max-w-2xl leading-relaxed text-muted-foreground">{seoContent?.seoDescription ?? lesson.description}</p>
+        )}
+        {!freeLesson && (materials || teaser) && (
+          <div className="max-w-2xl rounded-2xl border border-border bg-card/40 p-5 sm:p-6">
+            <p className="mb-3 font-mono text-xs tracking-wide text-muted-foreground uppercase">Материалы урока</p>
+            {teaser ? <MaterialsTeaser teaser={teaser} /> : <Markdown source={materials} />}
+            {locked && (
+              <p className="mt-4 text-sm text-muted-foreground">
+                Полные материалы откроются после оформления подписки.
+              </p>
+            )}
+          </div>
+        )}
+        {!freeLesson && materialsBanner.variant && (
+          <BannerSlotView
+            key={`materials:${lessonId}:${materialsBanner.variant.id}`}
+            courseId={courseId}
+            lessonId={lessonId}
+            slot="materials"
+            variantId={materialsBanner.variant.id}
+            html={materialsBanner.variant.html}
+            preview={materialsBanner.preview}
+          />
+        )}
+        {!freeLesson && nextLessonLink}
+        {!freeLesson && session && !locked && (
+          <CompleteLessonButton
+            courseId={courseId}
+            lessonId={lesson.id}
+            path={path}
+            completed={completedIds.has(lesson.id)}
+          />
+        )}
+        {!freeLesson && relatedBanner.variant && (
+          <BannerSlotView
+            key={`related:${lessonId}:${relatedBanner.variant.id}`}
+            courseId={courseId}
+            lessonId={lessonId}
+            slot="related"
+            variantId={relatedBanner.variant.id}
+            html={relatedBanner.variant.html}
+            preview={relatedBanner.preview}
+          />
+        )}
+        {freeLesson && ctaHref && (
+          <FreeLessonAfterVideo
+            content={freeLesson}
+            materials={materials}
+            ctaHref={ctaHref}
+            fromLanding={fromLanding}
+            lessonNumber={number}
+            nextStepTest={nextStepTest}
+          />
+        )}
+        {freeLesson && nextLessonLink}
+        {lesson.access === 'free' && courseKey(course) === AGENTS_INTRO_LESSON.courseSlug
+          && number === AGENTS_INTRO_LESSON.number && <AgentsIntroNextStep />}
+      </div>
+    </>
+  );
+}
+
+// Фокус-режим урока: правила глобальные, но живут только пока смонтирована страница этого
+// урока — при переходе на другой урок React снимает <style> и обвязка возвращается.
+// precedence не ставим намеренно: иначе React поднял бы стиль в <head> и закешировал.
+function LessonChrome({ lesson, hideLessonsNav = false, funnelMode = false }: {
+  lesson: Lesson;
+  hideLessonsNav?: boolean;
+  funnelMode?: boolean;
+}) {
+  const css = [
+    lesson.hideHeader && '[data-app-header],[data-app-partner-bar]{display:none}',
+    (lesson.hideFooter || funnelMode) && '[data-app-footer]{display:none}',
+    (lesson.hideLessonsNav || hideLessonsNav) && '[data-lessons-nav]{display:none}[data-course-grid]{grid-template-columns:1fr}',
+  ].filter(Boolean).join('');
+  if (!css) return null;
+  return <style>{css}</style>;
+}
+
+
+// У урока тестового курса ссылки на видео может не быть — вместо плеера заглушка
+function MissingVideo() {
+  return (
+    <div className="flex aspect-video w-full flex-col items-center justify-center gap-3 bg-secondary text-center">
+      <span className="flex size-12 items-center justify-center rounded-full bg-primary/15">
+        <Clapperboard className="size-5 text-primary" aria-hidden />
+      </span>
+      <p className="px-6 text-sm font-medium text-foreground/90">Видео скоро появится</p>
+    </div>
+  );
+}

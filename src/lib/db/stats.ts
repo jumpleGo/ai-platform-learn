@@ -11,6 +11,14 @@ export async function recordLessonView(courseId: string, lessonId: string) {
     .set({ views: FieldValue.increment(1) }, { merge: true });
 }
 
+// Счётчик кликов по тестовому (маркетинговому) курсу — считаем спрос
+export async function incrementTestCourseClick(courseId: string) {
+  if (!/^[\w-]+$/.test(courseId)) return;
+  await adminDb
+    .doc(`courses/${courseId}`)
+    .set({ clickCount: FieldValue.increment(1) }, { merge: true });
+}
+
 // Якорь для индикатора присутствия: реальное число зарегистрированных.
 // Кэш 5 минут — не бьём в Firestore на каждый рендер главной
 export const getRegisteredUsersCount = unstable_cache(

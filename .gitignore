@@ -39,3 +39,8 @@ next-env.d.ts
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+
+# кэш питоновских скриптов сборки сцены
+__pycache__/
+*.pyc
+!certificates/russian-trusted-root-ca.pem

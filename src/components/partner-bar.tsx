@@ -19,6 +19,7 @@ export async function PartnerBar() {
   if (!partner) return null;
   return (
     <div
+      data-app-partner-bar
       className="px-4 py-2 text-center text-sm text-white"
       style={{ backgroundColor: partner.brandColor ?? '#18181b' }}
     >

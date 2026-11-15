@@ -2,26 +2,28 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Check, Lock } from 'lucide-react';
+import { lessonPath } from '@/lib/slug';
 
-export type NavItem = { id: string; title: string; locked: boolean; completed: boolean };
+export type NavItem = { id: string; number: number; title: string; locked: boolean; completed: boolean };
 
-// Меню уроков курса. Живёт в layout сегмента [courseId], поэтому при переходе между
+// Меню уроков курса. Живёт в layout сегмента [courseSlug], поэтому при переходе между
 // уроками не перемонтируется — активный урок подсвечивается на клиенте через useParams.
-export function CourseLessonsNav({ courseId, items, completedCount }: {
-  courseId: string;
+export function CourseLessonsNav({ courseKey, items, completedCount }: {
+  courseKey: string;
   items: NavItem[];
   completedCount: number;
 }) {
-  const { lessonId } = useParams<{ lessonId: string }>();
+  const { lessonNumber } = useParams<{ lessonNumber: string }>();
   const total = items.length;
   return (
     <aside
+      data-lessons-nav
       className="animate-rise space-y-4 lg:sticky lg:top-20 lg:self-start"
       style={{ '--rise-delay': '0.08s' } as React.CSSProperties}
     >
       <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold">Уроки курса</h2>
+          <h2 className="text-sm font-bold">Уроки курса</h2>
           <span className="font-mono text-xs text-muted-foreground">
             {completedCount}/{total}
           </span>
@@ -33,12 +35,12 @@ export function CourseLessonsNav({ courseId, items, completedCount }: {
           />
         </div>
         <ul className="space-y-1">
-          {items.map((l, i) => {
-            const active = l.id === lessonId;
+          {items.map((l) => {
+            const active = String(l.number) === lessonNumber;
             return (
               <li key={l.id}>
                 <Link
-                  href={`/courses/${courseId}/lessons/${l.id}`}
+                  href={lessonPath(courseKey, l.number)}
                   aria-current={active ? 'page' : undefined}
                   className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm transition-colors duration-150 ${
                     active
@@ -47,7 +49,7 @@ export function CourseLessonsNav({ courseId, items, completedCount }: {
                   }`}
                 >
                   <span className={`font-mono text-xs ${active ? 'text-primary' : 'text-muted-foreground/60'}`}>
-                    {String(i + 1).padStart(2, '0')}
+                    {String(l.number).padStart(2, '0')}
                   </span>
                   <span className="line-clamp-1 flex-1">{l.title}</span>
                   {l.completed && (

@@ -76,18 +76,3 @@ export function playerEmbedUrl(url: string): string {
 export function youtubeThumb(id: string): string {
   return `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
 }
-
-// Тихий зацикленный автоплей для ховер-превью карточки
-export function youtubePreviewSrc(id: string): string {
-  const p = new URLSearchParams({
-    autoplay: '1',
-    mute: '1',
-    controls: '0',
-    loop: '1',
-    playlist: id,
-    playsinline: '1',
-    modestbranding: '1',
-    rel: '0',
-  });
-  return `https://www.youtube-nocookie.com/embed/${id}?${p.toString()}`;
-}

@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { parseBlocks, parseInline, type Inline } from '@/lib/markdown';
 
 // Безопасные ссылки: только http(s), остальное гасим (без javascript: и пр.)
@@ -34,7 +34,7 @@ function Inlines({ tokens }: { tokens: Inline[] }) {
           case 'text':
             return <Fragment key={i}>{tok.v}</Fragment>;
           case 'bold':
-            return <strong key={i} className="font-semibold text-foreground">{tok.v}</strong>;
+            return <strong key={i} className="font-black text-brand-navy">{tok.v}</strong>;
           case 'italic':
             return <em key={i}>{tok.v}</em>;
           case 'code':
@@ -67,52 +67,83 @@ function Inlines({ tokens }: { tokens: Inline[] }) {
 }
 
 // Рендер markdown-материалов урока
-export function Markdown({ source, className }: { source: string; className?: string }) {
+// Строка контента с простой разметкой внутри: **жирный**, *курсив*, `код`,
+// ссылки. Нужна там, где текст из lib рендерится как обычный текст абзаца —
+// сам по себе он разметку не разбирает.
+export function RichText({ text }: { text: string }) {
+  return <Inlines tokens={parseInline(text)} />;
+}
+
+// Вариант «read» — для длинных статей блога: крупнее кегль, свободнее интерлиньяж,
+// заголовки крупнее и с большим отбивом сверху. Обычный вариант остаётся компактным:
+// им набраны короткие блоки материалов внутри уроков.
+export function Markdown({ source, className, variant = 'default', insertAfterBlock }: {
+  source: string;
+  className?: string;
+  variant?: 'default' | 'read';
+  insertAfterBlock?: { index: number; content: ReactNode };
+}) {
   const blocks = parseBlocks(source);
   if (blocks.length === 0) return null;
+  const read = variant === 'read';
   return (
     <div className={className}>
       {blocks.map((b, i) => {
         switch (b.t) {
           case 'heading': {
-            const cls =
-              b.level === 2
-                ? 'mt-7 mb-2.5 font-heading text-xl font-semibold tracking-tight text-balance first:mt-0'
-                : 'mt-5 mb-2 font-heading text-base font-semibold tracking-tight first:mt-0';
+            const h2 = read
+              ? 'mt-11 mb-3 font-heading text-2xl font-extrabold tracking-tight text-balance text-brand-navy first:mt-0 sm:text-[1.75rem]'
+              : 'mt-7 mb-2.5 font-heading text-xl font-bold tracking-tight text-balance first:mt-0';
+            const h3 = read
+              ? 'mt-7 mb-2 font-heading text-lg font-bold tracking-tight text-brand-navy first:mt-0'
+              : 'mt-5 mb-2 font-heading text-base font-bold tracking-tight first:mt-0';
+            const cls = b.level === 2 ? h2 : h3;
             return b.level === 2
               ? <h2 key={i} className={cls}><Inlines tokens={parseInline(b.text)} /></h2>
               : <h3 key={i} className={cls}><Inlines tokens={parseInline(b.text)} /></h3>;
           }
           case 'p':
             return (
-              <p key={i} className="mt-3 leading-relaxed text-pretty text-muted-foreground first:mt-0">
+              <p
+                key={i}
+                className={read
+                  ? 'mt-4 text-[1.0625rem]/[1.7] text-pretty text-brand-charcoal/90 first:mt-0 sm:text-[1.125rem]/[1.72]'
+                  : 'mt-3 leading-relaxed text-pretty text-muted-foreground first:mt-0'}
+              >
                 <Inlines tokens={parseInline(b.text)} />
               </p>
             );
           case 'ul':
             return (
-              <ul key={i} className="mt-3 space-y-1.5 first:mt-0">
+              <ul key={i} className={read ? 'mt-4 space-y-2.5 first:mt-0' : 'mt-3 space-y-1.5 first:mt-0'}>
                 {b.items.map((it, j) => (
-                  <li key={j} className="flex gap-2.5 leading-relaxed text-muted-foreground">
+                  <li
+                    key={j}
+                    className={read
+                      ? 'flex gap-3 text-[1.0625rem]/[1.65] text-brand-charcoal/90 sm:text-[1.125rem]/[1.65]'
+                      : 'flex gap-2.5 leading-relaxed text-muted-foreground'}
+                  >
                     <span className="mt-2 size-1.5 shrink-0 rounded-full bg-primary/60" aria-hidden />
                     <span><Inlines tokens={parseInline(it)} /></span>
                   </li>
                 ))}
               </ul>
             );
-          case 'ol':
+          case 'ol': {
+            const start = b.start ?? 1;
             return (
-              <ol key={i} className="mt-3 space-y-1.5 first:mt-0">
+              <ol key={i} className="mt-3 space-y-2 first:mt-0" start={start}>
                 {b.items.map((it, j) => (
-                  <li key={j} className="flex gap-2.5 leading-relaxed text-muted-foreground">
-                    <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md bg-primary/10 font-mono text-xs font-medium text-primary">
-                      {j + 1}
+                  <li key={j} className="flex items-start gap-2.5 leading-relaxed text-muted-foreground">
+                    <span className="font-marker text-2xl leading-none text-primary shrink-0 select-none">
+                      {start + j}.
                     </span>
-                    <span className="pt-0.5"><Inlines tokens={parseInline(it)} /></span>
+                    <span className="min-w-0 pt-0.5"><Inlines tokens={parseInline(it)} /></span>
                   </li>
                 ))}
               </ol>
             );
+          }
           case 'callout':
             return (
               <div key={i} className="mt-4 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 first:mt-0">
@@ -127,8 +158,37 @@ export function Markdown({ source, className }: { source: string; className?: st
                 <code>{b.text}</code>
               </pre>
             );
+          case 'table':
+            return (
+              <div key={i} className="mt-4 overflow-x-auto first:mt-0">
+                <table className="w-full border-collapse text-sm">
+                  <thead>
+                    <tr>
+                      {b.headers.map((h, j) => (
+                        <th key={j} className="border-b border-border px-3 py-2 text-left font-semibold text-foreground">
+                          <Inlines tokens={parseInline(h)} />
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {b.rows.map((row, j) => (
+                      <tr key={j} className="border-b border-border/50 last:border-0">
+                        {row.map((cell, k) => (
+                          <td key={k} className="px-3 py-2 text-muted-foreground">
+                            <Inlines tokens={parseInline(cell)} />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
         }
-      })}
+      }).flatMap((block, i) => i === insertAfterBlock?.index
+        ? [block, <Fragment key="insert-after-block">{insertAfterBlock.content}</Fragment>]
+        : [block])}
     </div>
   );
 }
