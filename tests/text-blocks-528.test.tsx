@@ -14,6 +14,10 @@ vi.mock('@/lib/db/courses', () => ({
     id: 'vibe-document', slug: 'vibecoding', title: 'Курс', description: '',
     published: true, isTest: false, coverUrl: null, order: 1, access: 'paid',
     lessons: [],
+  } as unknown as CourseWithLessons, {
+    id: 'agents-document', slug: 'claude-code-agents', title: 'Курс', description: '',
+    published: true, isTest: false, coverUrl: null, order: 2, access: 'paid',
+    lessons: [],
   } as unknown as CourseWithLessons],
 }));
 vi.mock('@/lib/session', () => ({ getSession: async () => null }));
@@ -42,9 +46,9 @@ async function freeMarkup() {
   return renderToStaticMarkup(await FreePage({}));
 }
 
-async function courseMarkup() {
+async function courseMarkup(courseSlug = 'vibecoding') {
   return renderToStaticMarkup(await CourseLandingPage({
-    params: Promise.resolve({ courseSlug: 'vibecoding' }),
+    params: Promise.resolve({ courseSlug }),
     searchParams: Promise.resolve({ exp_vibe_landing_pairs: 'control' }),
   }));
 }
@@ -99,6 +103,16 @@ describe('task 528: readable text blocks', () => {
       })),
     );
     expect(homeworkAnswer(await courseMarkup())).toContain(changedSupport);
+  });
+
+  it('agents: retains the support period when the tariff does not mention Telegram', async () => {
+    const support = tariffData.getTariffsForCourse('claude-code-agents')
+      .find((tariff) => tariff.hasSupport)!.features.find((feature) => feature.startsWith('Личная поддержка'))!;
+    expect(support).toBeTruthy();
+    expect(support).not.toContain('Telegram');
+    const text = homeworkAnswer(await courseMarkup('claude-code-agents'));
+    expect(text).toContain(support);
+    assertBudget(text);
   });
 
   it.each(Object.entries(old.blocks))('rejects the old %s text with the same budget', (_, block) => {
