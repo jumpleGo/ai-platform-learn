@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import posthog from 'posthog-js';
+import posthog from './analytics/posthog';
 import { getExperiment, pickVariant, type ExperimentKey } from './experiments';
 import { EVENTS } from './analytics/events';
 import { track } from './analytics/track-client';
@@ -10,7 +10,7 @@ function readVisitorId(): string | null {
   const match = document.cookie.match(/(?:^|;\s*)vid=([\w-]{8,64})/);
   if (match) return match[1];
   // vid ставит proxy, но на всякий случай — id PostHog, чтобы жребий не был случайным
-  return posthog.__loaded ? posthog.get_distinct_id() : null;
+  return posthog.get_distinct_id() ?? null;
 }
 
 // Ручной выбор варианта для QA: ?exp_<key>=<variant>
@@ -39,7 +39,7 @@ export function useExperiment(key: ExperimentKey, active: boolean): string | nul
     if (experiment.status !== 'running') return;
     // $feature/<key> — формат PostHog: по нему разрезаются любые последующие события
     // и работает вкладка Experiments, если завести там флаг с тем же ключом
-    if (posthog.__loaded) posthog.register({ [`$feature/${key}`]: variant });
+    posthog.register({ [`$feature/${key}`]: variant });
     const seenKey = `gelato:exp:${key}`;
     if (sessionStorage.getItem(seenKey) === variant) return;
     sessionStorage.setItem(seenKey, variant);

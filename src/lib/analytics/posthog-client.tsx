@@ -1,24 +1,15 @@
 'use client';
-import posthog from 'posthog-js';
+
+import { useEffect } from 'react';
+import posthog from './posthog';
 import { isAdminPath, isTrackingDisabled } from './exclusions';
 
-// Инициализация одна на вкладку; флаг переживает повторный рендер в StrictMode
-let started = false;
-
-// Инициализирует posthog-синглтон на клиенте; без ключа — no-op.
-// Инициализируем в теле компонента, а не в эффекте: эффекты детей выполняются
-// раньше родительских, и события «при монтировании» (просмотр варианта главной,
-// просмотр урока) иначе терялись бы на первой загрузке страницы.
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
-  const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-  if (typeof window !== 'undefined' && key && !started && !isTrackingDisabled()) {
-    started = true;
-    posthog.init(key, {
-      api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
-      defaults: '2025-05-24',
-      // Переход в админку уже после инициализации: события оттуда отсекаем на лету
-      before_send: (event) => (isAdminPath() ? null : event),
-    });
+  useEffect(() => {
+    const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+    if (!key || typeof window === 'undefined' || isTrackingDisabled()) return;
+
+    // Snapshot attribution before the SDK download or a client-side navigation.
     const referrer = document.referrer;
     let referringDomain = '(none)';
     try {
@@ -26,13 +17,32 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // An unusable referrer must not interrupt analytics initialization.
     }
-    posthog.register_once({
+    const firstTouch = {
       first_touch_utm_source: new URLSearchParams(window.location.search).get('utm_source') || '(none)',
       first_touch_referrer: referrer || '(none)',
       first_touch_referring_domain: referringDomain,
       first_touch_pathname: window.location.pathname,
-    });
-  }
+    };
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const start = () => {
+      void posthog.init(key, {
+        api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+        defaults: '2025-05-24',
+        before_send: (event) => (isAdminPath() ? null : event),
+      }, firstTouch).catch(() => {
+        if (!cancelled) timer = setTimeout(start, 1000);
+      });
+    };
+    // A task after the animation frame lets the browser paint before import().
+    const frame = window.requestAnimationFrame?.(() => { timer = setTimeout(start, 0); });
+    if (frame === undefined) timer = setTimeout(start, 0);
+    return () => {
+      cancelled = true;
+      if (frame !== undefined) window.cancelAnimationFrame(frame);
+      clearTimeout(timer);
+    };
+  }, []);
 
   return <>{children}</>;
 }

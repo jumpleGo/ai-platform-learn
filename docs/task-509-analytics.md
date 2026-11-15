@@ -85,3 +85,25 @@ Measured 2026-11-15 UTC. HTML: `curl -s --compressed`; each unique external `scr
 | `/_next/static/chunks/0cz1d0mv5g_q7.js` | 39627 |
 | `/_next/static/chunks/2iho8jepmwwua.js` | 2336 |
 
+
+## Local baseline
+
+Next.js 16.2.9 Turbopack, Node 22.21.0, lockfile installed by `npm ci`. Read the packaged Lazy Loading, use client, and Next CLI guides before changes.
+
+First-load files are the deduplicated union of `.next/build-manifest.json` rootMainFiles/polyfillFiles and the route client-reference manifest entryJSFiles (the same entries Next uses for route script tags). Each file is gzip-compressed separately at level 6. Local and production baselines are distinct; production may serve another build/home variant.
+
+| Route | Before, gzip B |
+| --- | ---: |
+| / | 341470 |
+| /courses/vibecoding | 348620 |
+| /blog/vaybkoding-chto-eto | 333768 |
+
+The 63591 B SDK chunk is present in every initial route manifest. Raw HTML, per-script measurements, build logs, and frozen source provenance are retained in ignored `eval/509/`. No environment files or credentials were changed.
+
+## Step 2: deferred SDK
+
+A single `import('posthog-js')` lives in the thin client wrapper. The provider starts it in a task after an animation frame from useEffect. A shared promise prevents duplicate initialization. First-touch values are snapshotted before loading, registered after init, then queued register/capture/identify/reset calls replay in order. Download failures retain the queue and schedule a retry. All five application import sites now use the wrapper; the synchronous visitor-ID fallback remains available after SDK readiness.
+
+Event names, payload builders, the SDK defaults controlling automatic/history pageviews, and the admin before_send filter are unchanged.
+
+The baseline build compiled successfully and its emitted files were measured; its remaining TypeScript phase and the optional baseline test run were stopped to preserve the 30-minute budget for the final full checks.

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import posthog from 'posthog-js';
+import posthog from '@/lib/analytics/posthog';
 import { getExperiment, type ExperimentKey } from '@/lib/experiments';
 import { EVENTS } from '@/lib/analytics/events';
 import { track } from '@/lib/analytics/track-client';
@@ -13,7 +13,7 @@ export function ExperimentExposure({ experimentKey, variant }: { experimentKey: 
   useEffect(() => {
     const experiment = getExperiment(experimentKey);
     if (experiment.status !== 'running') return;
-    if (posthog.__loaded) posthog.register({ [`$feature/${experimentKey}`]: variant });
+    posthog.register({ [`$feature/${experimentKey}`]: variant });
     const seenKey = `gelato:exp:${experimentKey}`;
     if (sessionStorage.getItem(seenKey) === variant) return;
     sessionStorage.setItem(seenKey, variant);
