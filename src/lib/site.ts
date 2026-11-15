@@ -33,14 +33,16 @@ export const NAV: readonly NavItem[] = [
   { href: '/courses', label: 'Наши обучения' },
   { href: '/reviews', label: 'Отзывы' },
   { href: '/faq', label: 'Вопрос-ответ' },
+  { href: '/reels', label: 'Короткие видео' },
 ];
 
 // Витрина уроков живёт на главной — вошедшему нужен видимый способ вернуться
 // к ней с любой страницы. Гостю пункт не показываем: показывать нечего.
 export const LEARNING_HREF = '/#learning';
 
-export function navItems(authed: boolean): readonly NavItem[] {
-  return authed ? [{ href: LEARNING_HREF, label: 'Моё обучение' }, ...NAV] : NAV;
+export function navItems(authed: boolean, hasReels = false): readonly NavItem[] {
+  const items = hasReels ? NAV : NAV.filter((item) => item.href !== '/reels');
+  return authed ? [{ href: LEARNING_HREF, label: 'Моё обучение' }, ...items] : items;
 }
 
 export const LEGAL_NAV: readonly NavItem[] = [

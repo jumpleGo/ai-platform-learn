@@ -5,6 +5,7 @@ import { courseKey, lessonPath } from '@/lib/slug';
 import { SITE_URL, TELEGRAM_CHANNEL } from '@/lib/site';
 import { BLOG_POSTS, blogPostUrl } from '@/lib/blog';
 import { AGENTS_INTRO_LESSON } from '@/lib/free-lessons';
+import { hasPublishedReels } from '@/lib/reels-availability';
 
 // llms.txt — короткая карта сайта для ИИ-поиска: ассистент читает её вместо
 // того, чтобы гадать по вёрстке, и точнее пересказывает, чему тут учат.
@@ -12,7 +13,9 @@ import { AGENTS_INTRO_LESSON } from '@/lib/free-lessons';
 export const dynamic = 'force-dynamic';
 
 export async function GET(): Promise<Response> {
-  const courses = await getPublishedCoursesWithLessons();
+  const [courses, hasReels] = await Promise.all([
+    getPublishedCoursesWithLessons(), hasPublishedReels(),
+  ]);
 
   const lines: string[] = [
     '# GELATO',
@@ -63,6 +66,7 @@ export async function GET(): Promise<Response> {
     `- [Наши обучения](${SITE_URL}/courses): каталог программ`,
     `- [Вопрос-ответ](${SITE_URL}/faq): кому подойдёт, как проходит, сколько стоит, возврат`,
     `- [Блог](${SITE_URL}/blog): разборы про работу с ИИ текстом`,
+    ...(hasReels ? [`- [Короткие видео](${SITE_URL}/reels): короткие ролики про работу с ИИ`] : []),
     `- [Подробная карта для ИИ](${SITE_URL}/llms-full.txt): программы, стоимость и бесплатный вводный урок`,
     `- [Телеграм](${TELEGRAM_CHANNEL}): анонсы и разборы`,
     '',
