@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
-import { getPublishedCoursesWithLessons } from '@/lib/db/courses';
-import * as coursesDb from '@/lib/db/courses';
+import { getPublishedCoursesWithLessons, type CourseWithLessons } from '@/lib/db/courses';
+import { listPublishedReels } from '@/lib/db/reels';
+import type { Reel } from '@/lib/reels';
 import { trainingCourses } from '@/lib/catalog';
 import { courseKey, lessonPath } from '@/lib/slug';
 import { SITE_URL } from '@/lib/site';
@@ -17,11 +18,9 @@ export const dynamic = 'force-dynamic';
 // lastModified проставляем только у статей блога, где дата настоящая: фальшивая
 // дата «время запроса» у остальных URL заставляла Google игнорировать поле целиком.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [courses, publishedReels] = await Promise.all([
+  const [courses, publishedReels]: [CourseWithLessons[], Reel[]] = await Promise.all([
     getPublishedCoursesWithLessons(),
-    'listPublishedReels' in coursesDb && typeof (coursesDb as any).listPublishedReels === 'function'
-      ? (coursesDb as any).listPublishedReels()
-      : Promise.resolve([]),
+    listPublishedReels(),
   ]);
 
   const statics: MetadataRoute.Sitemap = [
