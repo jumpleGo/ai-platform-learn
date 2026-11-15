@@ -47,12 +47,15 @@ export default async function FreePage({
           {FREE_PAGE_ANSWER}
         </p>
         <ul className="mt-3 grid min-w-0 max-w-2xl grid-cols-1 gap-2 text-base leading-snug text-brand-charcoal/90 sm:grid-cols-2 sm:gap-3">
-          {FREE_PAGE_POINTS.map((point) => (
-            <li key={point} className="min-w-0 rounded-xl border border-brand-navy/10 bg-card px-4 py-3">
+          {FREE_PAGE_POINTS.slice(0, -1).map((point) => (
+            <li key={point} className="min-w-0 rounded-xl border border-brand-navy/10 bg-card px-4 py-3 sm:last:col-span-2">
               {point}
             </li>
           ))}
         </ul>
+        <p className="mt-3 max-w-2xl text-base leading-snug text-brand-charcoal/90">
+          {FREE_PAGE_POINTS[FREE_PAGE_POINTS.length - 1]}
+        </p>
         <FreeIntroLessonButton />
 
         {isFromVibe && (
