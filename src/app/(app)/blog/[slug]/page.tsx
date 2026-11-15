@@ -7,6 +7,8 @@ import { SITE_URL } from '@/lib/site';
 import { BLOG_CRUMB, breadcrumbNodes, HOME_CRUMB } from '@/lib/breadcrumbs';
 import { Markdown } from '@/components/markdown';
 import { BlogLessonNextStep } from '@/components/blog-lesson-next-step';
+import { ForeignCommandExercise } from '@/components/foreign-command-exercise';
+import { FOREIGN_COMMAND_SLUG } from '@/lib/foreign-command-lesson';
 import { parseBlocks } from '@/lib/markdown';
 import Image from 'next/image';
 import { StickerTag } from '@/components/accent';
@@ -140,7 +142,12 @@ export default async function BlogPostPage({ params }: {
           className="mt-8"
           insertAfterBlock={{
             index: firstThirdEnd,
-            content: <BlogLessonNextStep slug={post.slug} position="after_first_third" />,
+            content: (
+              <>
+                {post.slug === FOREIGN_COMMAND_SLUG && <ForeignCommandExercise />}
+                <BlogLessonNextStep slug={post.slug} position="after_first_third" />
+              </>
+            ),
           }}
         />
 
