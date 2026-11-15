@@ -22,6 +22,10 @@ type ReelPlayerProps = {
   prefersReducedMotion: boolean;
 };
 
+function isMobileViewport() {
+  return typeof window !== 'undefined' && window.matchMedia?.('(max-width: 767px)').matches;
+}
+
 export function ReelPlayer({
   item,
   isActive,
@@ -37,25 +41,23 @@ export function ReelPlayer({
 
     video.muted = isMuted;
 
-    if (isActive) {
-      if (!prefersReducedMotion) {
-        const playPromise = video.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(() => {
-            // Autoplay might be gated by browser policy before interaction
-          });
-        }
-      } else {
-        video.pause();
+    if (isActive && isMobileViewport() && !prefersReducedMotion) {
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Autoplay might be gated by browser policy before interaction
+        });
       }
     } else {
       video.pause();
     }
+
+    return () => video.pause();
   }, [isActive, isMuted, prefersReducedMotion]);
 
   const handleVideoClick = () => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || !isActive || !isMobileViewport()) return;
     if (video.paused) {
       video.play().catch(() => {});
     } else {
@@ -75,8 +77,7 @@ export function ReelPlayer({
         poster={item.poster}
         playsInline
         loop
-        preload={isActive ? 'auto' : 'none'}
-        autoPlay={isActive && !prefersReducedMotion}
+        preload="none"
         muted={isMuted}
         onClick={handleVideoClick}
         className="h-full w-full object-cover"

@@ -10,10 +10,24 @@ type ReelsMobileFeedProps = {
 };
 
 export function ReelsMobileFeed({ items }: ReelsMobileFeedProps) {
+  const [isMobile, setIsMobile] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!window.matchMedia) return;
+    const media = window.matchMedia('(max-width: 767px)');
+    const updateViewport = () => {
+      setIsMobile(media.matches);
+      // A remounted scroller starts at the first reel.
+      setActiveIndex(0);
+    };
+    updateViewport();
+    media.addEventListener('change', updateViewport);
+    return () => media.removeEventListener('change', updateViewport);
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return;
@@ -29,7 +43,7 @@ export function ReelsMobileFeed({ items }: ReelsMobileFeedProps) {
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || typeof IntersectionObserver === 'undefined') return;
+    if (!isMobile || !container || typeof IntersectionObserver === 'undefined') return;
 
     const sections = container.querySelectorAll<HTMLElement>('section[data-reel-id]');
     const observer = new IntersectionObserver(
@@ -51,7 +65,10 @@ export function ReelsMobileFeed({ items }: ReelsMobileFeedProps) {
 
     sections.forEach((sec) => observer.observe(sec));
     return () => observer.disconnect();
-  }, [items.length]);
+  }, [isMobile, items.length]);
+
+  // Keep server markup and the first client render free of mobile videos.
+  if (!isMobile) return null;
 
   return (
     <div
