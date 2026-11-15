@@ -34,15 +34,18 @@ export function ReelPlayer({
   prefersReducedMotion,
 }: ReelPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const isManuallyPausedRef = useRef(false);
   const { title } = normalizeReel(item.reel, { title: item.reel.courseSlug });
+
+  useEffect(() => {
+    if (videoRef.current) videoRef.current.muted = isMuted;
+  }, [isMuted]);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    video.muted = isMuted;
-
-    if (isActive && isMobileViewport() && !prefersReducedMotion) {
+    if (isActive && isMobileViewport() && !prefersReducedMotion && !isManuallyPausedRef.current) {
       const playPromise = video.play();
       if (playPromise !== undefined) {
         playPromise.catch(() => {
@@ -54,14 +57,16 @@ export function ReelPlayer({
     }
 
     return () => video.pause();
-  }, [isActive, isMuted, prefersReducedMotion]);
+  }, [isActive, prefersReducedMotion]);
 
   const handleVideoClick = () => {
     const video = videoRef.current;
     if (!video || !isActive || !isMobileViewport()) return;
     if (video.paused) {
+      isManuallyPausedRef.current = false;
       video.play().catch(() => {});
     } else {
+      isManuallyPausedRef.current = true;
       video.pause();
     }
   };
