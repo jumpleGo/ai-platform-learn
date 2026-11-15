@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest';
 import * as blog from '@/lib/blog';
 import { getPublishedCoursesWithLessons as getCatalog, type CourseWithLessons, type NumberedLesson } from '@/lib/db/courses';
 import { renderBlogPost as pageHtml } from './fixtures/blog-page';
@@ -33,10 +33,17 @@ function startHtml(html: string, slug: string) {
 async function start(slug: string) {
   return startHtml(await pageHtml(slug), slug);
 }
+const realPostHtml = new Map<string, string>();
+beforeAll(async () => {
+  // Render each real article once during preparation, so the growing catalog's
+  // Markdown/SSR work does not consume the assertion test's time budget.
+  for (const post of blog.BLOG_POSTS) realPostHtml.set(post.slug, await pageHtml(post.slug));
+});
 let catalog: CourseWithLessons[];
 beforeEach(() => {
   catalog = [course('claude-code-agents', 7), course('claude-code', 5), course('vibecoding', 4), course('ai-cartoons', 6)];
-  vi.mocked(getCatalog).mockReset().mockResolvedValue(catalog);
+  // Preserve call history: startHtml must also catch catalog reads in beforeAll.
+  vi.mocked(getCatalog).mockResolvedValue(catalog);
 });
 afterEach(() => vi.restoreAllMocks());
 
@@ -78,5 +85,5 @@ it.each([
   expect(await start('future')).toBe(html);
 });
 it('covers every real post without reading the public catalog', async () => {
-  for (const post of blog.BLOG_POSTS) await start(post.slug);
+  for (const post of blog.BLOG_POSTS) startHtml(realPostHtml.get(post.slug)!, post.slug);
 });
