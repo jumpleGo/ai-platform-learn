@@ -2,7 +2,7 @@
 
 import { useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { MAX_REEL_BYTES, type Reel } from '@/lib/reels';
+import { MAX_REEL_BYTES, MAX_REEL_DESCRIPTION_LENGTH, REEL_TEXT_FIELDS, type Reel } from '@/lib/reels';
 import { saveReelAction } from './actions';
 
 function uploadVideo(id: string, file: File, progress: (loaded: number, total: number) => void): Promise<string | undefined> {
@@ -43,10 +43,11 @@ export function ReelUploadForm({ courses, reel }: {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const prefix = reel?.id ?? 'new-reel';
+  const reelTitle = reel?.title || courses.find((course) => course.slug === reel?.courseSlug)?.title || reel?.courseSlug;
 
   async function manageReel(action: 'publish' | 'unpublish' | 'delete') {
     if (!reel || inFlight.current) return;
-    if (action === 'delete' && !window.confirm(`Удалить рилс «${reel.title}» и его видео? Это действие нельзя отменить.`)) return;
+    if (action === 'delete' && !window.confirm(`Удалить рилс «${reelTitle}» и его видео? Это действие нельзя отменить.`)) return;
     inFlight.current = true;
     setBusy(true); setPendingAction(action); setError(''); setMessage('');
     const fallback = action === 'delete' ? 'Не удалось удалить рилс. Повторите попытку.' : 'Не удалось изменить публикацию. Повторите попытку.';
@@ -82,9 +83,9 @@ export function ReelUploadForm({ courses, reel }: {
         throw new Error('Выберите непустой MP4 до 10 МБ (10 485 760 байт).');
       }
       if (!hasVideo && !reel?.videoPath) throw new Error('Выберите MP4 для загрузки.');
-      // Only these three small fields go through the Server Action.
+      // Only text metadata goes through the Server Action; video uses the upload API.
       const metadata = new FormData();
-      for (const name of ['title', 'courseSlug', 'order']) metadata.set(name, data.get(name) ?? '');
+      for (const name of [...REEL_TEXT_FIELDS, 'courseSlug', 'order']) metadata.set(name, data.get(name) ?? '');
       draftId.current = await saveReelAction(draftId.current, metadata);
       const warning = hasVideo ? await uploadVideo(draftId.current, video, (loaded, total) => setProgress({ loaded, total })) : undefined;
       setMessage(warning || (hasVideo ? 'Видео загружено. Рилс сохранён как черновик.' : 'Изменения сохранены.'));
@@ -103,9 +104,24 @@ export function ReelUploadForm({ courses, reel }: {
     <form onSubmit={submit} className="flex flex-col gap-4" aria-busy={busy}>
       <fieldset disabled={busy || courses.length === 0} className="flex flex-col gap-3">
         <label htmlFor={`${prefix}-title`} className="flex flex-col gap-1.5 text-sm">
-          Заголовок
-          <input id={`${prefix}-title`} name="title" required maxLength={120} defaultValue={reel?.title} className={inputClass} />
+          Заголовок (необязательно)
+          <input id={`${prefix}-title`} name="title" maxLength={120} defaultValue={reel?.title ?? ''} placeholder="Заголовок курса" className={inputClass} />
         </label>
+        <label htmlFor={`${prefix}-description`} className="flex flex-col gap-1.5 text-sm">
+          Короткое описание (необязательно, до 300 символов)
+          <textarea id={`${prefix}-description`} name="description" maxLength={MAX_REEL_DESCRIPTION_LENGTH} rows={3} defaultValue={reel?.description ?? ''} placeholder="Описание курса" className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm" />
+        </label>
+        <label htmlFor={`${prefix}-cta-label`} className="flex flex-col gap-1.5 text-sm">
+          Текст кнопки (необязательно)
+          <input id={`${prefix}-cta-label`} name="ctaLabel" defaultValue={reel?.ctaLabel ?? ''} placeholder="Перейти в курс" className={inputClass} />
+        </label>
+        <label htmlFor={`${prefix}-cta-href`} className="flex flex-col gap-1.5 text-sm">
+          Ссылка кнопки (необязательно)
+          <input id={`${prefix}-cta-href`} name="ctaHref" inputMode="url" defaultValue={reel?.ctaHref ?? ''} placeholder="/courses/..." aria-describedby={`${prefix}-cta-help`} className={inputClass} />
+        </label>
+        <p id={`${prefix}-cta-help`} className="text-xs text-muted-foreground">
+          Укажите путь на сайте, начиная с /, или полный адрес https://. Пустые поля используют заголовок и описание курса, кнопку «Перейти в курс» и ссылку на выбранный курс.
+        </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <label htmlFor={`${prefix}-course`} className="flex flex-col gap-1.5 text-sm">
             Курс
