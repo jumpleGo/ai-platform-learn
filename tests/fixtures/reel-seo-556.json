@@ -1,0 +1,23 @@
+{
+  "commit": "c48931631a099ed78dc02cf54d097c45554204b0",
+  "source": "src/app/reels/[id]/page.tsx",
+  "sourceSha256": "4a06cb6b65fcb21c800934e77bfba2372e0cca4f137487bb00c1f13471eaaba9",
+  "lines": [
+    [
+      23,
+      31
+    ],
+    [
+      62,
+      62
+    ],
+    [
+      48,
+      48
+    ]
+  ],
+  "signing": "  const bucket = adminStorage.bucket(storageBucketName);\n  const options = { action: 'read' as const, expires: Date.now() + LINK_TTL_MS };\n  const [[video], poster, [metadata]] = await Promise.all([\n    bucket.file(reel.videoPath).getSignedUrl(options),\n    reel.posterPath\n      ? bucket.file(reel.posterPath).getSignedUrl(options).then(([url]) => url)\n      : Promise.resolve(`${SITE_URL}/og-gelato.png`),\n    bucket.file(reel.videoPath).getMetadata(),\n  ]);\n",
+  "videoObjectFields": "    thumbnailUrl: poster, uploadDate, contentUrl: video, url,\n",
+  "openGraphImages": "      images: [{ url: poster, alt: reel.title }],\n",
+  "sha256": "f6e33d16cd724d47317d2f0ba407b6a3a55a8183437d85735ad42e9fa1e85667"
+}

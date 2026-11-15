@@ -5,6 +5,8 @@ import { NextRequest } from 'next/server';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import sitemap from '@/app/sitemap';
+import { GET as poster } from '@/app/reels/[id]/poster/route';
+import { GET as video } from '@/app/reels/[id]/video/route';
 import { proxy } from '@/proxy';
 import { normalizeReel, type Reel } from '@/lib/reels';
 import { SITE_URL } from '@/lib/site';
@@ -24,6 +26,11 @@ vi.mock('@/lib/firebase/admin', () => ({
   adminStorage: { bucket: mocks.bucket }, storageBucketName: 'reels-review.test',
 }));
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: mocks.catalog }));
+// Preserve the existing publication/query-error integration checks against mocked Firestore.
+vi.mock('@/lib/db/reels', async (importOriginal) => {
+  const original = await importOriginal<typeof import('@/lib/db/reels')>();
+  return { listPublishedReels: vi.fn(original.listPublishedReels) };
+});
 vi.mock('@/components/gelato-logo', () => ({ GelatoLogo: () => <span>GELATO</span> }));
 
 // Load the current checkout only. An absent route is an assertion failure,
@@ -85,11 +92,11 @@ describe('individual public reel #556', () => {
     expect(metadata.openGraph).toMatchObject({
       title: normalized.title, description: normalized.description,
       url: `${SITE_URL}/reels/${reel.id}`,
-      images: [expect.objectContaining({ url: signedUrl(reel.posterPath!) })],
+      images: [expect.objectContaining({ url: `${SITE_URL}/reels/${reel.id}/poster` })],
     });
     expect(metadata.twitter).toMatchObject({
       card: 'summary_large_image', title: normalized.title,
-      description: normalized.description, images: [signedUrl(reel.posterPath!)],
+      description: normalized.description, images: [`${SITE_URL}/reels/${reel.id}/poster`],
     });
   });
 
@@ -100,7 +107,7 @@ describe('individual public reel #556', () => {
     const metadata = await requirePage().generateMetadata(props());
     expect(metadata.title).toBe(course.title);
     expect(metadata.description).toBe(course.description);
-    expect(metadata.twitter).toMatchObject({ images: [`${SITE_URL}/og-gelato.png`] });
+    expect(metadata.twitter).toMatchObject({ images: [`${SITE_URL}/reels/${reel.id}/poster`] });
   });
 
   it('renders VideoObject with the real upload date and playable video plus a course link', async () => {
@@ -110,10 +117,11 @@ describe('individual public reel #556', () => {
     expect(JSON.parse(json!)).toMatchObject({
       '@context': 'https://schema.org', '@type': 'VideoObject',
       name: normalizeReel(reel, course).title, description: normalizeReel(reel, course).description,
-      thumbnailUrl: signedUrl(reel.posterPath!), uploadDate, contentUrl: signedUrl(reel.videoPath),
+      thumbnailUrl: `${SITE_URL}/reels/${reel.id}/poster`, uploadDate,
+      contentUrl: `${SITE_URL}/reels/${reel.id}/video`, embedUrl: `${SITE_URL}/reels/${reel.id}`,
     });
     expect(mocks.fileMetadata).toHaveBeenCalledWith(reel.videoPath);
-    expect(html).toContain(`src="${signedUrl(reel.videoPath)}"`);
+    expect(html).toContain(`src="${SITE_URL}/reels/${reel.id}/video"`);
     expect(html).toContain(`href="/courses/${course.slug}"`);
     expect(html).toContain('Поделиться');
     expect(html).toMatch(/<video\b[^>]*controls=""[^>]*playsInline=""/i);
@@ -141,6 +149,12 @@ describe('individual public reel #556', () => {
     const route = requirePage();
     await expect(route.default(props())).rejects.toThrow('NEXT_HTTP_ERROR_FALLBACK;404');
     await expect(route.generateMetadata(props())).rejects.toThrow('NEXT_HTTP_ERROR_FALLBACK;404');
+    for (const get of [poster, video]) {
+      const media = await get(guest(`/reels/${reel.id}/poster`), props());
+      expect(media.status).toBe(404);
+      expect(media.headers.get('location')).toBeNull();
+      expect(media.headers.get('cache-control')).toBe('no-store');
+    }
     expect(mocks.sign).not.toHaveBeenCalled();
     expect(mocks.fileMetadata).not.toHaveBeenCalled();
   });

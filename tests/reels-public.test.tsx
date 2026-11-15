@@ -27,6 +27,11 @@ vi.mock('@/lib/firebase/admin', () => ({
   storageBucketName: 'reels-review.test',
 }));
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: mocks.catalog }));
+// Keep feed filtering assertions on the real implementation with mocked Firestore.
+vi.mock('@/lib/db/reels', async (importOriginal) => {
+  const original = await importOriginal<typeof import('@/lib/db/reels')>();
+  return { listPublishedReels: vi.fn(original.listPublishedReels) };
+});
 vi.mock('@/lib/session', () => ({ getSession: mocks.session }));
 vi.mock('@/components/gelato-logo', () => ({ GelatoLogo: () => <span>GELATO</span> }));
 
