@@ -4,6 +4,7 @@ import { trainingCourses } from '@/lib/catalog';
 import { courseKey, lessonPath } from '@/lib/slug';
 import { SITE_URL } from '@/lib/site';
 import { BLOG_POSTS, blogPostUrl } from '@/lib/blog';
+import { STANDALONE_FREE_LESSONS, standaloneFreeLessonPath } from '@/lib/free-lessons';
 
 // Карта строится по данным Firestore, а доступа к базе на сборке нет
 // (креды приходят из .env на сервере), поэтому генерируем на запросе.
@@ -65,5 +66,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...statics, ...posts, ...landings, ...lessons, ...reels];
+  const standaloneLessons: MetadataRoute.Sitemap = STANDALONE_FREE_LESSONS
+    .filter((lesson) => lesson.published)
+    .map((lesson) => ({
+      url: `${SITE_URL}${standaloneFreeLessonPath(lesson.slug)}`,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    }));
+
+  return [...statics, ...posts, ...landings, ...lessons, ...standaloneLessons, ...reels];
 }
