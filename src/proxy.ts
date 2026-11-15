@@ -7,6 +7,7 @@ import {
 } from '@/lib/home-experiment';
 import { parseTestRub } from '@/lib/payments/tariffs';
 import { BLOG_POSTS } from '@/lib/blog';
+import { listPublishedReels } from '@/lib/db/reels';
 import {
   LANDING_PAIRS_COOKIE,
   LANDING_PAIRS_TTL,
@@ -34,15 +35,8 @@ const PUBLIC = [
 // (app)/loading.tsx начинает поток со статусом 200 и notFound() в странице уже не меняет код
 const BLOG_SLUGS = new Set(BLOG_POSTS.map((p) => p.slug));
 
-export function proxy(req: NextRequest) {
+function finalizeResponse(req: NextRequest, isPublic: boolean): NextResponse {
   const { pathname, searchParams } = req.nextUrl;
-  const blogSlug = /^\/blog\/([^/]+)\/?$/.exec(pathname)?.[1];
-  if (blogSlug && !BLOG_SLUGS.has(blogSlug)) {
-    // человеку показываем список статей, роботу — код 404
-    return NextResponse.rewrite(new URL('/blog', req.url), { status: 404 });
-  }
-  // главная ('/') открыта гостям — точное совпадение, чтобы не распахнуть весь сайт через startsWith
-  const isPublic = pathname === '/' || pathname === '/reels' || pathname === '/reels/' || pathname === '/llms-full.txt' || PUBLIC.some((p) => pathname.startsWith(p));
   // id посетителя для A/B-тестов баннеров и главной: живёт год, гостям тоже нужен.
   // Свежий id прокидываем в заголовок запроса — иначе первый рендер его не увидит
   // и все новые посетители получили бы один и тот же вариант.
@@ -135,6 +129,35 @@ export function proxy(req: NextRequest) {
     res.cookies.set('test_rub', '', { maxAge: 0, path: '/' });
   }
   return res;
+}
+
+export function proxy(req: NextRequest): NextResponse & Promise<NextResponse>;
+export function proxy(req: NextRequest): any {
+  const { pathname } = req.nextUrl;
+  const blogSlug = /^\/blog\/([^/]+)\/?$/.exec(pathname)?.[1];
+  if (blogSlug && !BLOG_SLUGS.has(blogSlug)) {
+    // человеку показываем список статей, роботу — код 404
+    return NextResponse.rewrite(new URL('/blog', req.url), { status: 404 });
+  }
+
+  const authed = req.cookies.has('session');
+  const reelId = /^\/reels\/([^/]+)\/?$/.exec(pathname)?.[1];
+  if (reelId && !authed) {
+    return listPublishedReels().then((items) => {
+      const isPublic = items.some((item) => item.id === reelId);
+      return finalizeResponse(req, isPublic);
+    });
+  }
+
+  // главная ('/') открыта гостям — точное совпадение, чтобы не распахнуть весь сайт через startsWith
+  const isPublic =
+    pathname === '/' ||
+    pathname === '/reels' ||
+    pathname === '/reels/' ||
+    pathname === '/llms-full.txt' ||
+    PUBLIC.some((p) => pathname.startsWith(p));
+
+  return finalizeResponse(req, isPublic);
 }
 
 export const config = { matcher: ['/((?!_next|favicon.ico|.*\\.(?:png|jpg|svg|webp|avif)).*)'] };
