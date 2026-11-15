@@ -24,6 +24,13 @@ vi.mock('@/lib/firebase/admin', () => ({
   adminStorage: { bucket: mocks.bucket }, storageBucketName: 'reels-review.test',
 }));
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: mocks.catalog }));
+// Explicit sitemap boundary (#574); retain the real query implementation so
+// publication filtering and query-error assertions below remain effective.
+// Both server-only and firebase/admin are isolated above.
+vi.mock('@/lib/db/reels', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/db/reels')>();
+  return { ...actual, listPublishedReels: vi.fn(actual.listPublishedReels) };
+});
 vi.mock('@/components/gelato-logo', () => ({ GelatoLogo: () => <span>GELATO</span> }));
 
 // Load the current checkout only. An absent route is an assertion failure,

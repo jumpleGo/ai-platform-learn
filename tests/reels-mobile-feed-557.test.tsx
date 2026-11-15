@@ -155,6 +155,10 @@ describe('mobile reels feed (#557)', () => {
     const html = renderToStaticMarkup(<ReelsMobileFeed items={mockItems} />);
 
     assertNoMobileVideos(html);
+    expect(html).toContain(`src="${mockItems[0].poster}"`);
+    expect(html).toContain(mockReel1.title);
+    expect(html).toContain('data-reel-placeholder="reel-1"');
+    expect(html).not.toContain(mockReel2.title);
   });
 
   it.each([390, 1280])('renders no mobile video before effects at a %i px viewport', (width) => {
