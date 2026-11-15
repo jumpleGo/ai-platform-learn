@@ -11,3 +11,4 @@ tests
 Dockerfile*
 docker-compose*
 nginx/
+agents

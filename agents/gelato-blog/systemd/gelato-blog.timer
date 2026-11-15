@@ -1,0 +1,9 @@
+[Unit]
+Description=gelato-blog — ежедневная проверка новой X-сводки (x-agent шлёт её раз в 3 дня в 16:34 UTC)
+
+[Timer]
+OnCalendar=*-*-* 18:30:00 UTC
+Persistent=true
+
+[Install]
+WantedBy=timers.target
