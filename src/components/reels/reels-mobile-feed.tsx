@@ -2,6 +2,8 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { normalizeReel } from '@/lib/reels';
+import { EVENTS, type ReelEventProps } from '@/lib/analytics/events';
+import { track } from '@/lib/analytics/track-client';
 import { ReelPlayer, type ReelFeedItem } from './reel-player';
 
 export type { ReelFeedItem };
@@ -16,6 +18,7 @@ export function ReelsMobileFeed({ items }: ReelsMobileFeedProps) {
   const [isMuted, setIsMuted] = useState(true);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const viewedReelRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!window.matchMedia) {
@@ -71,6 +74,22 @@ export function ReelsMobileFeed({ items }: ReelsMobileFeedProps) {
     return () => observer.disconnect();
   }, [isMobile, items.length]);
 
+  useEffect(() => {
+    if (!isMobile) {
+      viewedReelRef.current = null;
+      return;
+    }
+    const reel = items[activeIndex]?.reel;
+    if (!reel || viewedReelRef.current === reel.id) return;
+    // Repeated observer entries and Strict Mode effects are the same display.
+    // Returning after another reel starts a new display.
+    viewedReelRef.current = reel.id;
+    const eventProps: ReelEventProps = {
+      reel_id: reel.id, course_slug: reel.courseSlug || null, position: activeIndex,
+    };
+    track(EVENTS.reelViewed, eventProps);
+  }, [isMobile, activeIndex, items]);
+
   // CSS shows the first poster on phones before the viewport effect can run.
   const firstItem = items[0];
   if (isMobile === null && firstItem) {
@@ -111,6 +130,7 @@ export function ReelsMobileFeed({ items }: ReelsMobileFeedProps) {
         <ReelPlayer
           key={item.reel.id}
           item={item}
+          position={index}
           isActive={activeIndex === index}
           isMuted={isMuted}
           onToggleSound={() => setIsMuted((prev) => !prev)}

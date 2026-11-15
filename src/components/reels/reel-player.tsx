@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { Volume2, VolumeX } from 'lucide-react';
 import { GelatoLogo } from '@/components/gelato-logo';
 import { normalizeReel, type Reel } from '@/lib/reels';
+import { EVENTS, type ReelEventProps } from '@/lib/analytics/events';
+import { track } from '@/lib/analytics/track-client';
 import { ReelActions } from './reel-actions';
 import { ReelCta } from './reel-cta';
 
@@ -16,6 +18,7 @@ export type ReelFeedItem = {
 
 type ReelPlayerProps = {
   item: ReelFeedItem;
+  position?: number;
   isActive: boolean;
   isMuted: boolean;
   onToggleSound: () => void;
@@ -28,6 +31,7 @@ function isMobileViewport() {
 
 export function ReelPlayer({
   item,
+  position = 0,
   isActive,
   isMuted,
   onToggleSound,
@@ -35,7 +39,17 @@ export function ReelPlayer({
 }: ReelPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const isManuallyPausedRef = useRef(false);
+  const completedRef = useRef(false);
+  const previousTimeRef = useRef(0);
   const { title } = normalizeReel(item.reel, { title: item.reel.courseSlug });
+  const eventProps: ReelEventProps = {
+    reel_id: item.reel.id, course_slug: item.reel.courseSlug || null, position,
+  };
+
+  useEffect(() => {
+    completedRef.current = false;
+    previousTimeRef.current = 0;
+  }, [isActive, item.reel.id]);
 
   useEffect(() => {
     if (videoRef.current) videoRef.current.muted = isMuted;
@@ -71,6 +85,23 @@ export function ReelPlayer({
     }
   };
 
+  const handleComplete = () => {
+    if (!isActive || completedRef.current) return;
+    completedRef.current = true;
+    track(EVENTS.reelCompleted, eventProps);
+  };
+
+  const handleTimeUpdate = (event: React.SyntheticEvent<HTMLVideoElement>) => {
+    const video = event.currentTarget;
+    if (!isActive || video.seeking || !Number.isFinite(video.duration) || video.duration <= 0) return;
+    // A looping video does not fire ended: detect its return from the final
+    // part to the start, then count only the first completed loop per display.
+    if (previousTimeRef.current >= video.duration * 0.9 && video.currentTime < previousTimeRef.current) {
+      handleComplete();
+    }
+    previousTimeRef.current = video.currentTime;
+  };
+
   return (
     <section
       data-reel-id={item.reel.id}
@@ -86,6 +117,8 @@ export function ReelPlayer({
         preload="none"
         muted={isMuted}
         onClick={handleVideoClick}
+        onEnded={handleComplete}
+        onTimeUpdate={handleTimeUpdate}
         className="h-full w-full object-cover"
       />
 
@@ -112,15 +145,15 @@ export function ReelPlayer({
         </button>
       </div>
 
-      {/* Right side action stub buttons (like, share) */}
+      {/* Right side actions; the like button is connected in #560. */}
       <div className="absolute right-3 bottom-24 z-20">
-        <ReelActions />
+        <ReelActions eventProps={eventProps} />
       </div>
 
       {/* Bottom info and course CTA */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 pb-8 pr-16">
         <div className="pointer-events-auto">
-          <ReelCta title={title} courseSlug={item.reel.courseSlug} />
+          <ReelCta title={title} courseSlug={item.reel.courseSlug} eventProps={eventProps} />
         </div>
       </div>
     </section>
