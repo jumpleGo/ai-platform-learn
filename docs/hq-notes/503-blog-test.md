@@ -1,41 +1,27 @@
 # Task 503: blog coverage timing and review corrections
 
-## Step 0 — 2026-11-15
+## Step 0 — 2026-11-15, fresh verification
 
-Baseline: clean detached worktree at origin/main `c44a558`, without the
-branch's test changes. Node 22.21.0, Next 16.2.9, Vitest 4.1.8; reused installed
-lockfile dependencies. Initial disk availability: 18011291648 bytes.
-Raw logs and the separate timing probe are excluded under `eval/`.
+Fetched origin/main and merged it normally: already current at c44a558.
+Baseline: separate clean detached worktree at that commit, with no branch
+changes. Node 22.21.0 / Vitest 4.1.8 / Next 16.2.9; reused installed dependencies
+with identical main/branch package-lock.json. Disk: 16951730176 bytes available.
+Raw reports and the separate timing probe: ignored eval/run-0310/.
 
-Three separate `npx vitest run tests/blog-start-here.test.ts` invocations
-(JSON reporter) passed. The target assertion's durations, not suite durations:
-3253.539433, 3853.784851, 1612.640321 ms.
+Three separate npx vitest run tests/blog-start-here.test.ts invocations:
+TEST_MS_BEFORE=5183.504959,4543.075154,4517.057910 (target test, not suite).
+The first failed past the default 5000 ms limit; the next two passed.
+RED_ON_OLD=yes under actual machine contention (load average approximately 17).
+The failed duration is elapsed until failure, not a completed coverage run.
 
-A separate process measured the first dynamic import of the unchanged render
-fixture and its page dependencies: 5366.769294 ms. One original `start(slug)`
-took 350.689503 ms; rendering all 26 BLOG_POSTS took 3207.287801 ms.
-Spies on readFileSync and promises.readFile observed zero calls during rendering
-(FS_MS=0); this excludes module-loader I/O during the initial import.
-EXPENSIVE=import, followed by render. Main already imports the fixture once.
+Separate unchanged-main probe: first fixture/page import 6786.203223 ms;
+one original start(slug), including assertions, 488.106228 ms;
+render all 26 BLOG_POSTS 4535.457943 ms. FS_MS=0 / FS_CALLS=0 for readFileSync
+and promises.readFile during rendering; module-loader I/O is inside IMPORT_MS.
+EXPENSIVE=import, followed by render. Main already imports the helper once;
+preparing markup in beforeAll separates rendering from assertion timing but
+does not reduce total rendering work.
 
-The review fix will preserve the existing one-time real-post preparation,
-restore per-test mockReset, capture catalog calls immediately after preparation,
-and assert both that count and complete post coverage. Both hook and assertion
-test will use 16101 ms: the largest measurement rounded up (5367 ms) times 3.
-This gives scheduling headroom without dropping any existing assertions.
-
-## Step 1
-
-Restored mockReset in beforeEach. The hook records getCatalog's call count
-immediately after rendering; the coverage test checks that snapshot is zero
-and the rendered map size equals BLOG_POSTS.length. Existing per-post CTA,
-wording, price and catalog assertions remain unchanged. Both timeouts are
-explicitly 5367 * 3 ms. Moving rendering into preparation does not reduce
-total rendering work; the reported target-test time excludes that preparation.
-
-An initial branch run also discovered the nested baseline worktree while the
-baseline build was active: all 13 branch tests passed (coverage: 111 ms), while
-the original coverage test timed out at 5358 ms. This reproduces RED_ON_OLD
-under contention, separately from the three clean baseline measurements.
-Focused checks exclude eval while that temporary worktree exists; it is removed
-before the full, unfiltered checks.
+Timeout for both hook and test: ceil(max(measurements) * 3) = 20359 ms.
+This uses the first import as the largest measured operation and gives bounded
+scheduling headroom. Every real post and all original assertions must remain.
