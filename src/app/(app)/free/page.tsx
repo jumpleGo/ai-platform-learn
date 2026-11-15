@@ -8,7 +8,7 @@ import { freeLessonCards } from '@/lib/catalog';
 import { localLessonPreview } from '@/lib/free-lessons';
 import { lessonPath } from '@/lib/slug';
 import { TELEGRAM_DM } from '@/lib/site';
-import { FREE_PAGE_ANSWER } from '@/lib/geo-answers';
+import { FREE_PAGE_ANSWER, FREE_PAGE_POINTS } from '@/lib/geo-answers';
 import { Accent, StickerTag, TitleAccent } from '@/components/accent';
 import { CoverCard } from '@/components/cover-card';
 import { FreeIntroLessonButton } from '@/components/free-intro-lesson-button';
@@ -46,12 +46,13 @@ export default async function FreePage({
         <p className="mt-3 max-w-2xl text-base leading-[1.5] text-brand-navy text-pretty sm:text-lg">
           {FREE_PAGE_ANSWER}
         </p>
-        {/* подзаголовок — часть заголовка, а не отдельный блок: держим вплотную */}
-        <p className="mt-2.5 max-w-2xl text-lg leading-[1.35] text-muted-foreground text-pretty sm:text-xl">
-          Про принципы работы с ИИ: как объяснить задачу, зачем нужен контекст
-          и почему модель ошибается. Без привязки к инструменту — работает
-          и в Claude, и в ChatGPT, и в Gemini.
-        </p>
+        <ul className="mt-3 grid min-w-0 max-w-2xl grid-cols-1 gap-2 text-base leading-snug text-brand-charcoal/90 sm:grid-cols-2 sm:gap-3">
+          {FREE_PAGE_POINTS.map((point) => (
+            <li key={point} className="min-w-0 rounded-xl border border-brand-navy/10 bg-card px-4 py-3">
+              {point}
+            </li>
+          ))}
+        </ul>
         <FreeIntroLessonButton />
 
         {isFromVibe && (

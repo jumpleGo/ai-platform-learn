@@ -1419,7 +1419,17 @@ export default async function CourseLandingPage({ params, searchParams }: {
                 </span>
               </summary>
               <div className="mt-3.5 border-t border-dashed border-brand-navy/10 pt-3.5 text-[17px] font-medium leading-relaxed sm:text-lg text-brand-charcoal/90">
-                <RichText text="В тарифе с поддержкой Эмиль **проверяет домашние задания**, а у вас есть 3 недели личного чата. Можно задавать любые вопросы, которые возникают по ходу обучения. Если что-то не получается, непонятно, как поступить, не работает настройка или вы хотите понять, правильно ли всё сделали, — пишете в чат." />
+                <ul className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
+                  <li className="min-w-0 rounded-xl bg-brand-navy/5 p-3 sm:p-4">
+                    В тарифе с поддержкой Эмиль <strong>проверяет домашние задания</strong>.
+                  </li>
+                  <li className="min-w-0 rounded-xl bg-brand-navy/5 p-3 sm:p-4">
+                    {getTariffsForCourse(key).find((tariff) => tariff.hasSupport)?.features.find((feature) => feature.includes('Telegram'))}
+                  </li>
+                  <li className="min-w-0 rounded-xl bg-brand-navy/5 p-3 sm:p-4">
+                    Застряли, не работает настройка или хотите проверить решение? Пишите в чат — можно задавать любые вопросы по учёбе.
+                  </li>
+                </ul>
               </div>
             </details>
 

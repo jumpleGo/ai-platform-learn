@@ -37,14 +37,18 @@ describe('GEO: прямой ответ в начале страницы', () => 
     expect(blogBody).toContain(OLD.blog); // старый текст не удалён
   });
 
-  it('/free: ответ на q3+q8 стоит сразу после h1 и до старого подзаголовка', () => {
-    expect(check(FREE_PAGE_ANSWER, Q3_Q8)).toBe(true);
+  it('/free: короткий ответ на q3+q8 стоит сразу после h1 и до кнопки урока', () => {
+    // #528 заменяет прежний минимум 40 слов коротким вводным ответом.
+    // Полный бюджет ответа вместе с пунктами проверяет text-blocks-528.test.tsx.
+    expect(words(FREE_PAGE_ANSWER)).toBeGreaterThan(0);
+    expect(words(FREE_PAGE_ANSWER)).toBeLessThanOrEqual(40);
+    expect(Q3_Q8.every((term) => term.test(firstSentence(FREE_PAGE_ANSWER)))).toBe(true);
     const h1 = freeSrc.indexOf('</h1>');
     const mine = freeSrc.indexOf('{FREE_PAGE_ANSWER}');
-    const old = freeSrc.replace(/\u00a0/g, ' ').indexOf('Про принципы работы с ИИ');
+    const cta = freeSrc.indexOf('<FreeIntroLessonButton');
     expect(h1).toBeGreaterThan(-1);
     expect(mine).toBeGreaterThan(h1);
-    expect(old).toBeGreaterThan(mine);
+    expect(cta).toBeGreaterThan(mine);
   });
 
   it('/faq: первый вопрос группы — q8, ответ начинается с прямого ответа', () => {
