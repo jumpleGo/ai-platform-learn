@@ -4,7 +4,7 @@ import React, { useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Volume2, VolumeX } from 'lucide-react';
 import { GelatoLogo } from '@/components/gelato-logo';
-import type { Reel } from '@/lib/reels';
+import { normalizeReel, type Reel } from '@/lib/reels';
 import { ReelActions } from './reel-actions';
 import { ReelCta } from './reel-cta';
 
@@ -34,6 +34,7 @@ export function ReelPlayer({
   prefersReducedMotion,
 }: ReelPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { title } = normalizeReel(item.reel, { title: item.reel.courseSlug });
 
   useEffect(() => {
     const video = videoRef.current;
@@ -68,7 +69,7 @@ export function ReelPlayer({
   return (
     <section
       data-reel-id={item.reel.id}
-      aria-label={item.reel.title}
+      aria-label={title}
       className="relative flex h-[100dvh] w-full snap-start snap-always items-center justify-center overflow-hidden bg-black"
     >
       <video
@@ -114,7 +115,7 @@ export function ReelPlayer({
       {/* Bottom info and course CTA */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 pb-8 pr-16">
         <div className="pointer-events-auto">
-          <ReelCta title={item.reel.title} courseSlug={item.reel.courseSlug} />
+          <ReelCta title={title} courseSlug={item.reel.courseSlug} />
         </div>
       </div>
     </section>
