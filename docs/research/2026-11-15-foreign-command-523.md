@@ -71,6 +71,10 @@
   `export PATH=$HOME/.local/node/bin:$PATH && npx tsc --noEmit -p . && npx vitest run`
   завершилась с exit 0. 496 passed, 3 expected fail, 9 skipped; `MAIN_FAILS=0`.
   Sparse checkout исключает запрещённые файлы; git status пуст до и после.
+- Та же полная команда на рабочей ветке: exit 0, `TSC_EXIT=0`.
+  Vitest: 58 passed test files, 1 skipped; 508 passed, 4 expected fail,
+  9 skipped. Среди ожидаемых падений — проверка новой статьи на старом
+  списке слагов. Отчёт: `eval/branch-full.log`.
 - Все временные данные лежат в рабочей папке. `eval/` исключён через общий
   Git `info/exclude`, не через изменение отслеживаемых правил проекта.
 
