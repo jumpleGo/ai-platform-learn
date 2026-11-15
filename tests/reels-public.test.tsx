@@ -38,11 +38,11 @@ const pageModule = Object.values(pages)[0] as {
   metadata: Metadata;
 } | undefined;
 const document = (id: string, data: object) => ({ id, data: () => data });
-const published: Reel = {
+const published = {
   id: 'published-1', title: 'Как задать ИИ понятный вопрос', courseSlug: 'claude-code-agents',
   videoPath: 'reels/published-1/123e4567-e89b-42d3-a456-426614174000.mp4',
   posterPath: 'reels/published-1/poster.webp', order: 0, published: true,
-};
+} satisfies Reel;
 const signedUrl = (path: string) => `https://storage.googleapis.com/reels-review.test/${encodeURIComponent(path)}?signed=read`;
 
 beforeEach(() => {
