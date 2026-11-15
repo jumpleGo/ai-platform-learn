@@ -3,6 +3,7 @@ import { getBlogPost } from '@/lib/blog';
 import sitemap from '@/app/sitemap';
 
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: vi.fn().mockResolvedValue([]) }));
+vi.mock('@/lib/db/reels', () => ({ listPublishedReels: async () => [] }));
 
 const EXPLAINERS = [
   { slug: 'chto-takoe-llm', term: /LLM/ },

@@ -7,6 +7,7 @@ import sitemap from '@/app/sitemap';
 vi.mock('@/lib/db/courses', () => ({
   getPublishedCoursesWithLessons: vi.fn(), resolveLesson: vi.fn(),
 }));
+vi.mock('@/lib/db/reels', () => ({ listPublishedReels: async () => [] }));
 vi.mock('@/lib/session', () => ({ getSession: vi.fn() }));
 vi.mock('@/lib/db/subscriptions', () => ({ getSubscription: vi.fn() }));
 vi.mock('@/lib/db/progress', () => ({ getCompletedLessonIds: vi.fn(), markLessonCompleted: vi.fn() }));
