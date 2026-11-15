@@ -124,6 +124,29 @@ describe('reel analytics contract (#562)', () => {
     });
   });
 
+  it('tracks like with exact properties', () => {
+    const tree = new HookHarness().render(() => ReelPlayer(props));
+    const actions = find<React.ComponentProps<typeof ReelActions>>(tree, ReelActions);
+    const buttons = React.Children.toArray(ReelActions(actions.props).props.children)
+      .filter((child) => React.isValidElement<React.ComponentProps<'button'>>(child)
+        && child.props['aria-label'] === 'Лайк') as React.ReactElement<React.ComponentProps<'button'>>[];
+    expect(mocks.track).not.toHaveBeenCalled();
+    expect(buttons[0]?.props.onClick).toBeTypeOf('function');
+    buttons[0].props.onClick!({} as React.MouseEvent<HTMLButtonElement>);
+    expect(mocks.track).toHaveBeenCalledExactlyOnceWith('reel_like', expected);
+
+    mocks.track.mockClear();
+    const treeNoCourse = new HookHarness().render(() => ReelPlayer({
+      ...props, item: { ...item, reel: { ...item.reel, courseSlug: '' } },
+    }));
+    const actionsNoCourse = find<React.ComponentProps<typeof ReelActions>>(treeNoCourse, ReelActions);
+    const buttonsNoCourse = React.Children.toArray(ReelActions(actionsNoCourse.props).props.children)
+      .filter((child) => React.isValidElement<React.ComponentProps<'button'>>(child)
+        && child.props['aria-label'] === 'Лайк') as React.ReactElement<React.ComponentProps<'button'>>[];
+    buttonsNoCourse[0].props.onClick!({} as React.MouseEvent<HTMLButtonElement>);
+    expect(mocks.track).toHaveBeenCalledExactlyOnceWith('reel_like', { ...expected, course_slug: null });
+  });
+
   it.each(['claude-code-agents', ''])('tracks CTA with exact properties (course=%s)', (courseSlug) => {
     const tree = new HookHarness().render(() => ReelPlayer({
       ...props, item: { ...item, reel: { ...item.reel, courseSlug } },
