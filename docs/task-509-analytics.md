@@ -15,3 +15,73 @@ All use `import posthog from 'posthog-js';`. No dynamic SDK import exists. FIX_N
 `PostHogProvider` calls `posthog.init` during render at line 16 and `register_once` for the four first-touch fields at lines 29–34. `track-client.ts:6,11` dispatches capture/identify from the imported SDK, gated on `__loaded`. Lesson next-click handlers use `track(EVENTS.lessonNextClicked, properties)`. Pageviews come from the SDK defaults (`2025-05-24`); there is no explicit application pageview call.
 
 Hypothesis: moving this SDK out of the initial chunks reduces initial JavaScript without changing event names, properties, or call order. Deployment and subsequent production measurements are separate from local verification.
+
+## Step 1: production before
+
+Measured 2026-11-15 UTC. HTML: `curl -s --compressed`; each unique external `script src`: raw response bytes with `Accept-Encoding: gzip` (equivalent to piping to `wc -c`). No preload-only or inline scripts included.
+
+### /: 378973 B
+
+| script src | gzip bytes |
+| --- | ---: |
+| `/_next/static/chunks/0ha4m18glnjqn.js` | 8796 |
+| `/_next/static/chunks/39jur218l8-_y.js` | 8879 |
+| `/_next/static/chunks/1h5s7r5en_mue.js` | 29140 |
+| `/_next/static/chunks/27jktro2p5rq9.js` | 9236 |
+| `/_next/static/chunks/0um2kh66idet2.js` | 70728 |
+| `/_next/static/chunks/turbopack-3eez9nhmn1l23.js` | 4178 |
+| `/_next/static/chunks/3cuz7hkr6nt-4.js` | 8707 |
+| `/_next/static/chunks/0u2uia-kod828.js` | 13836 |
+| `/_next/static/chunks/0lhug96r8ne8e.js` | 19812 |
+| `/_next/static/chunks/2i1jz2stgcveg.js` | 32390 |
+| `/_next/static/chunks/1j9ihm788jhc4.js` | 63591 |
+| `/_next/static/chunks/33u59vf_8xpd-.js` | 12879 |
+| `/_next/static/chunks/0urvqn_k8tj_e.js` | 7186 |
+| `/_next/static/chunks/0p87v2gk_m09p.js` | 15588 |
+| `/_next/static/chunks/0iqwxd76nkjt9.js` | 14681 |
+| `/_next/static/chunks/0-q8ftv5fmemx.js` | 17383 |
+| `/_next/static/chunks/0cz1d0mv5g_q7.js` | 39627 |
+| `/_next/static/chunks/2iho8jepmwwua.js` | 2336 |
+
+### /courses/vibecoding: 348462 B
+
+| script src | gzip bytes |
+| --- | ---: |
+| `/_next/static/chunks/0ha4m18glnjqn.js` | 8796 |
+| `/_next/static/chunks/39jur218l8-_y.js` | 8879 |
+| `/_next/static/chunks/1h5s7r5en_mue.js` | 29140 |
+| `/_next/static/chunks/27jktro2p5rq9.js` | 9236 |
+| `/_next/static/chunks/0um2kh66idet2.js` | 70728 |
+| `/_next/static/chunks/turbopack-3eez9nhmn1l23.js` | 4178 |
+| `/_next/static/chunks/3cuz7hkr6nt-4.js` | 8707 |
+| `/_next/static/chunks/0u2uia-kod828.js` | 13836 |
+| `/_next/static/chunks/0lhug96r8ne8e.js` | 19812 |
+| `/_next/static/chunks/2i1jz2stgcveg.js` | 32390 |
+| `/_next/static/chunks/1j9ihm788jhc4.js` | 63591 |
+| `/_next/static/chunks/33u59vf_8xpd-.js` | 12879 |
+| `/_next/static/chunks/1a-7r3iun7lxq.js` | 8449 |
+| `/_next/static/chunks/1zt-5e3x42w8s.js` | 15878 |
+| `/_next/static/chunks/0cz1d0mv5g_q7.js` | 39627 |
+| `/_next/static/chunks/2iho8jepmwwua.js` | 2336 |
+
+### /blog/vaybkoding-chto-eto: 333611 B
+
+| script src | gzip bytes |
+| --- | ---: |
+| `/_next/static/chunks/0ha4m18glnjqn.js` | 8796 |
+| `/_next/static/chunks/39jur218l8-_y.js` | 8879 |
+| `/_next/static/chunks/1h5s7r5en_mue.js` | 29140 |
+| `/_next/static/chunks/27jktro2p5rq9.js` | 9236 |
+| `/_next/static/chunks/0um2kh66idet2.js` | 70728 |
+| `/_next/static/chunks/turbopack-3eez9nhmn1l23.js` | 4178 |
+| `/_next/static/chunks/3cuz7hkr6nt-4.js` | 8707 |
+| `/_next/static/chunks/0u2uia-kod828.js` | 13836 |
+| `/_next/static/chunks/0lhug96r8ne8e.js` | 19812 |
+| `/_next/static/chunks/2i1jz2stgcveg.js` | 32390 |
+| `/_next/static/chunks/1j9ihm788jhc4.js` | 63591 |
+| `/_next/static/chunks/33u59vf_8xpd-.js` | 12879 |
+| `/_next/static/chunks/1a-7r3iun7lxq.js` | 8449 |
+| `/_next/static/chunks/1d0edgkwk1_r7.js` | 1027 |
+| `/_next/static/chunks/0cz1d0mv5g_q7.js` | 39627 |
+| `/_next/static/chunks/2iho8jepmwwua.js` | 2336 |
+
