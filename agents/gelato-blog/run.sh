@@ -65,7 +65,7 @@ JSON постов: ${POSTS:-нет}
 Файл результата: $RESULT
 Пак обложек (имя — тема):
 ${COVERS:-пусто}" \
-  --append-system-prompt "$(cat "$BASE/prompt.md")" \
+  --append-system-prompt "$(cat "$REPO/agents/gelato-blog/prompt.md")" \
   --permission-mode bypassPermissions --no-session-persistence >>"$LOG" 2>&1
 RC=$?
 
