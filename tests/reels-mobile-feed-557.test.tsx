@@ -1,12 +1,13 @@
 /// <reference types="vite/client" />
-import React from 'react';
+import React, { useState } from 'react';
 import { createHash } from 'node:crypto';
-import { renderToStaticMarkup } from 'react-dom/server';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { renderToStaticMarkup, renderToString } from 'react-dom/server';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ReelsMobileFeed } from '@/components/reels/reels-mobile-feed';
 import { ReelPlayer, type ReelFeedItem } from '@/components/reels/reel-player';
 import ReelsPage from '@/app/reels/page';
 import type { Reel } from '@/lib/reels';
+import oldPlayback from './fixtures/reels-mobile-playback-557.json';
 
 // Frozen old fixture from baseline commit 516daec4f512a4039f4ea6fc03963674e720133e.
 // The negative test case must fail assertions on this old baseline without querying git.
@@ -24,7 +25,10 @@ const mocks = vi.hoisted(() => ({
   sign: vi.fn(),
 }));
 
-vi.stubGlobal('React', React);
+vi.mock('react', async (original) => {
+  const actual = await original<typeof import('react')>();
+  return { ...actual, useState: vi.fn(actual.useState) };
+});
 vi.mock('server-only', () => ({}));
 vi.mock('@/lib/firebase/admin', () => ({
   adminStorage: { bucket: mocks.bucket },
@@ -72,6 +76,7 @@ const mockItems: ReelFeedItem[] = [
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.stubGlobal('React', React);
   mocks.listPublishedReels.mockResolvedValue([mockReel1, mockReel2]);
   mocks.bucket.mockReturnValue({ file: mocks.file });
   mocks.file.mockImplementation((path: string) => ({
@@ -82,14 +87,40 @@ beforeEach(() => {
   ]);
 });
 
+afterEach(() => {
+  vi.mocked(useState).mockReset();
+  vi.unstubAllGlobals();
+});
+
+function assertNoMobileVideos(html: string) {
+  expect(html.match(/<video\b[^>]*>/g) ?? []).toHaveLength(0);
+}
+
+function assertDeferredVideo(video: string) {
+  expect(video).toContain('preload="none"');
+  expect(video).not.toMatch(/\bautoplay\b/i);
+}
+
+function renderOpenedMobileFeed(feed: React.ReactNode = <ReelsMobileFeed items={mockItems} />) {
+  // Only the layout/overlay checks supply the post-viewport isMobile state.
+  // Initial-render checks below use real state; no DOM or playback is simulated.
+  vi.mocked(useState).mockReturnValueOnce([true, vi.fn()]);
+  return renderToStaticMarkup(feed);
+}
+
 export function assertMobileFeedContract(html: string) {
   // 1. Mobile feed container with 100dvh and vertical scroll snap
   expect(html).toContain('100dvh');
   expect(html).toMatch(/\bsnap-y\b/);
   expect(html).toMatch(/\bsnap-mandatory\b/);
 
-  // 2. Visible reel has autoplay and muted
-  expect(html).toMatch(/<video[^>]*\bautoplay\b[^>]*\bmuted\b|<video[^>]*\bmuted\b[^>]*\bautoplay\b/i);
+  // 2. Playback starts in the viewport-aware effect, never through HTML autoplay.
+  const videos = html.match(/<video\b[^>]*>/g) ?? [];
+  expect(videos).toHaveLength(mockItems.length);
+  for (const video of videos) {
+    assertDeferredVideo(video);
+    expect(video).toMatch(/\bmuted\b/i);
+  }
 
   // 3. Stub buttons over video: like and share with aria-labels
   expect(html).toMatch(/aria-label="[^"]*лайк[^"]*"/i);
@@ -104,7 +135,7 @@ export function assertMobileFeedContract(html: string) {
 
 describe('mobile reels feed (#557)', () => {
   it('renders reels in a 100dvh snap-scroll container with one reel per snap', () => {
-    const html = renderToStaticMarkup(<ReelsMobileFeed items={mockItems} />);
+    const html = renderOpenedMobileFeed();
 
     expect(html).toContain('100dvh');
     expect(html).toMatch(/\bsnap-y\b/);
@@ -119,19 +150,60 @@ describe('mobile reels feed (#557)', () => {
     }
   });
 
-  it('sets autoplay and muted only on the visible (active) reel', () => {
+  it('renders no mobile video in server markup', () => {
+    expect(typeof window).toBe('undefined');
     const html = renderToStaticMarkup(<ReelsMobileFeed items={mockItems} />);
 
+    assertNoMobileVideos(html);
+  });
+
+  it.each([390, 1280])('renders no mobile video before effects at a %i px viewport', (width) => {
+    const matchMedia = vi.fn((query: string) => ({
+      matches: query === '(max-width: 767px)' && width <= 767,
+    }));
+    vi.stubGlobal('window', { innerWidth: width, matchMedia });
+
+    // Node renders the initial state with browser globals, without mounting a DOM.
+    const html = renderToString(<ReelsMobileFeed items={mockItems} />);
+
+    assertNoMobileVideos(html);
+    expect(matchMedia).not.toHaveBeenCalled();
+  });
+
+  it.each([true, false])('keeps inactive reels unloaded without autoplay (muted=%s)', (isMuted) => {
+    const html = renderToStaticMarkup(
+      <ReelPlayer
+        item={mockItems[1]}
+        isActive={false}
+        isMuted={isMuted}
+        onToggleSound={() => {}}
+        prefersReducedMotion={false}
+      />
+    );
+
     const videos = html.match(/<video\b[^>]*>/g) ?? [];
-    expect(videos).toHaveLength(2);
+    expect(videos).toHaveLength(1);
+    expect(videos[0]).toBeDefined();
+    assertDeferredVideo(videos[0]!);
+    expect(/\bmuted\b/i.test(videos[0]!)).toBe(isMuted);
+  });
 
-    // First video (active/visible) has both autoplay and muted
-    expect(videos[0]).toMatch(/\bautoplay\b/i);
-    expect(videos[0]).toMatch(/\bmuted\b/i);
+  it('leaves active reel playback to the client effect instead of HTML autoplay', () => {
+    const html = renderToStaticMarkup(
+      <ReelPlayer
+        item={mockItems[0]}
+        isActive={true}
+        isMuted={true}
+        onToggleSound={() => {}}
+        prefersReducedMotion={false}
+      />
+    );
 
-    // Second video (non-visible) is muted but must NOT autoplay
-    expect(videos[1]).not.toMatch(/\bautoplay\b/i);
-    expect(videos[1]).toMatch(/\bmuted\b/i);
+    const videos = html.match(/<video\b[^>]*>/g) ?? [];
+    expect(videos).toHaveLength(1);
+    expect(videos[0]).toBeDefined();
+    assertDeferredVideo(videos[0]!);
+    expect(videos[0]!).toMatch(/\bmuted\b/i);
   });
 
   it('disables autoplay on the active reel when prefers-reduced-motion is true', () => {
@@ -152,7 +224,7 @@ describe('mobile reels feed (#557)', () => {
   });
 
   it('renders interactive overlays: like, share, sound, course CTA, and poster', () => {
-    const html = renderToStaticMarkup(<ReelsMobileFeed items={mockItems} />);
+    const html = renderOpenedMobileFeed();
 
     // Poster is present before playback starts
     expect(html).toContain(`poster="${mockItems[0].poster}"`);
@@ -174,19 +246,44 @@ describe('mobile reels feed (#557)', () => {
   });
 
   it('renders mobile feed on /reels page alongside preserved computer view', async () => {
-    const html = renderToStaticMarkup(await ReelsPage());
+    const page = await ReelsPage();
+    const html = renderToStaticMarkup(page);
 
-    // Mobile feed is present
-    assertMobileFeedContract(html);
+    // The page passes its signed items to the mobile feed, which opens after mount.
+    const mobileFeed = React.Children.toArray(page.props.children).find(
+      (child) => React.isValidElement(child) && child.type === ReelsMobileFeed
+    );
+    expect(mobileFeed).toBeDefined();
+    assertMobileFeedContract(renderOpenedMobileFeed(mobileFeed));
 
     // Computer view is preserved with grid and desktop articles
     expect(html).toMatch(/\bmd:flex\b|\bmd:grid\b/);
+    expect(html).toContain('sm:grid-cols-2');
+    expect(html).toContain('lg:grid-cols-3');
     expect(html).toContain('Короткие видео про ИИ');
     const articles = html.match(/<article\b[\s\S]*?<\/article>/g) ?? [];
     expect(articles).toHaveLength(2);
     for (const article of articles) {
       expect(article).toContain('Перейти в курс');
+      const videos = article.match(/<video\b[^>]*>/g) ?? [];
+      expect(videos).toHaveLength(1);
+      expect(videos[0]).toBeDefined();
+      assertDeferredVideo(videos[0]!);
+      expect(videos[0]!).toMatch(/\bcontrols=/i);
+      expect(videos[0]!).toMatch(/\bplaysinline=/i);
     }
+    // Only the manual desktop players are present in the complete server page.
+    expect(html.match(/<video\b/g) ?? []).toHaveLength(articles.length);
+    expect(html).not.toContain('data-reel-id=');
+  });
+
+  it('rejects the frozen b7963655 playback baseline with the new assertions', () => {
+    expect(oldPlayback.courseSlugs).toEqual(mockItems.map(({ reel }) => reel.courseSlug));
+    expect(createHash('sha256').update(oldPlayback.videoTags.join('\n')).digest('hex'))
+      .toBe(oldPlayback.videoTagsSha256);
+
+    expect(() => assertNoMobileVideos(oldPlayback.videoTags.join(''))).toThrow();
+    expect(() => assertDeferredVideo(oldPlayback.videoTags[0]!)).toThrow();
   });
 
   it('rejects the frozen old page baseline with the same mobile feed assertion', () => {
