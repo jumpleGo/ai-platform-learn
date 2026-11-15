@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 import { GelatoLogo } from '@/components/gelato-logo';
+import { ReelShareButton } from '@/components/reels/reel-share-button';
 import { listPublishedReels } from '@/lib/db/reels';
 import { adminStorage, storageBucketName } from '@/lib/firebase/admin';
 import { SITE_URL } from '@/lib/site';
@@ -90,6 +91,7 @@ export default async function ReelPage({ params }: Props) {
               <Link href={reel.ctaHref} className="inline-flex min-h-11 items-center rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background">
                 {reel.ctaLabel}
               </Link>
+              <ReelShareButton url={url} title={reel.title} text={reel.description} />
             </div>
           </div>
         </article>
