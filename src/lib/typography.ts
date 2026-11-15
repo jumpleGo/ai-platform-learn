@@ -51,6 +51,12 @@ export function nbspDeep<T>(value: T): T {
   return value;
 }
 
+// Адрес ссылки `](url)` типографика портить не должна: неразрывный дефис
+// в адресе вроде .../Mica-v0.5-4B ведёт на несуществующую страницу.
+function restoreLinkTargets(line: string): string {
+  return line.replace(/\]\([^)\s]*\)/g, (target) => target.replaceAll(NBHY, '-'));
+}
+
 // Markdown статьи: nbsp построчно, потому что правило про число и единицу
 // ловит \s и иначе склеило бы абзацы через перенос. Код в ``` не трогаем —
 // неразрывные пробелы в нём ломают копирование.
@@ -63,7 +69,7 @@ export function nbspMarkdown(source: string): string {
         inCode = !inCode;
         return line;
       }
-      return inCode ? line : nbsp(line);
+      return inCode ? line : restoreLinkTargets(nbsp(line));
     })
     .join('\n');
 }
