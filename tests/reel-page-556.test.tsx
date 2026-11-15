@@ -23,13 +23,7 @@ vi.mock('@/lib/firebase/admin', () => ({
   } },
   adminStorage: { bucket: mocks.bucket }, storageBucketName: 'reels-review.test',
 }));
-vi.mock('@/lib/db/courses', async () => {
-  const { listPublishedReels } = await import('@/lib/db/reels');
-  return {
-    getPublishedCoursesWithLessons: mocks.catalog,
-    listPublishedReels,
-  };
-});
+vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: mocks.catalog }));
 vi.mock('@/components/gelato-logo', () => ({ GelatoLogo: () => <span>GELATO</span> }));
 
 // Load the current checkout only. An absent route is an assertion failure,
@@ -178,6 +172,12 @@ describe('individual public reel #556', () => {
     expect(mocks.queryCourses).not.toHaveBeenCalled();
     expect(mocks.reels).not.toHaveBeenCalled();
     expect(mocks.courses).not.toHaveBeenCalled();
+  });
+
+  it('propagates reel query errors instead of silently omitting reel sitemap entries', async () => {
+    const error = new Error('Reel query failed');
+    mocks.reels.mockRejectedValue(error);
+    await expect(sitemap()).rejects.toThrow(error);
   });
 
   it('appends only published playable reels to the unchanged sitemap entries', async () => {
