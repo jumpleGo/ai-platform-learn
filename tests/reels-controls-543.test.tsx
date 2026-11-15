@@ -12,7 +12,10 @@ vi.mock('server-only', () => ({}));
 vi.mock('@/lib/require-admin', () => ({ requireAdmin: vi.fn() }));
 vi.mock('@/lib/firebase/admin', () => ({}));
 vi.mock('@/components/gelato-logo', () => ({ GelatoLogo: () => <span>GELATO</span> }));
-vi.mock('@/lib/db/reels', () => ({ listAllReels: async () => [], listReelCourses: async () => [] }));
+vi.mock('@/lib/db/reels', () => ({
+  listAllReels: async () => [], listReelCourses: async () => [],
+  listPublishedReels: async () => [{ ...reel, published: true }],
+}));
 vi.mock('@/app/admin/reels/actions', () => ({ saveReelAction: s.metadata }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh: s.refresh }) }));
 // Exercise actual click handlers with persistent state, using the existing test pattern.
@@ -132,6 +135,6 @@ it.each(['network', 'html'])('shows a readable error and releases controls on %s
 it('offers the public feed from the admin page', async () => {
   expect(renderToStaticMarkup(await AdminReelsPage())).toMatch(/href="\/reels"/);
 });
-it('lets a visitor discover reels in the site footer', () => {
-  expect(renderToStaticMarkup(<SiteFooter />)).toMatch(/href="\/reels"[^>]*>Рилсы<\/a>/);
+it('lets a visitor discover reels in the site footer', async () => {
+  expect(renderToStaticMarkup(await SiteFooter())).toMatch(/href="\/reels"[^>]*>Рилсы<\/a>/);
 });

@@ -6,6 +6,8 @@ import { getPublishedCoursesWithLessons, type CourseWithLessons } from '@/lib/db
 import { proxy } from '@/proxy';
 
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: vi.fn() }));
+vi.mock('server-only', () => ({}));
+vi.mock('@/lib/db/reels', () => ({ listPublishedReels: async () => [] }));
 
 // На старом коде маршрут отсутствует: тест должен показать это утверждением,
 // а проверка настоящего proxy отдельно фиксирует прежний 307 -> /login.

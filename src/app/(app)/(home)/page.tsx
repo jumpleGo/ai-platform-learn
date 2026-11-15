@@ -18,6 +18,7 @@ import { PromoBanner } from '@/components/promo-banner';
 import { SectionHead } from '@/components/section-head';
 import { StudentLink } from '@/components/student-link';
 import { nbspDeep } from '@/lib/typography';
+import { hasPublishedReels } from '@/lib/reels-availability';
 
 // Лента ролей в хиро — показывает охват, не перечисляя всех в заголовке
 const AUDIENCE = [
@@ -95,9 +96,10 @@ const FOR_WHOM: { label: string; href: string }[] = [
 
 export default async function HomePage() {
   const session = await getSession();
-  const [courses, sub] = await Promise.all([
+  const [courses, sub, hasReels] = await Promise.all([
     getPublishedCoursesWithLessons(),
     session ? getSubscription(session.uid) : null,
+    hasPublishedReels(),
   ]);
   const now = Date.now();
   // «Мои курсы» показываем только тем, у кого есть доступ хотя бы к одному купленному курсу
@@ -146,6 +148,15 @@ export default async function HomePage() {
           >
             Сначала бесплатно
           </Link>
+          {hasReels && (
+            <Link
+              href="/reels"
+              className="inline-flex h-11 items-center gap-1.5 px-2 text-[15px] font-medium text-primary underline underline-offset-4 transition-colors hover:text-brand-navy"
+            >
+              Короткие видео
+              <ArrowRight className="size-4" aria-hidden />
+            </Link>
+          )}
         </div>
 
         <div className="relative overflow-hidden">

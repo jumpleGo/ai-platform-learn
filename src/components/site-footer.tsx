@@ -1,12 +1,14 @@
 import Link from 'next/link';
 import { Send } from 'lucide-react';
 import { GelatoLogo } from '@/components/gelato-logo';
-import { LEGAL_NAV, NAV, TELEGRAM_CHANNEL, TELEGRAM_DM } from '@/lib/site';
+import { LEGAL_NAV, navItems, TELEGRAM_CHANNEL, TELEGRAM_DM } from '@/lib/site';
+import { hasPublishedReels } from '@/lib/reels-availability';
 
 // Подвал по эскизу: разделы сайта, два телеграма (личка и канал школы) и юр. документы.
 // Фон — тёмно-синий бренда: подвал читается как отдельная плита, а не как
 // продолжение кремовой страницы.
-export function SiteFooter() {
+export async function SiteFooter() {
+  const hasReels = await hasPublishedReels();
   const year = new Date().getFullYear();
   return (
     <footer data-app-footer className="mt-28 bg-brand-navy text-brand-cream">
@@ -24,7 +26,7 @@ export function SiteFooter() {
         <nav aria-label="Разделы" className="space-y-3">
           <p className="font-marker text-base text-brand-sky">Разделы</p>
           <ul className="space-y-2">
-            {NAV.map((item) => (
+            {navItems(false).map((item) => (
               <li key={item.href}>
                 <Link href={item.href} className="text-sm text-brand-cream/80 transition-colors hover:text-brand-sky">
                   {item.label}
@@ -37,11 +39,13 @@ export function SiteFooter() {
                 Блог
               </Link>
             </li>
-            <li>
-              <Link href="/reels" className="text-sm text-brand-cream/80 transition-colors hover:text-brand-sky">
-                Рилсы
-              </Link>
-            </li>
+            {hasReels && (
+              <li>
+                <Link href="/reels" className="text-sm text-brand-cream/80 transition-colors hover:text-brand-sky">
+                  Рилсы
+                </Link>
+              </li>
+            )}
           </ul>
         </nav>
 

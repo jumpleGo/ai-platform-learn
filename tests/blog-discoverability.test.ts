@@ -7,6 +7,8 @@ import { getPublishedCoursesWithLessons } from '@/lib/db/courses';
 import { BLOG_DISCOVERABILITY_FIXTURE } from './fixtures/blog-discoverability.fixture';
 
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: vi.fn() }));
+vi.mock('server-only', () => ({}));
+vi.mock('@/lib/db/reels', () => ({ listPublishedReels: async () => [] }));
 
 beforeEach(() => {
   vi.mocked(getPublishedCoursesWithLessons).mockReset().mockResolvedValue([]);

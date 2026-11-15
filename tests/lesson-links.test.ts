@@ -20,6 +20,7 @@ const { catalog } = vi.hoisted(() => ({
   })) as CourseWithLessons[],
 }));
 vi.mock('server-only', () => ({}));
+vi.mock('@/lib/db/reels', () => ({ listPublishedReels: async () => [] }));
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: async () => catalog }));
 vi.mock('@/lib/session', () => ({ getSession: async () => null }));
 vi.mock('@/lib/db/subscriptions', () => ({ getSubscription: vi.fn() }));

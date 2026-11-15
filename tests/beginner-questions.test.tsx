@@ -9,6 +9,7 @@ import CourseLanding from '@/app/(app)/courses/[courseSlug]/page';
 const { catalog } = vi.hoisted(() => ({ catalog: vi.fn() }));
 vi.stubGlobal('React', React);
 vi.mock('server-only', () => ({}));
+vi.mock('@/lib/db/reels', () => ({ listPublishedReels: async () => [] }));
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: catalog }));
 vi.mock('@/lib/session', () => ({ getSession: async () => null }));
 vi.mock('@/lib/db/subscriptions', () => ({ getSubscription: vi.fn() }));
