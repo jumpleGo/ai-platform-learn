@@ -23,3 +23,19 @@ restore per-test mockReset, capture catalog calls immediately after preparation,
 and assert both that count and complete post coverage. Both hook and assertion
 test will use 16101 ms: the largest measurement rounded up (5367 ms) times 3.
 This gives scheduling headroom without dropping any existing assertions.
+
+## Step 1
+
+Restored mockReset in beforeEach. The hook records getCatalog's call count
+immediately after rendering; the coverage test checks that snapshot is zero
+and the rendered map size equals BLOG_POSTS.length. Existing per-post CTA,
+wording, price and catalog assertions remain unchanged. Both timeouts are
+explicitly 5367 * 3 ms. Moving rendering into preparation does not reduce
+total rendering work; the reported target-test time excludes that preparation.
+
+An initial branch run also discovered the nested baseline worktree while the
+baseline build was active: all 13 branch tests passed (coverage: 111 ms), while
+the original coverage test timed out at 5358 ms. This reproduces RED_ON_OLD
+under contention, separately from the three clean baseline measurements.
+Focused checks exclude eval while that temporary worktree exists; it is removed
+before the full, unfiltered checks.

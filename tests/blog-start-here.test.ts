@@ -34,16 +34,21 @@ async function start(slug: string) {
   return startHtml(await pageHtml(slug), slug);
 }
 const realPostHtml = new Map<string, string>();
+let realPostCatalogCalls: number;
+// Clean origin/main measurements (#503): first import 5366.77 ms, all-post
+// render 3207.29 ms, slowest coverage test 3853.78 ms. Round the max up and
+// allow 3x for contention; every post and every original assertion still runs.
+const realPostsTimeoutMs = 5_367 * 3;
 beforeAll(async () => {
   // Render each real article once during preparation, so the growing catalog's
   // Markdown/SSR work does not consume the assertion test's time budget.
   for (const post of blog.BLOG_POSTS) realPostHtml.set(post.slug, await pageHtml(post.slug));
-});
+  realPostCatalogCalls = vi.mocked(getCatalog).mock.calls.length;
+}, realPostsTimeoutMs);
 let catalog: CourseWithLessons[];
 beforeEach(() => {
   catalog = [course('claude-code-agents', 7), course('claude-code', 5), course('vibecoding', 4), course('ai-cartoons', 6)];
-  // Preserve call history: startHtml must also catch catalog reads in beforeAll.
-  vi.mocked(getCatalog).mockResolvedValue(catalog);
+  vi.mocked(getCatalog).mockReset().mockResolvedValue(catalog);
 });
 afterEach(() => vi.restoreAllMocks());
 
@@ -85,5 +90,7 @@ it.each([
   expect(await start('future')).toBe(html);
 });
 it('covers every real post without reading the public catalog', async () => {
+  expect(realPostCatalogCalls).toBe(0);
+  expect(realPostHtml.size).toBe(blog.BLOG_POSTS.length);
   for (const post of blog.BLOG_POSTS) startHtml(realPostHtml.get(post.slug)!, post.slug);
-});
+}, realPostsTimeoutMs);
