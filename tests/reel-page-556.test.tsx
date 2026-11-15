@@ -40,9 +40,9 @@ const course = {
   description: 'Учимся работать с ИИ на практике.', published: true,
 };
 const reel: Reel = {
-  id: 'published-556', title: ' Понятный вопрос для ИИ ',
+  id: 'eo0EzK9gMElHYrrxDCSd', title: ' Понятный вопрос для ИИ ',
   description: ' Как объяснить задачу помощнику. ', courseSlug: course.slug,
-  videoPath: 'reels/published-556/video.mp4', posterPath: 'reels/published-556/poster.webp',
+  videoPath: 'reels/eo0EzK9gMElHYrrxDCSd/video.mp4', posterPath: 'reels/eo0EzK9gMElHYrrxDCSd/poster.webp',
   published: true, order: 0,
 };
 const uploadDate = '2026-11-10T08:30:00.000Z';
@@ -133,6 +133,11 @@ describe('individual public reel #556', () => {
       videoPath: kind === 'no-video' ? '' : reel.videoPath,
       courseSlug: kind === 'retired-course' ? 'retired' : course.slug };
     mocks.reels.mockResolvedValue({ docs: kind === 'missing' ? [] : [doc(reel.id, data)] });
+    const response = proxy(guest(`/reels/${reel.id}`));
+    expect(response.status).toBe(200);
+    expect(response.headers.get('x-middleware-next')).toBe('1');
+    expect(mocks.queryReels).not.toHaveBeenCalled();
+    expect(mocks.queryCourses).not.toHaveBeenCalled();
     const route = requirePage();
     await expect(route.default(props())).rejects.toThrow('NEXT_HTTP_ERROR_FALLBACK;404');
     await expect(route.generateMetadata(props())).rejects.toThrow('NEXT_HTTP_ERROR_FALLBACK;404');
@@ -140,30 +145,33 @@ describe('individual public reel #556', () => {
     expect(mocks.fileMetadata).not.toHaveBeenCalled();
   });
 
-  it.each([`/reels/${reel.id}`, `/reels/${reel.id}/`, `/reels/${reel.id}?utm_source=share`])('lets a guest open published %s', async (path) => {
-    const response = await proxy(guest(path));
+  it.each([
+    `/reels/${reel.id}`, `/reels/${reel.id}/`, `/reels/${reel.id}?utm_source=share`,
+    '/reels/0123456789abcdefghij', '/reels/ABCDEFGHIJKLMNOPQRST',
+  ])('lets a guest open a valid ID at %s without database reads', (path) => {
+    const response = proxy(guest(path));
     expect(response.status).toBe(200);
     expect(response.headers.get('x-middleware-next')).toBe('1');
     expect(response.headers.get('location')).toBeNull();
-    expect(mocks.queryReels).toHaveBeenCalledWith('published', '==', true);
-    expect(mocks.queryCourses).toHaveBeenCalledWith('published', '==', true);
-  });
-
-  it.each(['draft', 'missing', 'no-video', 'retired-course'])('keeps guest access closed for %s', async (kind) => {
-    mocks.reels.mockResolvedValue({ docs: kind === 'missing' ? [] : [doc(reel.id, {
-      ...reel, published: kind !== 'draft', videoPath: kind === 'no-video' ? '' : reel.videoPath,
-      courseSlug: kind === 'retired-course' ? 'retired' : course.slug,
-    })] });
-    const response = await proxy(guest(`/reels/${reel.id}`));
-    expect(response.status).toBe(307);
-    expect(response.headers.get('location')).toBe(`${SITE_URL}/login`);
-  });
-
-  it.each([`/reels/${reel.id}/edit`, `/reels/${reel.id}/private/more`, '/reels-private', '/admin/reels'])('preserves the guest gate on %s', async (path) => {
-    const response = await proxy(guest(path));
-    expect(response.status).toBe(307);
-    expect(response.headers.get('location')).toBe(`${SITE_URL}/login`);
+    expect(mocks.queryReels).not.toHaveBeenCalled();
+    expect(mocks.queryCourses).not.toHaveBeenCalled();
     expect(mocks.reels).not.toHaveBeenCalled();
+    expect(mocks.courses).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    '/reels/private', '/reels/private/', '/reels/new', '/reels/admin', '/reels/edit', '/reels/upload',
+    `/reels/${'a'.repeat(19)}`, `/reels/${'a'.repeat(21)}`,
+    `/reels/${'a'.repeat(19)}-`, `/reels/${'a'.repeat(19)}_`, `/reels/${'a'.repeat(19)}я`,
+    `/reels/${reel.id}/edit`, `/reels/${reel.id}/private/more`, '/reels-private', '/admin/reels',
+  ])('preserves the guest gate on %s without database reads', (path) => {
+    const response = proxy(guest(path));
+    expect(response.status).toBe(307);
+    expect(response.headers.get('location')).toBe(`${SITE_URL}/login`);
+    expect(mocks.queryReels).not.toHaveBeenCalled();
+    expect(mocks.queryCourses).not.toHaveBeenCalled();
+    expect(mocks.reels).not.toHaveBeenCalled();
+    expect(mocks.courses).not.toHaveBeenCalled();
   });
 
   it('appends only published playable reels to the unchanged sitemap entries', async () => {
