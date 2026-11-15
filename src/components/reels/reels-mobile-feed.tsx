@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { normalizeReel } from '@/lib/reels';
 import { ReelPlayer, type ReelFeedItem } from './reel-player';
 
 export type { ReelFeedItem };
@@ -10,14 +11,17 @@ type ReelsMobileFeedProps = {
 };
 
 export function ReelsMobileFeed({ items }: ReelsMobileFeedProps) {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!window.matchMedia) return;
+    if (!window.matchMedia) {
+      setIsMobile(false);
+      return;
+    }
     const media = window.matchMedia('(max-width: 767px)');
     const updateViewport = () => {
       setIsMobile(media.matches);
@@ -67,7 +71,29 @@ export function ReelsMobileFeed({ items }: ReelsMobileFeedProps) {
     return () => observer.disconnect();
   }, [isMobile, items.length]);
 
-  // Keep server markup and the first client render free of mobile videos.
+  // CSS shows the first poster on phones before the viewport effect can run.
+  const firstItem = items[0];
+  if (isMobile === null && firstItem) {
+    const { title } = normalizeReel(firstItem.reel, { title: firstItem.reel.courseSlug });
+    return (
+      <section
+        data-reel-placeholder={firstItem.reel.id}
+        aria-label={title}
+        className="md:hidden fixed inset-0 z-30 h-[100dvh] w-full overflow-hidden bg-black"
+      >
+        <img
+          src={firstItem.poster}
+          alt=""
+          fetchPriority="high"
+          className="h-full w-full object-cover"
+        />
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 pb-8 pr-16">
+          <h2 className="text-base font-semibold leading-snug text-white drop-shadow-md">{title}</h2>
+        </div>
+      </section>
+    );
+  }
+
   if (!isMobile) return null;
 
   return (

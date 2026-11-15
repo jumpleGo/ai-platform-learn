@@ -27,6 +27,13 @@ vi.mock('@/lib/firebase/admin', () => ({
   storageBucketName: 'reels-review.test',
 }));
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: mocks.catalog }));
+// Explicit sitemap boundary (#574); retain the real query implementation so
+// publication filtering and Firestore-query assertions below remain effective.
+// Both server-only and firebase/admin are isolated above.
+vi.mock('@/lib/db/reels', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/db/reels')>();
+  return { ...actual, listPublishedReels: vi.fn(actual.listPublishedReels) };
+});
 vi.mock('@/lib/session', () => ({ getSession: mocks.session }));
 vi.mock('@/components/gelato-logo', () => ({ GelatoLogo: () => <span>GELATO</span> }));
 
