@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { Children, isValidElement, type ReactElement, type ReactNode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import posthog from 'posthog-js';
+import posthog from '@/lib/analytics/posthog';
 import { beforeEach, expect, it, vi } from 'vitest';
 import LessonPage from '@/app/(app)/courses/[courseSlug]/lessons/[lessonNumber]/page';
 import { PaymentModalProvider } from '@/components/payment/payment-modal-context';
@@ -14,7 +14,7 @@ vi.mock('@/lib/db/subscriptions', () => ({ getSubscription: vi.fn() }));
 vi.mock('@/lib/db/progress', () => ({ getCompletedLessonIds: vi.fn(), markLessonCompleted: vi.fn() }));
 vi.mock('@/lib/db/stats', () => ({ recordLessonView: vi.fn() }));
 vi.mock('@/components/payment/locked-video-player', () => ({ LockedVideoPlayer: () => null }));
-vi.mock('posthog-js', () => ({ default: { __loaded: true, capture: vi.fn() } }));
+vi.mock('@/lib/analytics/posthog', () => ({ default: { __loaded: true, capture: vi.fn() } }));
 
 const course: CourseWithLessons = {
   id: 'current-course', slug: 'vibecoding', title: 'Курс', description: '',

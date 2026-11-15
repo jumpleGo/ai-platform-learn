@@ -2,9 +2,9 @@ import { createHash } from 'node:crypto';
 import { createElement, type ReactNode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { AgentsIntroNextStep } from '@/components/agents-intro-next-step';
-import { FreeLessonAnalytics } from '@/components/free-lesson-analytics';
-import { NextLessonLink } from '@/components/next-lesson-link';
+let AgentsIntroNextStep: typeof import('@/components/agents-intro-next-step')['AgentsIntroNextStep'];
+let FreeLessonAnalytics: typeof import('@/components/free-lesson-analytics')['FreeLessonAnalytics'];
+let NextLessonLink: typeof import('@/components/next-lesson-link')['NextLessonLink'];
 import {
   ANALYTICS_CONTRACT, ANALYTICS_FIXTURES, assertEventContract, assertFirstTouchContract,
 } from './analytics-contract';
@@ -45,6 +45,8 @@ function renderMounted(node: ReactNode) {
 async function initialize() {
   const { PostHogProvider } = await import('@/lib/analytics/posthog-client');
   renderMounted(<PostHogProvider>{null}</PostHogProvider>);
+  await new Promise(resolve => setTimeout(resolve, 0));
+  await vi.dynamicImportSettled();
 }
 
 function click(href: string) {
@@ -58,8 +60,11 @@ function frozenProps(fixture: { json: string; sha256: string }): Record<string, 
   return JSON.parse(fixture.json);
 }
 
-beforeEach(() => {
+beforeEach(async () => {
   vi.resetModules();
+  ({ FreeLessonAnalytics } = await import('@/components/free-lesson-analytics'));
+  ({ NextLessonLink } = await import('@/components/next-lesson-link'));
+  ({ AgentsIntroNextStep } = await import('@/components/agents-intro-next-step'));
   vi.clearAllMocks();
   mounted.effects.length = 0;
   mounted.links.clear();

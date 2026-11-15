@@ -1,8 +1,5 @@
 import { Children, isValidElement } from 'react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { FreeLessonAnalytics } from '@/components/free-lesson-analytics';
-import { NextLessonLink } from '@/components/next-lesson-link';
-import { AgentsIntroNextStep } from '@/components/agents-intro-next-step';
 
 const sdk = vi.hoisted(() => ({
   properties: {} as Record<string, string>,
@@ -28,6 +25,8 @@ function visit(url: string, referrer = '') {
 async function initialize() {
   const { PostHogProvider } = await import('@/lib/analytics/posthog-client');
   PostHogProvider({ children: null });
+  await new Promise(resolve => setTimeout(resolve, 0));
+  await vi.dynamicImportSettled();
 }
 
 const FIRST_TOUCH = {
@@ -136,7 +135,10 @@ const OLD_PAYLOADS = [
   '{"course":"claude-code-agents","lesson":1,"target":"course"}',
 ];
 
-function emitLessonEvents() {
+async function emitLessonEvents() {
+  const { FreeLessonAnalytics } = await import('@/components/free-lesson-analytics');
+  const { NextLessonLink } = await import('@/components/next-lesson-link');
+  const { AgentsIntroNextStep } = await import('@/components/agents-intro-next-step');
   FreeLessonAnalytics({
     courseId: 'course-doc', lessonDocumentId: 'lesson-doc', lessonId: 'vibecoding-1',
     source: 'lesson-page', campaign: 'intro',
@@ -151,7 +153,7 @@ function emitLessonEvents() {
 
 it('keeps lesson_view and both lesson_next_click capture payloads byte-identical', async () => {
   await initialize();
-  emitLessonEvents();
+  await emitLessonEvents();
   expect(sdk.capture.mock.calls.map(([event]) => event)).toEqual([
     'lesson_view', 'lesson_next_click', 'lesson_next_click',
   ]);
@@ -160,7 +162,7 @@ it('keeps lesson_view and both lesson_next_click capture payloads byte-identical
 
 it('carries first-touch properties onto lesson events through the SDK super properties', async () => {
   await initialize();
-  emitLessonEvents();
+  await emitLessonEvents();
   expect(sdk.events).toHaveLength(3);
   for (const [index, event] of sdk.events.entries()) {
     expect(event.properties).toEqual({ ...FIRST_TOUCH, ...JSON.parse(OLD_PAYLOADS[index]) });

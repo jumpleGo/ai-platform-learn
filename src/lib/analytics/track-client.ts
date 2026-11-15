@@ -1,17 +1,17 @@
 'use client';
-import posthog from 'posthog-js';
+import posthog from './posthog';
 
-// Отправляет событие, если posthog инициализирован; иначе no-op
+// До загрузки SDK событие сохраняется в очереди обёртки.
 export function track(event: string, props?: Record<string, unknown>) {
-  if (posthog.__loaded) posthog.capture(event, props);
+  posthog.capture(event, props);
 }
 
 // Привязывает события к пользователю
 export function identify(uid: string, props?: Record<string, unknown>) {
-  if (posthog.__loaded) posthog.identify(uid, props);
+  posthog.identify(uid, props);
 }
 
 // Сбрасывает привязку при выходе — иначе события следующего пользователя уйдут под старым uid
 export function resetAnalytics() {
-  if (posthog.__loaded) posthog.reset();
+  posthog.reset();
 }
