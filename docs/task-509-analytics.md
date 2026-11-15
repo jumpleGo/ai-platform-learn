@@ -115,3 +115,21 @@ Focused run: 5 files, 49 tests passed. `OLD_FAILS=1` is printed in the same Vite
 The new tests hold the mocked SDK import unresolved, emit calls both before and during loading, then check exact capture/identify/reset order, first-touch and variant properties, post-load delivery, one init, and StrictMode/paint scheduling. Pageview defaults and the admin filter are asserted unchanged.
 
 Existing first-touch/contract tests now await asynchronous initialization and import components from the same reset module graph. Two isolated lesson rendering tests mock the new wrapper boundary instead of the package import. Their exact event-name/property assertions are unchanged; the new integration test verifies the real wrapper all the way to the mocked SDK. These test edits accommodate the new asynchronous boundary, without relaxing the schema contract.
+
+## Step 4: final verification
+
+Production was measured again without deploying this branch: /=378973 B, /courses/vibecoding=348462 B, /blog/vaybkoding-chto-eto=333611 B. The unchanged remote sizes are not evidence of a production improvement. Deployment and the later organic_users_7d observation remain outstanding; this change is locally verified only.
+
+Both local compilations succeeded. The full SDK is emitted as an asynchronous chunk (`3j02xs7xrxvc-.js`) and is absent from all three initial route manifests.
+
+| Route | Before, gzip B | After, gzip B | Saved, B |
+| --- | ---: | ---: | ---: |
+| / | 341470 | 277575 | 63895 |
+| /courses/vibecoding | 348620 | 284722 | 63898 |
+| /blog/vaybkoding-chto-eto | 333768 | 269883 | 63885 |
+
+The first standalone TypeScript run found two test-only DOM typing errors in mocked window.location assignments; those were fixed without changing assertions. The repeated `npx tsc --noEmit -p .` exited 0 and started the full `npx vitest run`.
+
+The final `next build` completed all stages and exited 0, including TypeScript, generation of all 63 static pages, and final optimization. The full Vitest run exited 1: 495 passed, 1 failed, 3 expected failures, and 9 skipped (58 files). Its only failure was the unchanged `tests/blog-start-here.test.ts:80` test, which exceeded the existing 5000 ms timeout while rendering every blog post. An isolated rerun of that same file, with no source, assertions, or timeout changes, passed all 13 tests in 13.19 seconds. The full-run result remains recorded as TESTS=fail; no second complete run was attempted within the 30-minute limit. The deferred-analytics regression passed in both its focused run and the full suite; its frozen old implementation printed OLD_FAILS=1.
+
+`git diff --check` passed. The diff contains only analytics code, its tests/fixture, and this report; forbidden paths, authentication, payment code, and existing blog posts were not modified. No deployment was performed, so production validation remains outstanding.
