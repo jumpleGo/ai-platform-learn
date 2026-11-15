@@ -46,8 +46,8 @@ describe('бесплатный практикум про ИИ-агента #585'
     expect(html).toContain('Как устроен ИИ-агент');
     expect(html).toContain('не управление всей игрой по картинке');
     expect(html).toContain('"isAccessibleForFree":true');
-    expect(html).toContain('href="https://www.latent.space/p/aie-code"');
-    expect(html).toContain('href="https://huggingface.co/sky7350/Mica-v0.5-4B"');
+    expect(html).toContain('Игрок пишет помощнику в чат, что голоден, и просит принести хотя бы три свиные отбивные и сделать незеритовый слиток.');
+    expect(html.match(/href="https:\/\/huggingface\.co\/sky7350\/Mica-v0\.5-4B"/g)).toHaveLength(4);
   });
 
   it('есть в списке /free и sitemap даже без уроков в БД', async () => {
