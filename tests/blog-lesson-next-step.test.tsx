@@ -13,6 +13,7 @@ import { track } from '@/lib/analytics/track-client';
 import { renderBlogPost as renderPost } from './fixtures/blog-page';
 
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: vi.fn() }));
+vi.mock('@/lib/db/reels', () => ({ listPublishedReels: async () => [] }));
 vi.mock('@/lib/analytics/track-client', () => ({ track: vi.fn() }));
 
 const introHref = '/courses/claude-code-agents/lessons/1';
