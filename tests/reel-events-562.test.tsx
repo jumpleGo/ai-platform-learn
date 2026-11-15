@@ -139,15 +139,6 @@ describe('reel analytics contract (#562)', () => {
     });
   });
 
-  it('keeps the like button as a stub until #560 connects it', () => {
-    const tree = new HookHarness().render(() => ReelPlayer(props));
-    const actions = find<React.ComponentProps<typeof ReelActions>>(tree, ReelActions);
-    const like = find<React.ComponentProps<'button'>>(ReelActions(actions.props), 'button');
-    expect(like.props['aria-label']).toBe('Лайк');
-    like.props.onClick?.({} as React.MouseEvent<HTMLButtonElement>);
-    expect(mocks.track).not.toHaveBeenCalled();
-  });
-
   it('tracks one view per display despite repeated observer entries and counts a return', () => {
     const second = { ...item, reel: { ...item.reel, id: 'second', courseSlug: '' } };
     const sections = [{}, {}];
