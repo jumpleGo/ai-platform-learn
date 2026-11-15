@@ -41,8 +41,10 @@ export function proxy(req: NextRequest) {
     // человеку показываем список статей, роботу — код 404
     return NextResponse.rewrite(new URL('/blog', req.url), { status: 404 });
   }
+  // Firestore add() creates 20-character alphanumeric IDs; publication is checked by the page.
+  const isReelPage = /^\/reels\/[A-Za-z0-9]{20}\/?$/.test(pathname);
   // главная ('/') открыта гостям — точное совпадение, чтобы не распахнуть весь сайт через startsWith
-  const isPublic = pathname === '/' || pathname === '/reels' || pathname === '/reels/' || pathname === '/llms-full.txt' || PUBLIC.some((p) => pathname.startsWith(p));
+  const isPublic = pathname === '/' || pathname === '/reels' || pathname === '/reels/' || isReelPage || pathname === '/llms-full.txt' || PUBLIC.some((p) => pathname.startsWith(p));
   // id посетителя для A/B-тестов баннеров и главной: живёт год, гостям тоже нужен.
   // Свежий id прокидываем в заголовок запроса — иначе первый рендер его не увидит
   // и все новые посетители получили бы один и тот же вариант.

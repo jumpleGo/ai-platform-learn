@@ -10,6 +10,7 @@ import { GET as getLlms } from '@/app/llms.txt/route';
 
 // Практикум доступен без записи курса и без входа.
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: async () => [] }));
+vi.mock('@/lib/db/reels', () => ({ listPublishedReels: async () => [] }));
 vi.mock('next/headers', () => ({ cookies: async () => ({ get: () => undefined }) }));
 vi.mock('@/lib/reels-availability', () => ({ hasPublishedReels: async () => false }));
 

@@ -14,6 +14,7 @@ import sitemap from '@/app/sitemap';
 
 // Каталог проверяем с пустой БД: самостоятельный урок не требует записи курса.
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: async () => [] }));
+vi.mock('@/lib/db/reels', () => ({ listPublishedReels: async () => [] }));
 vi.mock('next/headers', () => ({ cookies: async () => ({ get: () => undefined }) }));
 
 const NEW_SLUG = 'gstack-praktikum';

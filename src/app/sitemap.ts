@@ -1,5 +1,7 @@
 import type { MetadataRoute } from 'next';
-import { getPublishedCoursesWithLessons } from '@/lib/db/courses';
+import { getPublishedCoursesWithLessons, type CourseWithLessons } from '@/lib/db/courses';
+import { listPublishedReels } from '@/lib/db/reels';
+import type { Reel } from '@/lib/reels';
 import { trainingCourses } from '@/lib/catalog';
 import { courseKey, lessonPath } from '@/lib/slug';
 import { SITE_URL } from '@/lib/site';
@@ -16,7 +18,10 @@ export const dynamic = 'force-dynamic';
 // lastModified проставляем только у статей блога, где дата настоящая: фальшивая
 // дата «время запроса» у остальных URL заставляла Google игнорировать поле целиком.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const courses = await getPublishedCoursesWithLessons();
+  const [courses, publishedReels]: [CourseWithLessons[], Reel[]] = await Promise.all([
+    getPublishedCoursesWithLessons(),
+    listPublishedReels(),
+  ]);
 
   const statics: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, changeFrequency: 'weekly', priority: 1 },
@@ -53,6 +58,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   );
 
+  const reels: MetadataRoute.Sitemap = publishedReels.map((reel) => ({
+    url: `${SITE_URL}/reels/${reel.id}`,
+    changeFrequency: 'weekly',
+    priority: 0.6,
+  }));
+
   const standaloneLessons: MetadataRoute.Sitemap = STANDALONE_FREE_LESSONS
     .filter((lesson) => lesson.published)
     .map((lesson) => ({
@@ -61,5 +72,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
-  return [...statics, ...posts, ...landings, ...lessons, ...standaloneLessons];
+  return [...statics, ...posts, ...landings, ...lessons, ...standaloneLessons, ...reels];
 }
