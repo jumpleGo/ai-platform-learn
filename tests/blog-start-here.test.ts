@@ -35,10 +35,11 @@ async function start(slug: string) {
 }
 const realPostHtml = new Map<string, string>();
 let realPostCatalogCalls: number;
-// Clean origin/main measurements (#503): first import 5366.77 ms, all-post
-// render 3207.29 ms, slowest coverage test 3853.78 ms. Round the max up and
-// allow 3x for contention; every post and every original assertion still runs.
-const realPostsTimeoutMs = 5_367 * 3;
+// Clean origin/main (#503, 2026-11-15): import 6786.203223 ms, all-post
+// render 4535.457943 ms, slowest coverage run 5183.504959 ms (5000 ms timeout).
+// Use 3x the largest measurement, rounded up to ms, for scheduling contention;
+// every post and every original assertion still runs, with both phases bounded.
+const realPostsTimeoutMs = Math.ceil(6_786.203223 * 3);
 beforeAll(async () => {
   // Render each real article once during preparation, so the growing catalog's
   // Markdown/SSR work does not consume the assertion test's time budget.

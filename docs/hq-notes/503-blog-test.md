@@ -25,3 +25,12 @@ does not reduce total rendering work.
 Timeout for both hook and test: ceil(max(measurements) * 3) = 20359 ms.
 This uses the first import as the largest measured operation and gives bounded
 scheduling headroom. Every real post and all original assertions must remain.
+
+## Step 1
+
+The existing review correction is retained: beforeEach uses mockReset, the hook
+captures getCatalog's count immediately after rendering, and the coverage test
+asserts that snapshot is zero and Map.size equals BLOG_POSTS.length. All original
+per-post CTA count, destination, wording, price and catalog assertions remain.
+Updated both explicit timeouts to the fresh measured maximum times three.
+The target-test duration excludes hook preparation; no total-work speedup is claimed.
