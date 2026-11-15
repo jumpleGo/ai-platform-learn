@@ -129,7 +129,7 @@ it('waits for paint, survives StrictMode cleanup, and keeps the original attribu
   const cleanupAgain = effects[0]();
   expect(frames.size).toBe(1);
   expect(load).not.toHaveBeenCalled();
-  window.location = new URL('https://gelato.education/blog/vaybkoding-chto-eto') as unknown as Location;
+  Object.assign(window, { location: new URL('https://gelato.education/blog/vaybkoding-chto-eto') });
   for (const callback of frames.values()) callback(0);
   expect(load).not.toHaveBeenCalled(); // rAF itself runs before paint.
   await vi.runAllTimersAsync();
@@ -142,7 +142,7 @@ it('waits for paint, survives StrictMode cleanup, and keeps the original attribu
   expect(config.capture_pageview).toBeUndefined(); // SDK still owns automatic/history pageviews.
   const event = { event: '$pageview', properties: pageview };
   expect(config.before_send(event)).toBe(event);
-  window.location = new URL('https://gelato.education/admin') as unknown as Location;
+  Object.assign(window, { location: new URL('https://gelato.education/admin') });
   expect(config.before_send(event)).toBeNull();
   if (cleanupAgain) cleanupAgain();
 });
