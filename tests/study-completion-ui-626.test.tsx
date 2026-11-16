@@ -108,7 +108,7 @@ describe.each([390, 1280])('lesson completion at viewport width %s', width => {
     await dom(page.getByText('Завтра продолжите', { exact: false })).toHaveCount(0);
     await finish(2);
     await dom(page.getByText('Пройдено', { exact: true })).toBeVisible();
-    await dom(page.getByText('Вы учитесь 2 дней подряд', { exact: true })).toBeVisible();
+    await dom(page.getByText('Вы учитесь 2 дня подряд', { exact: true })).toBeVisible();
     await dom(page.getByText('Завтра продолжите со следующего урока', { exact: false })).toBeVisible();
     expect(await page.evaluate(() => (window as unknown as StudyWindow).events)).toEqual([
       ['lesson_completed', { courseId: 'course-test', lessonId: 'lesson-1' }],
@@ -126,7 +126,7 @@ describe.each([390, 1280])('lesson completion at viewport width %s', width => {
     await page.reload();
     await page.waitForFunction(() => typeof (window as unknown as StudyWindow).mount === 'function');
     await mount({ completed: true, streakDays: 2 });
-    await dom(page.getByText('Вы учитесь 2 дней подряд', { exact: true })).toBeVisible();
+    await dom(page.getByText('Вы учитесь 2 дня подряд', { exact: true })).toBeVisible();
     await dom(page.getByText('Завтра продолжите', { exact: false })).toHaveCount(0);
     expect(await page.evaluate(() => (window as unknown as StudyWindow).events)).toEqual([]);
   });

@@ -74,7 +74,7 @@ function completion(node: ReactNode): ReactElement<Parameters<typeof CompleteLes
 it('reads the signed-in learner’s streak and restores it after a fresh page request', async () => {
   const { html, page } = await renderLesson();
   expect(getStudyStreak).toHaveBeenCalledExactlyOnceWith('user-626');
-  expect(html).toContain('Вы учитесь 3 дней подряд');
+  expect(html).toContain('Вы учитесь 3 дня подряд');
   expect(html).not.toContain('Завтра продолжите со следующего урока');
   expect(completion(page)?.props.hasNextLesson).toBe(true);
   expect(completion(page)?.key).toBe('lesson-1');

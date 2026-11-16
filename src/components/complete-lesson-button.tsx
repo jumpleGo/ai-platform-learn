@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button';
 import { completeLesson } from '@/app/(app)/courses/[courseSlug]/lessons/[lessonNumber]/actions';
 import { track } from '@/lib/analytics/track-client';
 import { EVENTS } from '@/lib/analytics/events';
+import { pluralizeDays } from '@/lib/pluralize';
+
+export { pluralizeDays };
 
 export function CompleteLessonButton({ courseId, lessonId, path, completed, streakDays = 0, hasNextLesson = false }: {
   courseId: string;
@@ -28,7 +31,7 @@ export function CompleteLessonButton({ courseId, lessonId, path, completed, stre
         </span>
         {streakDays >= 2 && (
           <p className="text-sm text-muted-foreground">
-            Вы учитесь {streakDays} дней подряд
+            Вы учитесь {streakDays} {pluralizeDays(streakDays)} подряд
           </p>
         )}
         {completedThisView && hasNextLesson && (

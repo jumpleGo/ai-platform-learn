@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CompleteLessonButton } from '@/components/complete-lesson-button';
+import { CompleteLessonButton, pluralizeDays } from '@/components/complete-lesson-button';
 import { completeLesson } from '@/app/(app)/courses/[courseSlug]/lessons/[lessonNumber]/actions';
 import { getStudyStreak, recordDailyActivity } from '@/lib/db/progress';
 import oldCompletion from './fixtures/study-activity-d5bc61f.json';
@@ -168,7 +168,7 @@ describe('Study activity and completion reminder (#626)', () => {
           path="/courses/course-test/lessons/1" completed={true}
           streakDays={streakDays} hasNextLesson={true} />,
       );
-      const streak = `Вы учитесь ${streakDays} дней подряд`;
+      const streak = `Вы учитесь ${streakDays} дня подряд`;
       expect(html).toContain(streak);
       expect(html.indexOf('Пройдено')).toBeLessThan(html.indexOf(streak));
       assertReloadedCompletion(html);
@@ -203,6 +203,26 @@ describe('Study activity and completion reminder (#626)', () => {
       expect(html).not.toContain('Отлично! Завтра продолжите со следующего урока');
       expect(html).not.toContain('Пройдено');
       expect(html).not.toContain('Вы учитесь');
+    });
+  });
+
+  describe('pluralizeDays', () => {
+    it.each([
+      { count: 1, expected: 'день' },
+      { count: 2, expected: 'дня' },
+      { count: 3, expected: 'дня' },
+      { count: 4, expected: 'дня' },
+      { count: 5, expected: 'дней' },
+      { count: 11, expected: 'дней' },
+      { count: 12, expected: 'дней' },
+      { count: 14, expected: 'дней' },
+      { count: 21, expected: 'день' },
+      { count: 22, expected: 'дня' },
+      { count: 25, expected: 'дней' },
+      { count: 101, expected: 'день' },
+      { count: 111, expected: 'дней' },
+    ])('declines $count as "$expected"', ({ count, expected }) => {
+      expect(pluralizeDays(count)).toBe(expected);
     });
   });
 
