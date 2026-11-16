@@ -7,6 +7,11 @@ export const EVENTS = {
   subscribeClicked: 'subscribe_clicked',         // props: place
   subscriptionActivated: 'subscription_activated', // props: plan, amount, tariffId, courseSlug, hasSupport, source
   lessonViewed: 'lesson_view',                 // props: lesson_id, source, campaign, device
+  reelViewed: 'reel_view',                     // props: ReelEventProps
+  reelCompleted: 'reel_complete',              // props: ReelEventProps
+  reelLiked: 'reel_like',                      // props: ReelEventProps; подключение в #560
+  reelShared: 'reel_share',                    // props: ReelEventProps
+  reelCtaClicked: 'reel_cta_click',             // props: ReelEventProps
   videoStarted: 'video_start',                 // props: lesson_id
   video25: 'video_25',                         // props: lesson_id, progress
   video50: 'video_50',                         // props: lesson_id, progress
@@ -35,3 +40,9 @@ export const EVENTS = {
   studentBannerClicked: 'student_banner_click', // props: banner (vibecoding | free | about) — клик по баннеру под окном /student или пилюле «кто мы» над ним
   homeStudentClicked: 'home_student_click',     // props: place (classic | scene) — клик по пилюле Gelato Student на первом экране главной
 } as const;
+
+export type ReelEventProps = {
+  reel_id: string;
+  course_slug: string | null;
+  position: number;
+};

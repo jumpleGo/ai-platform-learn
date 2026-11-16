@@ -2,13 +2,16 @@
 
 import React from 'react';
 import { Heart, Share2 } from 'lucide-react';
+import { EVENTS, type ReelEventProps } from '@/lib/analytics/events';
+import { track } from '@/lib/analytics/track-client';
 
-export function ReelActions() {
+export function ReelActions({ eventProps }: { eventProps: ReelEventProps }) {
   return (
     <div className="flex flex-col items-center gap-4">
       <button
         type="button"
         aria-label="Лайк"
+        onClick={() => track(EVENTS.reelLiked, eventProps)}
         className="group flex flex-col items-center gap-1 text-white focus:outline-none"
       >
         <span className="flex h-11 w-11 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm transition-transform active:scale-90 group-hover:bg-black/60">
@@ -20,6 +23,7 @@ export function ReelActions() {
       <button
         type="button"
         aria-label="Поделиться"
+        onClick={() => track(EVENTS.reelShared, eventProps)}
         className="group flex flex-col items-center gap-1 text-white focus:outline-none"
       >
         <span className="flex h-11 w-11 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm transition-transform active:scale-90 group-hover:bg-black/60">
