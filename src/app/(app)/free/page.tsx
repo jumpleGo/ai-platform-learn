@@ -5,13 +5,14 @@ import Link from 'next/link';
 import { ArrowRight, Send, Sparkles } from 'lucide-react';
 import { getPublishedCoursesWithLessons } from '@/lib/db/courses';
 import { freeLessonCards } from '@/lib/catalog';
-import { STANDALONE_FREE_LESSONS, localLessonPreview, standaloneFreeLessonPath } from '@/lib/free-lessons';
+import { STANDALONE_FREE_LESSONS, localLessonPreview } from '@/lib/free-lessons';
 import { lessonPath } from '@/lib/slug';
 import { TELEGRAM_DM } from '@/lib/site';
 import { FREE_PAGE_ANSWER, FREE_PAGE_POINTS } from '@/lib/geo-answers';
 import { Accent, StickerTag, TitleAccent } from '@/components/accent';
 import { CoverCard } from '@/components/cover-card';
 import { FreeIntroLessonButton } from '@/components/free-intro-lesson-button';
+import { PracticumCard } from '@/components/practicum-card';
 import { SectionHead } from '@/components/section-head';
 
 export const metadata: Metadata = {
@@ -85,31 +86,6 @@ export default async function FreePage({
         )}
       </section>
 
-      {standaloneLessons.length > 0 && (
-        <section className="space-y-6" aria-labelledby="free-practice-title">
-          <h2 id="free-practice-title" className="font-heading text-2xl font-extrabold text-brand-navy sm:text-3xl">
-            Практикумы: попробуйте сами
-          </h2>
-          <ul className="grid gap-6 sm:grid-cols-2">
-            {standaloneLessons.map((lesson) => (
-              <li key={lesson.slug}>
-                <Link
-                  href={standaloneFreeLessonPath(lesson.slug)}
-                  className="block h-full rounded-2xl border-2 border-brand-navy/15 bg-brand-yellow/20 p-6 transition-colors hover:border-brand-navy focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-navy"
-                >
-                  <span className="text-sm font-medium text-brand-charcoal/80">Бесплатный текстовый практикум</span>
-                  <h3 className="mt-2 font-heading text-xl font-extrabold text-brand-navy">{lesson.h1}</h3>
-                  <p className="mt-3 leading-relaxed text-brand-charcoal/90">{lesson.lead}</p>
-                  <span className="mt-4 inline-flex items-center gap-2 font-semibold text-brand-navy">
-                    Открыть практикум <ArrowRight className="size-4" aria-hidden />
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
       {lessons.length > 0 ? (
         <section className="space-y-10">
           <SectionHead
@@ -142,6 +118,21 @@ export default async function FreePage({
       ) : standaloneLessons.length === 0 ? (
         <p className="text-muted-foreground">Бесплатные уроки скоро появятся.</p>
       ) : null}
+
+      {standaloneLessons.length > 0 && (
+        <section className="space-y-6" aria-labelledby="free-practice-title">
+          <h2 id="free-practice-title" className="font-heading text-2xl font-extrabold text-brand-navy sm:text-3xl">
+            Практикумы: попробуйте сами
+          </h2>
+          <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
+            {standaloneLessons.map((lesson, index) => (
+              <li key={lesson.slug} className="min-w-0">
+                <PracticumCard lesson={lesson} index={index} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Баннер-переход к платному: бумажная текстура, рамка-рубашка гуся и он сам
           в углу — тот же приём, что у баннера главной, чтобы блок нельзя было
