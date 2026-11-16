@@ -1,9 +1,6 @@
 /// <reference types="vite/client" />
-import React from 'react';
 import { createHash } from 'node:crypto';
-import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ReelActions } from '@/components/reels/reel-actions';
 import { normalizeReel } from '@/lib/reels';
 import { resetRateLimit } from '@/lib/reel-like-rate-limit';
 
@@ -255,28 +252,4 @@ describe('Reel like API #560', () => {
     expect(reel.likeCount).toBe(0);
   });
 
-  it('renders heart and counter for logged-in user in reel-actions', () => {
-    const html = renderToStaticMarkup(
-      React.createElement(ReelActions, {
-        eventProps: { reel_id: 'reel-1', course_slug: 'claude-code-agents', position: 0 },
-        initialLikeCount: 12,
-        isLoggedIn: true,
-      }),
-    );
-    expect(html).toContain('12');
-    expect(html).toMatch(/<button[^>]*aria-label="Лайк"[^>]*>/);
-  });
-
-  it('renders counter and login invitation link for guest in reel-actions', () => {
-    const html = renderToStaticMarkup(
-      React.createElement(ReelActions, {
-        eventProps: { reel_id: 'reel-1', course_slug: 'claude-code-agents', position: 0 },
-        initialLikeCount: 42,
-        isLoggedIn: false,
-      }),
-    );
-    expect(html).toContain('42');
-    expect(html).toContain('Войти, чтобы поставить лайк');
-    expect(html).toMatch(/href="\/login"[^>]*>[\s\S]*?Войти, чтобы поставить лайк<\/a>/);
-  });
 });

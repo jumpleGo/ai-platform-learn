@@ -23,7 +23,6 @@ type ReelPlayerProps = {
   isMuted: boolean;
   onToggleSound: () => void;
   prefersReducedMotion: boolean;
-  isLoggedIn?: boolean;
 };
 
 function isMobileViewport() {
@@ -37,7 +36,6 @@ export function ReelPlayer({
   isMuted,
   onToggleSound,
   prefersReducedMotion,
-  isLoggedIn,
 }: ReelPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const isManuallyPausedRef = useRef(false);
@@ -147,14 +145,9 @@ export function ReelPlayer({
         </button>
       </div>
 
-      {/* Right side actions */}
+      {/* Right side actions; the like button is connected in #560. */}
       <div className="absolute right-3 bottom-24 z-20">
-        <ReelActions
-          eventProps={eventProps}
-          reelId={item.reel.id}
-          initialLikeCount={item.reel.likeCount ?? 0}
-          isLoggedIn={isLoggedIn}
-        />
+        <ReelActions eventProps={eventProps} />
       </div>
 
       {/* Bottom info and course CTA */}

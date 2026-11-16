@@ -10,10 +10,9 @@ export type { ReelFeedItem };
 
 type ReelsMobileFeedProps = {
   items: ReelFeedItem[];
-  isLoggedIn?: boolean;
 };
 
-export function ReelsMobileFeed({ items, isLoggedIn }: ReelsMobileFeedProps) {
+export function ReelsMobileFeed({ items }: ReelsMobileFeedProps) {
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
@@ -136,7 +135,6 @@ export function ReelsMobileFeed({ items, isLoggedIn }: ReelsMobileFeedProps) {
           isMuted={isMuted}
           onToggleSound={() => setIsMuted((prev) => !prev)}
           prefersReducedMotion={prefersReducedMotion}
-          isLoggedIn={isLoggedIn}
         />
       ))}
     </div>
