@@ -151,8 +151,9 @@ describe('confirmed reel reaction #560 in Chromium', () => {
 
   it('aborts slow GET and permits retry', async () => {
     const slow = deferred<Reply>();
-    const calls = await setup([slow.promise, reaction(true, 8, true)]);
+    // Install before mounting so fastForward controls the GET abort timer.
     await page.clock.install();
+    const calls = await setup([slow.promise, reaction(true, 8, true)]);
     await expect.poll(() => calls.length).toBe(1);
     await page.clock.fastForward(10_001);
     await dom(like()).toHaveText('4');
