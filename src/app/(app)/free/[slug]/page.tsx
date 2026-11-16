@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { StickerTag } from '@/components/accent';
-import { Markdown } from '@/components/markdown';
+import { PracticumSections } from '@/components/practicum-sections';
 import {
   SITE_URL, STANDALONE_FREE_LESSONS, getStandaloneFreeLesson, standaloneFreeLessonPath,
 } from '@/lib/free-lessons';
@@ -69,7 +69,7 @@ export default async function StandaloneFreeLessonPage({ params }: Props) {
         {nbsp(lesson.h1)}
       </h1>
       <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{nbsp(lesson.lead)}</p>
-      <Markdown source={nbspMarkdown(lesson.body)} variant="read" className="mt-8" />
+      <PracticumSections source={nbspMarkdown(lesson.body)} className="mt-8" />
       <Link href="/free" className="mt-10 inline-block font-semibold text-primary underline underline-offset-4">
         Выбрать следующий бесплатный урок
       </Link>
