@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, Clapperboard, Eye, Lock } from 'lucide-react';
 import { getPublishedCoursesWithLessons, resolveLesson } from '@/lib/db/courses';
 import { getSubscription } from '@/lib/db/subscriptions';
-import { getCompletedLessonIds } from '@/lib/db/progress';
+import { getCompletedLessonIds, getStudyStreak } from '@/lib/db/progress';
 import { getSession } from '@/lib/session';
 import { hasCourseAccess, isLocked } from '@/lib/access';
 import { materialsTeaser } from '@/lib/markdown';
@@ -171,10 +171,14 @@ export default async function LessonPage({ params, searchParams }: {
   const [forcedSlot, forcedVariant] = (forcedBanner ?? '').split(':');
   // страница урока открыта и гостям; платный урок без доступа отдаётся заблокированным (только превью)
   const session = await getSession();
-  const [data, sub, completedIds] = await Promise.all([
+  const [data, sub, completedIds, streakDays] = await Promise.all([
     resolveLesson(courseSlug, lessonNumber),
     session ? getSubscription(session.uid) : null,
     session ? getCompletedLessonIds(session.uid) : new Set<string>(),
+    session ? getStudyStreak(session.uid).catch(error => {
+      console.error('Failed to read study activity:', error);
+      return 0;
+    }) : 0,
   ]);
   if (!data) notFound();
   const { course, lesson, number, publishedAt } = data;
@@ -377,10 +381,13 @@ export default async function LessonPage({ params, searchParams }: {
         {!freeLesson && nextLessonLink}
         {!freeLesson && session && !locked && (
           <CompleteLessonButton
+            key={lesson.id}
             courseId={courseId}
             lessonId={lesson.id}
             path={path}
             completed={completedIds.has(lesson.id)}
+            streakDays={streakDays}
+            hasNextLesson={Boolean(nextLesson)}
           />
         )}
         {!freeLesson && relatedBanner.variant && (

@@ -1,5 +1,5 @@
 'use client';
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -7,14 +7,17 @@ import { completeLesson } from '@/app/(app)/courses/[courseSlug]/lessons/[lesson
 import { track } from '@/lib/analytics/track-client';
 import { EVENTS } from '@/lib/analytics/events';
 
-export function CompleteLessonButton({ courseId, lessonId, path, completed }: {
+export function CompleteLessonButton({ courseId, lessonId, path, completed, streakDays = 0, hasNextLesson = false }: {
   courseId: string;
   lessonId: string;
   // Адрес урока для ревалидации после отметки о прохождении
   path: string;
   completed: boolean;
+  streakDays?: number;
+  hasNextLesson?: boolean;
 }) {
   const [pending, startTransition] = useTransition();
+  const [completedThisView, setCompletedThisView] = useState(false);
 
   if (completed) {
     return (
@@ -23,9 +26,16 @@ export function CompleteLessonButton({ courseId, lessonId, path, completed }: {
           <Check className="size-4" aria-hidden />
           Пройдено
         </span>
-        <p className="text-sm text-muted-foreground">
-          Отлично! Завтра продолжите со следующего урока
-        </p>
+        {streakDays >= 2 && (
+          <p className="text-sm text-muted-foreground">
+            Вы учитесь {streakDays} дней подряд
+          </p>
+        )}
+        {completedThisView && hasNextLesson && (
+          <p className="text-sm text-muted-foreground">
+            Отлично! Завтра продолжите со следующего урока
+          </p>
+        )}
       </div>
     );
   }
@@ -37,6 +47,7 @@ export function CompleteLessonButton({ courseId, lessonId, path, completed }: {
         startTransition(async () => {
           try {
             await completeLesson(lessonId, path);
+            setCompletedThisView(true);
             track(EVENTS.lessonCompleted, { courseId, lessonId });
           } catch {
             toast.error('Не удалось сохранить прогресс');

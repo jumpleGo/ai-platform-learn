@@ -1,6 +1,6 @@
 import 'server-only';
 import { adminDb } from '@/lib/firebase/admin';
-import { FieldValue } from 'firebase-admin/firestore';
+import { FieldPath, FieldValue } from 'firebase-admin/firestore';
 
 export async function getCompletedLessonIds(uid: string): Promise<Set<string>> {
   const snap = await adminDb.collection(`users/${uid}/progress`).where('completed', '==', true).get();
@@ -20,6 +20,25 @@ export function getMoscowDateString(date: Date = new Date()): string {
   }).format(date);
 }
 
+export async function getStudyStreak(uid: string, timestamp: number = Date.now()): Promise<number> {
+  // UTC здесь нужен только для арифметики календарных дат; «сегодня» уже определено по МСК.
+  const today = Date.parse(`${getMoscowDateString(new Date(timestamp))}T00:00:00Z`);
+  const dates = Array.from({ length: 30 }, (_, offset) =>
+    new Date(today - offset * 86_400_000).toISOString().slice(0, 10));
+  const snap = await adminDb.collection(`users/${uid}/activity`)
+    .where(FieldPath.documentId(), '>=', dates[dates.length - 1])
+    .where(FieldPath.documentId(), '<=', dates[0])
+    .get();
+  const activeDates = new Set(snap.docs.map(doc => doc.id));
+  let index = activeDates.has(dates[0]) ? 0 : 1;
+  let streak = 0;
+  while (index < dates.length && activeDates.has(dates[index])) {
+    streak++;
+    index++;
+  }
+  return streak;
+}
+
 export async function recordDailyActivity(
   uid: string,
   lessonId: string,
@@ -27,22 +46,15 @@ export async function recordDailyActivity(
 ) {
   const dateStr = getMoscowDateString(new Date(timestamp));
   const ref = adminDb.doc(`users/${uid}/activity/${dateStr}`);
-  const snap = await ref.get();
-  if (!snap.exists || snap.data()?.firstAt === undefined) {
-    await ref.set(
+  await adminDb.runTransaction(async transaction => {
+    const snap = await transaction.get(ref);
+    transaction.set(
+      ref,
       {
-        firstAt: timestamp,
+        ...(snap.data()?.firstAt === undefined ? { firstAt: timestamp } : {}),
         lessons: FieldValue.arrayUnion(lessonId),
       },
       { merge: true },
     );
-  } else {
-    await ref.set(
-      {
-        lessons: FieldValue.arrayUnion(lessonId),
-      },
-      { merge: true },
-    );
-  }
+  });
 }
-
