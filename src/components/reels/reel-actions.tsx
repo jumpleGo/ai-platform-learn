@@ -14,7 +14,7 @@ type ReelActionsProps = {
   initialLikeCount?: number;
   initialLiked?: boolean;
   isLoggedIn?: boolean;
-  layout?: 'overlay' | 'inline';
+  layout?: 'overlay' | 'inline' | 'desktop';
 };
 
 export function ReelActions(props: ReelActionsProps) {
@@ -41,7 +41,7 @@ function ReelLikeControls({
   const handleLike = () => { void toggle(reelId, eventProps); };
 
   return (
-    <div className={layout === 'inline' ? 'flex items-center gap-4 text-foreground' : 'flex flex-col items-center gap-4 text-white'}>
+    <div className={layout === 'inline' ? 'flex items-center gap-4 text-foreground' : layout === 'desktop' ? 'flex flex-col items-center gap-4 text-foreground' : 'flex flex-col items-center gap-4 text-white'}>
       {!guest ? (
         <button
           type="button"
@@ -52,20 +52,28 @@ function ReelLikeControls({
           onClick={handleLike}
           className="group flex flex-col items-center gap-1 focus-visible:outline-2 disabled:cursor-wait"
         >
-          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm transition-transform active:scale-90 group-hover:bg-black/60">
-            <Heart className={`h-6 w-6 transition-colors ${liked ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+          <span className={`flex h-11 w-11 items-center justify-center rounded-full transition-transform active:scale-90 ${
+            layout === 'desktop'
+              ? 'bg-muted hover:bg-muted/80 text-foreground'
+              : 'bg-black/40 backdrop-blur-sm group-hover:bg-black/60'
+          }`}>
+            <Heart className={`h-6 w-6 transition-colors ${liked ? 'fill-red-500 text-red-500' : layout === 'desktop' ? 'text-foreground' : 'text-white'}`} />
           </span>
-          <span className="text-[11px] font-medium tracking-tight drop-shadow">{likeCount}</span>
+          <span className={`text-[11px] font-medium tracking-tight ${layout === 'desktop' ? 'text-foreground' : 'drop-shadow'}`}>{likeCount}</span>
         </button>
       ) : (
         <div className="flex flex-col items-center gap-1">
-          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm">
-            <Heart className="h-6 w-6 text-white" />
+          <span className={`flex h-11 w-11 items-center justify-center rounded-full ${
+            layout === 'desktop' ? 'bg-muted text-foreground' : 'bg-black/40 backdrop-blur-sm'
+          }`}>
+            <Heart className={`h-6 w-6 ${layout === 'desktop' ? 'text-foreground' : 'text-white'}`} />
           </span>
-          <span className="text-[11px] font-medium tracking-tight drop-shadow">{likeCount}</span>
+          <span className={`text-[11px] font-medium tracking-tight ${layout === 'desktop' ? 'text-foreground' : 'drop-shadow'}`}>{likeCount}</span>
           <Link
             href="/login"
-            className="text-[10px] font-medium text-center drop-shadow hover:underline max-w-[80px] leading-tight"
+            className={`text-[10px] font-medium text-center hover:underline max-w-[80px] leading-tight ${
+              layout === 'desktop' ? 'text-muted-foreground' : 'drop-shadow'
+            }`}
           >
             Войти, чтобы поставить лайк
           </Link>
@@ -77,9 +85,10 @@ function ReelLikeControls({
         {state.status === 'error' && <button type="button" className="underline" onClick={() => void load(reelId)}>Повторить загрузку</button>}
       </div>}
 
-      {layout === 'overlay' && <ReelShareButton
+      {(layout === 'overlay' || layout === 'desktop') && <ReelShareButton
         url={`/reels/${encodeURIComponent(reelId)}`}
         variant="overlay"
+        className={layout === 'desktop' ? 'group flex flex-col items-center gap-1 text-foreground focus-visible:outline-2' : undefined}
         onClick={() => track(EVENTS.reelShared, eventProps)}
       />}
     </div>

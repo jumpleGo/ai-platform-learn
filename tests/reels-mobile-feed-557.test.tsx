@@ -260,14 +260,15 @@ describe('mobile reels feed (#557)', () => {
     expect(mobileFeed).toBeDefined();
     assertMobileFeedContract(renderOpenedMobileFeed(mobileFeed));
 
-    // Computer view is preserved with grid and desktop articles
+    // Computer view is preserved with snap feed and desktop articles (#618)
     expect(html).toMatch(/\bmd:flex\b|\bmd:grid\b/);
-    expect(html).toContain('sm:grid-cols-2');
-    expect(html).toContain('lg:grid-cols-3');
+    expect(html).toContain('snap-y');
+    expect(html).toContain('snap-mandatory');
     expect(html).toContain('Короткие видео про ИИ');
     const articles = html.match(/<article\b[\s\S]*?<\/article>/g) ?? [];
     expect(articles).toHaveLength(2);
-    for (const article of articles) {
+    for (const [index, article] of articles.entries()) {
+      expect(article).toContain(`data-reel-id="${mockItems[index]!.reel.id}"`);
       expect(article).toContain('Перейти в курс');
       const videos = article.match(/<video\b[^>]*>/g) ?? [];
       expect(videos).toHaveLength(1);
@@ -278,7 +279,8 @@ describe('mobile reels feed (#557)', () => {
     }
     // Only the manual desktop players are present in the complete server page.
     expect(html.match(/<video\b/g) ?? []).toHaveLength(articles.length);
-    expect(html).not.toContain('data-reel-id=');
+    // IDs identify desktop articles; mobile player sections still mount only on the client.
+    expect(html.replace(/<article\b[\s\S]*?<\/article>/g, '')).not.toContain('data-reel-id=');
   });
 
   it('rejects the frozen b7963655 playback baseline with the new assertions', () => {
