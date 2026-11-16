@@ -1,8 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
-import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest';
+import { expect as dom, type Page } from '@playwright/test';
+import { createReelBrowser, deferred, events, mount, reaction, routeLikes, type Reply } from './fixtures/reel-actions-5a75165';
 import { EVENTS, type ReelEventProps } from '@/lib/analytics/events';
-import { ReelActions } from '@/components/reels/reel-actions';
 import { ReelCta } from '@/components/reels/reel-cta';
 import { ReelPlayer, type ReelFeedItem } from '@/components/reels/reel-player';
 import { ReelsMobileFeed } from '@/components/reels/reels-mobile-feed';
@@ -108,43 +109,40 @@ describe('reel analytics contract (#562)', () => {
     }>();
   });
 
-  it.each(['claude-code-agents', ''])('tracks share with exact properties (course=%s)', (courseSlug) => {
-    const tree = new HookHarness().render(() => ReelPlayer({
-      ...props, item: { ...item, reel: { ...item.reel, courseSlug } },
-    }));
-    const actions = find<React.ComponentProps<typeof ReelActions>>(tree, ReelActions);
-    const buttons = React.Children.toArray(ReelActions(actions.props).props.children)
-      .filter((child) => React.isValidElement<React.ComponentProps<'button'>>(child)
-        && child.props['aria-label'] === 'Поделиться') as React.ReactElement<React.ComponentProps<'button'>>[];
-    expect(mocks.track).not.toHaveBeenCalled();
-    expect(buttons[0]?.props.onClick).toBeTypeOf('function');
-    buttons[0].props.onClick!({} as React.MouseEvent<HTMLButtonElement>);
-    expect(mocks.track).toHaveBeenCalledExactlyOnceWith('reel_share', {
-      ...expected, course_slug: courseSlug || null,
+  describe('mounted reactions', () => {
+    let browser: Awaited<ReturnType<typeof createReelBrowser>>;
+    let page: Page;
+    beforeAll(async () => { browser = await createReelBrowser(); }, 30_000);
+    beforeEach(async () => { page = await browser.page(); });
+    afterEach(async () => { await page?.close(); });
+    afterAll(async () => { await browser?.close(); });
+
+    it.each(['claude-code-agents', ''])('tracks share with exact properties (course=%s)', async (courseSlug) => {
+      await routeLikes(page, [reaction(false, 0, true)]);
+      await mount(page, 'player', { ...props, onToggleSound: undefined, item: { ...item, reel: { ...item.reel, courseSlug } } });
+      expect(await events(page)).toEqual([]);
+      await page.getByRole('button', { name: 'Поделиться' }).click();
+      expect(await events(page)).toEqual([['reel_share', {
+        ...expected, course_slug: courseSlug || null,
+      }]]);
     });
-  });
 
-  it('tracks like with exact properties', () => {
-    const tree = new HookHarness().render(() => ReelPlayer(props));
-    const actions = find<React.ComponentProps<typeof ReelActions>>(tree, ReelActions);
-    const buttons = React.Children.toArray(ReelActions(actions.props).props.children)
-      .filter((child) => React.isValidElement<React.ComponentProps<'button'>>(child)
-        && child.props['aria-label'] === 'Лайк') as React.ReactElement<React.ComponentProps<'button'>>[];
-    expect(mocks.track).not.toHaveBeenCalled();
-    expect(buttons[0]?.props.onClick).toBeTypeOf('function');
-    buttons[0].props.onClick!({} as React.MouseEvent<HTMLButtonElement>);
-    expect(mocks.track).toHaveBeenCalledExactlyOnceWith('reel_like', expected);
-
-    mocks.track.mockClear();
-    const treeNoCourse = new HookHarness().render(() => ReelPlayer({
-      ...props, item: { ...item, reel: { ...item.reel, courseSlug: '' } },
-    }));
-    const actionsNoCourse = find<React.ComponentProps<typeof ReelActions>>(treeNoCourse, ReelActions);
-    const buttonsNoCourse = React.Children.toArray(ReelActions(actionsNoCourse.props).props.children)
-      .filter((child) => React.isValidElement<React.ComponentProps<'button'>>(child)
-        && child.props['aria-label'] === 'Лайк') as React.ReactElement<React.ComponentProps<'button'>>[];
-    buttonsNoCourse[0].props.onClick!({} as React.MouseEvent<HTMLButtonElement>);
-    expect(mocks.track).toHaveBeenCalledExactlyOnceWith('reel_like', { ...expected, course_slug: null });
+    it.each(['claude-code-agents', ''])('tracks confirmed addition with exact properties (course=%s)', async (courseSlug) => {
+      const added = deferred<Reply>();
+      const calls = await routeLikes(page, [reaction(false, 0, true), added.promise]);
+      await mount(page, 'player', { ...props, onToggleSound: undefined, item: { ...item, reel: { ...item.reel, courseSlug } } });
+      const like = page.getByRole('button', { name: 'Лайк' });
+      await dom(like).toBeEnabled();
+      expect(await events(page)).toEqual([]);
+      await like.click();
+      await expect.poll(() => calls.length).toBe(2);
+      expect(await events(page)).toEqual([]);
+      added.resolve(reaction(true, 1));
+      await dom(like).toHaveAttribute('aria-pressed', 'true');
+      expect(await events(page)).toEqual([['reel_like', {
+        ...expected, course_slug: courseSlug || null,
+      }]]);
+    });
   });
 
   it.each(['claude-code-agents', ''])('tracks CTA with exact properties (course=%s)', (courseSlug) => {

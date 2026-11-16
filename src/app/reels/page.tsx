@@ -4,6 +4,8 @@ import { GelatoLogo } from '@/components/gelato-logo';
 import { ReelsMobileFeed } from '@/components/reels/reels-mobile-feed';
 import { listPublishedReels } from '@/lib/db/reels';
 import { adminStorage, storageBucketName } from '@/lib/firebase/admin';
+import { ReelActions } from '@/components/reels/reel-actions';
+import { ReelLikesProvider } from '@/components/reels/reel-likes-provider';
 
 export const metadata: Metadata = {
   title: 'Короткие видео про ИИ — GELATO',
@@ -37,7 +39,7 @@ export default async function ReelsPage() {
   );
 
   return (
-    <>
+    <ReelLikesProvider>
       <div className={`flex min-h-svh flex-col bg-background ${items.length > 0 ? 'hidden md:flex' : ''}`}>
         <header className="border-b border-border/70">
           <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
@@ -66,7 +68,7 @@ export default async function ReelsPage() {
             </section>
           ) : (
             <div className="mx-auto grid max-w-md grid-cols-1 gap-8 sm:max-w-none sm:grid-cols-2 lg:grid-cols-3">
-              {items.map(({ reel, video, poster }) => (
+              {items.map(({ reel, video, poster }, position) => (
                 <article key={reel.id} className="space-y-3">
                   <video
                     className="aspect-[9/16] w-full rounded-2xl bg-black object-cover"
@@ -75,6 +77,11 @@ export default async function ReelsPage() {
                     preload="none"
                     controls
                     playsInline
+                  />
+                  <ReelActions
+                    eventProps={{ reel_id: reel.id, course_slug: reel.courseSlug || null, position }}
+                    initialLikeCount={reel.likeCount ?? 0}
+                    layout="inline"
                   />
                   <h2 className="text-base font-semibold">{reel.title}</h2>
                   <Link
@@ -90,6 +97,6 @@ export default async function ReelsPage() {
         </main>
       </div>
       {items.length > 0 && <ReelsMobileFeed items={items} />}
-    </>
+    </ReelLikesProvider>
   );
 }
