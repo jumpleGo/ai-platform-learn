@@ -1,6 +1,6 @@
 'use server';
 import { getSession } from '@/lib/session';
-import { markLessonCompleted } from '@/lib/db/progress';
+import { markLessonCompleted, recordDailyActivity } from '@/lib/db/progress';
 import { recordLessonView } from '@/lib/db/stats';
 import { revalidatePath } from 'next/cache';
 
@@ -18,5 +18,10 @@ export async function completeLesson(lessonId: string, path: string) {
   const session = await getSession();
   if (!session) throw new Error('unauthorized');
   await markLessonCompleted(session.uid, lessonId);
+  try {
+    await recordDailyActivity(session.uid, lessonId);
+  } catch (error) {
+    console.error('Failed to record study activity:', error);
+  }
   revalidatePath(path);
 }

@@ -18,10 +18,15 @@ export function CompleteLessonButton({ courseId, lessonId, path, completed }: {
 
   if (completed) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1.5 text-sm font-medium text-primary">
-        <Check className="size-4" aria-hidden />
-        Пройдено
-      </span>
+      <div className="flex flex-col items-start gap-1.5">
+        <span className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1.5 text-sm font-medium text-primary">
+          <Check className="size-4" aria-hidden />
+          Пройдено
+        </span>
+        <p className="text-sm text-muted-foreground">
+          Отлично! Завтра продолжите со следующего урока
+        </p>
+      </div>
     );
   }
 
