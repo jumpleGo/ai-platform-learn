@@ -5,7 +5,7 @@ export const REEL_TEXT_FIELDS = ['title', 'description', 'ctaLabel', 'ctaHref'] 
 
 // Approved copy for legacy reels; a stored description always takes priority.
 const REEL_DESCRIPTION_FALLBACKS = new Map([
-  ['eo0EzK9gMElHYrrxDCSd', 'Онлайн-школа GELATO: обучение работе с ИИ. Новичкам — можно с нуля.'],
+  ['eo0EzK9gMElHYrrxDCSd', 'Эмиль, основатель онлайн-школы GELATO, здоровается и коротко рассказывает о своей школе, где новички учатся работать с ИИ.'],
 ]);
 
 export type Reel = {
