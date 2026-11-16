@@ -14,10 +14,13 @@ export type Reel = {
   posterPath?: string;
   order: number;
   published: boolean;
+  likeCount?: number;
 };
 
 export type ReelMetadata = Pick<Reel, 'courseSlug' | 'order' | (typeof REEL_TEXT_FIELDS)[number]>;
-export type NormalizedReel = Reel & Required<Pick<Reel, (typeof REEL_TEXT_FIELDS)[number]>>;
+export type NormalizedReel = Reel & Required<Pick<Reel, (typeof REEL_TEXT_FIELDS)[number]>> & {
+  likeCount: number;
+};
 
 export function isValidReelCtaHref(href: string): boolean {
   // Browsers normalize backslashes and control characters in navigation URLs.
@@ -41,5 +44,8 @@ export function normalizeReel(reel: Reel, course: { title: string; description?:
     description: (reel.description?.trim() || course.description?.trim() || '').slice(0, MAX_REEL_DESCRIPTION_LENGTH),
     ctaLabel: reel.ctaLabel?.trim() || 'Перейти в курс',
     ctaHref: ctaHref && isValidReelCtaHref(ctaHref) ? ctaHref : `/courses/${reel.courseSlug}`,
+    likeCount: typeof reel.likeCount === 'number' && Number.isFinite(reel.likeCount) && reel.likeCount >= 0
+      ? reel.likeCount
+      : 0,
   };
 }
