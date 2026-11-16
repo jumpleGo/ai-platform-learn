@@ -10,6 +10,8 @@ afterAll(async () => { await browser?.close(); });
 
 it.each([390, 1280])('restores likes after reload and resize at %i px', async (width) => {
   page = await browser.page(width);
+  // открытие одно ~1,1–2,1 с (замер #649, до и после #618 одинаково), в общем прогоне под нагрузкой превышает 4 с; таймаут поднят только для навигации.
+  page.setDefaultNavigationTimeout(15000);
   const calls = await routeLikes(page, [reaction(true, 8, true), reaction(false, 7),
     reaction(false, 7, true), reaction(true, 8)]);
   await mount(page, 'page');
@@ -42,6 +44,8 @@ it.each([390, 1280])('restores likes after reload and resize at %i px', async (w
 
 it.each([390, 1280])('shows guest count and login at %i px', async (width) => {
   page = await browser.page(width);
+  // открытие одно ~1,1–2,1 с (замер #649, до и после #618 одинаково), в общем прогоне под нагрузкой превышает 4 с; таймаут поднят только для навигации.
+  page.setDefaultNavigationTimeout(15000);
   const calls = await routeLikes(page, [reaction(false, 42, false)]);
   await mount(page, 'page');
   const presentation = page.locator(width === 390 ? 'section[data-reel-id]' : 'article');
