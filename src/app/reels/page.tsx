@@ -4,6 +4,7 @@ import { GelatoLogo } from '@/components/gelato-logo';
 import { ReelsMobileFeed } from '@/components/reels/reels-mobile-feed';
 import { listPublishedReels } from '@/lib/db/reels';
 import { adminStorage, storageBucketName } from '@/lib/firebase/admin';
+import { getSession } from '@/lib/session';
 
 export const metadata: Metadata = {
   title: 'Короткие видео про ИИ — GELATO',
@@ -27,6 +28,13 @@ async function signRead(path: string): Promise<string> {
 }
 
 export default async function ReelsPage() {
+  let isLoggedIn: boolean | undefined;
+  try {
+    const session = await getSession();
+    isLoggedIn = Boolean(session?.uid);
+  } catch {
+    // In test or non-request contexts, leave undefined
+  }
   const reels = await listPublishedReels();
   const items = await Promise.all(
     reels.map(async (reel) => ({
@@ -89,7 +97,7 @@ export default async function ReelsPage() {
           )}
         </main>
       </div>
-      {items.length > 0 && <ReelsMobileFeed items={items} />}
+      {items.length > 0 && <ReelsMobileFeed items={items} isLoggedIn={isLoggedIn} />}
     </>
   );
 }
