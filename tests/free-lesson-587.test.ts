@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
-import { SITE_URL } from '@/lib/free-lessons';
+import { getStandaloneFreeLesson, SITE_URL } from '@/lib/free-lessons';
 import StandaloneFreeLessonPage, {
   generateMetadata, generateStaticParams,
 } from '@/app/(app)/free/[slug]/page';
@@ -16,6 +16,19 @@ vi.mock('@/lib/reels-availability', () => ({ hasPublishedReels: async () => fals
 
 const SLUG = 'chto-umeet-ii';
 const PATH = `/free/${SLUG}`;
+
+// Единственная строка ключа Apple до ревью #587; git во время теста не читается.
+const OLD_APPLE_ANSWER = Object.freeze({
+  commit: 'c5ef19c7c8795e297635bdb31ca58ce5e7ec14ee',
+  sourceSha256: '8e8379eba1193459fc52bb9095deb360b4f3f734cefadd33f6477de643dfbe35',
+  slug: 'chto-umeet-ii',
+  answerKey: '- 3 — **измеренный результат**: факт, подтверждённый лабораторным замером исследователей.',
+});
+
+function expectAppleBenchAnswer(answerKey: string) {
+  const answer = answerKey.match(/^- 3 — \*\*([^*]+)\*\*:/m)?.[1];
+  expect(answer).toBe('испытание на стенде');
+}
 
 // Самостоятельные адреса до #587. Тест не обращается к истории репозитория.
 const OLD_DISCOVERY = Object.freeze({
@@ -43,6 +56,17 @@ function discoveryChecks(discovery: Discovery) {
 }
 
 describe('бесплатный практикум «Что ИИ умеет, а что нет — без страшилок» #587', () => {
+  it('ключ Apple — стенд; старый ответ c5ef19c не проходит ту же проверку', () => {
+    expect(() => expectAppleBenchAnswer(OLD_APPLE_ANSWER.answerKey)).toThrow('испытание на стенде');
+    console.log('OLD_FAILS=1');
+
+    const lesson = getStandaloneFreeLesson(SLUG);
+    expect(lesson).not.toBeNull();
+    const exercise = lesson!.body.split('## Упражнение 2. Разложите утверждения')[1];
+    expect(exercise).toBeDefined();
+    expectAppleBenchAnswer(exercise);
+  });
+
   it('отдаёт страницу с метаданными, упражнениями и первоисточниками', async () => {
     const props = { params: Promise.resolve({ slug: SLUG }) };
     expect(generateStaticParams()).toContainEqual({ slug: SLUG });
