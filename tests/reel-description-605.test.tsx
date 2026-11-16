@@ -31,7 +31,7 @@ vi.mock('@/components/gelato-logo', () => ({ GelatoLogo: () => <span>GELATO</spa
 
 // Frozen minimal fixture: old source hash/commit and course slugs are recorded
 // alongside the observed reel. This suite never reads Git or origin at runtime.
-const approved = 'Эмиль, основатель онлайн-школы GELATO, здоровается и коротко рассказывает о своей школе, где новички учатся работать с ИИ.';
+const approved = 'Эмиль представляет свою школу GELATO.';
 const course = { slug: fixture.slugs[0], title: 'Курс', description: '', published: true };
 const intro: Reel = {
   ...fixture.reel,
