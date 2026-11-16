@@ -260,10 +260,10 @@ describe('mobile reels feed (#557)', () => {
     expect(mobileFeed).toBeDefined();
     assertMobileFeedContract(renderOpenedMobileFeed(mobileFeed));
 
-    // Computer view is preserved with grid and desktop articles
+    // Computer view is preserved with snap feed and desktop articles (#618)
     expect(html).toMatch(/\bmd:flex\b|\bmd:grid\b/);
-    expect(html).toContain('sm:grid-cols-2');
-    expect(html).toContain('lg:grid-cols-3');
+    expect(html).toContain('snap-y');
+    expect(html).toContain('snap-mandatory');
     expect(html).toContain('Короткие видео про ИИ');
     const articles = html.match(/<article\b[\s\S]*?<\/article>/g) ?? [];
     expect(articles).toHaveLength(2);
