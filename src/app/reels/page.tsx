@@ -76,6 +76,7 @@ export default async function ReelsPage() {
             {items.map(({ reel, video, poster }, position) => (
               <article
                 key={reel.id}
+                data-reel-id={reel.id}
                 className="flex h-full min-h-[calc(100svh-3.5rem)] w-full snap-start snap-always items-center justify-center p-4 lg:p-8"
               >
                 <div className="flex items-center justify-center gap-6 lg:gap-8 max-h-[calc(100svh-5rem)]">

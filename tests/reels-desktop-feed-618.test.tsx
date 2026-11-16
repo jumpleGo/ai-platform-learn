@@ -55,13 +55,13 @@ describe('desktop reels feed layout (#618)', () => {
     await mount(page, 'page');
 
     // 1. Container has snap-y snap-mandatory
-    const feedContainer = page.locator('[data-reel-feed="desktop"], main.snap-y');
+    const feedContainer = page.locator('[data-reel-feed="desktop"]');
     await dom(feedContainer).toBeVisible();
     await dom(feedContainer).toHaveClass(/snap-y/);
     await dom(feedContainer).toHaveClass(/snap-mandatory/);
 
     // 2. Reel article has snap-start snap-always
-    const reelArticle = page.locator('article[data-reel-id="desktop-reel-618"], article.snap-start').first();
+    const reelArticle = page.locator('article[data-reel-id="desktop-reel-618"]');
     await dom(reelArticle).toBeVisible();
     await dom(reelArticle).toHaveClass(/snap-start/);
     await dom(reelArticle).toHaveClass(/snap-always/);
