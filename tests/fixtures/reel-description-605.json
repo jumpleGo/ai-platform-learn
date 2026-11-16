@@ -1,0 +1,11 @@
+{
+  "commit": "ab7207ca620bdf4194fee786c96ebe730f98e031",
+  "source": "src/lib/reels.ts",
+  "sourceSha256": "f47f90e1a1966e833e4156830675e28d5adf6b585a81fa6483ffe5191bf2e12a",
+  "slugs": ["claude-code-agents"],
+  "reel": {
+    "id": "eo0EzK9gMElHYrrxDCSd",
+    "title": "Знакомство",
+    "description": ""
+  }
+}

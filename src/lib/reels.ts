@@ -3,6 +3,11 @@ export const MAX_REEL_BYTES = 10 * 1024 * 1024;
 export const MAX_REEL_DESCRIPTION_LENGTH = 300;
 export const REEL_TEXT_FIELDS = ['title', 'description', 'ctaLabel', 'ctaHref'] as const;
 
+// Approved copy for legacy reels; a stored description always takes priority.
+const REEL_DESCRIPTION_FALLBACKS = new Map([
+  ['eo0EzK9gMElHYrrxDCSd', 'Онлайн-школа GELATO: обучение работе с ИИ. Новичкам — можно с нуля.'],
+]);
+
 export type Reel = {
   id: string;
   title?: string;
@@ -41,7 +46,9 @@ export function normalizeReel(reel: Reel, course: { title: string; description?:
   return {
     ...reel,
     title: reel.title?.trim() || course.title,
-    description: (reel.description?.trim() || course.description?.trim() || '').slice(0, MAX_REEL_DESCRIPTION_LENGTH),
+    description: (
+      reel.description?.trim() || REEL_DESCRIPTION_FALLBACKS.get(reel.id) || course.description?.trim() || ''
+    ).slice(0, MAX_REEL_DESCRIPTION_LENGTH),
     ctaLabel: reel.ctaLabel?.trim() || 'Перейти в курс',
     ctaHref: ctaHref && isValidReelCtaHref(ctaHref) ? ctaHref : `/courses/${reel.courseSlug}`,
     likeCount: typeof reel.likeCount === 'number' && Number.isFinite(reel.likeCount) && reel.likeCount >= 0
