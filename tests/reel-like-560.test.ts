@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ReelActions } from '@/components/reels/reel-actions';
 import { normalizeReel } from '@/lib/reels';
+import { resetRateLimit } from '@/lib/reel-like-rate-limit';
 
 const s = vi.hoisted(() => ({
   session: vi.fn(),
@@ -115,7 +116,7 @@ type Handler = (request: Request, context: { params: Promise<{ id: string }> }) 
 const modules = import.meta.glob('../src/app/api/reels/*/like/route.ts', { eager: true });
 const route = Object.values(modules)[0] as {
   POST?: Handler;
-  resetRateLimit?: () => void;
+  GET?: Handler;
 } | undefined;
 
 function sha256(val: string): string {
@@ -139,11 +140,33 @@ describe('Reel like API #560', () => {
     dbState.reels.clear();
     dbState.likes.clear();
     dbState.reels.set('reel-1', { id: 'reel-1', published: true, likeCount: 0 });
-    route?.resetRateLimit?.();
+    resetRateLimit();
   });
 
-  it('fails on old code when route does not exist', () => {
-    expect(route, 'Reel like POST route is missing').toBeDefined();
+  it('loads the saved reaction by session uid with a private uncached GET', async () => {
+    s.session.mockResolvedValue({ uid: 'student-1' });
+    await callLike();
+    const res = await route!.GET!(new Request('https://gelato.education/api/reels/reel-1/like'), {
+      params: Promise.resolve({ id: 'reel-1' }),
+    });
+    expect(res.headers.get('Cache-Control')).toBe('private, no-store');
+    expect(await res.json()).toEqual({ liked: true, likeCount: 1, isLoggedIn: true });
+    s.session.mockResolvedValue({ uid: 'student-2' });
+    const other = await route!.GET!(new Request('https://gelato.education/api/reels/reel-1/like'), {
+      params: Promise.resolve({ id: 'reel-1' }),
+    });
+    expect(await other.json()).toEqual({ liked: false, likeCount: 1, isLoggedIn: true });
+    expect(dbState.reels.get('reel-1')?.likeCount).toBe(1);
+  });
+
+  it('reads a guest count without creating a reaction', async () => {
+    s.session.mockResolvedValue(null);
+    dbState.reels.set('reel-1', { id: 'reel-1', published: true, likeCount: 8 });
+    const res = await route!.GET!(new Request('https://gelato.education/api/reels/reel-1/like'), {
+      params: Promise.resolve({ id: 'reel-1' }),
+    });
+    expect(await res.json()).toEqual({ liked: false, likeCount: 8, isLoggedIn: false });
+    expect(dbState.likes.size).toBe(0);
   });
 
   it('denies guest with 401', async () => {

@@ -177,3 +177,23 @@ export async function toggleReelLike(
     }
   });
 }
+
+// Read the counter and this viewer's reaction from the same transaction snapshot.
+// Guests receive only the public count; their request never accesses a like doc.
+export async function getReelLikeState(
+  id: string, uid?: string,
+): Promise<{ liked: boolean; likeCount: number } | null> {
+  if (!/^[\w-]{1,128}$/.test(id)) return null;
+  const reelRef = reels().doc(id);
+  return adminDb.runTransaction(async (tx) => {
+    const reelDoc = await tx.get(reelRef);
+    const data = reelDoc.data() as ReelData | undefined;
+    if (!reelDoc.exists || data?.published !== true) return null;
+    const likeCount = typeof data.likeCount === 'number' && Number.isSafeInteger(data.likeCount)
+      && data.likeCount >= 0 ? data.likeCount : 0;
+    if (!uid) return { liked: false, likeCount };
+    const hash = createHash('sha256').update(uid).digest('hex');
+    const likeDoc = await tx.get(reelRef.collection('likes').doc(hash));
+    return { liked: likeDoc.exists, likeCount };
+  });
+}
