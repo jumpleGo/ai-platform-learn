@@ -18,7 +18,7 @@ const like = () => page.getByRole('button', { name: 'Лайк', exact: true });
 const noEvents = async () => expect(await events(page)).toEqual([]);
 const methods = (calls: { method: string }[]) => calls.map(({ method }) => method);
 async function setup(replies: (Reply | Promise<Reply>)[], data: unknown = props, component = kind) {
-  const calls = await setup(replies);
+  const calls = await routeLikes(page, replies);
   await mount(page, component, data);
   return calls;
 }
@@ -27,7 +27,7 @@ async function setup(replies: (Reply | Promise<Reply>)[], data: unknown = props,
 describe('confirmed reel reaction #560 in Chromium', () => {
   it('shares in-flight and confirmed state across controls', async () => {
     const added = deferred<Reply>();
-    const calls = await routeLikes(page, [reaction(false, 4, true), added.promise], props, 'pair');
+    const calls = await setup([reaction(false, 4, true), added.promise], props, 'pair');
     const buttons = like();
     await dom(buttons.first()).toBeEnabled();
     await dom(buttons.last()).toBeEnabled();
