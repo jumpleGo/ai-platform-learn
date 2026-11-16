@@ -39,7 +39,7 @@ it('validates drafts', async () => {
 });
 it('filters published reels', async () => {
   get.mockResolvedValue(doc('reel-1', { ...reel, id: 'spoofed', privateNote: 'internal', posterPath: 'reels/reel-1/poster.webp' }));
-  expect(await getReel('reel-1')).toEqual({ ...reel, posterPath: 'reels/reel-1/poster.webp' });
+  expect(await getReel('reel-1')).toEqual({ ...reel, likeCount: 0, posterPath: 'reels/reel-1/poster.webp' });
   get.mockResolvedValue({ exists: false });
   expect(await getReel('missing')).toBeNull();
 

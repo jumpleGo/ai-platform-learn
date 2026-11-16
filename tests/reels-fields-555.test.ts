@@ -71,10 +71,10 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe('reel text and CTA contract', () => {
   it('keeps legacy documents optional and supplies course text and the existing course CTA publicly', async () => {
-    expect(await getReel(legacy.id)).toEqual(legacy);
-    expect(await listAllReels()).toEqual([legacy]);
+    expect(await getReel(legacy.id)).toEqual({ ...legacy, likeCount: 0 });
+    expect(await listAllReels()).toEqual([{ ...legacy, likeCount: 0 }]);
     expect(await listPublishedReels()).toEqual([{
-      ...legacy, title: course.title, description: course.description,
+      ...legacy, likeCount: 0, title: course.title, description: course.description,
       ctaLabel: 'Перейти в курс', ctaHref: '/courses/course-a',
     }]);
   });
@@ -82,7 +82,7 @@ describe('reel text and CTA contract', () => {
   it('preserves an existing reel title and normalizes without changing the stored input', () => {
     const stored = Object.freeze({ ...legacy, title: 'Прежний заголовок' });
     expect(reelModel.normalizeReel(stored, course)).toEqual({
-      ...stored, description: course.description, ctaLabel: 'Перейти в курс', ctaHref: '/courses/course-a',
+      ...stored, likeCount: 0, description: course.description, ctaLabel: 'Перейти в курс', ctaHref: '/courses/course-a',
     });
     expect(stored).not.toHaveProperty('description');
   });
@@ -98,9 +98,9 @@ describe('reel text and CTA contract', () => {
     const stored = { ...legacy, ...overrides, posterPath: 'reels/reel-1/poster.webp' };
     s.get.mockResolvedValue(doc({ ...stored, id: 'spoofed', privateNote: 'private' }));
     s.list.mockResolvedValue({ docs: [doc({ ...stored, id: 'spoofed', privateNote: 'private' })] });
-    expect(await getReel(legacy.id)).toEqual(stored);
-    expect(await listAllReels()).toEqual([stored]);
-    expect(await listPublishedReels()).toEqual([stored]);
+    expect(await getReel(legacy.id)).toEqual({ ...stored, likeCount: 0 });
+    expect(await listAllReels()).toEqual([{ ...stored, likeCount: 0 }]);
+    expect(await listPublishedReels()).toEqual([{ ...stored, likeCount: 0 }]);
   });
 
   it('updates overrides without changing the video or publication', async () => {

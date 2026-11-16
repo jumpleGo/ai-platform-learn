@@ -1,4 +1,5 @@
 import 'server-only';
+import { createHash } from 'node:crypto';
 import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb, adminStorage, storageBucketName } from '@/lib/firebase/admin';
 import {
@@ -8,8 +9,16 @@ import {
 
 type ReelData = Omit<Reel, 'id'>;
 function project(id: string, data: ReelData): Reel {
-  const { courseSlug, videoPath, posterPath, order, published } = data;
-  const reel: Reel = { id, courseSlug, videoPath, order, published, ...(posterPath ? { posterPath } : {}) };
+  const { courseSlug, videoPath, posterPath, order, published, likeCount } = data;
+  const reel: Reel = {
+    id,
+    courseSlug,
+    videoPath,
+    order,
+    published,
+    likeCount: typeof likeCount === 'number' && Number.isFinite(likeCount) && likeCount >= 0 ? likeCount : 0,
+    ...(posterPath ? { posterPath } : {}),
+  };
   for (const field of REEL_TEXT_FIELDS) {
     const value = data[field];
     if (typeof value === 'string' && value) reel[field] = value;
@@ -133,4 +142,58 @@ export async function deleteReel(id: string): Promise<void> {
   }
   // Keep the document if Storage fails, so the admin can retry cleanup.
   await reels().doc(id).delete();
+}
+
+export async function toggleReelLike(
+  id: string,
+  uid: string,
+): Promise<{ liked: boolean; likeCount: number } | null> {
+  if (!/^[\w-]{1,128}$/.test(id)) return null;
+  const hashedUid = createHash('sha256').update(uid).digest('hex');
+  const reelRef = reels().doc(id);
+  const likeRef = reelRef.collection('likes').doc(hashedUid);
+
+  return await adminDb.runTransaction(async (tx) => {
+    const reelDoc = await tx.get(reelRef);
+    if (!reelDoc.exists) return null;
+    const reelData = reelDoc.data() as ReelData | undefined;
+    if (reelData?.published !== true) return null;
+
+    const currentLikes = typeof reelData?.likeCount === 'number' && Number.isFinite(reelData.likeCount) && reelData.likeCount > 0
+      ? reelData.likeCount
+      : 0;
+
+    const likeDoc = await tx.get(likeRef);
+    if (likeDoc.exists) {
+      tx.delete(likeRef);
+      const nextCount = Math.max(0, currentLikes - 1);
+      tx.update(reelRef, { likeCount: nextCount });
+      return { liked: false, likeCount: nextCount };
+    } else {
+      tx.set(likeRef, { createdAt: FieldValue.serverTimestamp(), uid });
+      const nextCount = currentLikes + 1;
+      tx.update(reelRef, { likeCount: nextCount });
+      return { liked: true, likeCount: nextCount };
+    }
+  });
+}
+
+// Read the counter and this viewer's reaction from the same transaction snapshot.
+// Guests receive only the public count; their request never accesses a like doc.
+export async function getReelLikeState(
+  id: string, uid?: string,
+): Promise<{ liked: boolean; likeCount: number } | null> {
+  if (!/^[\w-]{1,128}$/.test(id)) return null;
+  const reelRef = reels().doc(id);
+  return adminDb.runTransaction(async (tx) => {
+    const reelDoc = await tx.get(reelRef);
+    const data = reelDoc.data() as ReelData | undefined;
+    if (!reelDoc.exists || data?.published !== true) return null;
+    const likeCount = typeof data.likeCount === 'number' && Number.isSafeInteger(data.likeCount)
+      && data.likeCount >= 0 ? data.likeCount : 0;
+    if (!uid) return { liked: false, likeCount };
+    const hash = createHash('sha256').update(uid).digest('hex');
+    const likeDoc = await tx.get(reelRef.collection('likes').doc(hash));
+    return { liked: likeDoc.exists, likeCount };
+  });
 }
