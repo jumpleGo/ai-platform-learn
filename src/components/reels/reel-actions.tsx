@@ -2,8 +2,9 @@
 
 import React, { useContext, useEffect } from 'react';
 import { ReelLikesContext, ReelLikesProvider } from './reel-likes-provider';
+import { ReelShareButton } from './reel-share-button';
 import Link from 'next/link';
-import { Heart, Share2 } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { EVENTS, type ReelEventProps } from '@/lib/analytics/events';
 import { track } from '@/lib/analytics/track-client';
 
@@ -76,17 +77,11 @@ function ReelLikeControls({
         {state.status === 'error' && <button type="button" className="underline" onClick={() => void load(reelId)}>Повторить загрузку</button>}
       </div>}
 
-      {layout === 'overlay' && <button
-        type="button"
-        aria-label="Поделиться"
+      {layout === 'overlay' && <ReelShareButton
+        url={`/reels/${encodeURIComponent(reelId)}`}
+        variant="overlay"
         onClick={() => track(EVENTS.reelShared, eventProps)}
-        className="group flex flex-col items-center gap-1 text-white focus:outline-none"
-      >
-        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm transition-transform active:scale-90 group-hover:bg-black/60">
-          <Share2 className="h-6 w-6 text-white" />
-        </span>
-        <span className="text-[11px] font-medium tracking-tight drop-shadow">Поделиться</span>
-      </button>}
+      />}
     </div>
   );
 }
