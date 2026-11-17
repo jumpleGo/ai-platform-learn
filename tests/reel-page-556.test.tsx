@@ -103,13 +103,16 @@ describe('individual public reel #556', () => {
   });
 
   it('uses course defaults and a raster social image for a legacy reel', async () => {
-    mocks.reels.mockResolvedValue({ docs: [doc(reel.id, {
-      ...reel, title: undefined, description: undefined, posterPath: undefined,
+    // #605 gives the introduction ID approved copy; use an unrelated legacy ID
+    // to keep checking generic course defaults without weakening assertions.
+    const legacyId = 'legacyReel0123456789';
+    mocks.reels.mockResolvedValue({ docs: [doc(legacyId, {
+      ...reel, id: legacyId, title: undefined, description: undefined, posterPath: undefined,
     })] });
-    const metadata = await requirePage().generateMetadata(props());
+    const metadata = await requirePage().generateMetadata(props(legacyId));
     expect(metadata.title).toBe(course.title);
     expect(metadata.description).toBe(course.description);
-    expect(metadata.twitter).toMatchObject({ images: [`${SITE_URL}/reels/${reel.id}/poster`] });
+    expect(metadata.twitter).toMatchObject({ images: [`${SITE_URL}/reels/${legacyId}/poster`] });
   });
 
   it('renders VideoObject with the real upload date and playable video plus a course link', async () => {
