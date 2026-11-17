@@ -140,4 +140,10 @@ describe('free beginner CLAUDE.md article', () => {
     expect(visible).toContain('платный урок');
     expect(visible).not.toContain('Смотреть можно бесплатно и без регистрации');
   });
+
+  it('explains the risk of outdated instructions with a removed command example and a weekly check', () => {
+    const body = post().body;
+    expect(body).toMatch(/удалённую команду/i);
+    expect(body).toMatch(/раз в неделю/i);
+  });
 });
