@@ -35,7 +35,7 @@ const PUBLIC = [
 // (app)/loading.tsx начинает поток со статусом 200 и notFound() в странице уже не меняет код
 const BLOG_SLUGS = new Set(BLOG_POSTS.map((p) => p.slug));
 
-export function proxy(req: NextRequest, event: NextFetchEvent) {
+export function proxy(req: NextRequest, event?: NextFetchEvent) {
   const { pathname, searchParams } = req.nextUrl;
   trackCrawlerVisit(req, event);
   const blogSlug = /^\/blog\/([^/]+)\/?$/.exec(pathname)?.[1];

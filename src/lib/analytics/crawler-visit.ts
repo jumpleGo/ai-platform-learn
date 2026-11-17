@@ -4,7 +4,9 @@ import { detectBot } from '@/lib/analytics/bot-detection';
 // Учёт обращений краулеров и ИИ-ботов к /llms.txt и /blog/* отдельно от
 // показов тестов и воронки. Ответ страницы не меняется. Вызывается из src/proxy.ts
 // (Next 16 не допускает одновременно middleware.ts и proxy.ts).
-export function trackCrawlerVisit(request: NextRequest, event: NextFetchEvent): void {
+export function trackCrawlerVisit(request: NextRequest, event?: NextFetchEvent): void {
+  // Без объекта события отправку нельзя привязать к жизни запроса: не шлём ничего.
+  if (!event) return;
   const { pathname } = request.nextUrl;
   if (pathname !== '/llms.txt' && !pathname.startsWith('/blog/')) return;
   const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
