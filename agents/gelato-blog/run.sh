@@ -112,6 +112,8 @@ fi
 # Упавшие тесты (полные имена) в файл $1 — через JSON-репортёр vitest
 failed_tests() {
   npx vitest run --reporter=json --outputFile="$1.json" >>"$LOG" 2>&1
+  # нет отчёта — разобрать нечего, пишем маркер ошибки
+  [ -s "$1.json" ] || { echo "__NO_REPORT__" > "$1"; return; }
   node -e 'const r=require(process.argv[1]);for(const f of r.testResults)for(const t of f.assertionResults)if(t.status==="failed")console.log(t.fullName)' "$1.json" | sort > "$1"
 }
 CHECK_FAIL=""
@@ -125,8 +127,13 @@ elif ! npx vitest run >>"$LOG" 2>&1; then
   failed_tests "$TMPD/base"
   git stash pop -q
   NEW_FAILS=$(comm -23 "$TMPD/after" "$TMPD/base")
-  if [ -n "$NEW_FAILS" ] || [ ! -s "$TMPD/after" ]; then
-    CHECK_FAIL="тесты: ${NEW_FAILS:-не удалось разобрать результат}"
+  if grep -q __NO_REPORT__ "$TMPD/after" "$TMPD/base"; then
+    CHECK_FAIL="тесты: не удалось разобрать результат"
+  elif [ ! -s "$TMPD/after" ]; then
+    # на повторном прогоне всё зелёное — падение было нестабильным, публикуем
+    echo "[$STAMP] нестабильный тест: на повторе всё зелёное" >>"$LOG"
+  elif [ -n "$NEW_FAILS" ]; then
+    CHECK_FAIL="тесты: $NEW_FAILS"
   else
     echo "[$STAMP] в main уже красные тесты, статьи их не меняют:" >>"$LOG"; cat "$TMPD/base" >>"$LOG"
     tg "⚠️ gelato-blog: в main красные тесты (не из-за статей), публикую. Список в $LOG"
