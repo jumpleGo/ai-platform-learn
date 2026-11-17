@@ -1,9 +1,12 @@
-import { NextResponse, type NextFetchEvent, type NextRequest } from 'next/server';
+import type { NextFetchEvent, NextRequest } from 'next/server';
 import { detectBot } from '@/lib/analytics/bot-detection';
 
 // Учёт обращений краулеров и ИИ-ботов к /llms.txt и /blog/* отдельно от
-// показов тестов и воронки. Ответ страницы не меняется.
-export function middleware(request: NextRequest, event: NextFetchEvent) {
+// показов тестов и воронки. Ответ страницы не меняется. Вызывается из src/proxy.ts
+// (Next 16 не допускает одновременно middleware.ts и proxy.ts).
+export function trackCrawlerVisit(request: NextRequest, event: NextFetchEvent): void {
+  const { pathname } = request.nextUrl;
+  if (pathname !== '/llms.txt' && !pathname.startsWith('/blog/')) return;
   const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
   const bot = detectBot(request.headers.get('user-agent'));
   if (key && bot) {
@@ -30,7 +33,4 @@ export function middleware(request: NextRequest, event: NextFetchEvent) {
       // Ошибка отправки не должна влиять на ответ.
     }
   }
-  return NextResponse.next();
 }
-
-export const config = { matcher: ['/llms.txt', '/blog/:path*'] };

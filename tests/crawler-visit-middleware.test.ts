@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
-import { config, middleware } from '@/middleware';
+import { trackCrawlerVisit } from '@/lib/analytics/crawler-visit';
+import { proxy } from '@/proxy';
 
 const BOTS = [
   ['GPTBot', 'Mozilla/5.0 AppleWebKit/537.36; compatible; GPTBot/1.1; +https://openai.com/gptbot'],
@@ -13,8 +14,9 @@ const BROWSER = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Ch
 function run(ua: string, path = '/blog/test') {
   const waits: Promise<unknown>[] = [];
   const event = { waitUntil: (p: Promise<unknown>) => { waits.push(p); } } as never;
-  const res = middleware(new NextRequest(`https://gelato.education${path}`, { headers: { 'user-agent': ua } }), event);
-  return { res, waits };
+  const req = new NextRequest(`https://gelato.education${path}`, { headers: { 'user-agent': ua } });
+  trackCrawlerVisit(req, event);
+  return { req, event, waits };
 }
 
 describe('crawler_visit в middleware (#689)', () => {
@@ -42,23 +44,30 @@ describe('crawler_visit в middleware (#689)', () => {
     expect(waits).toHaveLength(0);
   });
 
-  it('ответ равен NextResponse.next()', () => {
+  it('proxy не меняет ответ из-за бота', () => {
     for (const ua of [BROWSER, BOTS[0][1]]) {
-      const { res } = run(ua);
+      const { req, event } = run(ua, '/llms.txt');
+      const res = proxy(req, event);
       expect(res.headers.get('x-middleware-next')).toBe('1');
       expect(res.headers.get('location')).toBeNull();
-      expect([...res.headers.keys()]).toEqual(['x-middleware-next']);
     }
   });
 
   it('сбой fetch не роняет ответ', async () => {
     fetchMock.mockRejectedValue(new Error('network'));
-    const { res, waits } = run(BOTS[1][1]);
+    const { waits } = run(BOTS[1][1]);
     await expect(Promise.all(waits)).resolves.toBeDefined();
-    expect(res.headers.get('x-middleware-next')).toBe('1');
   });
 
-  it('matcher только для /llms.txt и /blog', () => {
-    expect(config.matcher).toEqual(['/llms.txt', '/blog/:path*']);
+  it('другие пути не дают события', () => {
+    const { waits } = run(BOTS[0][1], '/courses');
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(waits).toHaveLength(0);
+  });
+
+  it('/blog/* даёт событие', async () => {
+    const { waits } = run(BOTS[0][1], '/blog/test');
+    await Promise.all(waits);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
