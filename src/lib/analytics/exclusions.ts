@@ -1,7 +1,5 @@
-// Где аналитику не собираем: локальная разработка, админка и боты/краулеры.
+// Где аналитику не собираем: локальная разработка и админка.
 // Общее место для обеих систем — PostHog и Яндекс.Метрики.
-
-import { isBot } from './bot-detection';
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '0.0.0.0', '::1', '[::1]']);
 
@@ -18,5 +16,5 @@ export function isAdminPath(pathname?: string): boolean {
 
 // Аналитику вообще не поднимаем — проверяется один раз при инициализации
 export function isTrackingDisabled(): boolean {
-  return isLocalHost() || isAdminPath() || isBot();
+  return isLocalHost() || isAdminPath();
 }

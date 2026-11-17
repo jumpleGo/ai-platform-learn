@@ -5,7 +5,6 @@ import posthog from './analytics/posthog';
 import { getExperiment, pickVariant, type ExperimentKey } from './experiments';
 import { EVENTS } from './analytics/events';
 import { track } from './analytics/track-client';
-import { isBot } from './analytics/bot-detection';
 
 function readVisitorId(): string | null {
   const match = document.cookie.match(/(?:^|;\s*)vid=([\w-]{8,64})/);
@@ -36,7 +35,6 @@ export function useExperiment(key: ExperimentKey, active: boolean): string | nul
 
   useEffect(() => {
     if (!variant || !active) return;
-    if (isBot()) return;
     const experiment = getExperiment(key);
     if (experiment.status !== 'running') return;
     // $feature/<key> — формат PostHog: по нему разрезаются любые последующие события
