@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import posthog from '@/lib/analytics/posthog';
 import { EVENTS } from '@/lib/analytics/events';
 import { track } from '@/lib/analytics/track-client';
+import { isBot } from '@/lib/analytics/bot-detection';
 import type { HomeVariant } from '@/lib/home-experiment';
 
 // Отмечает, какую главную увидел посетитель. Вариант уходит ещё и супер-свойством:
@@ -11,6 +12,7 @@ import type { HomeVariant } from '@/lib/home-experiment';
 // можно разрезать по вариантам, а не только считать просмотры.
 export function HomeVariantAnalytics({ variant }: { variant: HomeVariant }) {
   useEffect(() => {
+    if (isBot()) return;
     posthog.register({ home_variant: variant });
     track(EVENTS.homeViewed, { variant });
   }, [variant]);

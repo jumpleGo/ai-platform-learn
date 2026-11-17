@@ -13,6 +13,7 @@ function enabled() {
 }
 
 function dispatch(call: Call) {
+  if (isTrackingDisabled()) return;
   if (sdk) call(sdk);
   else if (enabled()) pending.push(call);
 }
