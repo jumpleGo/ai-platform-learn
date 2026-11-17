@@ -87,10 +87,10 @@ it('covers every blog article in the sitemap, including auto-articles without le
   expect(generateStaticParams()).toEqual(slugs.map(slug => ({ slug })));
   expect(blog.BLOG_POSTS.some(post => post.lessonPath === null)).toBe(true);
   vi.mocked(getPublishedCoursesWithLessons).mockClear();
-  await Promise.all(slugs.map(async (slug) => nextSteps(await renderPost(slug), slug)));
+  for (const slug of slugs) nextSteps(await renderPost(slug), slug);
   expect(getPublishedCoursesWithLessons).not.toHaveBeenCalled();
   if (process.env.GEO_MEASURE === '1') process.stdout.write(`AUTO_ARTICLES_COVERED=${slugs.length}/${slugs.length}\n`);
-}, 15000);
+}, 15000); // docs/hq-notes/615-sitemap-timeout.md
 
 it.each(positions)('tracks the article slug and %s position only on a click', async position => {
   const slug = blog.BLOG_POSTS[0].slug;
