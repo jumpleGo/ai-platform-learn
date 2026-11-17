@@ -4,34 +4,66 @@
 
 In CI deployment #608 (2026-11-16 06:22), the test in `tests/blog-lesson-next-step.test.tsx:83`:
 `covers every blog article in the sitemap, including auto-articles without lesson links`
-timed out at 5000 ms (Vitest default timeout) under high server contention (overall suite 415 s, import phase 211 s).
+timed out at 5000 ms (Vitest default timeout) under high server contention (overall suite took 415 s, import phase took 211 s).
 On the same commit `de4975d`, review passed (793/0, and #610 passed 803/0).
 
-## 2. Rendering Analysis: Synchronous React SSR vs Promise.all
+## 2. Test Execution Context
 
-The test verifies that all blog posts (26 articles) listed in `sitemap()` are properly rendered without querying the catalog.
-Each post is rendered via `renderBlogPost(slug)` which executes `renderToStaticMarkup(cacheListItems(page))`.
+The test renders all blog posts (26 articles) listed in `sitemap()` to verify that each post renders correctly and that catalog courses are not queried during rendering.
+Each post executes `nextSteps(await renderPost(slug), slug)` sequentially in a `for...of` loop.
 
-Because `renderToStaticMarkup` and React tree construction are completely synchronous CPU-bound operations in Node.js, wrapping calls in `Promise.all(...)` provides no concurrency or parallel execution benefits.
+## 3. Benchmarks on Clean main
 
-## 3. Benchmarks (Clean main vs Branch)
+Three runs of the target test were executed on clean `main` (`origin/main`, commit `998468a8426cc5e937ae4bb327f22d60a9d6de42`) in an isolated temporary clean worktree with the command:
+`npx vitest run tests/blog-lesson-next-step.test.tsx -t "covers every blog article"`
 
-Clean main (`origin/main`, commit `c02a84f`, sequential `for` loop):
-- Run 1: target test 1367 ms (total duration 5.22 s)
-- Run 2: target test 1637 ms (total duration 8.06 s)
-- Run 3: target test 3658 ms (total duration 14.49 s)
-- Target test average: ~2221 ms
+### Run 1
+Source: `eval/main-run-1.log`
+Literal output:
+```
+ RUN  v4.1.8 /home/painsearchdev/agent-hq/workspaces/vera/615/tmp/clean
 
-Branch (`hq/vera/615`, `Promise.all`):
-- Run 1: target test 4123 ms (total duration 10.77 s)
-- Run 2: target test 1228 ms (total duration 6.37 s)
-- Run 3: target test 1271 ms (total duration 4.89 s)
-- Target test average: ~2207 ms
+ ✓ tests/blog-lesson-next-step.test.tsx (4 tests | 3 skipped) 1469ms
+   ✓ covers every blog article in the sitemap, including auto-articles without lesson links  1464ms
 
-Conclusion: `Promise.all` does not accelerate rendering. The sequential `for` loop is retained.
+ Test Files  1 passed (1)
+      Tests  1 passed | 3 skipped (4)
+   Start at  03:28:56
+   Duration  5.62s (transform 2.39s, setup 0ms, import 3.52s, tests 1.47s, environment 0ms)
+```
+
+### Run 2
+Source: `eval/main-run-2.log`
+Literal output:
+```
+ RUN  v4.1.8 /home/painsearchdev/agent-hq/workspaces/vera/615/tmp/clean
+
+ ✓ tests/blog-lesson-next-step.test.tsx (4 tests | 3 skipped) 722ms
+   ✓ covers every blog article in the sitemap, including auto-articles without lesson links  720ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 3 skipped (4)
+   Start at  03:29:13
+   Duration  3.04s (transform 1.11s, setup 0ms, import 1.65s, tests 722ms, environment 0ms)
+```
+
+### Run 3
+Source: `eval/main-run-3.log`
+Literal output:
+```
+ RUN  v4.1.8 /home/painsearchdev/agent-hq/workspaces/vera/615/tmp/clean
+
+ ✓ tests/blog-lesson-next-step.test.tsx (4 tests | 3 skipped) 1453ms
+   ✓ covers every blog article in the sitemap, including auto-articles without lesson links  1450ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 3 skipped (4)
+   Start at  03:29:19
+   Duration  4.59s (transform 1.56s, setup 0ms, import 2.45s, tests 1.45s, environment 0ms)
+```
 
 ## 4. Timeout Justification (15000 ms)
 
-Under heavy CI load (case #608), execution reached the 5000 ms timeout.
-A local test timeout of 15000 ms (3x margin over the 5000 ms threshold) provides sufficient headroom against CPU contention while remaining strictly bounded.
-All assertions and full coverage of all articles remain unweakened.
+1. Worst single-run measurement on clean main: 1464 ms (from Run 1, with duration 5.62 s).
+2. Contention factor: In CI deployment #608, overall test suite execution reached 415 s (with import phase 211 s). Under this level of CPU starvation and thread scheduling contention, sequential rendering of 26 blog post React components exceeded Vitest's default 5000 ms limit.
+3. 15000 ms provides a 10x margin over the 1464 ms baseline and 3x over the default 5000 ms limit. This ensures resilience against CI load spikes while strictly bounding test execution and preserving all assertions intact.
