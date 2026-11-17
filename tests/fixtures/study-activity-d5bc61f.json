@@ -1,0 +1,7 @@
+{
+  "commit": "d5bc61f527e6775944695d07b17719a828e7b5be",
+  "source": "src/components/complete-lesson-button.tsx",
+  "sourceSha256": "8d5cbc23b45df5b17d6e29e492edeae65284f89dfcf13f59095cc2d10300619b",
+  "slugs": ["course-test"],
+  "completedText": "Пройдено\nОтлично! Завтра продолжите со следующего урока"
+}
