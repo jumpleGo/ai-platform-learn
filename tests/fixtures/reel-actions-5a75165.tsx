@@ -99,9 +99,11 @@ export async function createReelBrowser() {
   const browser = await chromium.launch({ channel: 'chromium' });
   return {
     close: () => browser.close(),
-    async page(width = 390) {
+    async page(width = 390, options?: { navigationTimeout?: number } | number) {
+      const navigationTimeout = typeof options === 'number' ? options : options?.navigationTimeout;
       const page = await browser.newPage({ viewport: { width, height: 844 } });
       page.setDefaultTimeout(4000);
+      if (navigationTimeout !== undefined) page.setDefaultNavigationTimeout(navigationTimeout);
       // Every request is fulfilled locally or aborted, including media and APIs.
       await page.route('**/*', async (route) => {
         const url = new URL(route.request().url());
@@ -116,7 +118,7 @@ export async function createReelBrowser() {
         }
         return route.abort();
       });
-      await page.goto('http://reels.test/reels');
+      await page.goto('http://reels.test/reels', navigationTimeout !== undefined ? { timeout: navigationTimeout } : undefined);
       await page.waitForFunction(() => typeof (window as unknown as ReelTestWindow).mount === 'function');
       return page;
     },
