@@ -1,7 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
-import { trackCrawlerVisit } from '@/lib/analytics/crawler-visit';
 import { proxy } from '@/proxy';
+import {
+  BASELINE_COOKIE,
+  BASELINE_HEADERS,
+  BASELINE_NEW_VID_HEADERS,
+  BASELINE_STATUS,
+  BASELINE_UUID,
+} from './fixtures/proxy-baseline-716';
 
 const BOTS = [
   ['GPTBot', 'Mozilla/5.0 AppleWebKit/537.36; compatible; GPTBot/1.1; +https://openai.com/gptbot'],
@@ -11,13 +17,18 @@ const BOTS = [
 ] as const;
 const BROWSER = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36';
 
-function run(ua: string, path = '/blog/test') {
+function run(ua: string, path = '/blog/test', cookie?: string) {
   const waits: Promise<unknown>[] = [];
   const event = { waitUntil: (p: Promise<unknown>) => { waits.push(p); } } as never;
-  const req = new NextRequest(`https://gelato.education${path}`, { headers: { 'user-agent': ua } });
-  trackCrawlerVisit(req, event);
-  return { req, event, waits };
+  const headers: Record<string, string> = { 'user-agent': ua };
+  if (cookie) headers.cookie = cookie;
+  const req = new NextRequest(`https://gelato.education${path}`, { headers });
+  const res = proxy(req, event);
+  return { req, res, event, waits };
 }
+
+const sortedHeaders = (res: Response) =>
+  [...res.headers.entries()].map(([k, v]): [string, string] => [k, v.replace(/; Expires=[^;]+/, '')]).sort();
 
 describe('crawler_visit в middleware (#689)', () => {
   let fetchMock: ReturnType<typeof vi.fn>;
@@ -26,7 +37,7 @@ describe('crawler_visit в middleware (#689)', () => {
     fetchMock = vi.fn(async () => new Response('{}'));
     vi.stubGlobal('fetch', fetchMock);
   });
-  afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
+  afterEach(() => { vi.restoreAllMocks(); vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
 
   it.each(BOTS)('%s даёт событие', async (name, ua) => {
     const { waits } = run(ua, '/llms.txt');
@@ -44,19 +55,30 @@ describe('crawler_visit в middleware (#689)', () => {
     expect(waits).toHaveLength(0);
   });
 
-  it('proxy не меняет ответ из-за бота', () => {
-    for (const ua of [BROWSER, BOTS[0][1]]) {
-      const { req, event } = run(ua, '/llms.txt');
-      const res = proxy(req, event);
-      expect(res.headers.get('x-middleware-next')).toBe('1');
+  it.each([['браузер', BROWSER], ['бот', BOTS[0][1]]])(
+    'ответ proxy (%s) совпадает с прежним proxy: статус, переходы, полный набор заголовков',
+    (_who, ua) => {
+      const { res } = run(ua, '/llms.txt', BASELINE_COOKIE);
+      expect(res.status).toBe(BASELINE_STATUS);
       expect(res.headers.get('location')).toBeNull();
-    }
+      expect(sortedHeaders(res)).toEqual(BASELINE_HEADERS(ua));
+    },
+  );
+
+  it('ответ для нового посетителя совпадает с прежним proxy (uuid зафиксирован)', () => {
+    vi.spyOn(crypto, 'randomUUID').mockReturnValue(BASELINE_UUID);
+    const { res } = run(BOTS[0][1], '/llms.txt');
+    expect(res.status).toBe(BASELINE_STATUS);
+    expect(sortedHeaders(res)).toEqual(BASELINE_NEW_VID_HEADERS(BOTS[0][1]));
   });
 
-  it('сбой fetch не роняет ответ', async () => {
+  it('отказ fetch: ответ тот же, что у прежнего proxy, и не падает', async () => {
     fetchMock.mockRejectedValue(new Error('network'));
-    const { waits } = run(BOTS[1][1]);
+    const { res, waits } = run(BOTS[0][1], '/llms.txt', BASELINE_COOKIE);
     await expect(Promise.all(waits)).resolves.toBeDefined();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(res.status).toBe(BASELINE_STATUS);
+    expect(sortedHeaders(res)).toEqual(BASELINE_HEADERS(BOTS[0][1]));
   });
 
   it('другие пути не дают события', () => {
