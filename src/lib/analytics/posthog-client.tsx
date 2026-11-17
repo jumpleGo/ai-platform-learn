@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import posthog from './posthog';
 import { isAdminPath, isTrackingDisabled } from './exclusions';
+import { isBot } from './bot-detection';
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -29,7 +30,7 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
       void posthog.init(key, {
         api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
         defaults: '2025-05-24',
-        before_send: (event) => (isAdminPath() ? null : event),
+        before_send: (event) => (isAdminPath() || isBot() ? null : event),
       }, firstTouch).catch(() => {
         if (!cancelled) timer = setTimeout(start, 1000);
       });
