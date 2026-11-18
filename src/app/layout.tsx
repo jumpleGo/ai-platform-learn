@@ -5,6 +5,7 @@ import localFont from "next/font/local";
 import { Toaster } from "@/components/ui/sonner";
 import { NavigationProgress } from "@/components/navigation-progress";
 import { PostHogProvider } from "@/lib/analytics/posthog-client";
+import { ReelCtaArrival } from "@/components/reels/reel-course-link";
 import { InlineTextEditor } from "@/components/dev/inline-text-editor";
 import { PaymentModalProvider } from "@/components/payment/payment-modal-context";
 import { YandexMetrika } from "@/components/yandex-metrika";
@@ -81,6 +82,7 @@ export default function RootLayout({
         {structuredData}
         <NavigationProgress />
         <PostHogProvider>
+          <ReelCtaArrival />
           <PaymentModalProvider>{children}</PaymentModalProvider>
         </PostHogProvider>
         <Toaster />

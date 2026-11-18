@@ -182,7 +182,7 @@ export function ReelPlayer({
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 pb-8 pr-16"
         style={{ paddingBottom: 'calc(2rem + env(safe-area-inset-bottom))', paddingLeft: 'calc(1rem + env(safe-area-inset-left))' }}>
         <div className="pointer-events-auto">
-          <ReelCta title={title} courseSlug={item.reel.courseSlug} eventProps={eventProps} />
+          <ReelCta title={title} courseSlug={item.reel.courseSlug} eventProps={eventProps} reel={localLikes ? item.reel : undefined} />
         </div>
       </div>
     </section>

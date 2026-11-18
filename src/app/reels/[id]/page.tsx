@@ -6,6 +6,7 @@ import { GelatoLogo } from '@/components/gelato-logo';
 import { ReelLocalActions, ReelLocalLikesProvider } from '@/components/reels/reel-local-actions';
 import { ReelsMobileFeed } from '@/components/reels/reels-mobile-feed';
 import { ReelsDesktopFeed } from '@/components/reels/reels-desktop-feed';
+import { ReelCourseLink } from '@/components/reels/reel-course-link';
 import { listPublishedReels } from '@/lib/db/reels';
 import { adminStorage, storageBucketName } from '@/lib/firebase/admin';
 import { SITE_URL } from '@/lib/site';
@@ -94,18 +95,16 @@ export default async function ReelPage({ params }: Props) {
                   src={feedVideo} poster={feedPoster} preload="none" controls playsInline muted
                   aria-label={feedReel.title}
                 />
-                  <div data-reel-actions className="absolute right-3 bottom-20 z-20">
+                  <div data-reel-actions className="absolute right-3 bottom-36 z-20">
                     <ReelLocalActions eventProps={{ reel_id: feedReel.id, course_slug: feedReel.courseSlug || null, position }} />
+                  </div>
+                  <div className="absolute inset-x-0 bottom-10 z-20 bg-gradient-to-t from-black/90 to-transparent p-4 pt-8">
+                    <ReelCourseLink reel={feedReel} eventProps={{ reel_id: feedReel.id, course_slug: feedReel.courseSlug || null, position }} />
                   </div>
                 </div>
                 <div className="min-w-0 space-y-5">
                   <Heading className="break-words text-2xl font-bold tracking-tight sm:text-4xl">{feedReel.title}</Heading>
                   {feedReel.description && <p className="whitespace-pre-line break-words text-base text-muted-foreground sm:text-lg">{feedReel.description}</p>}
-                  <div className="flex flex-wrap items-start gap-3">
-                    <Link href={feedReel.ctaHref} className="inline-flex min-h-11 items-center rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background">
-                      {feedReel.ctaLabel}
-                    </Link>
-                  </div>
                 </div>
               </article>
             </section>
