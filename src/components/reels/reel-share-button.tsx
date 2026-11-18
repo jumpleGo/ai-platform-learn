@@ -26,6 +26,8 @@ export function ReelShareButton({ url, title, text, className, variant = 'defaul
     setBusy(true);
     setError(false);
     try {
+    // reel_share records the click, including a cancelled native share menu (#600).
+    onClick?.();
     const shareUrl = typeof window !== 'undefined'
       ? new URL(url || window.location.href, window.location.href).href
       : url || '';
@@ -36,7 +38,6 @@ export function ReelShareButton({ url, title, text, className, variant = 'defaul
           text,
           url: shareUrl,
         });
-        onClick?.();
         return;
       } catch (err) {
         if ((err as Error)?.name === 'AbortError') return;
@@ -49,7 +50,6 @@ export function ReelShareButton({ url, title, text, className, variant = 'defaul
         setCopied(true);
         clearTimeout(resetTimer.current);
         resetTimer.current = setTimeout(() => setCopied(false), 2500);
-        onClick?.();
       } catch {
         setError(true);
       }
