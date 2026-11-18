@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Share2 } from 'lucide-react';
 
 type ReelShareButtonProps = {
@@ -14,8 +14,19 @@ type ReelShareButtonProps = {
 
 export function ReelShareButton({ url, title, text, className, variant = 'default', onClick }: ReelShareButtonProps) {
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const pending = useRef(false);
+  const resetTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(resetTimer.current), []);
 
   const handleShare = async () => {
+    if (pending.current) return;
+    pending.current = true;
+    setBusy(true);
+    setError(false);
+    try {
+    // reel_share records the click, including a cancelled native share menu (#600).
     onClick?.();
     const shareUrl = typeof window !== 'undefined'
       ? new URL(url || window.location.href, window.location.href).href
@@ -37,10 +48,17 @@ export function ReelShareButton({ url, title, text, className, variant = 'defaul
       try {
         await navigator.clipboard.writeText(shareUrl);
         setCopied(true);
-        setTimeout(() => setCopied(false), 2500);
+        clearTimeout(resetTimer.current);
+        resetTimer.current = setTimeout(() => setCopied(false), 2500);
       } catch {
-        // Fallback if clipboard API is unavailable or denied
+        setError(true);
       }
+    } else {
+      setError(true);
+    }
+    } finally {
+      pending.current = false;
+      setBusy(false);
     }
   };
 
@@ -48,6 +66,8 @@ export function ReelShareButton({ url, title, text, className, variant = 'defaul
     <button
       type="button"
       onClick={handleShare}
+      disabled={busy}
+      aria-busy={busy}
       className={
         className ?? (variant === 'overlay'
           ? 'group flex flex-col items-center gap-1 text-white focus-visible:outline-2'
@@ -64,7 +84,7 @@ export function ReelShareButton({ url, title, text, className, variant = 'defaul
         aria-live="polite"
         className={variant === 'overlay' ? 'max-w-20 text-center text-[11px] font-medium tracking-tight drop-shadow' : undefined}
       >
-        {copied ? 'Ссылка скопирована' : 'Поделиться'}
+        {error ? 'Не удалось поделиться' : copied ? 'Ссылка скопирована' : 'Поделиться'}
       </span>
     </button>
   );

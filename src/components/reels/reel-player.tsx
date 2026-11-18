@@ -8,6 +8,7 @@ import { normalizeReel, type Reel } from '@/lib/reels';
 import { EVENTS, type ReelEventProps } from '@/lib/analytics/events';
 import { track } from '@/lib/analytics/track-client';
 import { ReelActions } from './reel-actions';
+import { ReelLocalActions } from './reel-local-actions';
 import { ReelCta } from './reel-cta';
 
 export type ReelFeedItem = {
@@ -27,6 +28,7 @@ type ReelPlayerProps = {
   prefersReducedMotion: boolean;
   isLoggedIn?: boolean;
   exitHref?: string;
+  localLikes?: boolean;
 };
 
 function isMobileViewport() {
@@ -43,6 +45,7 @@ export function ReelPlayer({
   prefersReducedMotion,
   isLoggedIn,
   exitHref,
+  localLikes,
 }: ReelPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const isManuallyPausedRef = useRef(false);
@@ -167,12 +170,12 @@ export function ReelPlayer({
       {/* Right side actions */}
       <div className="absolute right-3 bottom-24 z-20"
         style={{ right: 'calc(0.75rem + env(safe-area-inset-right))', bottom: 'calc(6rem + env(safe-area-inset-bottom))' }}>
-        <ReelActions
+        {localLikes ? <ReelLocalActions eventProps={eventProps} /> : <ReelActions
           eventProps={eventProps}
           reelId={item.reel.id}
           initialLikeCount={item.reel.likeCount ?? 0}
           isLoggedIn={isLoggedIn}
-        />
+        />}
       </div>
 
       {/* Bottom info and course CTA */}

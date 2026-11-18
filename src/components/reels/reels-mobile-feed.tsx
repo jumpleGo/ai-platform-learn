@@ -14,9 +14,10 @@ type ReelsMobileFeedProps = {
   isLoggedIn?: boolean;
   exitHref?: string;
   initialReelId?: string;
+  localLikes?: boolean;
 };
 
-export function ReelsMobileFeed({ items, isLoggedIn, exitHref, initialReelId }: ReelsMobileFeedProps) {
+export function ReelsMobileFeed({ items, isLoggedIn, exitHref, initialReelId, localLikes }: ReelsMobileFeedProps) {
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const [isMuted, setIsMuted] = useState(true);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -119,6 +120,7 @@ export function ReelsMobileFeed({ items, isLoggedIn, exitHref, initialReelId }: 
           prefersReducedMotion={prefersReducedMotion}
           isLoggedIn={isLoggedIn}
           exitHref={exitHref}
+          localLikes={localLikes}
         />
       ))}
     </div>

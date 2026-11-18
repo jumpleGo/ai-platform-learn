@@ -3,10 +3,9 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 import { GelatoLogo } from '@/components/gelato-logo';
-import { ReelShareButton } from '@/components/reels/reel-share-button';
+import { ReelLocalActions, ReelLocalLikesProvider } from '@/components/reels/reel-local-actions';
 import { ReelsMobileFeed } from '@/components/reels/reels-mobile-feed';
 import { ReelsDesktopFeed } from '@/components/reels/reels-desktop-feed';
-import { ReelLikesProvider } from '@/components/reels/reel-likes-provider';
 import { listPublishedReels } from '@/lib/db/reels';
 import { adminStorage, storageBucketName } from '@/lib/firebase/admin';
 import { SITE_URL } from '@/lib/site';
@@ -67,7 +66,7 @@ export default async function ReelPage({ params }: Props) {
   };
 
   return (
-    <ReelLikesProvider>
+    <ReelLocalLikesProvider>
     <div className="hidden h-[100dvh] min-h-svh flex-col bg-background md:flex [@media(pointer:coarse)_and_(max-height:767px)]:hidden">
       <script type="application/ld+json" dangerouslySetInnerHTML={{
         __html: JSON.stringify(schema).replace(/</g, '\\u003c'),
@@ -83,17 +82,22 @@ export default async function ReelPage({ params }: Props) {
         </div>
       </header>
       <ReelsDesktopFeed items={items} initialReelId={reel.id}>
-        {items.map(({ reel: feedReel, video: feedVideo, poster: feedPoster }) => {
+        {items.map(({ reel: feedReel, video: feedVideo, poster: feedPoster }, position) => {
           const Heading = feedReel.id === reel.id ? 'h1' : 'h2';
           return (
             <section key={feedReel.id} data-reel-id={feedReel.id}
               className="flex h-full min-h-[calc(100dvh-3.5rem)] w-full snap-start snap-always items-center justify-center px-4 py-6 sm:px-6 sm:py-10">
               <article className="mx-auto grid w-full max-w-5xl items-center gap-6 sm:grid-cols-2 sm:gap-10">
-                <video
-                  className="mx-auto aspect-[9/16] max-h-[70svh] w-full max-w-sm rounded-2xl bg-black object-contain"
+                <div className="relative mx-auto aspect-[9/16] max-h-[70svh] w-full max-w-sm overflow-hidden rounded-2xl bg-black">
+                  <video
+                  className="h-full w-full object-contain"
                   src={feedVideo} poster={feedPoster} preload="none" controls playsInline muted
                   aria-label={feedReel.title}
                 />
+                  <div data-reel-actions className="absolute right-3 bottom-20 z-20">
+                    <ReelLocalActions eventProps={{ reel_id: feedReel.id, course_slug: feedReel.courseSlug || null, position }} />
+                  </div>
+                </div>
                 <div className="min-w-0 space-y-5">
                   <Heading className="break-words text-2xl font-bold tracking-tight sm:text-4xl">{feedReel.title}</Heading>
                   {feedReel.description && <p className="whitespace-pre-line break-words text-base text-muted-foreground sm:text-lg">{feedReel.description}</p>}
@@ -101,7 +105,6 @@ export default async function ReelPage({ params }: Props) {
                     <Link href={feedReel.ctaHref} className="inline-flex min-h-11 items-center rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background">
                       {feedReel.ctaLabel}
                     </Link>
-                    <ReelShareButton url={`${SITE_URL}/reels/${feedReel.id}`} title={feedReel.title} text={feedReel.description} />
                   </div>
                 </div>
               </article>
@@ -110,7 +113,7 @@ export default async function ReelPage({ params }: Props) {
         })}
       </ReelsDesktopFeed>
     </div>
-    <ReelsMobileFeed items={items} initialReelId={reel.id} exitHref="/reels" />
-    </ReelLikesProvider>
+    <ReelsMobileFeed items={items} initialReelId={reel.id} exitHref="/reels" localLikes />
+    </ReelLocalLikesProvider>
   );
 }
