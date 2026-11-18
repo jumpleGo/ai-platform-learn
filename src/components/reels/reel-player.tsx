@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Volume2, VolumeX } from 'lucide-react';
+import { ArrowLeft, Volume2, VolumeX } from 'lucide-react';
 import { GelatoLogo } from '@/components/gelato-logo';
 import { normalizeReel, type Reel } from '@/lib/reels';
 import { EVENTS, type ReelEventProps } from '@/lib/analytics/events';
@@ -16,6 +16,8 @@ export type ReelFeedItem = {
   poster: string;
 };
 
+export const REELS_LANDSCAPE_QUERY = '(pointer: coarse) and (max-height: 767px)';
+
 type ReelPlayerProps = {
   item: ReelFeedItem;
   position?: number;
@@ -24,10 +26,12 @@ type ReelPlayerProps = {
   onToggleSound: () => void;
   prefersReducedMotion: boolean;
   isLoggedIn?: boolean;
+  exitHref?: string;
 };
 
 function isMobileViewport() {
-  return typeof window !== 'undefined' && window.matchMedia?.('(max-width: 767px)').matches;
+  return typeof window !== 'undefined' && (window.matchMedia?.('(max-width: 767px)').matches
+    || window.matchMedia?.(REELS_LANDSCAPE_QUERY).matches);
 }
 
 export function ReelPlayer({
@@ -38,6 +42,7 @@ export function ReelPlayer({
   onToggleSound,
   prefersReducedMotion,
   isLoggedIn,
+  exitHref,
 }: ReelPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const isManuallyPausedRef = useRef(false);
@@ -118,26 +123,38 @@ export function ReelPlayer({
         loop
         preload="none"
         muted={isMuted}
+        role="button"
+        tabIndex={0}
+        aria-label="Пауза или воспроизведение"
         onClick={handleVideoClick}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            handleVideoClick();
+          }
+        }}
         onEnded={handleComplete}
         onTimeUpdate={handleTimeUpdate}
         className="h-full w-full object-cover"
       />
 
       {/* Top bar with logo and sound button */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between bg-gradient-to-b from-black/70 via-black/30 to-transparent p-4 pt-6">
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between bg-gradient-to-b from-black/70 via-black/30 to-transparent p-4 pt-6"
+        style={{ paddingTop: 'calc(1.5rem + env(safe-area-inset-top))', paddingInline: 'max(1rem, env(safe-area-inset-left), env(safe-area-inset-right))' }}>
         <Link
-          href="/"
-          aria-label="GELATO, на главную"
+          href={exitHref ?? '/'}
+          aria-label={exitHref ? 'Все короткие видео' : 'GELATO, на главную'}
           className="pointer-events-auto text-white drop-shadow transition-opacity hover:opacity-80"
+          style={{ minHeight: 44, minWidth: 44, display: 'flex', alignItems: 'center' }}
         >
-          <GelatoLogo className="h-8 text-white" />
+          {exitHref ? <ArrowLeft className="h-6 w-6" /> : <GelatoLogo className="h-8 text-white" />}
         </Link>
         <button
           type="button"
           onClick={onToggleSound}
           aria-label={isMuted ? 'Включить звук' : 'Выключить звук'}
           className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm transition-transform active:scale-90 hover:bg-black/60"
+          style={{ minHeight: 44, minWidth: 44 }}
         >
           {isMuted ? (
             <VolumeX className="h-5 w-5" />
@@ -148,7 +165,8 @@ export function ReelPlayer({
       </div>
 
       {/* Right side actions */}
-      <div className="absolute right-3 bottom-24 z-20">
+      <div className="absolute right-3 bottom-24 z-20"
+        style={{ right: 'calc(0.75rem + env(safe-area-inset-right))', bottom: 'calc(6rem + env(safe-area-inset-bottom))' }}>
         <ReelActions
           eventProps={eventProps}
           reelId={item.reel.id}
@@ -158,7 +176,8 @@ export function ReelPlayer({
       </div>
 
       {/* Bottom info and course CTA */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 pb-8 pr-16">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 pb-8 pr-16"
+        style={{ paddingBottom: 'calc(2rem + env(safe-area-inset-bottom))', paddingLeft: 'calc(1rem + env(safe-area-inset-left))' }}>
         <div className="pointer-events-auto">
           <ReelCta title={title} courseSlug={item.reel.courseSlug} eventProps={eventProps} />
         </div>
