@@ -1,6 +1,5 @@
 'use client';
 
-<<<<<<< HEAD
 import React, { useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Volume2, VolumeX } from 'lucide-react';
@@ -163,92 +162,6 @@ export function ReelPlayer({
         <div className="pointer-events-auto">
           <ReelCta title={title} courseSlug={item.reel.courseSlug} eventProps={eventProps} />
         </div>
-=======
-import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import styles from './reel-player.module.css';
-
-const MOBILE_QUERY = '(max-width: 639px)';
-
-export function ReelPlayer({ title, video, poster }: { title: string; video: string; poster: string }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [muted, setMuted] = useState(true);
-
-  useEffect(() => {
-    const player = videoRef.current;
-    if (!player) return;
-    const mobile = window.matchMedia(MOBILE_QUERY);
-    let savedOverflow: { body: string; root: string } | undefined;
-    let resumeAfterHidden = false;
-    const play = () => { void player.play().catch(() => undefined); };
-    const unlock = () => {
-      if (!savedOverflow) return;
-      document.body.style.overflow = savedOverflow.body;
-      document.documentElement.style.overflow = savedOverflow.root;
-      savedOverflow = undefined;
-    };
-    const syncViewport = () => {
-      if (mobile.matches) {
-        if (!savedOverflow) {
-          savedOverflow = { body: document.body.style.overflow, root: document.documentElement.style.overflow };
-          document.body.style.overflow = 'hidden';
-          document.documentElement.style.overflow = 'hidden';
-        }
-        if (!document.hidden) play();
-      } else {
-        player.pause();
-        unlock();
-      }
-    };
-    const onVisibility = () => {
-      if (document.hidden) {
-        resumeAfterHidden = !player.paused;
-        player.pause();
-      } else if (resumeAfterHidden && mobile.matches) {
-        resumeAfterHidden = false;
-        play();
-      }
-    };
-    syncViewport();
-    mobile.addEventListener('change', syncViewport);
-    document.addEventListener('visibilitychange', onVisibility);
-    return () => {
-      player.pause();
-      unlock();
-      mobile.removeEventListener('change', syncViewport);
-      document.removeEventListener('visibilitychange', onVisibility);
-    };
-  }, []);
-
-  return (
-    <section className={styles.player} aria-label={title}>
-      <Link href="/reels" className={styles.close} aria-label="Закрыть рилс и вернуться к ленте">
-        <ArrowLeft size={20} aria-hidden="true" /> Все рилсы
-      </Link>
-      <video
-        ref={videoRef}
-        className={styles.video}
-        src={video}
-        poster={poster}
-        preload="metadata"
-        controls
-        playsInline
-        loop
-        muted={muted}
-        onVolumeChange={(event) => setMuted(event.currentTarget.muted)}
-        onClick={(event) => {
-          if (window.matchMedia(MOBILE_QUERY).matches && event.currentTarget.muted) {
-            event.currentTarget.muted = false;
-            setMuted(false);
-            void event.currentTarget.play().catch(() => undefined);
-          }
-        }}
-      />
-      <div className={styles.caption}>
-        <h1 className={styles.title}>{title}</h1>
-        {muted && <p className={styles.soundHint}>Нажмите на видео, чтобы включить звук</p>}
->>>>>>> 176b733 (feat(reels): add SEO pages and fullscreen mobile playback (#552))
       </div>
     </section>
   );

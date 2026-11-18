@@ -178,9 +178,7 @@ describe('public reels feed', () => {
     expect(response.headers.get('x-middleware-next')).toBe('1');
   });
 
-  // Single reel slugs now have public pages (unknown/draft slugs are tested as 404
-  // in reels-detail-552). Unrecognized nested routes retain the existing gate.
-  it.each(['/admin', '/admin/reels', '/reels/private/settings', '/reels-private'])('preserves the guest gate for %s', (path) => {
+  it.each(['/admin', '/admin/reels', '/reels/private', '/reels-private'])('preserves the guest gate for %s', (path) => {
     const response = proxy(new NextRequest(`${SITE_URL}${path}`, {
       headers: { cookie: 'vid=reels-review-464' },
     }));

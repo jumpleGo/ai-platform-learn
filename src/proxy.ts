@@ -8,7 +8,6 @@ import {
 } from '@/lib/home-experiment';
 import { parseTestRub } from '@/lib/payments/tariffs';
 import { BLOG_POSTS } from '@/lib/blog';
-import { isPublicReelPath } from '@/lib/reel-urls';
 import {
   LANDING_PAIRS_COOKIE,
   LANDING_PAIRS_TTL,
@@ -48,12 +47,7 @@ export function proxy(req: NextRequest, event?: NextFetchEvent) {
   const isReelPage = /^\/reels\/[A-Za-z0-9]{20}\/?$/.test(pathname);
   const isReelMedia = /^\/reels\/[A-Za-z0-9]{20}\/(poster|video)\/?$/.test(pathname);
   // главная ('/') открыта гостям — точное совпадение, чтобы не распахнуть весь сайт через startsWith
-<<<<<<< HEAD
   const isPublic = pathname === '/' || pathname === '/reels' || pathname === '/reels/' || isReelPage || isReelMedia || pathname === '/llms-full.txt' || PUBLIC.some((p) => pathname.startsWith(p));
-=======
-  // Only the new detail/media routes are public; their loaders check publication.
-  const isPublic = pathname === '/' || pathname === '/reels' || pathname === '/reels/' || isPublicReelPath(pathname) || pathname === '/llms-full.txt' || PUBLIC.some((p) => pathname.startsWith(p));
->>>>>>> 176b733 (feat(reels): add SEO pages and fullscreen mobile playback (#552))
   // id посетителя для A/B-тестов баннеров и главной: живёт год, гостям тоже нужен.
   // Свежий id прокидываем в заголовок запроса — иначе первый рендер его не увидит
   // и все новые посетители получили бы один и тот же вариант.
