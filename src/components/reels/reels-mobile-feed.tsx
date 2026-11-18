@@ -4,16 +4,17 @@ import React, { useEffect, useRef, useState } from 'react';
 import { normalizeReel } from '@/lib/reels';
 import { EVENTS, type ReelEventProps } from '@/lib/analytics/events';
 import { track } from '@/lib/analytics/track-client';
-import { ReelPlayer, type ReelFeedItem } from './reel-player';
+import { REELS_LANDSCAPE_QUERY, ReelPlayer, type ReelFeedItem } from './reel-player';
 
 export type { ReelFeedItem };
 
 type ReelsMobileFeedProps = {
   items: ReelFeedItem[];
   isLoggedIn?: boolean;
+  exitHref?: string;
 };
 
-export function ReelsMobileFeed({ items, isLoggedIn }: ReelsMobileFeedProps) {
+export function ReelsMobileFeed({ items, isLoggedIn, exitHref }: ReelsMobileFeedProps) {
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
@@ -27,14 +28,19 @@ export function ReelsMobileFeed({ items, isLoggedIn }: ReelsMobileFeedProps) {
       return;
     }
     const media = window.matchMedia('(max-width: 767px)');
+    const landscape = window.matchMedia(REELS_LANDSCAPE_QUERY);
     const updateViewport = () => {
-      setIsMobile(media.matches);
+      setIsMobile(media.matches || landscape.matches);
       // A remounted scroller starts at the first reel.
       setActiveIndex(0);
     };
     updateViewport();
     media.addEventListener('change', updateViewport);
-    return () => media.removeEventListener('change', updateViewport);
+    landscape.addEventListener('change', updateViewport);
+    return () => {
+      media.removeEventListener('change', updateViewport);
+      landscape.removeEventListener('change', updateViewport);
+    };
   }, []);
 
   useEffect(() => {
@@ -99,7 +105,7 @@ export function ReelsMobileFeed({ items, isLoggedIn }: ReelsMobileFeedProps) {
       <section
         data-reel-placeholder={firstItem.reel.id}
         aria-label={title}
-        className="md:hidden fixed inset-0 z-30 h-[100dvh] w-full overflow-hidden bg-black"
+        className="md:hidden [@media(pointer:coarse)_and_(max-height:767px)]:block fixed inset-0 z-30 h-[100dvh] w-full overflow-hidden bg-black"
       >
         <img
           src={firstItem.poster}
@@ -119,7 +125,7 @@ export function ReelsMobileFeed({ items, isLoggedIn }: ReelsMobileFeedProps) {
   return (
     <div
       ref={containerRef}
-      className={`md:hidden fixed inset-0 z-30 h-[100dvh] w-full overflow-y-scroll snap-y snap-mandatory bg-black select-none ${
+      className={`md:hidden [@media(pointer:coarse)_and_(max-height:767px)]:block fixed inset-0 z-30 h-[100dvh] w-full overflow-y-scroll snap-y snap-mandatory bg-black select-none ${
         prefersReducedMotion ? 'motion-reduce:scroll-auto' : 'scroll-smooth'
       }`}
       style={{
@@ -137,6 +143,7 @@ export function ReelsMobileFeed({ items, isLoggedIn }: ReelsMobileFeedProps) {
           onToggleSound={() => setIsMuted((prev) => !prev)}
           prefersReducedMotion={prefersReducedMotion}
           isLoggedIn={isLoggedIn}
+          exitHref={exitHref}
         />
       ))}
     </div>

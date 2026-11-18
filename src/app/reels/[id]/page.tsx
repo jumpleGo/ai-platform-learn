@@ -1,15 +1,18 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 import { GelatoLogo } from '@/components/gelato-logo';
 import { ReelShareButton } from '@/components/reels/reel-share-button';
+import { ReelsMobileFeed } from '@/components/reels/reels-mobile-feed';
+import { ReelLikesProvider } from '@/components/reels/reel-likes-provider';
 import { listPublishedReels } from '@/lib/db/reels';
 import { adminStorage, storageBucketName } from '@/lib/firebase/admin';
 import { SITE_URL } from '@/lib/site';
 
 // Publication state must be fresh on every request.
 export const dynamic = 'force-dynamic';
+export const viewport: Viewport = { viewportFit: 'cover' };
 
 type Props = { params: Promise<{ id: string }> };
 const loadReel = cache(async (id: string) => {
@@ -57,7 +60,8 @@ export default async function ReelPage({ params }: Props) {
   };
 
   return (
-    <div className="flex min-h-svh flex-col bg-background">
+    <ReelLikesProvider>
+    <div className="hidden min-h-svh flex-col bg-background md:flex [@media(pointer:coarse)_and_(max-height:767px)]:hidden">
       <script type="application/ld+json" dangerouslySetInnerHTML={{
         __html: JSON.stringify(schema).replace(/</g, '\\u003c'),
       }} />
@@ -91,5 +95,7 @@ export default async function ReelPage({ params }: Props) {
         </article>
       </main>
     </div>
+    <ReelsMobileFeed items={[{ reel, video, poster }]} exitHref="/reels" />
+    </ReelLikesProvider>
   );
 }
