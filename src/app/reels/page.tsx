@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { GelatoLogo } from '@/components/gelato-logo';
 import { ReelsMobileFeed } from '@/components/reels/reels-mobile-feed';
+import { ReelsDesktopFeed } from '@/components/reels/reels-desktop-feed';
 import { listPublishedReels } from '@/lib/db/reels';
 import { adminStorage, storageBucketName } from '@/lib/firebase/admin';
 import { ReelActions } from '@/components/reels/reel-actions';
@@ -40,7 +41,7 @@ export default async function ReelsPage() {
 
   return (
     <ReelLikesProvider>
-      <div className={`flex min-h-svh flex-col bg-background ${items.length > 0 ? 'hidden md:flex' : ''}`}>
+      <div className={`flex h-[100dvh] min-h-svh flex-col bg-background ${items.length > 0 ? 'hidden md:flex' : ''}`}>
         <header className="shrink-0 border-b border-border/70">
           <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
             <Link href="/" aria-label="GELATO, на главную">
@@ -68,10 +69,7 @@ export default async function ReelsPage() {
             </section>
           </main>
         ) : (
-          <main
-            data-reel-feed="desktop"
-            className="flex-1 overflow-y-scroll snap-y snap-mandatory h-[calc(100svh-3.5rem)]"
-          >
+          <ReelsDesktopFeed items={items}>
             <h1 className="sr-only">Короткие видео про ИИ</h1>
             {items.map(({ reel, video, poster }, position) => (
               <article
@@ -88,6 +86,7 @@ export default async function ReelsPage() {
                       preload="none"
                       controls
                       playsInline
+                      muted
                     />
                   </div>
                   <div
@@ -125,7 +124,7 @@ export default async function ReelsPage() {
                 </div>
               </article>
             ))}
-          </main>
+          </ReelsDesktopFeed>
         )}
       </div>
       {items.length > 0 && <ReelsMobileFeed items={items} />}

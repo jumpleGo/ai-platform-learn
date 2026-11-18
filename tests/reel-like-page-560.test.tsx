@@ -22,7 +22,9 @@ it.each([390, 1280])('restores likes after reload and resize at %i px', async (w
   await button.click();
   await expectReaction(button, false, 7);
   expect((await events(page)).filter(([event]) => event === 'reel_like')).toEqual([]);
+  await dom(page).toHaveURL('http://reels.test/reels/saved-reel');
   await page.reload();
+  await dom(page).toHaveURL('http://reels.test/reels/saved-reel');
   await mount(page, 'page');
   await expectReaction(button, false, 7);
   await button.click();
