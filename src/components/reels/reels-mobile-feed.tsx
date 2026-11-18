@@ -5,6 +5,7 @@ import { normalizeReel } from '@/lib/reels';
 import { EVENTS, type ReelEventProps } from '@/lib/analytics/events';
 import { track } from '@/lib/analytics/track-client';
 import { REELS_LANDSCAPE_QUERY, ReelPlayer, type ReelFeedItem } from './reel-player';
+import { useReelFeedNavigation } from './use-reel-feed-navigation';
 
 export type { ReelFeedItem };
 
@@ -12,15 +13,16 @@ type ReelsMobileFeedProps = {
   items: ReelFeedItem[];
   isLoggedIn?: boolean;
   exitHref?: string;
+  initialReelId?: string;
 };
 
-export function ReelsMobileFeed({ items, isLoggedIn, exitHref }: ReelsMobileFeedProps) {
+export function ReelsMobileFeed({ items, isLoggedIn, exitHref, initialReelId }: ReelsMobileFeedProps) {
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const viewedReelRef = useRef<string | null>(null);
+  const activeIndex = useReelFeedNavigation(containerRef, items, Boolean(isMobile), prefersReducedMotion, initialReelId);
 
   useEffect(() => {
     if (!window.matchMedia) {
@@ -31,8 +33,6 @@ export function ReelsMobileFeed({ items, isLoggedIn, exitHref }: ReelsMobileFeed
     const landscape = window.matchMedia(REELS_LANDSCAPE_QUERY);
     const updateViewport = () => {
       setIsMobile(media.matches || landscape.matches);
-      // A remounted scroller starts at the first reel.
-      setActiveIndex(0);
     };
     updateViewport();
     media.addEventListener('change', updateViewport);
@@ -56,32 +56,6 @@ export function ReelsMobileFeed({ items, isLoggedIn, exitHref }: ReelsMobileFeed
   }, []);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!isMobile || !container || typeof IntersectionObserver === 'undefined') return;
-
-    const sections = container.querySelectorAll<HTMLElement>('section[data-reel-id]');
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            const index = Array.from(sections).indexOf(entry.target as HTMLElement);
-            if (index !== -1) {
-              setActiveIndex(index);
-            }
-          }
-        }
-      },
-      {
-        root: container,
-        threshold: 0.6,
-      }
-    );
-
-    sections.forEach((sec) => observer.observe(sec));
-    return () => observer.disconnect();
-  }, [isMobile, items.length]);
-
-  useEffect(() => {
     if (!isMobile) {
       viewedReelRef.current = null;
       return;
@@ -97,8 +71,8 @@ export function ReelsMobileFeed({ items, isLoggedIn, exitHref }: ReelsMobileFeed
     track(EVENTS.reelViewed, eventProps);
   }, [isMobile, activeIndex, items]);
 
-  // CSS shows the first poster on phones before the viewport effect can run.
-  const firstItem = items[0];
+  // CSS shows the starting poster on phones before the viewport effect can run.
+  const firstItem = items.find(({ reel }) => reel.id === initialReelId) ?? items[0];
   if (isMobile === null && firstItem) {
     const { title } = normalizeReel(firstItem.reel, { title: firstItem.reel.courseSlug });
     return (
@@ -125,7 +99,8 @@ export function ReelsMobileFeed({ items, isLoggedIn, exitHref }: ReelsMobileFeed
   return (
     <div
       ref={containerRef}
-      className={`md:hidden [@media(pointer:coarse)_and_(max-height:767px)]:block fixed inset-0 z-30 h-[100dvh] w-full overflow-y-scroll snap-y snap-mandatory bg-black select-none ${
+      data-reel-feed="mobile"
+      className={`md:hidden [@media(pointer:coarse)_and_(max-height:767px)]:block fixed inset-0 z-30 h-[100dvh] w-full overflow-y-scroll overscroll-y-contain touch-pan-y snap-y snap-mandatory bg-black select-none ${
         prefersReducedMotion ? 'motion-reduce:scroll-auto' : 'scroll-smooth'
       }`}
       style={{

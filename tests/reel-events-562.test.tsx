@@ -20,6 +20,10 @@ vi.mock('react', async (original) => {
       if (mocks.hooks) mocks.hooks.effect(setup, deps);
       else actual.useEffect(setup, deps);
     },
+    useLayoutEffect: (setup: React.EffectCallback, deps?: React.DependencyList) => {
+      if (mocks.hooks) mocks.hooks.effect(setup, deps);
+      else actual.useLayoutEffect(setup, deps);
+    },
   };
 });
 
@@ -92,9 +96,12 @@ const expected = { reel_id: 'reel-562', course_slug: 'claude-code-agents', posit
 
 beforeEach(() => {
   mocks.track.mockClear();
+  const location = { pathname: '/reels', search: '' };
   vi.stubGlobal('window', { matchMedia: (query: string) => ({
     matches: query === '(max-width: 767px)', addEventListener: vi.fn(), removeEventListener: vi.fn(),
-  }) });
+  }), location, history: { replaceState: vi.fn((_state, _title, path: string) => { location.pathname = path; }) },
+  addEventListener: vi.fn(), removeEventListener: vi.fn() });
+  vi.stubGlobal('document', { hidden: false, addEventListener: vi.fn(), removeEventListener: vi.fn() });
 });
 afterEach(() => { mocks.hooks = null; vi.unstubAllGlobals(); });
 
@@ -162,17 +169,19 @@ describe('reel analytics contract (#562)', () => {
 
   it('tracks one view per display despite repeated observer entries and counts a return', () => {
     const second = { ...item, reel: { ...item.reel, id: 'second', courseSlug: '' } };
-    const sections = [{}, {}];
-    let notify: (entries: { isIntersecting: boolean; target: object }[]) => void = () => {};
+    const items = [item, second];
+    const sections = [0, 844].map((offsetTop) => ({ offsetTop, querySelector: () => null }));
+    let notify: (entries: { isIntersecting: boolean; intersectionRatio: number; target: object }[]) => void = () => {};
     vi.stubGlobal('IntersectionObserver', class {
       constructor(callback: typeof notify) { notify = callback; }
       observe() {}
       disconnect() {}
     });
-    const container = { querySelectorAll: () => sections };
+    const container = { querySelectorAll: () => sections, scrollTo: vi.fn(),
+      addEventListener: vi.fn(), removeEventListener: vi.fn() };
     const harness = new HookHarness();
     const render = () => {
-      const tree = harness.render(() => ReelsMobileFeed({ items: [item, second] }));
+      const tree = harness.render(() => ReelsMobileFeed({ items }));
       if (React.isValidElement<{ ref?: React.RefObject<unknown> }>(tree) && tree.props.ref) {
         tree.props.ref.current = container;
       }
@@ -185,16 +194,22 @@ describe('reel analytics contract (#562)', () => {
     const firstPlayer = find<React.ComponentProps<typeof ReelPlayer>>(tree, ReelPlayer);
     expect(firstPlayer.props.position).toBe(0); // Feed index, not stored order=97.
     for (let i = 0; i < 3; i++) {
-      notify([{ isIntersecting: true, target: sections[0] }]);
+      notify([{ isIntersecting: true, intersectionRatio: 1, target: sections[0] }]);
       render();
     }
     expect(mocks.track).toHaveBeenCalledExactlyOnceWith('reel_view', { ...expected, position: 0 });
-    notify([{ isIntersecting: true, target: sections[1] }]);
+    notify([
+      { isIntersecting: false, intersectionRatio: 0, target: sections[0] },
+      { isIntersecting: true, intersectionRatio: 1, target: sections[1] },
+    ]);
     render();
     expect(mocks.track).toHaveBeenNthCalledWith(2, 'reel_view', {
       reel_id: 'second', course_slug: null, position: 1,
     });
-    notify([{ isIntersecting: true, target: sections[0] }]);
+    notify([
+      { isIntersecting: false, intersectionRatio: 0, target: sections[1] },
+      { isIntersecting: true, intersectionRatio: 1, target: sections[0] },
+    ]);
     render();
     expect(mocks.track).toHaveBeenNthCalledWith(3, 'reel_view', { ...expected, position: 0 });
     expect(mocks.track).toHaveBeenCalledTimes(3);
