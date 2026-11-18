@@ -108,7 +108,7 @@ export async function createReelBrowser() {
       await page.route('**/*', async (route) => {
         const url = new URL(route.request().url());
         if (url.hostname !== 'reels.test') return route.abort();
-        if (url.pathname === '/reels') return route.fulfill({ contentType: 'text/html', body:
+        if (url.pathname === '/reels' || /^\/reels\/[^/]+$/.test(url.pathname)) return route.fulfill({ contentType: 'text/html', body:
           '<!doctype html><html><head><link rel="stylesheet" href="/style.css"></head><body><div id="root"></div><script src="/app.js"></script></body></html>' });
         if (url.pathname === '/app.js') return route.fulfill({ contentType: 'text/javascript', body: bundle.outputFiles[0].text });
         if (url.pathname === '/style.css') return route.fulfill({ contentType: 'text/css', body: css.css });
