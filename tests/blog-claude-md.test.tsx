@@ -11,6 +11,7 @@ import { NextRequest } from 'next/server';
 import { proxy } from '@/proxy';
 import { OLD_BLOG_SLUGS } from './fixtures/blog-f0fde9e-slugs';
 
+vi.mock('@/lib/db/reels', () => ({ listPublishedReels: async () => [] }));
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: async () => [] }));
 vi.mock('@/lib/db/reels', () => ({ listPublishedReels: async () => [] }));
 vi.mock('@/lib/analytics/track-client', () => ({ track: vi.fn() }));

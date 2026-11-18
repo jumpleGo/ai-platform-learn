@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { getBlogPost } from '@/lib/blog';
 import sitemap from '@/app/sitemap';
 
+vi.mock('@/lib/db/reels', () => ({ listPublishedReels: async () => [] }));
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: vi.fn().mockResolvedValue([]) }));
 vi.mock('@/lib/db/reels', () => ({ listPublishedReels: async () => [] }));
 

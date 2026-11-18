@@ -6,6 +6,7 @@ import sitemap from '@/app/sitemap';
 import { GET as llmsFull } from '@/app/llms-full.txt/route';
 import { BASE_BLOG_SLUGS } from './fixtures/blog-34ec8cf-slugs';
 
+vi.mock('@/lib/db/reels', () => ({ listPublishedReels: async () => [] }));
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: async () => [] }));
 vi.mock('@/lib/db/reels', () => ({ listPublishedReels: async () => [] }));
 vi.mock('@/lib/analytics/track-client', () => ({ track: vi.fn() }));

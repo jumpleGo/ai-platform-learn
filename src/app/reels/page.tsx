@@ -4,8 +4,13 @@ import { GelatoLogo } from '@/components/gelato-logo';
 import { ReelsMobileFeed } from '@/components/reels/reels-mobile-feed';
 import { listPublishedReels } from '@/lib/db/reels';
 import { adminStorage, storageBucketName } from '@/lib/firebase/admin';
+<<<<<<< HEAD
 import { ReelActions } from '@/components/reels/reel-actions';
 import { ReelLikesProvider } from '@/components/reels/reel-likes-provider';
+=======
+import { reelPath } from '@/lib/reel-urls';
+import playerStyles from '@/components/reels/reel-player.module.css';
+>>>>>>> 176b733 (feat(reels): add SEO pages and fullscreen mobile playback (#552))
 
 export const metadata: Metadata = {
   title: 'Короткие видео про ИИ — GELATO',
@@ -68,6 +73,7 @@ export default async function ReelsPage() {
             </section>
           </main>
         ) : (
+<<<<<<< HEAD
           <main
             data-reel-feed="desktop"
             className="flex-1 overflow-y-scroll snap-y snap-mandatory h-[calc(100svh-3.5rem)]"
@@ -123,6 +129,29 @@ export default async function ReelsPage() {
                     </div>
                   </div>
                 </div>
+=======
+          <div className="mx-auto grid max-w-md grid-cols-1 gap-8 sm:max-w-none sm:grid-cols-2 lg:grid-cols-3">
+            {items.map(({ reel, video, poster }) => (
+              <article key={reel.id} className="space-y-3">
+                <div className="relative">
+                  <video
+                    className="aspect-[9/16] w-full rounded-2xl bg-black object-cover"
+                    src={video}
+                    poster={poster}
+                    preload="none"
+                    controls
+                    playsInline
+                  />
+                  <Link href={reelPath(reel.id)} className={playerStyles.previewLink} aria-label={`Открыть рилс: ${reel.title}`} />
+                </div>
+                <h2 className="text-base font-semibold"><Link href={reelPath(reel.id)}>{reel.title}</Link></h2>
+                <Link
+                  href={`/courses/${reel.courseSlug}`}
+                  className="inline-block text-sm font-medium text-primary underline-offset-4 hover:underline"
+                >
+                  Перейти в курс
+                </Link>
+>>>>>>> 176b733 (feat(reels): add SEO pages and fullscreen mobile playback (#552))
               </article>
             ))}
           </main>

@@ -4,6 +4,7 @@ import { generateMetadata } from '@/app/(app)/courses/[courseSlug]/lessons/[less
 import LessonLayout from '@/app/(app)/courses/[courseSlug]/lessons/[lessonNumber]/layout';
 import sitemap from '@/app/sitemap';
 
+vi.mock('@/lib/db/reels', () => ({ listPublishedReels: async () => [] }));
 vi.mock('@/lib/db/courses', () => ({
   getPublishedCoursesWithLessons: vi.fn(), resolveLesson: vi.fn(),
 }));

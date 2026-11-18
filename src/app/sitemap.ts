@@ -6,7 +6,12 @@ import { trainingCourses } from '@/lib/catalog';
 import { courseKey, lessonPath } from '@/lib/slug';
 import { SITE_URL } from '@/lib/site';
 import { BLOG_POSTS, blogPostUrl } from '@/lib/blog';
+<<<<<<< HEAD
 import { STANDALONE_FREE_LESSONS, standaloneFreeLessonPath } from '@/lib/free-lessons';
+=======
+import { listPublishedReels } from '@/lib/db/reels';
+import { reelUrl } from '@/lib/reel-urls';
+>>>>>>> 176b733 (feat(reels): add SEO pages and fullscreen mobile playback (#552))
 
 // Карта строится по данным Firestore, а доступа к базе на сборке нет
 // (креды приходят из .env на сервере), поэтому генерируем на запросе.
@@ -18,10 +23,14 @@ export const dynamic = 'force-dynamic';
 // lastModified проставляем только у статей блога, где дата настоящая: фальшивая
 // дата «время запроса» у остальных URL заставляла Google игнорировать поле целиком.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+<<<<<<< HEAD
   const [courses, publishedReels]: [CourseWithLessons[], Reel[]] = await Promise.all([
     getPublishedCoursesWithLessons(),
     listPublishedReels(),
   ]);
+=======
+  const [courses, reels] = await Promise.all([getPublishedCoursesWithLessons(), listPublishedReels()]);
+>>>>>>> 176b733 (feat(reels): add SEO pages and fullscreen mobile playback (#552))
 
   const statics: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, changeFrequency: 'weekly', priority: 1 },
@@ -58,6 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   );
 
+<<<<<<< HEAD
   const reels: MetadataRoute.Sitemap = publishedReels.map((reel) => ({
     url: `${SITE_URL}/reels/${reel.id}`,
     changeFrequency: 'weekly',
@@ -73,4 +83,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
   return [...statics, ...posts, ...landings, ...lessons, ...standaloneLessons, ...reels];
+=======
+  const reelPages: MetadataRoute.Sitemap = reels.map((reel) => ({
+    url: reelUrl(reel.id), changeFrequency: 'weekly', priority: 0.6,
+  }));
+
+  return [...statics, ...posts, ...landings, ...lessons, ...reelPages];
+>>>>>>> 176b733 (feat(reels): add SEO pages and fullscreen mobile playback (#552))
 }
