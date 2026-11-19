@@ -1,4 +1,5 @@
 import { SITE_URL } from '@/lib/site';
+import { CLAUDE_AGE_POST } from '@/lib/blog-claude-age';
 
 export type BlogFaq = {
   question: string;
@@ -2683,6 +2684,7 @@ check.mjs — проверки; package.json — команды запуска.
     lessonPath: null,
     cover: '/blog/vivid-montazh-video-claude-code.webp',
   },
+  CLAUDE_AGE_POST,
 ];
 
 export function getBlogPost(slug: string): BlogPost | null {
