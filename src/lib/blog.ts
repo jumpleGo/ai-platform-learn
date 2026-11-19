@@ -1,6 +1,7 @@
 import { SITE_URL } from '@/lib/site';
 import { CLAUDE_AGE_POST } from '@/lib/blog-claude-age';
 import { CHATGPT_ANDROID_POST } from '@/lib/blog-chatgpt-android';
+import { CHATGPT_DOCUMENTS_POST } from '@/lib/blog-chatgpt-documents';
 
 export type BlogFaq = {
   question: string;
@@ -2842,6 +2843,7 @@ check.mjs — проверки; package.json — команды запуска.
   },
   CLAUDE_AGE_POST,
   CHATGPT_ANDROID_POST,
+  CHATGPT_DOCUMENTS_POST,
 ];
 
 export function getBlogPost(slug: string): BlogPost | null {
