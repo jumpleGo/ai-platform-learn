@@ -62,7 +62,8 @@ async function setup(width: number, session: boolean, courseSlug = 'course-a', c
     return route.abort();
   });
   await page.addInitScript(data => Object.assign(window, data), { courseSlug, ctaHref });
-  await page.goto(`${origin}/reels/${id}`);
+  await page.goto(`${origin}/reels/${id}`, { waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(() => typeof (window as unknown as { mount: unknown }).mount === 'function');
 }
 const link = () => page.locator('[data-reel-course-link]:visible');
 const events = () => page.evaluate(() => JSON.parse(sessionStorage.getItem('events') || '[]').filter(([name]: [string]) => name === 'reel_cta_click'));
