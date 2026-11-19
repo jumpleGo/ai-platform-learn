@@ -118,7 +118,12 @@ export async function createReelBrowser() {
         }
         return route.abort();
       });
-      await page.goto('http://reels.test/reels', navigationTimeout !== undefined ? { timeout: navigationTimeout } : undefined);
+      // The parser-loaded bundle and mount hook are required; unrelated images
+      // must not hold up opening the page until the full load event.
+      await page.goto('http://reels.test/reels', {
+        waitUntil: 'domcontentloaded',
+        ...(navigationTimeout !== undefined ? { timeout: navigationTimeout } : {}),
+      });
       await page.waitForFunction(() => typeof (window as unknown as ReelTestWindow).mount === 'function');
       return page;
     },
