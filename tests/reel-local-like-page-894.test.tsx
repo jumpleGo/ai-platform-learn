@@ -107,7 +107,7 @@ async function setup(width: number, session = false, courseSlug: string | null =
     return route.abort();
   });
   await page.addInitScript(({ courseSlug }) => { Object.assign(window, { courseSlug }); }, { courseSlug });
-  await page.goto(reelUrl);
+  await page.goto(reelUrl, { waitUntil: 'domcontentloaded' });
   if (saved) await page.evaluate(key => localStorage.setItem(key, 'true'), storageKey);
 }
 const mount = () => page.evaluate(() => (window as unknown as TestWindow).mount());
@@ -141,7 +141,7 @@ describe('localStorage likes on /reels/<id> (#894)', () => {
     await expectState(true);
     expect(await likes()).toEqual([confirmedLike()]);
     expect(await page.evaluate(id => localStorage.getItem(`gelato:reel-liked:${id}`), otherId)).toBeNull();
-    await page.reload();
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await mount();
     await expectState(true);
     expect(await likes()).toEqual([]); // Restoring a saved like is not a new action.
@@ -151,7 +151,7 @@ describe('localStorage likes on /reels/<id> (#894)', () => {
     await button().click();
     await expectState(false);
     expect(await likes()).toEqual([]); // An unlike is not an added like.
-    await page.reload();
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await mount();
     await expectState(false);
     expect(await likes()).toEqual([]);

@@ -160,7 +160,7 @@ describe('reels swipe navigation (#886)', () => {
     const feed = page.locator('section[data-reel-id]').first().locator('..');
     await feed.evaluate((el) => el.scrollTo({ top: el.clientHeight * 2, behavior: 'instant' }));
     await current(2);
-    await page.reload();
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => typeof (window as unknown as { mount: unknown }).mount === 'function');
     await installMediaAndData();
     await mount(page, 'page');
