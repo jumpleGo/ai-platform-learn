@@ -1,5 +1,6 @@
 import { SITE_URL } from '@/lib/site';
 import { CLAUDE_AGE_POST } from '@/lib/blog-claude-age';
+import { CHATGPT_DOCUMENTS_POST } from '@/lib/blog-chatgpt-documents';
 
 export type BlogFaq = {
   question: string;
@@ -2840,6 +2841,7 @@ check.mjs — проверки; package.json — команды запуска.
     cover: '/blog/avtonomnye-ii-agenty-eksperiment.webp',
   },
   CLAUDE_AGE_POST,
+  CHATGPT_DOCUMENTS_POST,
 ];
 
 export function getBlogPost(slug: string): BlogPost | null {
