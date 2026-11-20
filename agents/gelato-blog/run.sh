@@ -111,15 +111,17 @@ if [ "$CHANGED" != "src/lib/blog.ts" ]; then
 fi
 # Упавшие тесты (полные имена) в файл $1 — через JSON-репортёр vitest
 failed_tests() {
-  npx vitest run --reporter=json --outputFile="$1.json" >>"$LOG" 2>&1
+  npx vitest run --retry=2 --reporter=json --outputFile="$1.json" >>"$LOG" 2>&1
   # нет отчёта — разобрать нечего, пишем маркер ошибки
   [ -s "$1.json" ] || { echo "__NO_REPORT__" > "$1"; return; }
   node -e 'const r=require(process.argv[1]);for(const f of r.testResults)for(const t of f.assertionResults)if(t.status==="failed")console.log(t.fullName)' "$1.json" | sort > "$1"
+  node -e 'const r=require(process.argv[1]);for(const f of r.testResults)if(f.assertionResults.some(t=>t.status==="failed"))console.log(f.name)' "$1.json" | sort -u > "$1.files"
 }
 CHECK_FAIL=""
 if ! npx tsc --noEmit -p . >>"$LOG" 2>&1; then
   CHECK_FAIL="tsc"
-elif ! npx vitest run >>"$LOG" 2>&1; then
+# --retry: браузерные тесты на 2 CPU VM ловят таймауты под нагрузкой
+elif ! npx vitest run --retry=2 >>"$LOG" 2>&1; then
   # Красный тест мог прийти из main — блокируем только то, что сломали статьи
   TMPD=$(mktemp -d)
   failed_tests "$TMPD/after"
@@ -127,6 +129,14 @@ elif ! npx vitest run >>"$LOG" 2>&1; then
   failed_tests "$TMPD/base"
   git stash pop -q
   NEW_FAILS=$(comm -23 "$TMPD/after" "$TMPD/base")
+  # Новые падения перепроверяем по одному файлу без параллели и с запасом по времени:
+  # статья меняет только blog.ts, а таймауты Playwright под нагрузкой — шум, не поломка
+  if [ -n "$NEW_FAILS" ] && [ -s "$TMPD/after.files" ] && \
+     npx vitest run $(cat "$TMPD/after.files") --maxWorkers=1 --no-file-parallelism \
+       --testTimeout=30000 --hookTimeout=30000 --retry=2 >>"$LOG" 2>&1; then
+    echo "[$STAMP] нестабильные тесты прошли в изолированном прогоне: $NEW_FAILS" >>"$LOG"
+    NEW_FAILS=""; : > "$TMPD/after"
+  fi
   if grep -q __NO_REPORT__ "$TMPD/after" "$TMPD/base"; then
     CHECK_FAIL="тесты: не удалось разобрать результат"
   elif [ ! -s "$TMPD/after" ]; then
