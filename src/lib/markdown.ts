@@ -17,7 +17,9 @@ export type Block =
   | { t: 'ol'; items: string[]; start?: number }
   | { t: 'callout'; text: string }
   | { t: 'code'; text: string }
-  | { t: 'table'; headers: string[]; rows: string[][] };
+  | { t: 'table'; headers: string[]; rows: string[][] }
+  // ![подпись](/путь) — картинки; несколько строк подряд встают в один ряд
+  | { t: 'images'; items: { src: string; alt: string }[] };
 
 // --- горячие клавиши ---------------------------------------------------------
 
@@ -164,6 +166,19 @@ export function parseBlocks(md: string): Block[] {
     // # / ## / ### заголовок (одиночный # приравниваем к ##)
     const h = line.match(/^(#{1,6})\s+(.+)$/);
     if (h) { blocks.push({ t: 'heading', level: h[1].length >= 3 ? 3 : 2, text: h[2].trim() }); i++; continue; }
+
+    // ![подпись](/путь.webp) — только локальные пути от корня сайта
+    const imgRe = /^!\[([^\]]*)\]\((\/[^)\s]+)\)\s*$/;
+    if (imgRe.test(line.trim())) {
+      const items: { src: string; alt: string }[] = [];
+      while (i < lines.length && imgRe.test(lines[i].trim())) {
+        const m = lines[i].trim().match(imgRe)!;
+        items.push({ alt: m[1], src: m[2] });
+        i++;
+      }
+      blocks.push({ t: 'images', items });
+      continue;
+    }
 
     // > выноска (склеиваем подряд идущие)
     if (/^>\s?/.test(line)) {

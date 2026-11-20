@@ -102,6 +102,18 @@ export function Markdown({ source, className, variant = 'default', insertAfterBl
               ? <h2 key={i} className={cls}><Inlines tokens={parseInline(b.text)} /></h2>
               : <h3 key={i} className={cls}><Inlines tokens={parseInline(b.text)} /></h3>;
           }
+          case 'images':
+            return (
+              <figure key={i} className={b.items.length > 1 ? 'mt-7 grid grid-cols-2 gap-3 sm:gap-4' : 'mt-7'}>
+                {b.items.map((im) => (
+                  <div key={im.src} className="overflow-hidden rounded-2xl border-2 border-brand-navy bg-white shadow-[4px_4px_0_0] shadow-brand-navy">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={im.src} alt={im.alt} loading="lazy" className="block h-auto w-full" />
+                    {im.alt && <figcaption className="px-3 py-2 text-sm text-brand-charcoal/75">{im.alt}</figcaption>}
+                  </div>
+                ))}
+              </figure>
+            );
           case 'p':
             return (
               <p
