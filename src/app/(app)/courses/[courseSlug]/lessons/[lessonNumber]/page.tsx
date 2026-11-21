@@ -255,7 +255,7 @@ export default async function LessonPage({ params, searchParams }: {
         <TrackOnMount
           key={`opened:${courseId}:${lessonId}`}
           event={EVENTS.lessonOpened}
-          props={{ courseId, lessonId, locked }}
+          props={{ courseId, lessonId, locked, lessonNumber: Number(lessonNumber) }}
         />
       )}
       {locked && (
