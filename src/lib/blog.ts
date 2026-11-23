@@ -3,6 +3,7 @@ import { CLAUDE_AGE_POST } from '@/lib/blog-claude-age';
 import { CHATGPT_ANDROID_POST } from '@/lib/blog-chatgpt-android';
 import { CHATGPT_DOCUMENTS_POST } from '@/lib/blog-chatgpt-documents';
 import { LOCAL_CPU_POST } from '@/lib/blog/neiroset-doma-bez-videokarty';
+import { DAILY_AI_POST } from '@/lib/blog/ii-po-15-minut-v-den';
 
 export type BlogFaq = {
   question: string;
@@ -3252,6 +3253,7 @@ check.mjs — проверки; package.json — команды запуска.
   CHATGPT_ANDROID_POST,
   CHATGPT_DOCUMENTS_POST,
   LOCAL_CPU_POST,
+  DAILY_AI_POST,
   {
     slug: 'svoe-prilozhenie-dlya-angliyskogo-s-claude',
     title: 'Сделал себе приложение для английского за один день',
