@@ -167,8 +167,10 @@ export default async function CourseLandingPage({ params, searchParams }: {
     ? {
         // в адрес идёт номер урока, в подсказку — его позиция среди видимых
         href: lessonPath(key, course.lessons[nextIndex].number),
-        label: doneCount ? 'Продолжить обучение' : 'Начать обучение',
-        hint: `Урок ${nextIndex + 1} из ${course.lessons.length}${doneCount ? ` · пройдено ${doneCount}` : ''}`,
+        label: doneCount === course.lessons.length ? 'Повторить курс' : doneCount ? 'Продолжить обучение' : 'Начать обучение',
+        hint: doneCount === course.lessons.length
+          ? 'Все уроки пройдены · можно повторить с первого урока'
+          : `Урок ${nextIndex + 1} из ${course.lessons.length}${doneCount ? ` · пройдено ${doneCount}` : ''}`,
       }
     : null;
   // Состав лендинга вайбкода для гостя — ступень 2 теста длины (пары блоков): набор
