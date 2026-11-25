@@ -4,6 +4,7 @@ import { CHATGPT_ANDROID_POST } from '@/lib/blog-chatgpt-android';
 import { CHATGPT_DOCUMENTS_POST } from '@/lib/blog-chatgpt-documents';
 import { LOCAL_CPU_POST } from '@/lib/blog/neiroset-doma-bez-videokarty';
 import { DAILY_AI_POST } from '@/lib/blog/ii-po-15-minut-v-den';
+import { NAME_PRONUNCIATION_POST } from '@/lib/blog/proiznoshenie-imeni-bez-obucheniya';
 
 export type BlogFaq = {
   question: string;
@@ -3254,6 +3255,7 @@ check.mjs — проверки; package.json — команды запуска.
   CHATGPT_DOCUMENTS_POST,
   LOCAL_CPU_POST,
   DAILY_AI_POST,
+  NAME_PRONUNCIATION_POST,
   {
     slug: 'svoe-prilozhenie-dlya-angliyskogo-s-claude',
     title: 'Сделал себе приложение для английского за один день',
