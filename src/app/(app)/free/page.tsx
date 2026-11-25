@@ -40,7 +40,7 @@ export default async function FreePage({
     <div className="space-y-20 sm:space-y-24">
       {/* Хиро. Наклейка стоит вплотную к заголовку — это одна смысловая группа,
           пояснение отходит дальше. */}
-      <section className="animate-rise pt-6 sm:pt-10">
+      <section className="pt-6 sm:pt-10">
         <StickerTag tone="yellow">без карты и подписки</StickerTag>
         <h1 className="mt-4 font-heading text-[clamp(2.6rem,7vw,5.25rem)]/[0.98] font-bold tracking-[-0.035em] text-balance text-brand-navy">
           <TitleAccent>Бесплатные</TitleAccent> уроки
