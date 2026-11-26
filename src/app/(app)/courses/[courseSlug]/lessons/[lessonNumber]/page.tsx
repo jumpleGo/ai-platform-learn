@@ -193,6 +193,7 @@ export default async function LessonPage({ params, searchParams }: {
     ?.lessons.find((item) => item.number > number);
   const isAgentsIntro = lesson.access === 'free' && courseKey(course) === AGENTS_INTRO_LESSON.courseSlug
     && number === AGENTS_INTRO_LESSON.number;
+  const isVibecodingIntro = lesson.access === 'free' && courseKey(course) === 'vibecoding' && number === 1;
   const now = Date.now();
   const nextLessonLink = nextLesson ? (
     <NextLessonLink
@@ -200,7 +201,7 @@ export default async function LessonPage({ params, searchParams }: {
       fromLesson={number}
       toLesson={nextLesson.number}
       title={nextLesson.title}
-      showSubscriptionLabel={isAgentsIntro && isLocked(nextLesson, sub, now)}
+      showSubscriptionLabel={(isAgentsIntro || isVibecodingIntro) && isLocked(nextLesson, sub, now)}
     />
   ) : null;
   const freeLesson = lesson.access === 'free' ? getFreeLessonContent(courseKey(course), number) : null;

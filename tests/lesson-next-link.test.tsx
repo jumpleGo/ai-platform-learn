@@ -88,20 +88,26 @@ it.each(['vibecoding', 'claude-code-agents', 'ai-cartoons', 'claude-code', 'futu
     expect(html).toContain('LESSON CONTENT END');
     expect(html.indexOf(link)).toBeGreaterThan(html.indexOf('LESSON CONTENT END'));
     expect(html).not.toMatch(/<[^>]+\bdata-lessons-nav[\s=>]/);
-    if (slug !== 'claude-code-agents') expect(html).not.toContain('По подписке');
+    if (!['claude-code-agents', 'vibecoding'].includes(slug)) expect(html).not.toContain('По подписке');
   },
 );
 
-const introCourse = { ...course, slug: 'claude-code-agents' };
+it.each(['claude-code-agents', 'vibecoding'])(
+  '%s: warns a guest about the locked next lesson on the first free lesson', async slug => {
+    const current = { ...course, slug };
+    vi.mocked(getPublishedCoursesWithLessons).mockResolvedValue([current]);
+    const { html } = await renderLesson(1, current);
+    expect(expectNextLink(html, current.slug, 2)).toContain('По подписке');
+  },
+);
 
-it('warns a guest about the locked next lesson on the agents intro page', async () => {
-  vi.mocked(getPublishedCoursesWithLessons).mockResolvedValue([introCourse]);
-  const { html } = await renderLesson(1, introCourse);
-  expect(expectNextLink(html, introCourse.slug, 2)).toContain('По подписке');
-});
-
-it.each(['student with access', 'free next lesson'])('omits the label for a %s', async scenario => {
-  const current = { ...introCourse };
+it.each([
+  ['claude-code-agents', 'student with access'],
+  ['claude-code-agents', 'free next lesson'],
+  ['vibecoding', 'student with access'],
+  ['vibecoding', 'free next lesson'],
+] as const)('%s: omits the label for a %s', async (slug, scenario) => {
+  const current = { ...course, slug };
   if (scenario === 'student with access') {
     getSession.mockResolvedValueOnce({ uid: 'student' });
     vi.mocked(getSubscription).mockResolvedValueOnce({
@@ -115,6 +121,26 @@ it.each(['student with access', 'free next lesson'])('omits the label for a %s',
   const { html } = await renderLesson(1, current);
   expectNextLink(html, current.slug, 2);
   expect(html).not.toContain('По подписке');
+});
+
+it('vibecoding: omits the label on later free lessons and paid lesson 1', async () => {
+  const freeSecond = {
+    ...course,
+    lessons: course.lessons.map(lesson => lesson.number === 2 ? { ...lesson, access: 'free' as const } : lesson),
+  };
+  vi.mocked(getPublishedCoursesWithLessons).mockResolvedValue([freeSecond]);
+  const secondHtml = (await renderLesson(2, freeSecond)).html;
+  expectNextLink(secondHtml, 'vibecoding', 3);
+  expect(secondHtml).not.toContain('По подписке');
+
+  const paidFirst = {
+    ...course,
+    lessons: course.lessons.map(lesson => lesson.number === 1 ? { ...lesson, access: 'paid' as const } : lesson),
+  };
+  vi.mocked(getPublishedCoursesWithLessons).mockResolvedValue([paidFirst]);
+  const firstHtml = (await renderLesson(1, paidFirst)).html;
+  expectNextLink(firstHtml, 'vibecoding', 2);
+  expect(firstHtml).not.toContain('По подписке');
 });
 
 it('does not render a next-lesson link on the last published lesson', async () => {
