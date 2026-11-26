@@ -21,7 +21,7 @@ const lessons = [
   },
 ];
 
-type CopyFixture = Window & { copiedText: string; finishCopy: (allowed: boolean) => void };
+type CopyFixture = typeof window & { copiedText: string; finishCopy: (allowed: boolean) => void };
 const origin = 'https://lesson.test';
 const copyName = 'Скопировать запрос';
 let browser: Awaited<ReturnType<typeof chromium.launch>>;
