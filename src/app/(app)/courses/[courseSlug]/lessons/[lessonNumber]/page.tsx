@@ -191,19 +191,22 @@ export default async function LessonPage({ params, searchParams }: {
   const publishedCourses = await getPublishedCoursesWithLessons();
   const nextLesson = publishedCourses.find((item) => item.id === courseId)
     ?.lessons.find((item) => item.number > number);
+  const isAgentsIntro = lesson.access === 'free' && courseKey(course) === AGENTS_INTRO_LESSON.courseSlug
+    && number === AGENTS_INTRO_LESSON.number;
+  const now = Date.now();
   const nextLessonLink = nextLesson ? (
     <NextLessonLink
       courseSlug={courseKey(course)}
       fromLesson={number}
       toLesson={nextLesson.number}
       title={nextLesson.title}
+      showSubscriptionLabel={isAgentsIntro && isLocked(nextLesson, sub, now)}
     />
   ) : null;
   const freeLesson = lesson.access === 'free' ? getFreeLessonContent(courseKey(course), number) : null;
   const seoContent = lesson.access === 'free' ? getLessonSeoContent(courseKey(course), number) : null;
   const ctaHref = freeLesson ? buildProgramUrl(freeLesson, query) : null;
 
-  const now = Date.now();
   const locked = isLocked(lesson, sub, now);
   // Тест lesson_next_step — только для тех, кому есть что продавать: гость или ученик
   // без доступа к курсу вайбкодинга. Оплатившему блок «что дальше в курсе» не нужен
@@ -412,8 +415,7 @@ export default async function LessonPage({ params, searchParams }: {
           />
         )}
         {freeLesson && nextLessonLink}
-        {lesson.access === 'free' && courseKey(course) === AGENTS_INTRO_LESSON.courseSlug
-          && number === AGENTS_INTRO_LESSON.number && <AgentsIntroNextStep />}
+        {isAgentsIntro && <AgentsIntroNextStep />}
       </div>
     </>
   );

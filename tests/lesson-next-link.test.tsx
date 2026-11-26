@@ -6,12 +6,17 @@ import { beforeEach, expect, it, vi } from 'vitest';
 import LessonPage from '@/app/(app)/courses/[courseSlug]/lessons/[lessonNumber]/page';
 import { PaymentModalProvider } from '@/components/payment/payment-modal-context';
 import { getPublishedCoursesWithLessons, resolveLesson, type CourseWithLessons } from '@/lib/db/courses';
+import { getSubscription } from '@/lib/db/subscriptions';
+
+const getSession = vi.hoisted(() => vi.fn<() => Promise<{ uid: string } | null>>(async () => null));
 
 vi.mock('next/headers', () => ({ cookies: async () => new Map() }));
 vi.mock('@/lib/db/courses', () => ({ getPublishedCoursesWithLessons: vi.fn(), resolveLesson: vi.fn() }));
-vi.mock('@/lib/session', () => ({ getSession: async () => null }));
+vi.mock('@/lib/session', () => ({ getSession }));
 vi.mock('@/lib/db/subscriptions', () => ({ getSubscription: vi.fn() }));
-vi.mock('@/lib/db/progress', () => ({ getCompletedLessonIds: vi.fn(), markLessonCompleted: vi.fn() }));
+vi.mock('@/lib/db/progress', () => ({
+  getCompletedLessonIds: async () => new Set(), getStudyStreak: async () => 0, markLessonCompleted: vi.fn(),
+}));
 vi.mock('@/lib/db/stats', () => ({ recordLessonView: vi.fn() }));
 vi.mock('@/components/payment/locked-video-player', () => ({ LockedVideoPlayer: () => null }));
 vi.mock('@/lib/analytics/posthog', () => ({ default: { __loaded: true, capture: vi.fn() } }));
@@ -83,8 +88,34 @@ it.each(['vibecoding', 'claude-code-agents', 'ai-cartoons', 'claude-code', 'futu
     expect(html).toContain('LESSON CONTENT END');
     expect(html.indexOf(link)).toBeGreaterThan(html.indexOf('LESSON CONTENT END'));
     expect(html).not.toMatch(/<[^>]+\bdata-lessons-nav[\s=>]/);
+    if (slug !== 'claude-code-agents') expect(html).not.toContain('По подписке');
   },
 );
+
+const introCourse = { ...course, slug: 'claude-code-agents' };
+
+it('warns a guest about the locked next lesson on the agents intro page', async () => {
+  vi.mocked(getPublishedCoursesWithLessons).mockResolvedValue([introCourse]);
+  const { html } = await renderLesson(1, introCourse);
+  expect(expectNextLink(html, introCourse.slug, 2)).toContain('По подписке');
+});
+
+it.each(['student with access', 'free next lesson'])('omits the label for a %s', async scenario => {
+  const current = { ...introCourse };
+  if (scenario === 'student with access') {
+    getSession.mockResolvedValueOnce({ uid: 'student' });
+    vi.mocked(getSubscription).mockResolvedValueOnce({
+      status: 'active', plan: 'test', source: 'manual', startsAt: 0, expiresAt: null,
+      grantedBy: null, courseIds: [current.id],
+    });
+  } else {
+    current.lessons = current.lessons.map(lesson => lesson.number === 2 ? { ...lesson, access: 'free' } : lesson);
+  }
+  vi.mocked(getPublishedCoursesWithLessons).mockResolvedValue([current]);
+  const { html } = await renderLesson(1, current);
+  expectNextLink(html, current.slug, 2);
+  expect(html).not.toContain('По подписке');
+});
 
 it('does not render a next-lesson link on the last published lesson', async () => {
   expect(nextLinks((await renderLesson(3)).html)).toHaveLength(0);
