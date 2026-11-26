@@ -32,6 +32,14 @@ const PREVIEWS: Record<string, { title: string; teaser: string }> = {
     title: 'Как сделан ролик',
     teaser: 'Сравните съёмку, ИИ и графику.',
   },
+  'roditeli-ravnye-doli': {
+    title: 'Дроби на полосках',
+    teaser: 'Для родителей',
+  },
+  'nutriciologi-svoya-zametka': {
+    title: 'Готовим лекцию',
+    teaser: 'Нутрициологу',
+  },
 };
 
 const TONES = ['bg-brand-yellow/25', 'bg-brand-sky/25', 'bg-brand-green/10'] as const;
