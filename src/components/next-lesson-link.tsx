@@ -5,11 +5,12 @@ import { EVENTS } from '@/lib/analytics/events';
 import { track } from '@/lib/analytics/track-client';
 import { lessonPath } from '@/lib/slug';
 
-export function NextLessonLink({ courseSlug, fromLesson, toLesson, title }: {
+export function NextLessonLink({ courseSlug, fromLesson, toLesson, title, showSubscriptionLabel }: {
   courseSlug: string;
   fromLesson: number;
   toLesson: number;
   title: string;
+  showSubscriptionLabel?: boolean;
 }) {
   return (
     <Link
@@ -19,7 +20,7 @@ export function NextLessonLink({ courseSlug, fromLesson, toLesson, title }: {
       })}
       className="btn-scarf inline-flex min-h-11 items-center justify-center rounded-xl border-2 border-brand-navy px-5 py-3 text-center font-bold text-brand-navy transition-colors hover:bg-brand-yellow/30 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-navy"
     >
-      Следующий урок: {title} →
+      Следующий урок: {title} →{showSubscriptionLabel && ' (По подписке)'}
     </Link>
   );
 }
