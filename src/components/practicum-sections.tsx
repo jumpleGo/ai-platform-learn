@@ -1,5 +1,7 @@
 import { ChevronDown } from 'lucide-react';
+import { CopyPromptButton } from '@/components/copy-prompt-button';
 import { Markdown, RichText } from '@/components/markdown';
+import { parseBlocks } from '@/lib/markdown';
 
 function splitSections(source: string) {
   const intro: string[] = [];
@@ -22,9 +24,18 @@ function splitSections(source: string) {
   return { intro: intro.join('\n'), sections };
 }
 
-export function PracticumSections({ source, className = '' }: {
+function copyPromptInsertion(lines: string[]) {
+  const blocks = parseBlocks(lines.join('\n'));
+  const index = blocks.findIndex((block) => block.t === 'code');
+  const prompt = blocks[index];
+  if (prompt?.t !== 'code') return;
+  return { index: Math.max(0, index - 1), content: <CopyPromptButton text={prompt.text} /> };
+}
+
+export function PracticumSections({ source, className = '', copyPromptSection }: {
   source: string;
   className?: string;
+  copyPromptSection?: string;
 }) {
   const { intro, sections } = splitSections(source);
 
@@ -47,6 +58,7 @@ export function PracticumSections({ source, className = '' }: {
             source={section.lines.join('\n')}
             variant="read"
             className="border-t border-brand-navy/10 px-4 py-5 sm:px-6"
+            insertAfterBlock={section.title === copyPromptSection ? copyPromptInsertion(section.lines) : undefined}
           />
         </details>
       ))}

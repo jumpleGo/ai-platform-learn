@@ -69,7 +69,11 @@ export default async function StandaloneFreeLessonPage({ params }: Props) {
         {nbsp(lesson.h1)}
       </h1>
       <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{nbsp(lesson.lead)}</p>
-      <PracticumSections source={nbspMarkdown(lesson.body)} className="mt-8" />
+      <PracticumSections
+        source={nbspMarkdown(lesson.body)}
+        copyPromptSection={lesson.copyPromptSection ? nbsp(lesson.copyPromptSection) : undefined}
+        className="mt-8"
+      />
       <Link href="/free" className="mt-10 inline-block font-semibold text-primary underline underline-offset-4">
         Выбрать следующий бесплатный урок
       </Link>
