@@ -212,6 +212,7 @@ export type StandaloneFreeLesson = {
   seoTitle: string;
   seoDescription: string;
   body: string;
+  copyPromptSection?: string;
 };
 
 export const STANDALONE_FREE_LESSONS: readonly StandaloneFreeLesson[] = [
@@ -846,6 +847,7 @@ ID — постоянная метка записи. При перестанов
   {
     slug: 'roditeli-ravnye-doli',
     published: true,
+    copyPromptSection: 'Готовый запрос',
     h1: 'Родителям: равные доли',
     lead: 'Дроби на полосках: проверяем ответ ИИ.',
     seoTitle: 'Равные доли в 4 классе: практикум для родителей — GELATO',
@@ -910,6 +912,7 @@ ID — постоянная метка записи. При перестанов
   {
     slug: 'nutriciologi-svoya-zametka',
     published: true,
+    copyPromptSection: '3. Готовый запрос для привычного чата',
     h1: 'Нутрициологу: подготовка лекции',
     lead: 'Из заметки — список подготовки лекции с ИИ.',
     seoTitle: 'Нутрициологу: подготовка лекции — GELATO',
